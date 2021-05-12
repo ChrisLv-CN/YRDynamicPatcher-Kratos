@@ -4,3 +4,4 @@
 [submodule "DynamicPatcher\\Projects\\Extension"]
 	path = DynamicPatcher\\Projects\\Extension
 	url = https://github.com/ChrisLv-CN/PatcherExtension.git
+
