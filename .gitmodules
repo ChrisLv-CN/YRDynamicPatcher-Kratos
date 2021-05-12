@@ -1,0 +1,7 @@
+[submodule "DynamicPatcher/Projects/Extension"]
+	path = DynamicPatcher/Projects/Extension
+	url = https://github.com/ChrisLv-CN/PatcherExtension.git
+[submodule "DynamicPatcher/Projects/YRpp"]
+	path = DynamicPatcher/Projects/YRpp
+	url = https://github.com/ChrisLv-CN/PatcherYRpp.git
+
