@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{12345B18-2FE0-40FB-9766-558DD7BA944A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Krators</RootNamespace>
+    <AssemblyName>DPScripts</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <LangVersion>latest</LangVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DynamicPatcher">
+      <HintPath>..\DynamicPatcher.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ExtensionHooks\AnimTypeExt.cs" />
+    <Compile Include="ExtensionHooks\BulletExt.cs" />
+    <Compile Include="ExtensionHooks\BulletTypeExt.cs" />
+    <Compile Include="ExtensionHooks\LaserDrawExt.cs" />
+    <Compile Include="ExtensionHooks\TechnoExt.cs" />
+    <Compile Include="ExtensionHooks\TechnoTypeExt.cs" />
+    <Compile Include="Scripts\AAHeatSeeker2Script.cs" />
+    <Compile Include="Scripts\DISKScript.cs" />
+    <Compile Include="Scripts\FLHScript.cs" />
+    <Compile Include="Scripts\GGIScript.cs" />
+    <Compile Include="Scripts\GiantNukeUpScript.cs" />
+    <Compile Include="Scripts\HINDScript.cs" />
+    <Compile Include="Scripts\LaserTailB.cs" />
+    <Compile Include="Scripts\MTNKScript.cs" />
+    <Compile Include="Scripts\ORCAScript.cs" />
+    <Compile Include="Scripts\V3RocketScript.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Projects\YRpp\PatcherYRpp.csproj">
+      <Project>{4c392077-a5ed-46cc-bc94-e1449610105c}</Project>
+      <Name>PatcherYRpp</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Projects\Extension\Extension.csproj">
+      <Project>{957E3C34-E736-4145-8B05-2DC1BCFA79E1}</Project>
+      <Name>Extension</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
