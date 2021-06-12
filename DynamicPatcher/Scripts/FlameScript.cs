@@ -38,7 +38,7 @@ namespace Scripts
                 CoordStruct tagLocation = pTarget.Ref.GetCoords();
                 curLocation.Z = 0;
                 tagLocation.Z = 0;
-                int distance = curLocation.Distance(tagLocation);
+                // int distance = curLocation.Distance(tagLocation);
                 
                 // pTechno.Ref.Fire(pTarget.Convert<ObjectClass>(), 1);
                 CoordStruct to = curLocation;

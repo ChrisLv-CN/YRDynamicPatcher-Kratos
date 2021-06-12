@@ -2,4 +2,6 @@
 .vscode
 BuildScript
 LayOut.txt
-DynamicPatcher\\output
+DynamicPatcher/output
+DynamicPatcher/bin
+DynamicPatcher/obj

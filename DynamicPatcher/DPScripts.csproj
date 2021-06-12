@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -59,15 +59,13 @@
     <Compile Include="Scripts\FLHScript.cs" />
     <Compile Include="Scripts\GGIScript.cs" />
     <Compile Include="Scripts\GiantNukeUpScript.cs" />
-    <Compile Include="Scripts\HINDScript.cs" />
-    <Compile Include="Scripts\LaserTailB.cs" />
     <Compile Include="Scripts\MTNKScript.cs" />
     <Compile Include="Scripts\ORCAScript.cs" />
     <Compile Include="Scripts\V3RocketScript.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Projects\YRpp\PatcherYRpp.csproj">
-      <Project>{4c392077-a5ed-46cc-bc94-e1449610105c}</Project>
+      <Project>{4C392077-A5ED-46CC-BC94-E1449610105C}</Project>
       <Name>PatcherYRpp</Name>
     </ProjectReference>
   </ItemGroup>
