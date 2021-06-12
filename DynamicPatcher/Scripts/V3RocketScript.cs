@@ -18,34 +18,12 @@ namespace Scripts
 
         public V3Rocket(TechnoExt owner) : base(owner)
         {
-            
+
         }
 
-        private bool ChangeMislFlag = false;
         public override void OnUpdate()
         {
             Pointer<TechnoClass> pTechno = Owner.OwnerObject;
-            if (!pTechno.Ref.SpawnOwner.IsNull && !pTechno.Ref.SpawnOwner.Ref.Target.IsNull)
-            {
-                Pointer<AbstractClass> pTarget = pTechno.Ref.SpawnOwner.Ref.Target;
-                CoordStruct tPos = pTarget.Ref.GetCoords();
-                // pTechno.Convert<FootClass>().Ref.StopMoving();
-                Pointer<SpawnManagerClass> pSpawnManager = pTechno.Ref.SpawnOwner.Ref.SpawnManager;
-                // if (!ChangeMislFlag && pSpawnManager.Ref.SpawnedNodes.Count > 0)
-                // {
-                //     for (int i = 0; i < pSpawnManager.Ref.SpawnedNodes.Count; i++)
-                //     {
-                //         Pointer<SpawnNode> pNode = pSpawnManager.Ref.SpawnedNodes.Get(i);
-                //         if (pNode.Ref.Unit == pTechno && pNode.Ref.IsSpawnMissile)
-                //         {
-                //             ChangeMislFlag = true;
-                //             // pNode.Ref.IsSpawnMissile = false;
-                //         }
-
-                //     }
-                // }
-                pTechno.Convert<FootClass>().Ref.Destination = pTarget;
-            }
             if (!pTechno.Ref.Veterancy.IsElite())
             {
                 Pointer<AbstractClass> pTarget = pTechno.Ref.Target;
@@ -53,7 +31,8 @@ namespace Scripts
                 {
                     Pointer<CellClass> pCell = pTarget.Convert<CellClass>();
                     CoordStruct targetPos = MapClass.Cell2Coord(pCell.Ref.MapCoords);
-                    ExHelper.FindOwnerTechno(pTechno.Ref.Owner, (techno) => {
+                    ExHelper.FindOwnerTechno(pTechno.Ref.Owner, (techno) =>
+                    {
                         TechnoExt ext = TechnoExt.ExtMap.Find(techno);
                         if (null != ext && ext.attackBeacon.Enable)
                         {
@@ -68,7 +47,19 @@ namespace Scripts
                     }, true);
                 }
             }
+            else if (pTechno.Ref.Passengers.NumPassengers <= 0)
+            {
+                Pointer<BulletClass> pBullet = pTechno.Ref.Fire(pTechno.Ref.Target.Convert<ObjectClass>(), 0);
+                if (null != pBullet && !pBullet.IsNull)
+                {
+                    pBullet.Ref.Owner = pTechno.Ref.SpawnOwner;
+                }
+                pTechno.Ref.Base.Remove();
+                pTechno.Ref.Base.UnInit();
+            }
+
         }
+
     }
 }
 
