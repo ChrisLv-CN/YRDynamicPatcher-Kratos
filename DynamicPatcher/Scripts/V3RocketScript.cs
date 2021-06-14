@@ -49,7 +49,7 @@ namespace Scripts
             }
             else if (pTechno.Ref.Passengers.NumPassengers <= 0)
             {
-                Pointer<BulletClass> pBullet = pTechno.Ref.Fire(pTechno.Ref.Target.Convert<ObjectClass>(), 0);
+                Pointer<BulletClass> pBullet = pTechno.Ref.Fire(pTechno.Ref.Target, 0);
                 if (null != pBullet && !pBullet.IsNull)
                 {
                     pBullet.Ref.Owner = pTechno.Ref.SpawnOwner;

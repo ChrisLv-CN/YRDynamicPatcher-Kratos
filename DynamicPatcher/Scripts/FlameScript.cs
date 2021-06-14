@@ -1,4 +1,5 @@
 
+using System.Net;
 using System;
 using System.Threading;
 using System.Collections.Generic;
@@ -15,42 +16,38 @@ namespace Scripts
     [Serializable]
     public class FlameScript : TechnoScriptable
     {
-        static Pointer<BulletTypeClass> pBulletType => BulletTypeClass.ABSTRACTTYPE_ARRAY.Find("FireballShortP");
-        static Pointer<WarheadTypeClass> pWH => WarheadTypeClass.ABSTRACTTYPE_ARRAY.Find("BurnInfantryMWH");
+        private static Pointer<BulletTypeClass> pBulletType => BulletTypeClass.ABSTRACTTYPE_ARRAY.Find("InvisibleAll");
+        private static Pointer<WarheadTypeClass> pWH1 => WarheadTypeClass.ABSTRACTTYPE_ARRAY.Find("BurnInfantryWH");
+        private static Pointer<WarheadTypeClass> pWH2 => WarheadTypeClass.ABSTRACTTYPE_ARRAY.Find("BurnVehicleWH");
+        private static Pointer<WarheadTypeClass> pWH3 => WarheadTypeClass.ABSTRACTTYPE_ARRAY.Find("BurnBuildingWH");
 
-        public FlameScript(TechnoExt owner) : base(owner)
-        {
-
-        }
-
-        public override void OnUpdate()
-        {
-            
-
-        }
+        public FlameScript(TechnoExt owner) : base(owner) { }
 
         public override void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex)
         {
             if (weaponIndex == 0)
             {
                 Pointer<TechnoClass> pTechno = Owner.OwnerObject;
-                CoordStruct curLocation = pTechno.Ref.Base.Base.GetCoords();
-                CoordStruct tagLocation = pTarget.Ref.GetCoords();
-                curLocation.Z = 0;
-                tagLocation.Z = 0;
-                // int distance = curLocation.Distance(tagLocation);
-                
-                // pTechno.Ref.Fire(pTarget.Convert<ObjectClass>(), 1);
-                CoordStruct to = curLocation;
-                for (int i = 0; i <= 5; i++)
+                CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
+                CoordStruct targetPos = pTarget.Ref.GetCoords();
+                CoordStruct pos = sourcePos;
+                sourcePos.Z = 0;
+                targetPos.Z = 0;
+                double distance = sourcePos.DistanceFrom(targetPos);
+                int time = (int)((distance - 128) / 256) - 1;
+                CoordStruct offset = ExHelper.OneCellOffsetToTarget(sourcePos, targetPos);
+                for (int i = 0; i < time; i++)
                 {
-                    to = curLocation + (new CoordStruct(-255, 255, 0) * (i + 1));
-                    Logger.Log("{0} Location {1}, Pos {2}", i, curLocation, to);
-                    Pointer<BulletClass> pBullet = pBulletType.Ref.CreateBullet(pTechno.Convert<AbstractClass>(), pTechno, 1, pWH, 100, true);
-                    pBullet.Ref.Detonate(to);
+                    pos = sourcePos + (offset * (i + 1));
+                    Pointer<BulletClass> pBullet1 = pBulletType.Ref.CreateBullet(pTechno.Convert<AbstractClass>(), pTechno, 1, pWH1, 100, false);
+                    Pointer<BulletClass> pBullet2 = pBulletType.Ref.CreateBullet(pTechno.Convert<AbstractClass>(), pTechno, 1, pWH2, 100, false);
+                    Pointer<BulletClass> pBullet3 = pBulletType.Ref.CreateBullet(pTechno.Convert<AbstractClass>(), pTechno, 1, pWH3, 100, false);
+                    pBullet1.Ref.Detonate(pos);
+                    pBullet2.Ref.Detonate(pos);
+                    pBullet3.Ref.Detonate(pos);
                 }
             }
-            
+
         }
     }
 }

@@ -59,21 +59,15 @@
     <Compile Include="Scripts\FLHScript.cs" />
     <Compile Include="Scripts\GGIScript.cs" />
     <Compile Include="Scripts\GiantNukeUpScript.cs" />
+    <Compile Include="Scripts\GTNKScript.cs" />
+    <Compile Include="Scripts\MADScript.cs" />
     <Compile Include="Scripts\MTNKScript.cs" />
     <Compile Include="Scripts\ORCAScript.cs" />
     <Compile Include="Scripts\V3RocketScript.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="Projects\YRpp\PatcherYRpp.csproj">
-      <Project>{4C392077-A5ED-46CC-BC94-E1449610105C}</Project>
-      <Name>PatcherYRpp</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="Projects\Extension\Extension.csproj">
-      <Project>{957E3C34-E736-4145-8B05-2DC1BCFA79E1}</Project>
-      <Name>Extension</Name>
-    </ProjectReference>
+    <ProjectReference Include="Projects\Extension\Extension.csproj" />
+    <ProjectReference Include="Projects\YRpp\PatcherYRpp.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
