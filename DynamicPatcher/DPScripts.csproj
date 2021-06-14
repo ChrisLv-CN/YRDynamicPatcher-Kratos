@@ -63,6 +63,7 @@
     <Compile Include="Scripts\MADScript.cs" />
     <Compile Include="Scripts\MTNKScript.cs" />
     <Compile Include="Scripts\ORCAScript.cs" />
+    <Compile Include="Scripts\ParaScript.cs" />
     <Compile Include="Scripts\V3RocketScript.cs" />
   </ItemGroup>
   <ItemGroup>
