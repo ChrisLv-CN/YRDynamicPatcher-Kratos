@@ -28,38 +28,40 @@ namespace Scripts
 
         public override void OnUpdate()
         {
-            Pointer<TechnoClass> pTechno = Owner.OwnerObject;
-            if (pTechno.Ref.Base.IsSelected)
-            {
-                Logger.Log("武器数量：{0}", pTechno.Ref.Type.Ref.WeaponCount);
-                for (int i = 0; i < 10; i++)
-                {
-                    WeaponStruct weapon = pTechno.Ref.Type.Ref.Weapon[i];
-                    Logger.Log("武器{0} - {1}", i, weapon.WeaponType.IsNull ? "不存在" : (weapon.WeaponType.Ref.Base.ID));
-                }
-            }
-            if (flag)
-            {
-                pTechno.Ref.Fire(pTechno.Ref.Target, 1);
-            }
-            if (pTechno.Ref.Target.IsNull)
-            {
-                flag = false;
-            }
+            // Pointer<TechnoClass> pTechno = Owner.OwnerObject;
+            // if (pTechno.Ref.Base.IsSelected)
+            // {
+            //     Logger.Log("武器数量：{0}", pTechno.Ref.Type.Ref.WeaponCount);
+            //     for (int i = 0; i < 10; i++)
+            //     {
+            //         WeaponStruct weapon = pTechno.Ref.Type.Ref.Weapon[i];
+            //         Logger.Log("武器{0} - {1}", i, weapon.WeaponType.IsNull ? "不存在" : (weapon.WeaponType.Ref.Base.ID));
+            //     }
+            // }
+            // if (flag)
+            // {
+            //     pTechno.Ref.Fire(pTechno.Ref.Target, 1);
+            // }
+            // if (pTechno.Ref.Target.IsNull)
+            // {
+            //     flag = false;
+            // }
         }
 
         public override void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex)
         {
             Pointer<TechnoClass> pTechno = Owner.OwnerObject;
-            if (pTechno.Ref.Passengers.NumPassengers > 0)
-            {
+            // if (pTechno.Ref.Passengers.NumPassengers > 0)
+            // {
 
-            }
-            if (weaponIndex == 0)
-            {
-                pTechno.Ref.Fire(pTarget, 1);
-            }
-            
+            // }
+            // if (weaponIndex == 0)
+            // {
+            //     pTechno.Ref.Fire(pTarget, 1);
+            // }
+            // Pointer<WeaponStruct> pWeapon = pTechno.Ref.GetWeapon(weaponIndex);
+            // Logger.Log("Weapon speed {0}", pWeapon.Ref.WeaponType.Ref.Speed);
+            // pWeapon.Ref.WeaponType.Ref.Speed = 10;
         }
     }
 

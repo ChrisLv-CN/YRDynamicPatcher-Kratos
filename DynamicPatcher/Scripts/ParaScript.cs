@@ -25,7 +25,8 @@ namespace Scripts
         {
             
             Pointer<TechnoClass> pTechno = Owner.OwnerObject;
-            if (!flag && pTechno.Convert<ObjectClass>().Ref.GetCurrentMission() == Mission.Hunt)
+            Mission mission = pTechno.Convert<ObjectClass>().Ref.GetCurrentMission();
+            if (!flag && mission == Mission.Hunt)
             {
                 flag = true;
                 pTechno.Convert<MissionClass>().Ref.QueueMission(Mission.Area_Guard, false);
