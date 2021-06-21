@@ -200,7 +200,53 @@ namespace ExtensionHooks
             return (uint)0;
         }
 
+        [Hook(HookType.AresHook, Address = 0x738801, Size = 6)]
+        static public unsafe UInt32 UnitClass_Destory(REGISTERS* R)
+        {
+            try {
+                Pointer<UnitClass> pUnit = (IntPtr)R->ESI;
+                //Pointer<ObjectClass> pKiller = (IntPtr)R->EAX;
+                //Logger.Log("pKill {0}", pKiller.IsNull ? "is null" : (pKiller.Ref.Type.IsNull ? "type is null" : pKiller.Ref.Type.Convert<AbstractTypeClass>().Ref.ID));
+                TechnoExt ext = TechnoExt.ExtMap.Find(pUnit.Convert<TechnoClass>());
+                ext?.OnDestory_UnitClass();
+            }
+            catch(Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
+
         // Test
+
+        [Hook(HookType.AresHook, Address = 0x0073CC03, Size = 7)]
+        static public unsafe UInt32 UnitClass_DrawSHP_Berzerk(REGISTERS* R)
+        {
+            try {
+
+            }
+            catch(Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x0042312A, Size = 6)]
+        static public unsafe UInt32 AnimClass_Draw_Remap(REGISTERS* R)
+        {
+            //Logger.Log("Hook 0x00423130 calling...");
+            Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
+            if (!pAnim.IsNull && pAnim.Ref.Type.Ref.AltPalette && !pAnim.Ref.Owner.IsNull)
+            {
+                // string id = pAnim.Ref.Owner.IsNull ? "NULL" : pAnim.Ref.Owner.Ref.Type.Ref.Base.ID;
+                // ColorStruct color = pAnim.Ref.Owner.IsNull ? default : pAnim.Ref.Owner.Ref.Color;
+                // Logger.Log("Anim[{0}] 从所属中{1}获取颜色. Colour={2}, Anim.RemapColor={3}", pAnim.Ref.Type.Convert<AbstractTypeClass>().Ref.ID, id, color, pAnim.Ref.RemapColour);
+                return 0x00423130;
+            }
+            return 0x004231F3;
+        }
+
 
         // [Hook(HookType.AresHook, Address = 0x6F9E50, Size = 5)]
         static public unsafe void TechnoClass_Update_SHP_Berzerk(Pointer<TechnoClass> pTechno, TechnoExt ext)
