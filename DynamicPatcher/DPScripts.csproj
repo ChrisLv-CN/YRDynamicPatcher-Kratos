@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExtensionHooks\AnimExt.cs" />
     <Compile Include="ExtensionHooks\AnimTypeExt.cs" />
     <Compile Include="ExtensionHooks\BulletExt.cs" />
     <Compile Include="ExtensionHooks\BulletTypeExt.cs" />

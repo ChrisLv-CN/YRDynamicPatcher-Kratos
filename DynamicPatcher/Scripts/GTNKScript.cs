@@ -26,6 +26,36 @@ namespace Scripts
             Pointer<TechnoClass> pTechno = Owner.OwnerObject;
             if (pTechno.Ref.Base.IsSelected)
             {
+                for(int i = 0; i< 10;i++)
+                {
+                    ColorStruct colour = RulesClass.Global().ColorAdd[i];
+                    string text = null;
+                    if (i == RulesClass.Global().laserTargetColor)
+                    {
+                        text += " LaserTargetColor";
+                    }
+                    if (i == RulesClass.Global().ironCurtainColor)
+                    {
+                        text += " IronCurtainColor";
+                    }
+                    if (i == RulesClass.Global().berserkColor)
+                    {
+                        text += " BerserkColor";
+                    }
+                    if (i == RulesClass.Global().forceShieldColor)
+                    {
+                        text += " ForceShieldColor";
+                    }
+                    Logger.Log("Color[{0}] = {1} {2} {3}", i, colour, Drawing.Color16bit(colour), text);
+                }
+                ColorStruct b = RulesClass.BerserkColor;
+                string R2 = Convert.ToString(b.R, 2).PadLeft(5, '0');
+                string G2 = Convert.ToString(b.G, 2).PadLeft(6, '0');
+                string B2 = Convert.ToString(b.B, 2).PadLeft(5, '0');
+                string c2 = R2 + G2 + B2;
+                uint b2 = Convert.ToUInt32(c2, 2);
+                int xb = 42945536;
+                Logger.Log("Beraesk={0}, c2={1}, b2={2}, xb={3}", b, c2, b2, xb);
                 // Logger.Log("Techno {0} {1} {2}", pTechno.Ref.Base.IsAlive ? "Alive" : "", pTechno.Ref.Base.IsActive() ? "Active" : "", pTechno.Ref.Base.IsOnMap ? "OnMap" : "");
 
                 CoordStruct sourcePos = pTechno.Convert<AbstractClass>().Ref.GetCoords();

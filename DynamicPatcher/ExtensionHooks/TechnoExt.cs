@@ -1,4 +1,5 @@
 
+using System.Drawing;
 using System;
 using System.Threading;
 using System.Collections.Generic;
@@ -24,7 +25,7 @@ namespace ExtensionHooks
         {
             return TechnoExt.TechnoClass_DTOR(R);
         }
-        
+
         [Hook(HookType.AresHook, Address = 0x70C250, Size = 8)]
         [Hook(HookType.AresHook, Address = 0x70BF50, Size = 5)]
         static public unsafe UInt32 TechnoClass_SaveLoad_Prefix(REGISTERS* R)
@@ -43,8 +44,8 @@ namespace ExtensionHooks
         {
             return TechnoExt.TechnoClass_Save_Suffix(R);
         }
-        
-        
+
+
         [Hook(HookType.AresHook, Address = 0x6F9E50, Size = 5)]
         static public unsafe UInt32 TechnoClass_Update(REGISTERS* R)
         {
@@ -81,14 +82,14 @@ namespace ExtensionHooks
         [Hook(HookType.AresHook, Address = 0x6F6AC4, Size = 5)]
         static public unsafe UInt32 TechnoClass_Remove_Script(REGISTERS* R)
         {
-            try 
+            try
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext?.OnRemove();
                 ext.Scriptable?.OnRemove();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.PrintException(e);
             }
@@ -149,7 +150,7 @@ namespace ExtensionHooks
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext?.OnFire(pTarget, nWeaponIndex);
-                ext.Scriptable?.OnFire(pTarget, nWeaponIndex);;
+                ext.Scriptable?.OnFire(pTarget, nWeaponIndex); ;
             }
             catch (Exception e)
             {
@@ -185,7 +186,7 @@ namespace ExtensionHooks
             try
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
-                
+
                 int length = pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Infantry ? 8 : 17;
                 Pointer<Point2D> pLocation = (IntPtr)R->Stack<IntPtr>(0x4C - (-0x4));
                 Pointer<RectangleStruct> pBound = (IntPtr)R->Stack<IntPtr>(0x4C - (0x8));
@@ -200,30 +201,47 @@ namespace ExtensionHooks
             return (uint)0;
         }
 
-        [Hook(HookType.AresHook, Address = 0x738801, Size = 6)]
-        static public unsafe UInt32 UnitClass_Destory(REGISTERS* R)
+        // case VISUAL_NORMAL
+        [Hook(HookType.AresHook, Address = 0x7063FF, Size = 7)]
+        static public unsafe UInt32 TechnoClass_DrawSHP(REGISTERS* R)
         {
-            try {
-                Pointer<UnitClass> pUnit = (IntPtr)R->ESI;
-                //Pointer<ObjectClass> pKiller = (IntPtr)R->EAX;
-                //Logger.Log("pKill {0}", pKiller.IsNull ? "is null" : (pKiller.Ref.Type.IsNull ? "type is null" : pKiller.Ref.Type.Convert<AbstractTypeClass>().Ref.ID));
-                TechnoExt ext = TechnoExt.ExtMap.Find(pUnit.Convert<TechnoClass>());
-                ext?.OnDestory_UnitClass();
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                ext?.DrawSHP(R);
+                /*
+                // var ebp = R->EBP;
+                var eax = R->EAX;
+                if (!pTechno.IsNull && pTechno.Ref.Berzerk && !pTechno.Ref.IsVoxel() && pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Unit)
+                {
+                    // R->EBP = 200;
+                    R->EAX = 0x79C2780F;
+                }
+                */
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.PrintException(e);
             }
             return (uint)0;
         }
 
-        // Test
-
-        [Hook(HookType.AresHook, Address = 0x0073CC03, Size = 7)]
-        static public unsafe UInt32 UnitClass_DrawSHP_Berzerk(REGISTERS* R)
+        /*
+        // before  if Briz 0073C083
+        [Hook(HookType.AresHook, Address = 0x73C15F, Size = 7)]
+        static public unsafe UInt32 TechonClass_DrawVXL(REGISTERS* R)
         {
-            try {
-
+            try
+            {
+                Pointer<UnitClass> pUnit = (IntPtr)R->EBP;
+                var tint = R->EDI;
+                if (!pUnit.IsNull && pUnit.Convert<ObjectClass>().Ref.IsSelected)
+                {
+                    uint x = (uint)Drawing.Color16bit(RulesClass.BerserkColor);
+                    R->EDI = tint | x;
+                    Logger.Log("Unit[{0}] tint = {1}, x = {2}, xx = {3}", pUnit.Ref.Base.Base.Type.Ref.Base.Base.ID, tint, x, tint | x);
+                }
             }
             catch(Exception e)
             {
@@ -231,37 +249,26 @@ namespace ExtensionHooks
             }
             return 0;
         }
+        */
 
-        [Hook(HookType.AresHook, Address = 0x0042312A, Size = 6)]
-        static public unsafe UInt32 AnimClass_Draw_Remap(REGISTERS* R)
+        [Hook(HookType.AresHook, Address = 0x738801, Size = 6)]
+        static public unsafe UInt32 UnitClass_Destory(REGISTERS* R)
         {
-            //Logger.Log("Hook 0x00423130 calling...");
-            Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
-            if (!pAnim.IsNull && pAnim.Ref.Type.Ref.AltPalette && !pAnim.Ref.Owner.IsNull)
+            try
             {
-                // string id = pAnim.Ref.Owner.IsNull ? "NULL" : pAnim.Ref.Owner.Ref.Type.Ref.Base.ID;
-                // ColorStruct color = pAnim.Ref.Owner.IsNull ? default : pAnim.Ref.Owner.Ref.Color;
-                // Logger.Log("Anim[{0}] 从所属中{1}获取颜色. Colour={2}, Anim.RemapColor={3}", pAnim.Ref.Type.Convert<AbstractTypeClass>().Ref.ID, id, color, pAnim.Ref.RemapColour);
-                return 0x00423130;
+                Pointer<UnitClass> pUnit = (IntPtr)R->ESI;
+                //Pointer<ObjectClass> pKiller = (IntPtr)R->EAX;
+                //Logger.Log("pKill {0}", pKiller.IsNull ? "is null" : (pKiller.Ref.Type.IsNull ? "type is null" : pKiller.Ref.Type.Convert<AbstractTypeClass>().Ref.ID));
+                TechnoExt ext = TechnoExt.ExtMap.Find(pUnit.Convert<TechnoClass>());
+                ext?.OnDestory_UnitClass();
             }
-            return 0x004231F3;
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
         }
 
-
-        // [Hook(HookType.AresHook, Address = 0x6F9E50, Size = 5)]
-        static public unsafe void TechnoClass_Update_SHP_Berzerk(Pointer<TechnoClass> pTechno, TechnoExt ext)
-        {
-            ref TechnoClass rTechno = ref pTechno.Ref;
-            ref TechnoTypeClass rType = ref rTechno.Type.Ref;
-            if (rTechno.Berzerk && !rTechno.IsVoxel() && rTechno.Base.Base.WhatAmI() == AbstractType.Unit)
-            {
-                Logger.Log("{0}", rTechno.Base.Base.WhatAmI());
-                ref HouseClass rHouse = ref rTechno.Owner.Ref;
-                string ID = rType.Base.Base.UIName;
-                string HouseID = rHouse.Type.Ref.Base.UIName;
-                Logger.Log("{0}-{1} is SHP Unit.", HouseID, ID);
-            }
-        }
 
     }
 }
