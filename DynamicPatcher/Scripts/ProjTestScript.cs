@@ -7,6 +7,7 @@ using DynamicPatcher;
 using PatcherYRpp;
 using Extension.Ext;
 using Extension.Script;
+using Extension.Utilities;
 using System.Threading.Tasks;
 
 namespace Scripts
@@ -14,34 +15,52 @@ namespace Scripts
     [Serializable]
     public class ProjTest : BulletScriptable
     {
-        public ProjTest(BulletExt owner) : base(owner) {}
+        bool flag = false;
 
-        Pointer<HouseClass> pHouse = default;
-        int safeRange = 0;
+        public ProjTest(BulletExt owner) : base(owner) {
+            Pointer<BulletClass> pBullet = owner.OwnerObject;
+            BulletVelocity initVelocity = pBullet.Ref.Velocity;
+            CoordStruct targetPos = pBullet.Ref.TargetCoords;
+            CoordStruct sourcePos = pBullet.Convert<AbstractClass>().Ref.GetCoords();
+            // LaserHelper.DrawLine(sourcePos, targetPos, 2, 450);
+            CoordStruct targetHeightPos = targetPos + new CoordStruct(0, 0, 1280);
+            LaserHelper.DrawLine(targetPos, targetHeightPos, 2, 450);
+            // Logger.Log("Bullet init velocity {0}", initVelocity);
+
+            // CoordStruct p1 = sourcePos;
+            // CoordStruct p2 = targetPos;
+            // p1.Z = 0;
+            // p2.Z = 0;
+            // double distance = p1.DistanceFrom(p2);
+            // double speed = pBullet.Ref.Speed;
+            // double time = distance / speed;
+            // double vZ = ((targetPos.Z - sourcePos.Z) * speed) / distance + (0.5 * 6 * distance) / speed;
+            // BulletVelocity v = new BulletVelocity(p2.X - p1.X, p2.Y - p1.Y, 0);
+            // v *= 1 / time;
+            // v.Z = vZ; // Math.Abs(targetPos.Z - sourcePos.Z) + 6 * time;
+            // Logger.Log("Bullet time {0} velocity {1}, init{2}, vZ={3}", time, v, initVelocity, vZ);
+            // pBullet.Ref.Velocity = v;
+        }
 
         public override void OnUpdate()
         {
             Pointer<BulletClass> pBullet = Owner.OwnerObject;
-            if (pHouse.IsNull && !pBullet.Ref.Owner.IsNull)
+            if (!flag)
             {
-                pHouse = pBullet.Ref.Owner.Ref.Owner;
+                flag = true;
+                CoordStruct targetPos = pBullet.Ref.TargetCoords;
+                CoordStruct sourcePos = pBullet.Convert<AbstractClass>().Ref.GetCoords();
+                int zDiff = targetPos.Z - sourcePos.Z;
+                targetPos.Z = 0;
+                sourcePos.Z = 0;
+                double distance = targetPos.DistanceFrom(sourcePos);
+                double speed = pBullet.Ref.Speed;
+                double vZ = (zDiff * speed) / distance + (0.5 * RulesClass.Global().Gravity * distance) / speed;
+                BulletVelocity v = new BulletVelocity(targetPos.X - sourcePos.X, targetPos.Y - sourcePos.Y, 0);
+                v *= speed / distance;
+                v.Z = vZ;
+                pBullet.Ref.Velocity = v;
             }
-            if (pBullet.Ref.Type.Ref.Level && pBullet.Ref.Type.Ref.Proximity && ++safeRange > pBullet.Ref.Type.Ref.CourseLockDuration)
-            {
-                Pointer<CellClass> pCell = MapClass.Instance.GetCellAt(pBullet.Convert<AbstractClass>().Ref.GetCoords());
-                if (!pCell.IsNull)
-                {
-                    //Logger.Log("获取到当前所处的格子{0}, GetUnit(true)={1}, GetUnit(false)={2}", pCell.Ref.MapCoords, pCell.Ref.GetUnit(true).IsNull, pCell.Ref.GetUnit(false).IsNull);
-                    Pointer<UnitClass> pTarget = pCell.Ref.GetUnit(false);
-                    if (!pTarget.IsNull && pTarget.Convert<AbstractClass>().Ref.IsOnFloor() && pTarget.Convert<TechnoClass>().Ref.Owner != pHouse)
-                    {
-                        pBullet.Ref.Detonate(pTarget.Convert<AbstractClass>().Ref.GetCoords());
-                        pBullet.Convert<ObjectClass>().Ref.Remove();
-                        pBullet.Convert<ObjectClass>().Ref.UnInit();
-                    }
-                }
-            }
-
         }
     }
 }
