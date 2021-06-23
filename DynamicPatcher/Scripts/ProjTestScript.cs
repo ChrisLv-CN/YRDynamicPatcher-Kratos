@@ -54,6 +54,8 @@ namespace Scripts
                 targetPos.Z = 0;
                 sourcePos.Z = 0;
                 double distance = targetPos.DistanceFrom(sourcePos);
+                Logger.Log("Speed = {0}, weaponSpeed = {1}", pBullet.Ref.Speed, pBullet.Ref.WeaponType.Ref.Speed);
+                pBullet.Ref.Speed = pBullet.Ref.WeaponType.Ref.Speed;
                 double speed = pBullet.Ref.Speed;
                 double vZ = (zDiff * speed) / distance + (0.5 * RulesClass.Global().Gravity * distance) / speed;
                 BulletVelocity v = new BulletVelocity(targetPos.X - sourcePos.X, targetPos.Y - sourcePos.Y, 0);
