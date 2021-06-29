@@ -19,112 +19,53 @@ namespace Scripts
     {
         public GTNKScript(TechnoExt owner) : base(owner) { }
 
-        public CoordStruct targetPos;
+        DirStruct toDir;
 
         public override void OnUpdate()
         {
             Pointer<TechnoClass> pTechno = Owner.OwnerObject;
             if (pTechno.Ref.Base.IsSelected)
             {
-                for(int i = 0; i< 10;i++)
-                {
-                    ColorStruct colour = RulesClass.Global().ColorAdd[i];
-                    string text = null;
-                    if (i == RulesClass.Global().laserTargetColor)
-                    {
-                        text += " LaserTargetColor";
-                    }
-                    if (i == RulesClass.Global().ironCurtainColor)
-                    {
-                        text += " IronCurtainColor";
-                    }
-                    if (i == RulesClass.Global().berserkColor)
-                    {
-                        text += " BerserkColor";
-                    }
-                    if (i == RulesClass.Global().forceShieldColor)
-                    {
-                        text += " ForceShieldColor";
-                    }
-                    Logger.Log("Color[{0}] = {1} {2} {3}", i, colour, Drawing.Color16bit(colour), text);
-                }
-                ColorStruct b = RulesClass.BerserkColor;
-                string R2 = Convert.ToString(b.R, 2).PadLeft(5, '0');
-                string G2 = Convert.ToString(b.G, 2).PadLeft(6, '0');
-                string B2 = Convert.ToString(b.B, 2).PadLeft(5, '0');
-                string c2 = R2 + G2 + B2;
-                uint b2 = Convert.ToUInt32(c2, 2);
-                int xb = 42945536;
-                Logger.Log("Beraesk={0}, c2={1}, b2={2}, xb={3}", b, c2, b2, xb);
-                // Logger.Log("Techno {0} {1} {2}", pTechno.Ref.Base.IsAlive ? "Alive" : "", pTechno.Ref.Base.IsActive() ? "Active" : "", pTechno.Ref.Base.IsOnMap ? "OnMap" : "");
-
-                CoordStruct sourcePos = pTechno.Convert<AbstractClass>().Ref.GetCoords();
-                
-                DirStruct dir = pTechno.Ref.GetRealFacing().current();
-
-                /*
-                double x = Math.Cos(dir.radians());
-                double y = -Math.Sin(dir.radians());
-                // Logger.Log("弧度{0}, 向量[{1}, {2}]", dir.radians(), x, y);
-                CoordStruct offset = new CoordStruct((int)x, -(int)y, 0);
-                targetPos = sourcePos + offset;
-                // Logger.Log("偏移值{0}", offset);
-                // LaserHelper.DrawLine(sourcePos, targetPos);
-                */
-
-                int facing = 16;
-                // double rad = dir.radians();
-                // int index = ExHelper.Dir2FacingIndex(dir, facing);
-                // rad = EXMath.Deg2Rad((-360 / facing * index));
-                // DirStruct temp = new DirStruct((short)(rad / EXMath.BINARY_ANGLE_MAGIC));
-                // Logger.Log("Facing={0}, Index={1}, Dir.radians={2}, rad={3}", facing, index, dir.radians(), temp.radians());
-
-                DirStruct temp = dir;
-                ExHelper.DirNormalized(ref temp, facing);
-
-                Matrix3DStruct matrix3D = new Matrix3DStruct(true);
-                matrix3D.RotateZ((float)temp.radians());
-                CoordStruct offset2 = ExHelper.GetFLHAbsoluteOffset(ref matrix3D, new CoordStruct(1280, 0, 0));
-                CoordStruct targetPos2 = sourcePos + offset2;
-                LaserHelper.DrawLine(sourcePos, targetPos2);
-
-
-
-                // Logger.Log("武器数量：{0}", pTechno.Ref.Type.Ref.WeaponCount);
-                // for (int i = 0; i < 10; i++)
-                // {
-                //     WeaponStruct weapon = pTechno.Ref.Type.Ref.Weapon[i];
-                //     Logger.Log("武器{0} - {1}", i, weapon.WeaponType.IsNull ? "不存在" : (weapon.WeaponType.Ref.Base.ID));
-                // }
+                // Logger.Log("Techno {0}", pTechno.Convert<AbstractClass>().Ref.IsInAir() ? "Is InAir" : (pTechno.Convert<AbstractClass>().Ref.IsOnFloor() ? "Is OnFloor":"unknow"));
+                //FacingStruct face = pTechno.Ref.GetRealFacing();
+                //if (!face.in_motion())
+                //{
+                //    if (ExHelper.Dir2FacingIndex(toDir, 8) != ExHelper.Dir2FacingIndex(face.current(), 8))
+                //    {
+                //        Logger.Log("当前面向{0}, 转向{1}", face.target().value8(), toDir.value8());
+                //        face.turn(toDir);
+                //        pTechno.Convert<FootClass>().Ref.Locomotor.Ref.Do_Turn(toDir);
+                //    }
+                //}
             }
-            // if (flag)
-            // {
-            //    pTechno.Ref.Fire(pTechno.Ref.Target, 1);
-            // }
-            // if (pTechno.Ref.Target.IsNull)
-            // {
-            //    flag = false;
-            // }
         }
 
         public override void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex)
         {
             Pointer<TechnoClass> pTechno = Owner.OwnerObject;
-            if (default != targetPos)
-            {
-                pTechno.Ref.Base.Location = targetPos;
-            }
-            // if (pTechno.Ref.Passengers.NumPassengers > 0)
-            // {
+            CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
+            CoordStruct targetPos = pTarget.Ref.GetCoords();
+            Pointer<WeaponTypeClass> pWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find("RedEye");
 
-            // }
-            // if (weaponIndex == 0)
-            // {
-            //     pTechno.Ref.Fire(pTarget, 1);
-            // }
-            // Pointer<WeaponStruct> pWeapon = pTechno.Ref.GetWeapon(weaponIndex);
-            // Logger.Log("Weapon speed {0}", pWeapon.Ref.WeaponType.Ref.Speed);
-            // pWeapon.Ref.WeaponType.Ref.Speed = 10;
+            Pointer<BulletTypeClass> pBulletType = BulletTypeClass.ABSTRACTTYPE_ARRAY.Find("AAHeatSeeker2");
+
+            CellStruct targetCell = MapClass.Coord2Cell(targetPos);
+            CellSpreadEnumerator cells = new CellSpreadEnumerator(6);
+            foreach (CellStruct offset in cells)
+            {
+                CoordStruct where = MapClass.Cell2Coord(targetCell + offset) + new CoordStruct(0, 0, targetPos.Z);
+                if (MapClass.Instance.TryGetCellAt(where, out Pointer<CellClass> pCell))
+                {
+                    //CoordStruct cellPos = pCell.Convert<AbstractClass>().Ref.GetCoords();
+                    //LaserHelper.DrawLine(targetPos, where, 2, 150);
+                    //LaserHelper.DrawLine(cellPos, cellPos + new CoordStruct(0, 0, 1000), 2, 150);
+                    Pointer<BulletClass> pBullet = pBulletType.Ref.CreateBullet(pCell.Convert<AbstractClass>(), pTechno, pWeapon.Ref.Damage, pWeapon.Ref.Warhead, pWeapon.Ref.Speed, pWeapon.Ref.Bright);
+                    pBullet.Ref.WeaponType = pWeapon;
+                    BulletVelocity velocity = new BulletVelocity(0, 0, 0);
+                    pBullet.Ref.MoveTo(sourcePos, velocity);
+                    // pBullet.Ref.SetTarget(pCell.Convert<AbstractClass>());
+                }
+            }
         }
 
         public override void OnRemove()
