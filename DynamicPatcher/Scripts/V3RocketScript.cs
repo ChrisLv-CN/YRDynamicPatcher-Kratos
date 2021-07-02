@@ -16,10 +16,7 @@ namespace Scripts
     public class V3Rocket : TechnoScriptable
     {
 
-        public V3Rocket(TechnoExt owner) : base(owner)
-        {
-
-        }
+        public V3Rocket(TechnoExt owner) : base(owner) { }
 
         public override void OnUpdate()
         {
@@ -40,6 +37,10 @@ namespace Scripts
                             if (targetPos.DistanceFrom(techno.Ref.Base.Base.GetCoords()) <= 512)
                             {
                                 pTechno.Ref.Veterancy.SetElite();
+                                if (MapClass.Instance.TryGetCellAt(MapClass.Coord2Cell(targetPos), out Pointer<CellClass> pCell) && !pCell.IsNull)
+                                { 
+                                    pTechno.Ref.Target = pCell.Convert<AbstractClass>();
+                                }
                                 return true;
                             }
                         }
@@ -47,7 +48,8 @@ namespace Scripts
                     }, true);
                 }
             }
-            else if (pTechno.Ref.Passengers.NumPassengers <= 0)
+
+            if (pTechno.Ref.Passengers.NumPassengers <= 0)
             {
                 Pointer<BulletClass> pBullet = pTechno.Ref.Fire(pTechno.Ref.Target, 0);
                 if (null != pBullet && !pBullet.IsNull)
@@ -59,6 +61,7 @@ namespace Scripts
             }
 
         }
+
 
     }
 }
