@@ -19,7 +19,7 @@ namespace Scripts
     {
         public GTNKScript(TechnoExt owner) : base(owner) { }
 
-        DirStruct toDir;
+        bool flag = false;
 
         public override void OnUpdate()
         {
@@ -38,34 +38,22 @@ namespace Scripts
                 //    }
                 //}
             }
+            if (!flag)
+            {
+                flag = true;
+                var x = HouseTypeClass.ABSTRACTTYPE_ARRAY.Array;
+                for (int i = 0; i < x.Count; i++)
+                {
+                    Pointer<HouseTypeClass> pHouseType = x[i];
+                    Logger.Log("[{0}] index = {1}", pHouseType.Ref.Base.ID, i);
+                }
+                Logger.Log(" ");
+            }
         }
 
         public override void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex)
         {
-            Pointer<TechnoClass> pTechno = Owner.OwnerObject;
-            CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
-            CoordStruct targetPos = pTarget.Ref.GetCoords();
-            Pointer<WeaponTypeClass> pWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find("RedEye");
-
-            Pointer<BulletTypeClass> pBulletType = BulletTypeClass.ABSTRACTTYPE_ARRAY.Find("AAHeatSeeker2");
-
-            CellStruct targetCell = MapClass.Coord2Cell(targetPos);
-            CellSpreadEnumerator cells = new CellSpreadEnumerator(6);
-            foreach (CellStruct offset in cells)
-            {
-                CoordStruct where = MapClass.Cell2Coord(targetCell + offset) + new CoordStruct(0, 0, targetPos.Z);
-                if (MapClass.Instance.TryGetCellAt(where, out Pointer<CellClass> pCell))
-                {
-                    //CoordStruct cellPos = pCell.Convert<AbstractClass>().Ref.GetCoords();
-                    //LaserHelper.DrawLine(targetPos, where, 2, 150);
-                    //LaserHelper.DrawLine(cellPos, cellPos + new CoordStruct(0, 0, 1000), 2, 150);
-                    Pointer<BulletClass> pBullet = pBulletType.Ref.CreateBullet(pCell.Convert<AbstractClass>(), pTechno, pWeapon.Ref.Damage, pWeapon.Ref.Warhead, pWeapon.Ref.Speed, pWeapon.Ref.Bright);
-                    pBullet.Ref.WeaponType = pWeapon;
-                    BulletVelocity velocity = new BulletVelocity(0, 0, 0);
-                    pBullet.Ref.MoveTo(sourcePos, velocity);
-                    // pBullet.Ref.SetTarget(pCell.Convert<AbstractClass>());
-                }
-            }
+            Logger.Log("[{0}]{1} Fire.", Owner.OwnerObject.Ref.Owner.Ref.Type.Ref.Base.ID, Owner.OwnerObject.Ref.Type.Convert<AbstractTypeClass>().Ref.ID);
         }
 
         public override void OnRemove()
