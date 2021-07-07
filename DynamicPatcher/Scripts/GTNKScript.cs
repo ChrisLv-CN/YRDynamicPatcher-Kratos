@@ -41,13 +41,13 @@ namespace Scripts
             if (!flag)
             {
                 flag = true;
-                var x = HouseTypeClass.ABSTRACTTYPE_ARRAY.Array;
-                for (int i = 0; i < x.Count; i++)
-                {
-                    Pointer<HouseTypeClass> pHouseType = x[i];
-                    Logger.Log("[{0}] index = {1}", pHouseType.Ref.Base.ID, i);
-                }
-                Logger.Log(" ");
+                //var x = HouseTypeClass.ABSTRACTTYPE_ARRAY.Array;
+                //for (int i = 0; i < x.Count; i++)
+                //{
+                //    Pointer<HouseTypeClass> pHouseType = x[i];
+                //    Logger.Log("[{0}] index = {1}", pHouseType.Ref.Base.ID, i);
+                //}
+                //Logger.Log(" ");
             }
         }
 

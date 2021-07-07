@@ -31,7 +31,7 @@ namespace Scripts
                     ExHelper.FindOwnerTechno(pTechno.Ref.Owner, (techno) =>
                     {
                         TechnoExt ext = TechnoExt.ExtMap.Find(techno);
-                        if (null != ext && ext.attackBeacon.Enable)
+                        if (null != ext && null != ext.attackBeacon && ext.attackBeacon.Enable)
                         {
                             CoordStruct pos = techno.Ref.Base.Base.GetCoords();
                             if (targetPos.DistanceFrom(techno.Ref.Base.Base.GetCoords()) <= 512)
