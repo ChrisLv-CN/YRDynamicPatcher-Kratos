@@ -73,7 +73,7 @@ namespace ExtensionHooks
 
             TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
             ext?.OnPut(pCoord, faceDir);
-            ext.Scriptable?.OnPut(pCoord, faceDir);
+            ext.Scriptable?.OnPut(pCoord.Data, faceDir);
 
             return (uint)0;
         }

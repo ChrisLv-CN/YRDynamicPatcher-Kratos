@@ -27,7 +27,7 @@ namespace Scripts
 
         }
 
-        public override void OnPut(Pointer<CoordStruct> pCoord, Direction faceDir)
+        public override void OnPut(CoordStruct pCoord, Direction faceDir)
         {
             Pointer<TechnoClass> pTechno = Owner.OwnerObject;
             Logger.Log("Origin pitchAngle {0}", pTechno.Ref.PitchAngle);
