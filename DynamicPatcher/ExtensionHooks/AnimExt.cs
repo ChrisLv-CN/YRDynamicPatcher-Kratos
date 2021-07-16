@@ -14,7 +14,7 @@ namespace ExtensionHooks
         
 
         // [Hook(HookType.AresHook, Address = 0x42310A, Size = 6)]
-        // static public unsafe UInt32 AnimClass_Draw_RemapX(REGISTERS* R)
+        // public static unsafe UInt32 AnimClass_Draw_RemapX(REGISTERS* R)
         // {
         //     //Logger.Log("Hook 0x00423130 calling...");
         //     Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
@@ -31,7 +31,7 @@ namespace ExtensionHooks
         // }
 
         [Hook(HookType.AresHook, Address = 0x42312A, Size = 6)]
-        static public unsafe UInt32 AnimClass_Draw_Remap(REGISTERS* R)
+        public static unsafe UInt32 AnimClass_Draw_Remap(REGISTERS* R)
         {
             //Logger.Log("Hook 0x00423130 calling...");
             Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
@@ -47,7 +47,7 @@ namespace ExtensionHooks
         }
 
         [Hook(HookType.AresHook, Address = 0x423136, Size = 6)]
-        static public unsafe UInt32 AnimClass_Draw_Remap2(REGISTERS* R)
+        public static unsafe UInt32 AnimClass_Draw_Remap2(REGISTERS* R)
         {
             Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
             if (!pAnim.IsNull && pAnim.Ref.Type.Ref.AltPalette && !pAnim.Ref.Owner.IsNull)

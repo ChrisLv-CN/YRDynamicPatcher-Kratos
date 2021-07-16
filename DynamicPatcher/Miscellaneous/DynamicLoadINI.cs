@@ -19,7 +19,7 @@ namespace Miscellaneous
 #if REALTIME_INI
         static Semaphore semaphore = new Semaphore(0, 1);
         [Hook(HookType.AresHook, Address = 0x48CE9C, Size = 5)]
-        static public unsafe UInt32 Synchronize(REGISTERS* R)
+        public static unsafe UInt32 Synchronize(REGISTERS* R)
         {
             semaphore.Release();
             semaphore.WaitOne();
@@ -69,7 +69,7 @@ namespace Miscellaneous
         static CodeWatcher iniWatcher;
 
         [Hook(HookType.WriteBytesHook, Address = 0x7E03E8, Size = 5)]
-        static public byte[] Watch()
+        public static byte[] Watch()
         {
             iniWatcher = new CodeWatcher(AppDomain.CurrentDomain.BaseDirectory, "*.INI");
             iniWatcher.FirstAction = (string path) => {

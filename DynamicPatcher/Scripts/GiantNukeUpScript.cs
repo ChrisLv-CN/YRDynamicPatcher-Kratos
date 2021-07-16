@@ -43,7 +43,7 @@ namespace Scripts
         }
 
         [Hook(HookType.WriteBytesHook, Address = 0x7E03F8, Size = 5)]
-        static public byte[] set_time()
+        public static byte[] set_time()
         {
             reset_time();
             return new byte[] { 0 };
