@@ -17,43 +17,59 @@ namespace Scripts
     [Serializable]
     public class GTNKScript : TechnoScriptable
     {
-        public GTNKScript(TechnoExt owner) : base(owner) { }
+        public GTNKScript(TechnoExt owner) : base(owner) {
 
-        bool flag = false;
+            pLoco = owner.OwnerObject.Convert<FootClass>().Ref.Locomotor;
+        }
+
+        Pointer<LocomotionClass> pLoco; // 超时空
+        Pointer<LocomotionClass> pLoco2; // 步行
+        Pointer<LocomotionClass> pLoco3;
 
         public override void OnUpdate()
         {
             Pointer<TechnoClass> pTechno = Owner.OwnerObject;
+            Pointer<LocomotionClass> pLocomotion = pTechno.Convert<FootClass>().Ref.Locomotor;
+            if (pLoco.IsNull)
+            {
+                Logger.Log("保存第一个Locomotor为Teleport");
+                pLoco = pLocomotion;
+            }
+            if (pLocomotion != pLoco && pLoco2.IsNull)
+            {
+                Logger.Log("保存第二个Locomotor为Driver");
+                pLoco2 = pLocomotion;
+            }
+            if (pLocomotion != pLoco && pLocomotion != pLoco2 && pLoco3.IsNull)
+            {
+                Logger.Log("Locomotor 发生了变化，且与超时空和步行均不符，保存当前的Locomotor");
+                pLoco3 = pLocomotion;
+            }
+
             if (pTechno.Ref.Base.IsSelected)
             {
-                // Logger.Log("Techno {0}", pTechno.Convert<AbstractClass>().Ref.IsInAir() ? "Is InAir" : (pTechno.Convert<AbstractClass>().Ref.IsOnFloor() ? "Is OnFloor":"unknow"));
-                //FacingStruct face = pTechno.Ref.GetRealFacing();
-                //if (!face.in_motion())
-                //{
-                //    if (ExHelper.Dir2FacingIndex(toDir, 8) != ExHelper.Dir2FacingIndex(face.current(), 8))
-                //    {
-                //        Logger.Log("当前面向{0}, 转向{1}", face.target().value8(), toDir.value8());
-                //        face.turn(toDir);
-                //        pTechno.Convert<FootClass>().Ref.Locomotor.Ref.Do_Turn(toDir);
-                //    }
-                //}
-            }
-            if (!flag)
-            {
-                flag = true;
-                //var x = HouseTypeClass.ABSTRACTTYPE_ARRAY.Array;
-                //for (int i = 0; i < x.Count; i++)
-                //{
-                //    Pointer<HouseTypeClass> pHouseType = x[i];
-                //    Logger.Log("[{0}] index = {1}", pHouseType.Ref.Base.ID, i);
-                //}
-                //Logger.Log(" ");
+                if (pLocomotion == pLoco)
+                {
+                    Logger.Log("当前的是Loco1");
+                }
+                else if (pLocomotion == pLoco2)
+                {
+                    Logger.Log("当前的是Loco2");
+                }
+                else if (pLocomotion == pLoco3)
+                {
+                    Logger.Log("当前的是Loco3");
+                }
+                else
+                {
+                    Logger.Log("当前啥都不是 {0}", pLocomotion);
+                }
             }
         }
 
         public override void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex)
         {
-            Logger.Log("[{0}]{1} Fire.", Owner.OwnerObject.Ref.Owner.Ref.Type.Ref.Base.ID, Owner.OwnerObject.Ref.Type.Convert<AbstractTypeClass>().Ref.ID);
+            // Logger.Log("[{0}]{1} Fire.", Owner.OwnerObject.Ref.Owner.Ref.Type.Ref.Base.ID, Owner.OwnerObject.Ref.Type.Convert<AbstractTypeClass>().Ref.ID);
         }
 
         public override void OnRemove()

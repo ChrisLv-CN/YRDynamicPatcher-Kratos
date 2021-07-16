@@ -54,6 +54,7 @@
     <Compile Include="ExtensionHooks\LaserDrawExt.cs" />
     <Compile Include="ExtensionHooks\TechnoExt.cs" />
     <Compile Include="ExtensionHooks\TechnoTypeExt.cs" />
+    <Compile Include="ExtensionHooks\WarheadTypeExt.cs" />
     <Compile Include="Scripts\AAHeatSeeker2Script.cs" />
     <Compile Include="Scripts\DISKScript.cs" />
     <Compile Include="Scripts\FlameScript.cs" />
@@ -66,6 +67,7 @@
     <Compile Include="Scripts\ORCAScript.cs" />
     <Compile Include="Scripts\ParaScript.cs" />
     <Compile Include="Scripts\ProjTestScript.cs" />
+    <Compile Include="Scripts\SniperScript.cs" />
     <Compile Include="Scripts\V3RocketScript.cs" />
   </ItemGroup>
   <ItemGroup>
