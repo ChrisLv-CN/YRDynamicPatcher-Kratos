@@ -159,6 +159,25 @@ namespace ExtensionHooks
             return (uint)0;
         }
 
+        // [Hook(HookType.AresHook, Address = 0x6FDD6F, Size = 2)]
+        public static unsafe UInt32 TechnoClass_Fire_CustomWeapon(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<WeaponTypeClass> pWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find("RadBeamWeapon");
+                R->EBX = R->EAX + (uint)pWeapon;
+                if (!pWeapon.IsNull)
+                {
+                    Logger.Log("Hook 6FDD73 取得武器类型 {0}", pWeapon.Ref.Base.ID);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
         [Hook(HookType.AresHook, Address = 0x6F65D1, Size = 6)]
         public static unsafe UInt32 TechnoClass_DrawHealthBar_Building(REGISTERS* R)
         {

@@ -17,59 +17,57 @@ namespace Scripts
     [Serializable]
     public class GTNKScript : TechnoScriptable
     {
-        public GTNKScript(TechnoExt owner) : base(owner) {
+        public GTNKScript(TechnoExt owner) : base(owner) { }
 
-            pLoco = owner.OwnerObject.Convert<FootClass>().Ref.Locomotor;
-        }
-
-        Pointer<LocomotionClass> pLoco; // 超时空
-        Pointer<LocomotionClass> pLoco2; // 步行
-        Pointer<LocomotionClass> pLoco3;
-
+        int rof = 150;
         public override void OnUpdate()
         {
             Pointer<TechnoClass> pTechno = Owner.OwnerObject;
-            Pointer<LocomotionClass> pLocomotion = pTechno.Convert<FootClass>().Ref.Locomotor;
-            if (pLoco.IsNull)
+            if (--rof < 0)
             {
-                Logger.Log("保存第一个Locomotor为Teleport");
-                pLoco = pLocomotion;
-            }
-            if (pLocomotion != pLoco && pLoco2.IsNull)
-            {
-                Logger.Log("保存第二个Locomotor为Driver");
-                pLoco2 = pLocomotion;
-            }
-            if (pLocomotion != pLoco && pLocomotion != pLoco2 && pLoco3.IsNull)
-            {
-                Logger.Log("Locomotor 发生了变化，且与超时空和步行均不符，保存当前的Locomotor");
-                pLoco3 = pLocomotion;
+                rof = 150;
+                Pointer<WeaponStruct> pSec = pTechno.Ref.GetWeapon(1);
+                if (!pSec.IsNull)
+                {
+                    CoordStruct sourcePos = pTechno.Convert<AbstractClass>().Ref.GetCoords();
+                    CoordStruct flh = new CoordStruct(5 * 256, 0, 0);
+                    CoordStruct targetPos = ExHelper.GetFLHAbsoluteCoords(pTechno, flh, true);
+                    CellStruct cur = MapClass.Coord2Cell(sourcePos);
+                    CellSpreadEnumerator cells = new CellSpreadEnumerator(6);
+                    List<Pointer<UnitClass>> targets = new List<Pointer<UnitClass>>();
+                    foreach (CellStruct offset in cells)
+                    {
+                        CoordStruct where = MapClass.Cell2Coord(cur + offset);
+                        if (MapClass.Instance.TryGetCellAt(where, out Pointer<CellClass> pCell))
+                        {
+                            Pointer<UnitClass> pUnit = pCell.Ref.GetUnit(false);
+                            if (!pUnit.IsNull)
+                            {
+                                targets.Add(pUnit);
+                            }
+                        }
+                    }
+                    for (int i = 0; i < targets.Count; i++)
+                    {
+                        Pointer<UnitClass> pUnit = targets[i];
+                        Logger.Log("朝目标{0}开火, 0 = {1}, 1 = {2}", i, pTechno.Ref.GetROF(0), pTechno.Ref.GetROF(1));
+                        pTechno.Ref.Fire_IgnoreType(pUnit.Convert<AbstractClass>(), 1);
+                    }
+                    Logger.Log("");
+                    // pTechno.Ref.Fire(pCell.Convert<AbstractClass>(), 1);
+                }
             }
 
             if (pTechno.Ref.Base.IsSelected)
             {
-                if (pLocomotion == pLoco)
-                {
-                    Logger.Log("当前的是Loco1");
-                }
-                else if (pLocomotion == pLoco2)
-                {
-                    Logger.Log("当前的是Loco2");
-                }
-                else if (pLocomotion == pLoco3)
-                {
-                    Logger.Log("当前的是Loco3");
-                }
-                else
-                {
-                    Logger.Log("当前啥都不是 {0}", pLocomotion);
-                }
+
             }
         }
 
         public override void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex)
         {
-            // Logger.Log("[{0}]{1} Fire.", Owner.OwnerObject.Ref.Owner.Ref.Type.Ref.Base.ID, Owner.OwnerObject.Ref.Type.Convert<AbstractTypeClass>().Ref.ID);
+            Pointer<TechnoClass> pTechno = Owner.OwnerObject;
+            Logger.Log("[{0}]{1} Fire. 武器ROF: 0 = {2}, 1 = {3}, ReloadTimer = {4}", pTechno.Ref.Owner.Ref.Type.Ref.Base.ID, pTechno.Ref.Type.Convert<AbstractTypeClass>().Ref.ID, pTechno.Ref.GetROF(0), pTechno.Ref.GetROF(1), pTechno.Ref.ReloadTimer);
         }
 
         public override void OnRemove()
