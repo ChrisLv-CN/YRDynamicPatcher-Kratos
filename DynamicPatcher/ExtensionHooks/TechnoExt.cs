@@ -150,7 +150,7 @@ namespace ExtensionHooks
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext?.OnFire(pTarget, nWeaponIndex);
-                ext.Scriptable?.OnFire(pTarget, nWeaponIndex); ;
+                ext.Scriptable?.OnFire(pTarget, nWeaponIndex);
             }
             catch (Exception e)
             {
@@ -159,17 +159,37 @@ namespace ExtensionHooks
             return (uint)0;
         }
 
-        // [Hook(HookType.AresHook, Address = 0x6FDD6F, Size = 2)]
-        public static unsafe UInt32 TechnoClass_Fire_CustomWeapon(REGISTERS* R)
+
+        // [Hook(HookType.AresHook, Address = 0x6FDD71, Size = 6)]
+        public static unsafe UInt32 TechnoClass_Fire_OverrideWeapon(REGISTERS* R)
         {
             try
             {
-                Pointer<WeaponTypeClass> pWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find("RadBeamWeapon");
-                R->EBX = R->EAX + (uint)pWeapon;
-                if (!pWeapon.IsNull)
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                // Logger.Log("ESI = {0} Fire, mark weaponIndex = {1}", pTechno.IsNull ? "Is Null" : pTechno.Ref.Type.Convert<AbstractTypeClass>().Ref.ID, null != ext.overrideWeapon ? ext.overrideWeapon.weaponIndex : "no mark");
+                if (null != ext.overrideWeapon && ext.overrideWeapon.OverrideThisWeapon())
                 {
-                    Logger.Log("Hook 6FDD73 取得武器类型 {0}", pWeapon.Ref.Base.ID);
+                    Pointer<WeaponTypeClass> pWeapon = ext.overrideWeapon.pOverrideWeapon;
+                    if (!pWeapon.IsNull)
+                    {
+                        // Logger.Log("Override weapon {0}", pWeapon.Ref.Base.ID);
+                        R->EBX = (uint)pWeapon;
+                    }
                 }
+                /*
+                Pointer<WeaponTypeClass> pWeapon = (IntPtr)R->EBX;
+                if (pWeapon.IsNull)
+                {
+                    Logger.Log("EBX is null");
+                    // Check OverridWeapon
+                    pWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find("RadBeamWeapon");
+                    if (!pWeapon.IsNull)
+                    {
+                        R->EBX = (uint)pWeapon;
+                    }
+                }
+                */
             }
             catch (Exception e)
             {
@@ -177,6 +197,26 @@ namespace ExtensionHooks
             }
             return 0;
         }
+
+        [Hook(HookType.AresHook, Address = 0x702E9D, Size = 6)]
+        public static unsafe UInt32 TechnoClass_RegisterDestruction(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                Pointer<TechnoClass> pKiller = (IntPtr)R->EDI;
+                int cost = (int)R->EBP;
+
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                ext?.OnRegisterDestruction(pKiller, cost);
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
+
 
         [Hook(HookType.AresHook, Address = 0x6F65D1, Size = 6)]
         public static unsafe UInt32 TechnoClass_DrawHealthBar_Building(REGISTERS* R)
