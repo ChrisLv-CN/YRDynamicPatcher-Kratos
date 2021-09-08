@@ -58,6 +58,7 @@
     <Compile Include="Scripts\AAHeatSeeker2Script.cs" />
     <Compile Include="Scripts\DISKScript.cs" />
     <Compile Include="Scripts\FlameScript.cs" />
+    <Compile Include="Scripts\FlashScript.cs" />
     <Compile Include="Scripts\FLHScript.cs" />
     <Compile Include="Scripts\GGIScript.cs" />
     <Compile Include="Scripts\GiantNukeUpScript.cs" />

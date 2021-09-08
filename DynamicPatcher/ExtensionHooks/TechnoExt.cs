@@ -8,6 +8,7 @@ using DynamicPatcher;
 using PatcherYRpp;
 using Extension.Ext;
 using Extension.Script;
+using Extension.Utilities;
 
 namespace ExtensionHooks
 {
@@ -262,20 +263,23 @@ namespace ExtensionHooks
 
         // case VISUAL_NORMAL
         [Hook(HookType.AresHook, Address = 0x7063FF, Size = 7)]
-        public static unsafe UInt32 TechnoClass_DrawSHP(REGISTERS* R)
+        public static unsafe UInt32 TechnoClass_DrawSHP_Colour(REGISTERS* R)
         {
             try
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                ext?.DrawSHP(R);
+                ext?.DrawSHP_Colour(R);
                 /*
-                // var ebp = R->EBP;
-                var eax = R->EAX;
-                if (!pTechno.IsNull && pTechno.Ref.Berzerk && !pTechno.Ref.IsVoxel() && pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Unit)
+                if (!pTechno.IsNull && pTechno.Convert<ObjectClass>().Ref.IsSelected)
                 {
-                    // R->EBP = 200;
-                    R->EAX = 0x79C2780F;
+                    var x = R->EAX;
+                    Logger.Log("Unit[{0}] EAX = {1}", pTechno.Ref.Type.Ref.Base.Base.ID, x);
+
+                    ColorStruct color = new ColorStruct(0, 255, 128);
+                    ColorStruct colorAdd = ExHelper.Color2ColorAdd(color);
+                    Logger.Log("RGB888 = {0}, RGB565 = {1}, RGB565 = {2}", color, colorAdd, ExHelper.ColorAdd2RGB565(colorAdd));
+                    R->EAX = ExHelper.ColorAdd2RGB565(colorAdd);
                 }
                 */
             }
@@ -286,29 +290,64 @@ namespace ExtensionHooks
             return (uint)0;
         }
 
+
         /*
-        // before  if Briz 0073C083
-        [Hook(HookType.AresHook, Address = 0x73C15F, Size = 7)]
-        public static unsafe UInt32 TechonClass_DrawVXL(REGISTERS* R)
+        // Igron check if berzerk
+        [Hook(HookType.AresHook, Address = 0x73C083, Size = 6)]
+        public static unsafe UInt32 TechonClass_DrawVXL_IfBerzerk(REGISTERS* R)
         {
             try
             {
                 Pointer<UnitClass> pUnit = (IntPtr)R->EBP;
-                var tint = R->EDI;
                 if (!pUnit.IsNull && pUnit.Convert<ObjectClass>().Ref.IsSelected)
                 {
-                    uint x = (uint)Drawing.Color16bit(RulesClass.BerserkColor);
-                    R->EDI = tint | x;
-                    Logger.Log("Unit[{0}] tint = {1}, x = {2}, xx = {3}", pUnit.Ref.Base.Base.Type.Ref.Base.Base.ID, tint, x, tint | x);
+                    Pointer<TechnoClass> pTechno = pUnit.Convert<TechnoClass>();
+                    if (pTechno.Ref.Berzerk)
+                    {
+                        return 0;
+                    }
+                    TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                    Logger.Log("Unit[{0}] call 0x73c083 jump 0x73c091", pUnit.Ref.Base.Base.Type.Ref.Base.Base.ID);
+                    return 0x73C091;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.PrintException(e);
             }
             return 0;
         }
         */
+
+        // change berzerk color
+        [Hook(HookType.AresHook, Address = 0x73C15F, Size = 7)]
+        public static unsafe UInt32 TechnoClass_DrawVXL_Colour(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<UnitClass> pUnit = (IntPtr)R->EBP;
+                TechnoExt ext = TechnoExt.ExtMap.Find(pUnit.Convert<TechnoClass>());
+                ext?.DrawVXL_Colour(R);
+                /*
+                if (!pUnit.IsNull && pUnit.Convert<ObjectClass>().Ref.IsSelected)
+                {
+                    Pointer<TechnoClass> pTechno = pUnit.Convert<TechnoClass>();
+                    var x = R->ESI;
+                    Logger.Log("Unit[{0}] ESI = {1}", pUnit.Ref.Base.Base.Type.Ref.Base.Base.ID, x);
+
+                    ColorStruct color = new ColorStruct(0, 255, 128);
+                    ColorStruct colorAdd = ExHelper.Color2ColorAdd(color);
+                    Logger.Log("RGB888 = {0}, RGB565 = {1}, RGB565 = {2}", color, colorAdd, ExHelper.ColorAdd2RGB565(colorAdd));
+                    R->ESI = ExHelper.ColorAdd2RGB565(colorAdd);
+                }
+                */
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
 
         [Hook(HookType.AresHook, Address = 0x738801, Size = 6)]
         public static unsafe UInt32 UnitClass_Destory(REGISTERS* R)
