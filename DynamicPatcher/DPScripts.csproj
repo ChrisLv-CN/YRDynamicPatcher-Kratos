@@ -55,6 +55,7 @@
     <Compile Include="ExtensionHooks\TechnoExt.cs" />
     <Compile Include="ExtensionHooks\TechnoTypeExt.cs" />
     <Compile Include="ExtensionHooks\WarheadTypeExt.cs" />
+    <Compile Include="ExtensionHooks\WeaponTypeExt.cs" />
     <Compile Include="Scripts\AAHeatSeeker2Script.cs" />
     <Compile Include="Scripts\DISKScript.cs" />
     <Compile Include="Scripts\FlameScript.cs" />
