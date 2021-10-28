@@ -65,6 +65,29 @@ namespace ExtensionHooks
             return (uint)0;
         }
 
+        [Hook(HookType.AresHook, Address = 0x71A84E, Size = 5)]
+        public static unsafe UInt32 TemporalClass_UpdateA(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TemporalClass> pTemporal = (IntPtr)R->ESI;
+
+                Pointer<TechnoClass> pTechno = pTemporal.Ref.Target;
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                ext?.OnTemporalUpdateAI(pTemporal);
+                ext.Scriptable?.OnTemporalUpdateAI(pTemporal);
+
+                // pTemporal.Ref.WarpRemaining -= pTemporal.Ref.GetWarpPerStep(0);
+                // R->EAX = (uint)pTemporal.Ref.WarpRemaining;
+                // return 0x71A88D;
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
+
         [Hook(HookType.AresHook, Address = 0x6F6CA0, Size = 7)]
         public static unsafe UInt32 TechnoClass_Put_Script(REGISTERS* R)
         {
@@ -128,6 +151,7 @@ namespace ExtensionHooks
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 bool ceaseFire = false;
                 ext?.CanFire(pTarget, pWeapon, ref ceaseFire);
+                ext.Scriptable?.CanFire(pTarget, pWeapon, ref ceaseFire);
                 if (ceaseFire)
                 {
                     return (uint)0x6FCB7E;
@@ -217,6 +241,39 @@ namespace ExtensionHooks
             }
             return (uint)0;
         }
+
+        // [Hook(HookType.AresHook, Address = 0x6FFEC9, Size = 6)]
+        // public static unsafe UInt32 TechnoClass_GetCursorOverObject_Stand(REGISTERS* R)
+        // {
+        //     try
+        //     {
+        //         Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+        //         Pointer<ObjectClass> pTarget = (IntPtr)R->EDI;
+
+        //         Logger.Log("6FFEC9 is calling. pTechno {0}, pTarget {1}", pTechno.IsNull ? "is null" : pTechno.Ref.Type.Ref.Base.Base.ID, pTarget.IsNull ? "is null" : pTarget.Ref.Type.Ref.Base.ID);
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         Logger.PrintException(e);
+        //     }
+        //     return (uint)0;
+        // }
+
+        // [Hook(HookType.AresHook, Address = 0x6FFEC9, Size = 6)]
+        // public static unsafe UInt32 TechnoClass_GetCursorOverCell_Stand(REGISTERS* R)
+        // {
+        //     try
+        //     {
+        //         Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+
+        //         Logger.Log("6FFEC9 is calling. pTechno {0}", pTechno.IsNull ? "is null" : pTechno.Ref.Type.Ref.Base.Base.ID);
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         Logger.PrintException(e);
+        //     }
+        //     return (uint)0;
+        // }
 
 
         [Hook(HookType.AresHook, Address = 0x6F65D1, Size = 6)]

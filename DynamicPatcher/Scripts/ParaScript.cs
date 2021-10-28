@@ -15,11 +15,11 @@ using System.Threading.Tasks;
 namespace Scripts
 {
     [Serializable]
-    public class ParaMission : TechnoScriptable
+    public class ParaScript : TechnoScriptable
     {
         private bool flag = false;
 
-        public ParaMission(TechnoExt owner) : base(owner) { }
+        public ParaScript(TechnoExt owner) : base(owner) { }
 
         public override void OnUpdate()
         {
