@@ -65,6 +65,30 @@ namespace ExtensionHooks
             return (uint)0;
         }
 
+        [Hook(HookType.AresHook, Address = 0x71A88D, Size = 8)]
+        public static unsafe UInt32 TemporalClass_UpdateA(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TemporalClass> pTemporal = (IntPtr)R->ESI;
+
+                Pointer<TechnoClass> pTechno = pTemporal.Ref.Target;
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                ext?.OnTemporalUpdate(pTemporal);
+                ext.Scriptable?.OnTemporalUpdate(pTemporal);
+
+                // pTemporal.Ref.WarpRemaining -= pTemporal.Ref.GetWarpPerStep(0);
+                // R->EAX = (uint)pTemporal.Ref.WarpRemaining;
+                // return 0x71A88D;
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)((R->EAX <= R->EDX) ? 0x71A895 : 0x071AB08);
+        }
+
+        /*
         [Hook(HookType.AresHook, Address = 0x71A84E, Size = 5)]
         public static unsafe UInt32 TemporalClass_UpdateA(REGISTERS* R)
         {
@@ -74,8 +98,8 @@ namespace ExtensionHooks
 
                 Pointer<TechnoClass> pTechno = pTemporal.Ref.Target;
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                ext?.OnTemporalUpdateAI(pTemporal);
-                ext.Scriptable?.OnTemporalUpdateAI(pTemporal);
+                ext?.OnTemporalUpdate(pTemporal);
+                ext.Scriptable?.OnTemporalUpdate(pTemporal);
 
                 // pTemporal.Ref.WarpRemaining -= pTemporal.Ref.GetWarpPerStep(0);
                 // R->EAX = (uint)pTemporal.Ref.WarpRemaining;
@@ -87,9 +111,10 @@ namespace ExtensionHooks
             }
             return (uint)0;
         }
+        */
 
         [Hook(HookType.AresHook, Address = 0x6F6CA0, Size = 7)]
-        public static unsafe UInt32 TechnoClass_Put_Script(REGISTERS* R)
+        public static unsafe UInt32 TechnoClass_Put(REGISTERS* R)
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
             var pCoord = R->Stack<Pointer<CoordStruct>>(0x4);
@@ -104,7 +129,7 @@ namespace ExtensionHooks
 
         // [Hook(HookType.AresHook, Address = 0x6F6AC0, Size = 5)]
         [Hook(HookType.AresHook, Address = 0x6F6AC4, Size = 5)]
-        public static unsafe UInt32 TechnoClass_Remove_Script(REGISTERS* R)
+        public static unsafe UInt32 TechnoClass_Remove(REGISTERS* R)
         {
             try
             {
@@ -121,7 +146,7 @@ namespace ExtensionHooks
         }
 
         [Hook(HookType.AresHook, Address = 0x701900, Size = 6)]
-        public static unsafe UInt32 TechnoClass_ReceiveDamage_Script(REGISTERS* R)
+        public static unsafe UInt32 TechnoClass_ReceiveDamage(REGISTERS* R)
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
             var pDamage = R->Stack<Pointer<int>>(0x4);
@@ -137,6 +162,23 @@ namespace ExtensionHooks
             ext.Scriptable?.OnReceiveDamage(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
 
             return (uint)0;
+        }
+
+
+        [Hook(HookType.AresHook, Address = 0x702050, Size = 6)]
+        public static unsafe UInt32 TechnoClass_Destroy(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                ext?.OnDestroy();
+            }
+            catch(Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
         }
 
         [Hook(HookType.AresHook, Address = 0x6FC339, Size = 6)]
@@ -241,7 +283,7 @@ namespace ExtensionHooks
             }
             return (uint)0;
         }
-
+        
         // [Hook(HookType.AresHook, Address = 0x6FFEC9, Size = 6)]
         // public static unsafe UInt32 TechnoClass_GetCursorOverObject_Stand(REGISTERS* R)
         // {
@@ -348,34 +390,6 @@ namespace ExtensionHooks
         }
 
 
-        /*
-        // Igron check if berzerk
-        [Hook(HookType.AresHook, Address = 0x73C083, Size = 6)]
-        public static unsafe UInt32 TechonClass_DrawVXL_IfBerzerk(REGISTERS* R)
-        {
-            try
-            {
-                Pointer<UnitClass> pUnit = (IntPtr)R->EBP;
-                if (!pUnit.IsNull && pUnit.Convert<ObjectClass>().Ref.IsSelected)
-                {
-                    Pointer<TechnoClass> pTechno = pUnit.Convert<TechnoClass>();
-                    if (pTechno.Ref.Berzerk)
-                    {
-                        return 0;
-                    }
-                    TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                    Logger.Log("Unit[{0}] call 0x73c083 jump 0x73c091", pUnit.Ref.Base.Base.Type.Ref.Base.Base.ID);
-                    return 0x73C091;
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.PrintException(e);
-            }
-            return 0;
-        }
-        */
-
         // change berzerk color
         [Hook(HookType.AresHook, Address = 0x73C15F, Size = 7)]
         public static unsafe UInt32 TechnoClass_DrawVXL_Colour(REGISTERS* R)
@@ -406,22 +420,86 @@ namespace ExtensionHooks
             return 0;
         }
 
-        [Hook(HookType.AresHook, Address = 0x738801, Size = 6)]
-        public static unsafe UInt32 UnitClass_Destory(REGISTERS* R)
+        // [Hook(HookType.AresHook, Address = 0x738801, Size = 6)]
+        // public static unsafe UInt32 UnitClass_Destroy(REGISTERS* R)
+        // {
+        //     try
+        //     {
+        //         Pointer<UnitClass> pUnit = (IntPtr)R->ESI;
+        //         //Pointer<ObjectClass> pKiller = (IntPtr)R->EAX;
+        //         //Logger.Log("pKill {0}", pKiller.IsNull ? "is null" : (pKiller.Ref.Type.IsNull ? "type is null" : pKiller.Ref.Type.Convert<AbstractTypeClass>().Ref.ID));
+        //         TechnoExt ext = TechnoExt.ExtMap.Find(pUnit.Convert<TechnoClass>());
+        //         ext?.OnDestroy_UnitClass();
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         Logger.PrintException(e);
+        //     }
+        //     return (uint)0;
+        // }
+
+        // Someone wants to enter the cell where I am
+        [Hook(HookType.AresHook, Address = 0x73F528, Size = 6)]
+        public static unsafe UInt32 UnitClass_CanEnterCell(REGISTERS* R)
         {
             try
             {
-                Pointer<UnitClass> pUnit = (IntPtr)R->ESI;
-                //Pointer<ObjectClass> pKiller = (IntPtr)R->EAX;
-                //Logger.Log("pKill {0}", pKiller.IsNull ? "is null" : (pKiller.Ref.Type.IsNull ? "type is null" : pKiller.Ref.Type.Convert<AbstractTypeClass>().Ref.ID));
-                TechnoExt ext = TechnoExt.ExtMap.Find(pUnit.Convert<TechnoClass>());
-                ext?.OnDestory_UnitClass();
+                Pointer<TechnoClass> pUnit = (IntPtr)R->EBX;
+                Pointer<TechnoClass> pOccupier = (IntPtr)R->ESI;
+
+                if (pUnit == pOccupier)
+                {
+                    return 0x73FC10;
+                }
+
+                TechnoExt ext = TechnoExt.ExtMap.Find(pUnit);
+                if (null != ext)
+                {
+                    bool ignoreOccupier = false;
+                    ext?.CanEnterCell_UnitClass(pOccupier, ref ignoreOccupier);
+                    if (ignoreOccupier)
+                    {
+                        return 0x73FC10;
+                    }
+                }
             }
             catch (Exception e)
             {
                 Logger.PrintException(e);
             }
-            return (uint)0;
+            return 0x73F530;
+        }
+
+        // Someone wants to enter the cell where I am
+        [Hook(HookType.AresHook, Address = 0x51C251, Size = 6)]
+        public static unsafe UInt32 InfantryClass_CanEnterCell(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pInf = (IntPtr)R->EBP;
+                Pointer<TechnoClass> pOccupier = (IntPtr)R->ESI;
+
+                if (pInf == pOccupier)
+                {
+                    return 0x51C70F;
+                }
+
+                TechnoExt ext = TechnoExt.ExtMap.Find(pInf);
+                if (null != ext)
+                {
+                    bool ignoreOccupier = false;
+                    ext?.CanEnterCell_InfantryClass(pOccupier, ref ignoreOccupier);
+                    if (ignoreOccupier)
+                    {
+                        return 0x51C70F;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0x51C259;
         }
 
 

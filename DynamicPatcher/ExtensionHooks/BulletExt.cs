@@ -23,7 +23,7 @@ namespace ExtensionHooks
         {
             return BulletExt.BulletClass_DTOR(R);
         }
-        
+
         [Hook(HookType.AresHook, Address = 0x46AFB0, Size = 8)]
         [Hook(HookType.AresHook, Address = 0x46AE70, Size = 5)]
         public static unsafe UInt32 BulletClass_SaveLoad_Prefix(REGISTERS* R)
@@ -43,7 +43,25 @@ namespace ExtensionHooks
         {
             return BulletExt.BulletClass_Save_Suffix(R);
         }
-        
+
+        [Hook(HookType.AresHook, Address = 0x4664FB, Size = 6)]
+        public static unsafe UInt32 BulletClass_Init(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BulletClass> pBullet = (IntPtr)R->ECX;
+                BulletExt ext = BulletExt.ExtMap.Find(pBullet);
+                Logger.Log("BulletExt init {0}", ext == null?"Ext is null":"is ready.");
+                ext?.OnInit();
+                // ext.Scriptable?.OnPut(default, default);
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
+
         [Hook(HookType.AresHook, Address = 0x4666F7, Size = 6)]
         public static unsafe UInt32 BulletClass_Update(REGISTERS* R)
         {
@@ -52,13 +70,13 @@ namespace ExtensionHooks
                 Pointer<BulletClass> pBullet = (IntPtr)R->EBP;
                 BulletExt ext = BulletExt.ExtMap.Find(pBullet);
                 ext?.OnUpdate();
-                return ScriptManager.BulletClass_Update_Script(R);
+                ext.Scriptable?.OnUpdate();
             }
             catch (Exception e)
             {
                 Logger.PrintException(e);
-                return (uint)0;
             }
+            return (uint)0;
         }
 
     }
