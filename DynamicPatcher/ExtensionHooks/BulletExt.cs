@@ -51,7 +51,7 @@ namespace ExtensionHooks
             {
                 Pointer<BulletClass> pBullet = (IntPtr)R->ECX;
                 BulletExt ext = BulletExt.ExtMap.Find(pBullet);
-                Logger.Log("BulletExt init {0}", ext == null?"Ext is null":"is ready.");
+                // Logger.Log("BulletExt init {0}", ext == null?"Ext is null":"is ready.");
                 ext?.OnInit();
                 // ext.Scriptable?.OnPut(default, default);
             }

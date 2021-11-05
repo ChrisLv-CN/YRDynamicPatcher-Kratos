@@ -65,7 +65,7 @@ namespace ExtensionHooks
             return (uint)0;
         }
 
-        [Hook(HookType.AresHook, Address = 0x71A88D, Size = 8)]
+        [Hook(HookType.AresHook, Address = 0x71A88D, Size = 0)]
         public static unsafe UInt32 TemporalClass_UpdateA(REGISTERS* R)
         {
             try
@@ -77,15 +77,16 @@ namespace ExtensionHooks
                 ext?.OnTemporalUpdate(pTemporal);
                 ext.Scriptable?.OnTemporalUpdate(pTemporal);
 
-                // pTemporal.Ref.WarpRemaining -= pTemporal.Ref.GetWarpPerStep(0);
-                // R->EAX = (uint)pTemporal.Ref.WarpRemaining;
-                // return 0x71A88D;
             }
             catch (Exception e)
             {
                 Logger.PrintException(e);
             }
-            return (uint)((R->EAX <= R->EDX) ? 0x71A895 : 0x071AB08);
+            if ((int)R->EAX <= (int)R->EBX)
+            {
+                return 0x71A895;
+            }
+            return 0x71AB08;
         }
 
         /*
@@ -174,7 +175,7 @@ namespace ExtensionHooks
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext?.OnDestroy();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.PrintException(e);
             }
@@ -283,7 +284,7 @@ namespace ExtensionHooks
             }
             return (uint)0;
         }
-        
+
         // [Hook(HookType.AresHook, Address = 0x6FFEC9, Size = 6)]
         // public static unsafe UInt32 TechnoClass_GetCursorOverObject_Stand(REGISTERS* R)
         // {

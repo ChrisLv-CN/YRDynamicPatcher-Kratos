@@ -29,7 +29,7 @@ namespace ExtensionHooks
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
                 // Logger.Log("sub_6DA380 calling 3, ESI = {0} {1}", R->ESI, pTechno.IsNull ? "NULL" : pTechno.Ref.Type.Ref.Base.Base.ID);
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                if (null != ext && ext.Type.VirtualUnit)
+                if (null != ext && ext.VirtualUnit)
                 {
                     // Logger.Log("sub_6DA380 calling 3, Skip the Unit {0}", pTechno.Ref.Type.Ref.Base.Base.ID);
                     return 0x6DA491;
