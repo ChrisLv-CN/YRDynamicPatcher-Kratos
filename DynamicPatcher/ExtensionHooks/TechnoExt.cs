@@ -46,6 +46,23 @@ namespace ExtensionHooks
             return TechnoExt.TechnoClass_Save_Suffix(R);
         }
 
+        [Hook(HookType.AresHook, Address = 0x6F42ED, Size = 10)]
+        public static unsafe UInt32 TechnoClass_Init(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                ext?.OnInit();
+                ext.Scriptable?.OnInit();
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
+
 
         [Hook(HookType.AresHook, Address = 0x6F9E50, Size = 5)]
         public static unsafe UInt32 TechnoClass_Update(REGISTERS* R)
