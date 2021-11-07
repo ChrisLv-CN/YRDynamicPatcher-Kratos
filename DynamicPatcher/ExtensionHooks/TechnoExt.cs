@@ -1,4 +1,5 @@
 
+using System.Collections;
 using System.Drawing;
 using System;
 using System.Threading;
@@ -140,7 +141,7 @@ namespace ExtensionHooks
 
             TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
             ext?.OnPut(pCoord, faceDir);
-            ext.Scriptable?.OnPut(pCoord.Data, faceDir);
+            ext.Scriptable?.OnPut(pCoord, faceDir);
 
             return (uint)0;
         }
@@ -520,6 +521,15 @@ namespace ExtensionHooks
             return 0x51C259;
         }
 
+
+        // [Hook(HookType.AresHook, Address= 0x5F5854, Size = 6)]
+        // public static unsafe UInt32 ObjectClass_Mark(REGISTERS* R)
+        // {
+        //     Logger.Log("{0} OOXX {1}", R->ESI, R->Stack<int>(-0x4));
+        //     Pointer<ObjectClass> pTechno = (IntPtr)R->ESI;
+        //     Logger.Log("{0} OOXX", pTechno.IsNull ? "Unknow" : pTechno.Ref.Type.Ref.Base.ID);
+        //     return 0;
+        // }
 
     }
 }
