@@ -303,6 +303,29 @@ namespace ExtensionHooks
             return (uint)0;
         }
 
+        [Hook(HookType.AresHook, Address= 0x5F45A0, Size = 5)]
+        public static unsafe UInt32 TechnoClass_Select(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->EDI;
+                // Logger.Log("{0} Select", pTechno.IsNull ? "Unknow" : pTechno.Ref.Type.Ref.Base.Base.ID);
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                bool selectable = true;
+                ext?.OnSelect(ref selectable);
+                ext.Scriptable?.OnSelect(ref selectable);
+                if (!selectable)
+                {
+                    return 0x5F45A9;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
         // [Hook(HookType.AresHook, Address = 0x6FFEC9, Size = 6)]
         // public static unsafe UInt32 TechnoClass_GetCursorOverObject_Stand(REGISTERS* R)
         // {
