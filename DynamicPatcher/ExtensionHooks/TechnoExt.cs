@@ -481,68 +481,68 @@ namespace ExtensionHooks
         // }
 
         // Someone wants to enter the cell where I am
-        [Hook(HookType.AresHook, Address = 0x73F528, Size = 6)]
-        public static unsafe UInt32 UnitClass_CanEnterCell(REGISTERS* R)
-        {
-            try
-            {
-                Pointer<TechnoClass> pUnit = (IntPtr)R->EBX;
-                Pointer<TechnoClass> pOccupier = (IntPtr)R->ESI;
+        // [Hook(HookType.AresHook, Address = 0x73F528, Size = 6)]
+        // public static unsafe UInt32 UnitClass_CanEnterCell(REGISTERS* R)
+        // {
+        //     try
+        //     {
+        //         Pointer<TechnoClass> pUnit = (IntPtr)R->EBX;
+        //         Pointer<TechnoClass> pOccupier = (IntPtr)R->ESI;
 
-                if (pUnit == pOccupier)
-                {
-                    return 0x73FC10;
-                }
+        //         if (pUnit == pOccupier)
+        //         {
+        //             return 0x73FC10;
+        //         }
 
-                TechnoExt ext = TechnoExt.ExtMap.Find(pUnit);
-                if (null != ext)
-                {
-                    bool ignoreOccupier = false;
-                    ext?.CanEnterCell_UnitClass(pOccupier, ref ignoreOccupier);
-                    if (ignoreOccupier)
-                    {
-                        return 0x73FC10;
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.PrintException(e);
-            }
-            return 0x73F530;
-        }
+        //         TechnoExt ext = TechnoExt.ExtMap.Find(pUnit);
+        //         if (null != ext)
+        //         {
+        //             bool ignoreOccupier = false;
+        //             ext?.CanEnterCell_UnitClass(pOccupier, ref ignoreOccupier);
+        //             if (ignoreOccupier)
+        //             {
+        //                 return 0x73FC10;
+        //             }
+        //         }
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         Logger.PrintException(e);
+        //     }
+        //     return 0x73F530;
+        // }
 
         // Someone wants to enter the cell where I am
-        [Hook(HookType.AresHook, Address = 0x51C251, Size = 6)]
-        public static unsafe UInt32 InfantryClass_CanEnterCell(REGISTERS* R)
-        {
-            try
-            {
-                Pointer<TechnoClass> pInf = (IntPtr)R->EBP;
-                Pointer<TechnoClass> pOccupier = (IntPtr)R->ESI;
+        // [Hook(HookType.AresHook, Address = 0x51C251, Size = 6)]
+        // public static unsafe UInt32 InfantryClass_CanEnterCell(REGISTERS* R)
+        // {
+        //     try
+        //     {
+        //         Pointer<TechnoClass> pInf = (IntPtr)R->EBP;
+        //         Pointer<TechnoClass> pOccupier = (IntPtr)R->ESI;
 
-                if (pInf == pOccupier)
-                {
-                    return 0x51C70F;
-                }
+        //         if (pInf == pOccupier)
+        //         {
+        //             return 0x51C70F;
+        //         }
 
-                TechnoExt ext = TechnoExt.ExtMap.Find(pInf);
-                if (null != ext)
-                {
-                    bool ignoreOccupier = false;
-                    ext?.CanEnterCell_InfantryClass(pOccupier, ref ignoreOccupier);
-                    if (ignoreOccupier)
-                    {
-                        return 0x51C70F;
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.PrintException(e);
-            }
-            return 0x51C259;
-        }
+        //         TechnoExt ext = TechnoExt.ExtMap.Find(pInf);
+        //         if (null != ext)
+        //         {
+        //             bool ignoreOccupier = false;
+        //             ext?.CanEnterCell_InfantryClass(pOccupier, ref ignoreOccupier);
+        //             if (ignoreOccupier)
+        //             {
+        //                 return 0x51C70F;
+        //             }
+        //         }
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         Logger.PrintException(e);
+        //     }
+        //     return 0x51C259;
+        // }
 
 
         // [Hook(HookType.AresHook, Address= 0x5F5854, Size = 6)]

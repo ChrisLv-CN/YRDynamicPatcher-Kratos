@@ -22,8 +22,9 @@ namespace ExtensionHooks
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                if (null != ext && ext.VirtualUnit)
+                if (true == ext?.VirtualUnit)
                 {
+                    // Logger.Log("ScrollClass_ClickCoords {0} is virtual unit", pTechno.Ref.Type.Ref.Base.Base.ID);
                     return 0x6925E6;
                 }
             }
