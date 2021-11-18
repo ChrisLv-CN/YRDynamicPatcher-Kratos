@@ -54,7 +54,7 @@ namespace ExtensionHooks
                 BulletExt ext = BulletExt.ExtMap.Find(pBullet);
                 // Logger.Log("BulletExt init {0}", ext == null?"Ext is null":"is ready.");
                 ext?.OnInit();
-                ext.Scriptable?.OnInit();
+                ext?.Scriptable?.OnInit();
             }
             catch (Exception e)
             {
@@ -73,7 +73,7 @@ namespace ExtensionHooks
                 Pointer<CoordStruct> pCoord = R->Stack<IntPtr>(-0x20);
                 // Logger.Log("BulletExt init {0} {1}", ext == null?"Ext is null":"is ready.", pCoord.Data);
                 ext?.OnPut(pCoord);
-                ext.Scriptable?.OnPut(pCoord, default);
+                ext?.Scriptable?.OnPut(pCoord, default);
             }
             catch (Exception e)
             {
@@ -90,7 +90,7 @@ namespace ExtensionHooks
                 Pointer<BulletClass> pBullet = (IntPtr)R->EBP;
                 BulletExt ext = BulletExt.ExtMap.Find(pBullet);
                 ext?.OnUpdate();
-                ext.Scriptable?.OnUpdate();
+                ext?.Scriptable?.OnUpdate();
             }
             catch (Exception e)
             {

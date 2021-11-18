@@ -55,7 +55,7 @@ namespace ExtensionHooks
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext?.OnInit();
-                ext.Scriptable?.OnInit();
+                ext?.Scriptable?.OnInit();
             }
             catch (Exception e)
             {
@@ -74,7 +74,7 @@ namespace ExtensionHooks
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 // technoClassUpdate?.Invoke(pTechno, ext);
                 ext?.OnUpdate();
-                ext.Scriptable?.OnUpdate();
+                ext?.Scriptable?.OnUpdate();
             }
             catch (Exception e)
             {
@@ -93,7 +93,7 @@ namespace ExtensionHooks
                 Pointer<TechnoClass> pTechno = pTemporal.Ref.Target;
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext?.OnTemporalUpdate(pTemporal);
-                ext.Scriptable?.OnTemporalUpdate(pTemporal);
+                ext?.Scriptable?.OnTemporalUpdate(pTemporal);
 
             }
             catch (Exception e)
@@ -118,7 +118,7 @@ namespace ExtensionHooks
                 Pointer<TechnoClass> pTechno = pTemporal.Ref.Target;
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext?.OnTemporalUpdate(pTemporal);
-                ext.Scriptable?.OnTemporalUpdate(pTemporal);
+                ext?.Scriptable?.OnTemporalUpdate(pTemporal);
 
                 // pTemporal.Ref.WarpRemaining -= pTemporal.Ref.GetWarpPerStep(0);
                 // R->EAX = (uint)pTemporal.Ref.WarpRemaining;
@@ -141,7 +141,7 @@ namespace ExtensionHooks
 
             TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
             ext?.OnPut(pCoord, faceDir);
-            ext.Scriptable?.OnPut(pCoord, faceDir);
+            ext?.Scriptable?.OnPut(pCoord, faceDir);
 
             return (uint)0;
         }
@@ -155,7 +155,7 @@ namespace ExtensionHooks
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext?.OnRemove();
-                ext.Scriptable?.OnRemove();
+                ext?.Scriptable?.OnRemove();
             }
             catch (Exception e)
             {
@@ -178,7 +178,7 @@ namespace ExtensionHooks
 
             TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
             ext?.OnReceiveDamage(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
-            ext.Scriptable?.OnReceiveDamage(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
+            ext?.Scriptable?.OnReceiveDamage(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
 
             return (uint)0;
         }
@@ -212,7 +212,7 @@ namespace ExtensionHooks
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 bool ceaseFire = false;
                 ext?.CanFire(pTarget, pWeapon, ref ceaseFire);
-                ext.Scriptable?.CanFire(pTarget, pWeapon, ref ceaseFire);
+                ext?.Scriptable?.CanFire(pTarget, pWeapon, ref ceaseFire);
                 if (ceaseFire)
                 {
                     return (uint)0x6FCB7E;
@@ -236,7 +236,7 @@ namespace ExtensionHooks
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext?.OnFire(pTarget, nWeaponIndex);
-                ext.Scriptable?.OnFire(pTarget, nWeaponIndex);
+                ext?.Scriptable?.OnFire(pTarget, nWeaponIndex);
             }
             catch (Exception e)
             {
@@ -303,7 +303,7 @@ namespace ExtensionHooks
             return (uint)0;
         }
 
-        [Hook(HookType.AresHook, Address= 0x5F45A0, Size = 5)]
+        [Hook(HookType.AresHook, Address = 0x5F45A0, Size = 5)]
         public static unsafe UInt32 TechnoClass_Select(REGISTERS* R)
         {
             try
@@ -313,7 +313,7 @@ namespace ExtensionHooks
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 bool selectable = true;
                 ext?.OnSelect(ref selectable);
-                ext.Scriptable?.OnSelect(ref selectable);
+                ext?.Scriptable?.OnSelect(ref selectable);
                 if (!selectable)
                 {
                     return 0x5F45A9;
@@ -461,6 +461,36 @@ namespace ExtensionHooks
             }
             return 0;
         }
+
+        [Hook(HookType.AresHook, Address = 0x730E8F, Size = 6)]
+        public static unsafe UInt32 ObjectClass_GuardCommand(REGISTERS* R)
+        {
+            Pointer<ObjectClass> pObject = (IntPtr)R->ESI;
+            if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
+            {
+                // Logger.Log("{0} Guard Command", pTechno.IsNull ? "Unknow" : pTechno.Ref.Type.Ref.Base.Base.ID);
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                ext?.OnGuardCommand();
+                ext?.Scriptable.OnGuardCommand();
+            }
+            return 0;
+        }
+
+
+        [Hook(HookType.AresHook, Address = 0x730F1C, Size = 5)]
+        public static unsafe UInt32 ObjectClass_StopCommand(REGISTERS* R)
+        {
+            Pointer<ObjectClass> pObject = (IntPtr)R->ESI;
+            if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
+            {
+                // Logger.Log("{0} Stop Command", pTechno.IsNull ? "Unknow" : pTechno.Ref.Type.Ref.Base.Base.ID);
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                ext?.OnStopCommand();
+                ext?.Scriptable.OnStopCommand();
+            }
+            return 0;
+        }
+
 
         // [Hook(HookType.AresHook, Address = 0x738801, Size = 6)]
         // public static unsafe UInt32 UnitClass_Destroy(REGISTERS* R)
