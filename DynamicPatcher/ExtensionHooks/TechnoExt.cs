@@ -471,7 +471,7 @@ namespace ExtensionHooks
                 // Logger.Log("{0} Guard Command", pTechno.IsNull ? "Unknow" : pTechno.Ref.Type.Ref.Base.Base.ID);
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext?.OnGuardCommand();
-                ext?.Scriptable.OnGuardCommand();
+                ext?.Scriptable?.OnGuardCommand();
             }
             return 0;
         }
@@ -486,7 +486,7 @@ namespace ExtensionHooks
                 // Logger.Log("{0} Stop Command", pTechno.IsNull ? "Unknow" : pTechno.Ref.Type.Ref.Base.Base.ID);
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext?.OnStopCommand();
-                ext?.Scriptable.OnStopCommand();
+                ext?.Scriptable?.OnStopCommand();
             }
             return 0;
         }
@@ -583,6 +583,51 @@ namespace ExtensionHooks
         //     Logger.Log("{0} OOXX", pTechno.IsNull ? "Unknow" : pTechno.Ref.Type.Ref.Base.ID);
         //     return 0;
         // }
+
+        // [Hook(HookType.AresHook, Address = 0x707557, Size = 6)]
+        // public static unsafe UInt32 TechnoClass_DrawVXL(REGISTERS* R)
+        // {
+        //     Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
+        //     Logger.Log("{0} ooxx", pTechno.Ref.Type.Ref.Base.Base.ID);
+        //     return 0;
+        // }
+
+        [Hook(HookType.AresHook, Address = 0x5F6B90, Size = 5)]
+        public static unsafe UInt32 ObjectClass_InAir_SkipCheckIsOnMap(REGISTERS* R)
+        {
+            Pointer<ObjectClass> pObject = (IntPtr)R->ECX;
+            if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
+            {
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                if (!ext.MyMaster.IsNull)
+                {
+                    return 0x5F6B97;
+                }
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x704363, Size = 5)]
+        public static unsafe UInt32 TechnoClass_GetZAdjust(REGISTERS* R)
+        {
+
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            int z = (int)R->EAX;
+            // if (!pTechno.IsNull)
+            // {
+            //     if (pTechno.Ref.Base.IsSelected)
+            //     {
+            //         Logger.Log(" ooxx {0}, z = {1}", pTechno.Ref.Type.Ref.Base.Base.ID, z);
+
+            //     }
+            // }
+            TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+            if (!ext.MyMaster.IsNull)
+            {
+                R->ECX = (uint)(z + 12);
+            }
+            return 0;
+        }
 
     }
 }
