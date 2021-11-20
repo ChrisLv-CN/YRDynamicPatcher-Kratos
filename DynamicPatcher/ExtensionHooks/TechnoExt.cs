@@ -294,7 +294,14 @@ namespace ExtensionHooks
                 int cost = (int)R->EBP;
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                ext?.OnRegisterDestruction(pKiller, cost);
+
+                bool skip = false;
+                ext?.OnRegisterDestruction(pKiller, cost,ref skip);
+                // skip the entire veterancy
+                if (skip)
+                {
+                    return 0x702FF5;
+                }
             }
             catch (Exception e)
             {
@@ -613,18 +620,24 @@ namespace ExtensionHooks
 
             Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
             int z = (int)R->EAX;
-            // if (!pTechno.IsNull)
-            // {
-            //     if (pTechno.Ref.Base.IsSelected)
-            //     {
-            //         Logger.Log(" ooxx {0}, z = {1}", pTechno.Ref.Type.Ref.Base.Base.ID, z);
-
-            //     }
-            // }
             TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
             if (!ext.MyMaster.IsNull)
             {
                 R->ECX = (uint)(z + 12);
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x4DB7F7, Size = 6)]
+        public static unsafe UInt32 FootClass_In_Which_Layer(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+            if (!ext.MyMaster.IsNull)
+            {
+                // Logger.Log(" - ooxx {0}, EAX = {1}, ECX = {2}", pTechno.Ref.Type.Ref.Base.Base.ID, R->EAX, R->ECX);
+                R->EAX = (uint)Layer.Air;
+                return 0x4DB803;
             }
             return 0;
         }
