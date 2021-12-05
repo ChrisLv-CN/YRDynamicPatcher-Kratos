@@ -621,7 +621,7 @@ namespace ExtensionHooks
             Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
             int z = (int)R->EAX;
             TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-            if (!ext.MyMaster.IsNull)
+            if (!ext.MyMaster.IsNull && (null == ext.StandType || !ext.StandType.IsTrain))
             {
                 R->ECX = (uint)(z + 12);
             }
@@ -633,7 +633,7 @@ namespace ExtensionHooks
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
             TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-            if (!ext.MyMaster.IsNull)
+            if (!ext.MyMaster.IsNull && (null == ext.StandType || !ext.StandType.IsTrain))
             {
                 // Logger.Log(" - ooxx {0}, EAX = {1}, ECX = {2}", pTechno.Ref.Type.Ref.Base.Base.ID, R->EAX, R->ECX);
                 R->EAX = (uint)Layer.Air;
