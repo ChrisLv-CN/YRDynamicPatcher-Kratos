@@ -296,7 +296,7 @@ namespace ExtensionHooks
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
 
                 bool skip = false;
-                ext?.OnRegisterDestruction(pKiller, cost,ref skip);
+                ext?.OnRegisterDestruction(pKiller, cost, ref skip);
                 // skip the entire veterancy
                 if (skip)
                 {
@@ -332,39 +332,6 @@ namespace ExtensionHooks
             }
             return 0;
         }
-
-        // [Hook(HookType.AresHook, Address = 0x6FFEC9, Size = 6)]
-        // public static unsafe UInt32 TechnoClass_GetCursorOverObject_Stand(REGISTERS* R)
-        // {
-        //     try
-        //     {
-        //         Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
-        //         Pointer<ObjectClass> pTarget = (IntPtr)R->EDI;
-
-        //         Logger.Log("6FFEC9 is calling. pTechno {0}, pTarget {1}", pTechno.IsNull ? "is null" : pTechno.Ref.Type.Ref.Base.Base.ID, pTarget.IsNull ? "is null" : pTarget.Ref.Type.Ref.Base.ID);
-        //     }
-        //     catch (Exception e)
-        //     {
-        //         Logger.PrintException(e);
-        //     }
-        //     return (uint)0;
-        // }
-
-        // [Hook(HookType.AresHook, Address = 0x6FFEC9, Size = 6)]
-        // public static unsafe UInt32 TechnoClass_GetCursorOverCell_Stand(REGISTERS* R)
-        // {
-        //     try
-        //     {
-        //         Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
-
-        //         Logger.Log("6FFEC9 is calling. pTechno {0}", pTechno.IsNull ? "is null" : pTechno.Ref.Type.Ref.Base.Base.ID);
-        //     }
-        //     catch (Exception e)
-        //     {
-        //         Logger.PrintException(e);
-        //     }
-        //     return (uint)0;
-        // }
 
 
         [Hook(HookType.AresHook, Address = 0x6F65D1, Size = 6)]
@@ -467,6 +434,33 @@ namespace ExtensionHooks
                 Logger.PrintException(e);
             }
             return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x6F9039, Size = 5)]
+        public static unsafe UInt32 TechnoClass_Greatest_Threat_HealWeaponRange(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            int guardRange = pTechno.Ref.Type.Ref.GuardRange;
+            Pointer<WeaponStruct> pirmary = pTechno.Ref.GetWeapon(0);
+            if (!pirmary.IsNull && !pirmary.Ref.WeaponType.IsNull)
+            {
+                int range = pirmary.Ref.WeaponType.Ref.Range;
+                if (range > guardRange)
+                {
+                    guardRange = range;
+                }
+            }
+            Pointer<WeaponStruct> secondary = pTechno.Ref.GetWeapon(1);
+            if (!secondary.IsNull && !secondary.Ref.WeaponType.IsNull)
+            {
+                int range = secondary.Ref.WeaponType.Ref.Range;
+                if (range > guardRange)
+                {
+                    guardRange = range;
+                }
+            }
+            R->EDI = (uint)guardRange;
+            return 0x6F903E;
         }
 
         [Hook(HookType.AresHook, Address = 0x730E8F, Size = 6)]
