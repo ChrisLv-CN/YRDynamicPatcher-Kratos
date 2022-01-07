@@ -1,5 +1,4 @@
 
-using System.Collections;
 using System;
 using System.Threading;
 using System.Collections.Generic;
@@ -7,7 +6,6 @@ using System.Runtime.InteropServices;
 using DynamicPatcher;
 using PatcherYRpp;
 using Extension.Ext;
-using Extension.Script;
 
 namespace ExtensionHooks
 {
@@ -91,6 +89,25 @@ namespace ExtensionHooks
                 BulletExt ext = BulletExt.ExtMap.Find(pBullet);
                 ext?.OnUpdate();
                 ext?.Scriptable?.OnUpdate();
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
+
+        
+        [Hook(HookType.AresHook, Address = 0x46920B, Size = 6)]
+        public static unsafe UInt32 BulletClass_Detonate(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BulletClass> pBullet = (IntPtr)R->ESI;
+                Pointer<CoordStruct> pCoordsDetonation = R->Base<IntPtr>(0x8);
+                BulletExt ext = BulletExt.ExtMap.Find(pBullet);
+                ext?.OnDetonate(pCoordsDetonation.Data);
+                ext?.Scriptable?.OnDetonate(pCoordsDetonation.Data);
             }
             catch (Exception e)
             {
