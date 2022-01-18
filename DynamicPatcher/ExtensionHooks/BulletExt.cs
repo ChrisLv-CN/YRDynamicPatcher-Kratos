@@ -97,7 +97,60 @@ namespace ExtensionHooks
             return (uint)0;
         }
 
-        
+        // 跳过垂直抛射体重新计算向量
+        // [Hook(HookType.AresHook, Address = 0x467429, Size = 7)]
+        public static unsafe UInt32 BulletClass_Update_ChangeVelocityZ(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BulletClass> pBullet = (IntPtr)R->EBP;
+                BulletExt ext = BulletExt.ExtMap.Find(pBullet);
+                // ext?.BulletClass_Update_RecalculateStatus();
+                Logger.Log("1当前车速 {0} - {1}", pBullet.Ref.Speed, pBullet.Ref.Velocity);
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
+
+        // 跳过垂直抛射体重新计算向量
+        // [Hook(HookType.AresHook, Address = 0x46745C, Size = 7)]
+        public static unsafe UInt32 BulletClass_Update_ChangeVelocityZ2(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BulletClass> pBullet = (IntPtr)R->EBP;
+                BulletExt ext = BulletExt.ExtMap.Find(pBullet);
+                // ext?.BulletClass_Update_RecalculateStatus();
+                Logger.Log("2当前车速 {0} - {1}", pBullet.Ref.Speed, pBullet.Ref.Velocity);
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
+
+        // // 跳过垂直抛射体重新计算向量
+        // [Hook(HookType.AresHook, Address = 0x467211, Size = 6)]
+        // public static unsafe UInt32 BulletClass_Update_AfterRecalculateVelocity(REGISTERS* R)
+        // {
+        //     try
+        //     {
+        //         Pointer<BulletClass> pBullet = (IntPtr)R->EBP;
+        //         BulletExt ext = BulletExt.ExtMap.Find(pBullet);
+        //         // ext?.BulletClass_Update_RecalculateStatus();
+        //         Logger.Log("当前车速 {0} - {1}", pBullet.Ref.Speed, pBullet.Ref.Velocity);
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         Logger.PrintException(e);
+        //     }
+        //     return (uint)0x4672B7;
+        // }
+
         [Hook(HookType.AresHook, Address = 0x46920B, Size = 6)]
         public static unsafe UInt32 BulletClass_Detonate(REGISTERS* R)
         {

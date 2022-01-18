@@ -53,16 +53,23 @@ namespace ExtensionHooks
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->EDI;
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                if (null != ext && ext.CrateMultiplier.FirepowerMultiplier == 1.0)
+                if (null != ext)
                 {
-                    return 0x481D52;
+                    if (ext.CrateMultiplier.FirepowerMultiplier == 1.0)
+                    {
+                        return 0x481D52;
+                    }
+                    else
+                    {
+                        return 0x481C86;
+                    }
                 }
             }
             catch (Exception e)
             {
                 Logger.PrintException(e);
             }
-            return 0x481C86;
+            return (uint)0;
         }
 
         [Hook(HookType.AresHook, Address = 0x481C6C, Size = 6)]
@@ -72,16 +79,23 @@ namespace ExtensionHooks
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->EDI;
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                if (null != ext && ext.CrateMultiplier.ArmorMultiplier == 1.0)
+                if (null != ext)
                 {
-                    return 0x481D52;
+                    if (ext.CrateMultiplier.ArmorMultiplier == 1.0)
+                    {
+                        return 0x481D52;
+                    }
+                    else
+                    {
+                        return 0x481C86;
+                    }
                 }
             }
             catch (Exception e)
             {
                 Logger.PrintException(e);
             }
-            return 0x481C86;
+            return (uint)0;
         }
 
         [Hook(HookType.AresHook, Address = 0x481CE1, Size = 6)]
@@ -91,8 +105,62 @@ namespace ExtensionHooks
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->EDI;
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                if (null != ext && ext.CrateMultiplier.SpeedMultiplier == 1.0)
+                if (null != ext)
                 {
+                    if (ext.CrateMultiplier.SpeedMultiplier == 1.0)
+                    {
+                        return 0x481D52;
+                    }
+                    else
+                    {
+                        return 0x481C86;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
+
+
+        // DEFINE_HOOK(481D3D, CellClass_CrateBeingCollected_Cloak1, 6)
+        // {
+        // 	GET(TechnoClass *, Unit, EDI);
+        // 	TechnoExt::ExtData *UnitExt = TechnoExt::ExtMap.Find(Unit);
+        // 	if (TechnoExt::CanICloakByDefault(Unit) || UnitExt->Crate_Cloakable){
+        // 		return 0x481C86;
+        // 	}
+
+        // 	auto pType = Unit->GetTechnoType();
+        // 	auto pTypeExt = TechnoTypeExt::ExtMap.Find(pType);
+
+        // 	// cloaking forbidden for type
+        // 	if(!pTypeExt->CloakAllowed) {
+        // 		return 0x481C86;
+        // 	}
+
+        // 	return 0x481D52;
+        // }
+
+        [Hook(HookType.AresHook, Address = 0x481D3D, Size = 6)]
+        public static unsafe UInt32 CellClass_CrateBeingCollected_Cloak1(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->EDI;
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                if (null != ext)
+                {
+                    if (ext.CanICloakByDefault() || ext.CrateMultiplier.Cloakable)
+                    {
+                        return 0x481C86;
+                    }
+                    if (!ext.Type.Ares.Cloakable_Allowed)
+                    {
+                        return 0x481C86;
+                    }
                     return 0x481D52;
                 }
             }
@@ -100,7 +168,7 @@ namespace ExtensionHooks
             {
                 Logger.PrintException(e);
             }
-            return 0x481C86;
+            return (uint)0;
         }
 
         //overrides on actual crate effect applications
@@ -174,6 +242,36 @@ namespace ExtensionHooks
                 Logger.PrintException(e);
             }
             return 0x483081;
+        }
+
+        // DEFINE_HOOK(48294F, CellClass_CrateBeingCollected_Cloak2, 7)
+        // {
+        //     GET(TechnoClass *, Unit, EDX);
+        //     TechnoExt::ExtData* UnitExt = TechnoExt::ExtMap.Find(Unit);
+        //     UnitExt->Crate_Cloakable = 1;
+        //     UnitExt->RecalculateStats();
+        //     return 0x482956;
+        // }
+        [Hook(HookType.AresHook, Address = 0x48294F, Size = 6)]
+        public static unsafe UInt32 CellClass_CrateBeingCollected_Cloak2(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->EDX;
+                // Logger.Log("{0}踩箱子获得隐身", pTechno.Ref.Type.Ref.Base.Base.ID);
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                if (null != ext)
+                {
+                    ext.CrateMultiplier.Cloakable = true;
+                    ext.RecalculateStatus();
+                    return 0x482956;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
         }
 
     }
