@@ -1,4 +1,5 @@
 
+using System.Collections;
 using System;
 using System.Threading;
 using System.Collections.Generic;
@@ -97,59 +98,100 @@ namespace ExtensionHooks
             return (uint)0;
         }
 
-        // 跳过垂直抛射体重新计算向量
-        // [Hook(HookType.AresHook, Address = 0x467429, Size = 7)]
-        public static unsafe UInt32 BulletClass_Update_ChangeVelocityZ(REGISTERS* R)
-        {
-            try
-            {
-                Pointer<BulletClass> pBullet = (IntPtr)R->EBP;
-                BulletExt ext = BulletExt.ExtMap.Find(pBullet);
-                // ext?.BulletClass_Update_RecalculateStatus();
-                Logger.Log("1当前车速 {0} - {1}", pBullet.Ref.Speed, pBullet.Ref.Velocity);
-            }
-            catch (Exception e)
-            {
-                Logger.PrintException(e);
-            }
-            return (uint)0;
-        }
-
-        // 跳过垂直抛射体重新计算向量
-        // [Hook(HookType.AresHook, Address = 0x46745C, Size = 7)]
-        public static unsafe UInt32 BulletClass_Update_ChangeVelocityZ2(REGISTERS* R)
-        {
-            try
-            {
-                Pointer<BulletClass> pBullet = (IntPtr)R->EBP;
-                BulletExt ext = BulletExt.ExtMap.Find(pBullet);
-                // ext?.BulletClass_Update_RecalculateStatus();
-                Logger.Log("2当前车速 {0} - {1}", pBullet.Ref.Speed, pBullet.Ref.Velocity);
-            }
-            catch (Exception e)
-            {
-                Logger.PrintException(e);
-            }
-            return (uint)0;
-        }
-
-        // // 跳过垂直抛射体重新计算向量
-        // [Hook(HookType.AresHook, Address = 0x467211, Size = 6)]
-        // public static unsafe UInt32 BulletClass_Update_AfterRecalculateVelocity(REGISTERS* R)
+        // 重新赋值被修改过的导弹类的速度
+        // [Hook(HookType.AresHook, Address = 0x466D26, Size = 7)]
+        // public static unsafe UInt32 BulletClass_Update_ChangeVelocity1(REGISTERS* R)
         // {
         //     try
         //     {
         //         Pointer<BulletClass> pBullet = (IntPtr)R->EBP;
-        //         BulletExt ext = BulletExt.ExtMap.Find(pBullet);
-        //         // ext?.BulletClass_Update_RecalculateStatus();
-        //         Logger.Log("当前车速 {0} - {1}", pBullet.Ref.Speed, pBullet.Ref.Velocity);
+        //         Pointer<BulletVelocity> pVelocity = R->lea_Stack<IntPtr>(0x0A8);
+        //         BulletVelocity velocity = pBullet.Ref.Velocity;
+        //         Logger.Log("1当前车速 {0} - {1}, {2}", pBullet.Ref.Speed, velocity, pVelocity.IsNull ? "null" : pVelocity.Data);
+        //         pVelocity.Ref.X = velocity.X;
+        //         pVelocity.Ref.Y = velocity.Y;
+        //         pVelocity.Ref.Z = velocity.Z;
         //     }
         //     catch (Exception e)
         //     {
         //         Logger.PrintException(e);
         //     }
-        //     return (uint)0x4672B7;
+        //     return (uint)0;
         // }
+
+        // 跳过垂直抛射体重新计算向量
+        [Hook(HookType.AresHook, Address = 0x467429, Size = 7)]
+        public static unsafe UInt32 BulletClass_Update_ChangeVelocity2z(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BulletClass> pBullet = (IntPtr)R->EBP;
+                Pointer<BulletVelocity> pVelocity = R->lea_Stack<IntPtr>(0x0A0); // 已经算过重力的速度
+                BulletVelocity velocity = pBullet.Ref.Velocity;
+                Logger.Log("2当前车速 {0} - {1}, {2}", pBullet.Ref.Speed, velocity, pVelocity.IsNull ? "null" : pVelocity.Data.X);
+                // pVelocity.Ref.X = velocity.X;
+                // pVelocity.Ref.Y = velocity.Y;
+                // pVelocity.Ref.Z = 0;
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
+
+        // 除 ROT>0 和 Vertical 之外的抛射体会在此根据重力对储存的向量变量进行运算
+        // 对Arcing抛射体的重力进行削减
+        [Hook(HookType.AresHook, Address = 0x46745C, Size = 7)]
+        public static unsafe UInt32 BulletClass_Update_ChangeVelocity(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BulletClass> pBullet = (IntPtr)R->EBP;
+                BulletExt ext = BulletExt.ExtMap.Find(pBullet);
+                if (pBullet.Ref.Type.Ref.Arcing && null != ext && ext.SpeedChanged)
+                {
+                    Pointer<BulletVelocity> pVelocity = R->lea_Stack<IntPtr>(0x90); // 已经算过重力的速度
+                    BulletVelocity velocity = pBullet.Ref.Velocity;
+                    Logger.Log("Arcing当前车速 {0} - {1}, {2}", pBullet.Ref.Speed, velocity, pVelocity.IsNull ? "null" : pVelocity.Data);
+                    // velocity *= 0;
+                    pVelocity.Ref.X = velocity.X;
+                    pVelocity.Ref.Y = velocity.Y;
+                    pVelocity.Ref.Z = ext.LocationLocked ? 0 : velocity.Z; // 锁定状态，竖直方向向量0
+                    Logger.Log(" - Arcing当前车速 {0} - {1}, {2}", pBullet.Ref.Speed, velocity, pVelocity.IsNull ? "null" : pVelocity.Data);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
+
+        // 除 ROT>0 和 Vertical 之外的抛射体会在Label_158根据速度向量获取坐标
+        // Arcing抛射体即使向量非常小也会试图移动1点
+        [Hook(HookType.AresHook, Address = 0x4677C2, Size = 5)]
+        public static unsafe UInt32 BulletClass_Update_ChangeVelocity_Locked(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BulletClass> pBullet = (IntPtr)R->EBP;
+                BulletExt ext = BulletExt.ExtMap.Find(pBullet);
+                if (pBullet.Ref.Type.Ref.Arcing && null != ext && ext.SpeedChanged && ext.LocationLocked)
+                {
+                    Logger.Log("Label_158 当前坐标 {0} - 坐标 {{\"X\":{1}, \"Y\":{2}, \"Z\":{3}}}", pBullet.Ref.Base.Location, R->ESI, R->EDI, R->EAX);
+                    CoordStruct location = pBullet.Ref.Base.Location;
+                    R->ESI = (uint)location.X;
+                    R->EDI = (uint)location.Y;
+                    R->EAX = (uint)location.Y; // 不要问为什么不是Z
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
 
         [Hook(HookType.AresHook, Address = 0x46920B, Size = 6)]
         public static unsafe UInt32 BulletClass_Detonate(REGISTERS* R)
