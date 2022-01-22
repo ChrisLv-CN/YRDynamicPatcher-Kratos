@@ -55,17 +55,27 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="Projects\YRpp\PatcherYRpp.csproj">
+    <ProjectReference Include="Projects\PatcherYRpp\PatcherYRpp.csproj">
       <Project>{4C392077-A5ED-46CC-BC94-E1449610105C}</Project>
       <Name>PatcherYRpp</Name>
+    </ProjectReference>
+    <ProjectReference Include="Projects\PatcherYRpp.Utilities\PatcherYRpp.Utilities.csproj">
+      <Project>{AE6121FF-74CF-472A-BF7D-4543A78E7D50}</Project>
+      <Name>PatcherYRpp.Utilities</Name>
     </ProjectReference>
     <ProjectReference Include="Projects\Extension\Extension.csproj">
       <Project>{957E3C34-E736-4145-8B05-2DC1BCFA79E1}</Project>
       <Name>Extension</Name>
     </ProjectReference>
+    <ProjectReference Include="Projects\Extension.FX\Extension.FX.csproj">
+      <Project>{C6726566-6231-435A-9BA4-73B05CA8FAEB}</Project>
+      <Name>Extension.FX</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DecoratorHooks\*.cs" />
     <Compile Include="ExtensionHooks\*.cs" />
+    <Compile Include="Miscellaneous\*.cs" />
     <Compile Include="Scripts\*.cs" />
     <Compile Remove="obj\**\*.*" />
   </ItemGroup>
