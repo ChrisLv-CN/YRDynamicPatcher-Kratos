@@ -38,6 +38,7 @@ namespace Extension.Ext
         {
             TechnoClass_Init_AircraftDive();
             TechnoClass_Init_AttachEffect();
+            TechnoClass_Init_AttackBeacon();
             TechnoClass_Init_AntiBullet();
             TechnoClass_Init_AutoFireAreaWeapon();
             TechnoClass_Init_ConvertType();
