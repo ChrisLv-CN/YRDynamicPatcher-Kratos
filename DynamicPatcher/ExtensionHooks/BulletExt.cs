@@ -120,25 +120,25 @@ namespace ExtensionHooks
         // }
 
         // 跳过垂直抛射体重新计算向量
-        [Hook(HookType.AresHook, Address = 0x467429, Size = 7)]
-        public static unsafe UInt32 BulletClass_Update_ChangeVelocity2z(REGISTERS* R)
-        {
-            try
-            {
-                Pointer<BulletClass> pBullet = (IntPtr)R->EBP;
-                Pointer<BulletVelocity> pVelocity = R->lea_Stack<IntPtr>(0x0A0); // 已经算过重力的速度
-                BulletVelocity velocity = pBullet.Ref.Velocity;
-                Logger.Log("2当前车速 {0} - {1}, {2}", pBullet.Ref.Speed, velocity, pVelocity.IsNull ? "null" : pVelocity.Data.X);
-                // pVelocity.Ref.X = velocity.X;
-                // pVelocity.Ref.Y = velocity.Y;
-                // pVelocity.Ref.Z = 0;
-            }
-            catch (Exception e)
-            {
-                Logger.PrintException(e);
-            }
-            return (uint)0;
-        }
+        // [Hook(HookType.AresHook, Address = 0x467429, Size = 7)]
+        // public static unsafe UInt32 BulletClass_Update_ChangeVelocity2z(REGISTERS* R)
+        // {
+        //     try
+        //     {
+        //         Pointer<BulletClass> pBullet = (IntPtr)R->EBP;
+        //         Pointer<BulletVelocity> pVelocity = R->lea_Stack<IntPtr>(0x0A0); // 已经算过重力的速度
+        //         BulletVelocity velocity = pBullet.Ref.Velocity;
+        //         Logger.Log("2当前车速 {0} - {1}, {2}", pBullet.Ref.Speed, velocity, pVelocity.IsNull ? "null" : pVelocity.Data.X);
+        //         // pVelocity.Ref.X = velocity.X;
+        //         // pVelocity.Ref.Y = velocity.Y;
+        //         // pVelocity.Ref.Z = 0;
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         Logger.PrintException(e);
+        //     }
+        //     return (uint)0;
+        // }
 
         // 除 ROT>0 和 Vertical 之外的抛射体会在此根据重力对储存的向量变量进行运算
         // 对Arcing抛射体的重力进行削减
@@ -153,12 +153,12 @@ namespace ExtensionHooks
                 {
                     Pointer<BulletVelocity> pVelocity = R->lea_Stack<IntPtr>(0x90); // 已经算过重力的速度
                     BulletVelocity velocity = pBullet.Ref.Velocity;
-                    Logger.Log("Arcing当前车速 {0} - {1}, {2}", pBullet.Ref.Speed, velocity, pVelocity.IsNull ? "null" : pVelocity.Data);
+                    // Logger.Log("Arcing当前车速 {0} - {1}, {2}", pBullet.Ref.Speed, velocity, pVelocity.IsNull ? "null" : pVelocity.Data);
                     // velocity *= 0;
                     pVelocity.Ref.X = velocity.X;
                     pVelocity.Ref.Y = velocity.Y;
                     pVelocity.Ref.Z = ext.LocationLocked ? 0 : velocity.Z; // 锁定状态，竖直方向向量0
-                    Logger.Log(" - Arcing当前车速 {0} - {1}, {2}", pBullet.Ref.Speed, velocity, pVelocity.IsNull ? "null" : pVelocity.Data);
+                    // Logger.Log(" - Arcing当前车速 {0} - {1}, {2}", pBullet.Ref.Speed, velocity, pVelocity.IsNull ? "null" : pVelocity.Data);
                 }
             }
             catch (Exception e)
@@ -179,7 +179,7 @@ namespace ExtensionHooks
                 BulletExt ext = BulletExt.ExtMap.Find(pBullet);
                 if (pBullet.Ref.Type.Ref.Arcing && null != ext && ext.SpeedChanged && ext.LocationLocked)
                 {
-                    Logger.Log("Label_158 当前坐标 {0} - 坐标 {{\"X\":{1}, \"Y\":{2}, \"Z\":{3}}}", pBullet.Ref.Base.Location, R->ESI, R->EDI, R->EAX);
+                    // Logger.Log("Label_158 当前坐标 {0} - 坐标 {{\"X\":{1}, \"Y\":{2}, \"Z\":{3}}}", pBullet.Ref.Base.Location, R->ESI, R->EDI, R->EAX);
                     CoordStruct location = pBullet.Ref.Base.Location;
                     R->ESI = (uint)location.X;
                     R->EDI = (uint)location.Y;

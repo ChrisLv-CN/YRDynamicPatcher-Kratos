@@ -45,15 +45,15 @@ namespace Extension.Ext
                 if (null != OwnerExt)
                 {
                     ColorStruct color = Type.IsHouseColor ? pHouse.Ref.LaserColor : Type.Color;
-                    OwnerExt.PaintballState.Enable(color);
+                    OwnerExt.PaintballState.Enable(color, AttachEffectType.Duration);
                 }
             }
         }
 
-        public override void Disable(CoordStruct location)
-        {
-            OwnerExt?.PaintballState.Disable();
-        }
+        // public override void Disable(CoordStruct location)
+        // {
+        //     OwnerExt?.PaintballState.Disable();
+        // }
 
     }
 

@@ -18,24 +18,47 @@ namespace Extension.Ext
     public class PaintballState
     {
         public ColorStruct Color;
+        public int Duration;
 
-        public bool NeedPoint;
+        private bool paint;
+        private bool infinite;
+        private TimerStruct timer;
 
         public PaintballState()
         {
             this.Color = default;
-            this.NeedPoint = false;
+            this.Duration = 0;
+            this.paint = false;
+            this.infinite = false;
+            this.timer = new TimerStruct(0);
         }
 
-        public void Enable(ColorStruct color)
+        public void Enable(ColorStruct color, int duration)
         {
             this.Color = color;
-            this.NeedPoint = true;
+            this.Duration = duration;
+            this.paint = duration != 0;
+            if (duration < 0)
+            {
+                infinite = true;
+                timer.Start(0);
+            }
+            else
+            {
+                infinite = false;
+                timer.Start(duration + 1);
+            }
         }
 
-        public void Disable()
+        public bool NeedPaint()
         {
-            NeedPoint = false;
+            return paint && NotDone();
+        }
+
+        private bool NotDone()
+        {
+            paint = infinite || timer.InProgress();
+            return paint;
         }
 
     }
@@ -50,7 +73,7 @@ namespace Extension.Ext
             {
                 return;
             }
-            if (PaintballState.NeedPoint && !OwnerObject.Ref.Berzerk)
+            if (PaintballState.NeedPaint() && !OwnerObject.Ref.Berzerk)
             {
                 ColorStruct colorAdd = ExHelper.Color2ColorAdd(PaintballState.Color);
                 // Logger.Log("RGB888 = {0}, RGB565 = {1}, RGB565 = {2}", Paintball.Color, colorAdd, ExHelper.ColorAdd2RGB565(colorAdd));
@@ -64,13 +87,14 @@ namespace Extension.Ext
             {
                 return;
             }
-            if (PaintballState.NeedPoint && !OwnerObject.Ref.Berzerk)
+            if (PaintballState.NeedPaint() && !OwnerObject.Ref.Berzerk)
             {
                 ColorStruct colorAdd = ExHelper.Color2ColorAdd(PaintballState.Color);
                 // Logger.Log("RGB888 = {0}, RGB565 = {1}, RGB565 = {2}", Paintball.Color, colorAdd, ExHelper.ColorAdd2RGB565(colorAdd));
                 R->ESI = ExHelper.ColorAdd2RGB565(colorAdd);
             }
         }
+
     }
 
 }
