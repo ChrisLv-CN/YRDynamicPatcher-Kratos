@@ -61,7 +61,7 @@ namespace ExtensionHooks
             {
                 Logger.PrintException(e);
             }
-            return (uint)0;
+            return 0;
         }
 
 
@@ -80,7 +80,7 @@ namespace ExtensionHooks
             {
                 Logger.PrintException(e);
             }
-            return (uint)0;
+            return 0;
         }
 
         [Hook(HookType.AresHook, Address = 0x71A88D, Size = 0)]
@@ -128,7 +128,7 @@ namespace ExtensionHooks
             {
                 Logger.PrintException(e);
             }
-            return (uint)0;
+            return 0;
         }
         */
 
@@ -143,7 +143,7 @@ namespace ExtensionHooks
             ext?.OnPut(pCoord, faceDir);
             ext?.Scriptable?.OnPut(pCoord, faceDir);
 
-            return (uint)0;
+            return 0;
         }
 
         // [Hook(HookType.AresHook, Address = 0x6F6AC0, Size = 5)]
@@ -161,7 +161,7 @@ namespace ExtensionHooks
             {
                 Logger.PrintException(e);
             }
-            return (uint)0;
+            return 0;
         }
 
         [Hook(HookType.AresHook, Address = 0x701900, Size = 6)]
@@ -180,7 +180,7 @@ namespace ExtensionHooks
             ext?.OnReceiveDamage(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
             ext?.Scriptable?.OnReceiveDamage(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
 
-            return (uint)0;
+            return 0;
         }
 
 
@@ -222,7 +222,7 @@ namespace ExtensionHooks
             {
                 Logger.PrintException(e);
             }
-            return (uint)0;
+            return 0;
         }
 
         [Hook(HookType.AresHook, Address = 0x6FDD50, Size = 6)]
@@ -242,7 +242,7 @@ namespace ExtensionHooks
             {
                 Logger.PrintException(e);
             }
-            return (uint)0;
+            return 0;
         }
 
 
@@ -307,7 +307,7 @@ namespace ExtensionHooks
             {
                 Logger.PrintException(e);
             }
-            return (uint)0;
+            return 0;
         }
 
         [Hook(HookType.AresHook, Address = 0x5F45A0, Size = 5)]
@@ -352,7 +352,7 @@ namespace ExtensionHooks
             {
                 Logger.PrintException(e);
             }
-            return (uint)0;
+            return 0;
         }
 
         [Hook(HookType.AresHook, Address = 0x6F683C, Size = 7)]
@@ -373,7 +373,7 @@ namespace ExtensionHooks
             {
                 Logger.PrintException(e);
             }
-            return (uint)0;
+            return 0;
         }
 
         // case VISUAL_NORMAL
@@ -402,7 +402,7 @@ namespace ExtensionHooks
             {
                 Logger.PrintException(e);
             }
-            return (uint)0;
+            return 0;
         }
 
 
@@ -508,7 +508,7 @@ namespace ExtensionHooks
         //     {
         //         Logger.PrintException(e);
         //     }
-        //     return (uint)0;
+        //     return 0;
         // }
 
         // Someone wants to enter the cell where I am
@@ -600,7 +600,7 @@ namespace ExtensionHooks
             if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
             {
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                if (!ext.MyMaster.IsNull)
+                if (null != ext && !ext.MyMaster.IsNull)
                 {
                     return 0x5F6B97;
                 }
@@ -615,10 +615,10 @@ namespace ExtensionHooks
             Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
             int z = (int)R->EAX;
             TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-            if (!ext.MyMaster.IsNull && (null == ext.StandType || !ext.StandType.IsTrain))
+            if (null != ext && !ext.MyMaster.IsNull && (null == ext.StandType || !ext.StandType.IsTrain))
             {
                 int offset = null != ext.StandType ? ext.StandType.ZOffset : 12;
-                R->ECX = (uint)(z + offset);                
+                R->ECX = (uint)(z + offset);
                 // Logger.Log("ZOffset = {0}, ECX = {1}, EAX = {2}", offset, R->ECX, R->EAX);
             }
             return 0;
@@ -629,11 +629,28 @@ namespace ExtensionHooks
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
             TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-            if (!ext.MyMaster.IsNull && (null == ext.StandType || (!ext.StandType.IsTrain && ext.StandType.ZOffset > 0)))
+            if (null != ext && !ext.MyMaster.IsNull && (null == ext.StandType || (!ext.StandType.IsTrain && ext.StandType.ZOffset > 0)))
             {
                 // Logger.Log(" - ooxx {0}, EAX = {1}, ECX = {2}", pTechno.Ref.Type.Ref.Base.Base.ID, R->EAX, R->ECX);
-                R->EAX = (uint)Layer.Air;
+                R->EAX = pTechno.Ref.Base.Base.IsInAir() ? (uint)Layer.Top : (uint)Layer.Air;
                 return 0x4DB803;
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x54B8E9, Size = 6)]
+        public static unsafe UInt32 JumpjetLocomotionClass_In_Which_Layer_Deviation(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->EAX;
+            if (pTechno.Ref.Base.Base.IsInAir())
+            {
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                if (null != ext &&  ext.AttachEffectManager.HasStand())
+                {
+                    // Override JumpjetHeight / CruiseHeight check so it always results in 3 / Layer::Air.
+                    R->EDX = Int32.MaxValue;
+                    return 0x54B96B;
+                }
             }
             return 0;
         }

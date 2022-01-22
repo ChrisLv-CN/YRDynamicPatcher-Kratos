@@ -34,6 +34,8 @@ namespace Extension.Ext
 
         public SwizzleablePointer<TechnoClass> pStand;
 
+        private bool onStopCommand = false;
+
         public Stand(StandType type, AttachEffectType attachEffectType) : base(attachEffectType)
         {
             this.Type = type;
@@ -243,21 +245,28 @@ namespace Extension.Ext
                     break;
             }
 
-            // synch Target
-            CancelStandTarget();
-            Pointer<AbstractClass> target = pMaster.Ref.Target;
-            if (Type.SameTarget && !target.IsNull)
+            if (!onStopCommand)
             {
-                pStand.Ref.SetTarget(target);
-            }
-            if (Type.SameLoseTarget && target.IsNull)
-            {
-                pStand.Ref.SetTarget(target);
-                if (target.IsNull && !pStand.Ref.SpawnManager.IsNull)
+                // synch Target
+                CancelStandTarget();
+                Pointer<AbstractClass> target = pMaster.Ref.Target;
+                if (Type.SameTarget && !target.IsNull)
                 {
-                    pStand.Ref.SpawnManager.Ref.Destination = target;
                     pStand.Ref.SetTarget(target);
                 }
+                if (Type.SameLoseTarget && target.IsNull)
+                {
+                    pStand.Ref.SetTarget(target);
+                    if (target.IsNull && !pStand.Ref.SpawnManager.IsNull)
+                    {
+                        pStand.Ref.SpawnManager.Ref.Destination = target;
+                        pStand.Ref.SetTarget(target);
+                    }
+                }
+            }
+            else
+            {
+                onStopCommand = false;
             }
         }
 
@@ -402,12 +411,15 @@ namespace Extension.Ext
         {
             // Logger.Log("清空替身{0}的目标对象", Type.Type);
             pStand.Ref.Target = IntPtr.Zero;
-            pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(Mission.Guard, true);
+            pStand.Ref.SetTarget(IntPtr.Zero);
+            pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(Mission.Area_Guard, true);
             if (!pStand.Ref.SpawnManager.IsNull)
             {
                 pStand.Ref.SpawnManager.Ref.Destination = IntPtr.Zero;
                 pStand.Ref.SpawnManager.Ref.Target = IntPtr.Zero;
+                pStand.Ref.SpawnManager.Ref.SetTarget(IntPtr.Zero);
             }
+            onStopCommand = true;
             TechnoExt ext = TechnoExt.ExtMap.Find(pStand);
             ext?.OnStopCommand();
             ext?.Scriptable?.OnStopCommand();

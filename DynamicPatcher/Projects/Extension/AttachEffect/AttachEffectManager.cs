@@ -217,6 +217,18 @@ namespace Extension.Ext
             return totleMileage > Count() * LocationSpace;
         }
 
+        public bool HasStand()
+        {
+            foreach(AttachEffect ae in AttachEffects)
+            {
+                if (null != ae.Stand && ae.IsActive())
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public CrateMultiplier CountAttachStatusMultiplier()
         {
             CrateMultiplier multiplier = new CrateMultiplier();

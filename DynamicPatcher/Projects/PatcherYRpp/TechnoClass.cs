@@ -177,10 +177,16 @@ namespace PatcherYRpp
             return func(ref this, ability);
         }
 
-        public unsafe Pointer<LaserDrawClass> CreateLaser(Pointer<ObjectClass> pTarget, int weaponIndex, Pointer<WeaponTypeClass> pWeapon, CoordStruct coords)
+        public unsafe Pointer<LaserDrawClass> CreateLaser(Pointer<AbstractClass> pTarget, int weaponIndex, Pointer<WeaponTypeClass> pWeapon, CoordStruct sourceCoord)
         {
             var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr, int, IntPtr, ref CoordStruct, IntPtr>)0x6FD210;
-            return func(ref this, pTarget, weaponIndex, pWeapon, ref coords);
+            return func(ref this, pTarget, weaponIndex, pWeapon, ref sourceCoord);
+        }
+
+        public unsafe Pointer<EBolt> Electric_Zap(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon, CoordStruct sourceCoord)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr, IntPtr, ref CoordStruct, IntPtr>)0x6FD460;
+            return func(ref this, pTarget, pWeapon, ref sourceCoord);
         }
 
         [FieldOffset(0)] public ObjectClass Base;

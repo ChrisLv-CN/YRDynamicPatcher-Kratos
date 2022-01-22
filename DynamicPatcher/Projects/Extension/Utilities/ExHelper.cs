@@ -586,7 +586,7 @@ namespace Extension.Utilities
             // Fire weapon
             Pointer<BulletClass> pBullet = FireBullet(pAttacker, pTarget, pWeapon, sourcePos, targetPos, bulletVelocity);
             // Draw bullet effect
-            DrawBulletEffect(pWeapon, sourcePos, targetPos, pAttacker);
+            DrawBulletEffect(pWeapon, sourcePos, targetPos, pAttacker, pTarget);
             // Draw particle system
             AttachedParticleSystem(pWeapon, sourcePos, pTarget, pAttacker, targetPos);
             // Play report sound
@@ -633,7 +633,7 @@ namespace Extension.Utilities
             return pBullet;
         }
 
-        public static unsafe void DrawBulletEffect(Pointer<WeaponTypeClass> pWeapon, CoordStruct sourcePos, CoordStruct targetPos, Pointer<TechnoClass> pAttacker)
+        public static unsafe void DrawBulletEffect(Pointer<WeaponTypeClass> pWeapon, CoordStruct sourcePos, CoordStruct targetPos, Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget)
         {
             // IsLaser
             if (pWeapon.Ref.IsLaser)
@@ -692,7 +692,14 @@ namespace Extension.Utilities
             //IsElectricBolt
             if (pWeapon.Ref.IsElectricBolt)
             {
-                BulletEffectHelper.DrawBolt(sourcePos, targetPos, pWeapon.Ref.IsAlternateColor);
+                if (!pAttacker.IsNull && !pTarget.IsNull)
+                {
+                    BulletEffectHelper.DrawBolt(pAttacker, pTarget, pWeapon, sourcePos);
+                }
+                else
+                {
+                    BulletEffectHelper.DrawBolt(sourcePos, targetPos, pWeapon.Ref.IsAlternateColor);
+                }
             }
         }
 
