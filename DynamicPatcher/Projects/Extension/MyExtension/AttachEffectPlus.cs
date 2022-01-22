@@ -160,6 +160,7 @@ namespace Extension.Ext
     public partial class BulletExt
     {
         public AttachEffectManager AttachEffectManager = new AttachEffectManager();
+        public bool AttachEffectOnceFlag = false;
 
         public SwizzleablePointer<ObjectClass> FakeTarget = new SwizzleablePointer<ObjectClass>(IntPtr.Zero);
 
@@ -173,7 +174,8 @@ namespace Extension.Ext
             if (null != Type.AttachEffectData)
             {
                 // 写在ini中的重复赋予
-                AttachEffectManager.Attach(Type.AttachEffectData, OwnerObject.Convert<ObjectClass>(), pSourceHouse, true);
+                AttachEffectManager.Attach(Type.AttachEffectData, OwnerObject.Convert<ObjectClass>(), pSourceHouse, AttachEffectOnceFlag);
+                AttachEffectOnceFlag = true;
             }
             AttachEffectManager.Update(OwnerObject.Convert<ObjectClass>(), false);
         }
