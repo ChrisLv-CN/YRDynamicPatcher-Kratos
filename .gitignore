@@ -1,6 +1,5 @@
 .vs
 .vscode
-BuildScript
 LayOut.txt
 DynamicPatcher/output
 DynamicPatcher/bin

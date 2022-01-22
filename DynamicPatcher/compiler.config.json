@@ -1,17 +1,25 @@
 {
-    "references" : [
-        "System.dll",
-        "System.Core.dll",
-        "System.Data.dll",
-        "PatcherYRpp.dll",
-        "Extension.dll"
-    ],
-    "#preprocessor_symbols" : [
-        "REALTIME_INI"
-    ],
-    "show_hidden" : false,
-    "load_temp_file_in_memory" : false,
-    "emit_pdb" : true,
-    "force_compile" : false,
-    "pack_assembly" : true
+  "references": [
+    "System.dll",
+    "System.Core.dll",
+    "System.Data.dll",
+    "System.Runtime.CompilerServices.Unsafe.dll",
+    "System.Windows.Forms.dll",
+    "System.Drawing.dll",
+
+    "PatcherYRpp.dll",
+    "PatcherYRpp.Utilities.dll",
+    "Extension.dll",
+    "Extension.FX.dll"
+  ],
+  "#preprocessor_symbols": [
+    "#REALTIME_INI",
+    "#FX_ENABLE"
+  ],
+  "show_hidden": false,
+  "load_temp_file_in_memory": false,
+  "emit_pdb": true,
+  "force_compile": false,
+  "pack_assembly": true,
+  "optimization_level": "debug"
 }

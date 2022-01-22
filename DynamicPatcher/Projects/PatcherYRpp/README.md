@@ -52,7 +52,7 @@ public struct YourClass
   static public ref DynamicVectorClass<Pointer<TechnoClass>> Array { get => ref DynamicVectorClass<Pointer<TechnoClass>>.GetDynamicVector(ArrayPointer); }
 
   // for xxxTypeClass
-	static public YRPP.GLOBAL_DVC_ARRAY<YourClass> ABSTRACTTYPE_ARRAY = new YRPP.GLOBAL_DVC_ARRAY<YourClass>(ArrayPointer);
+	static public YRPP.ABSTRACTTYPE_ARRAY<YourClass> ABSTRACTTYPE_ARRAY = new YRPP.ABSTRACTTYPE_ARRAY<YourClass>(ArrayPointer);
 
   // your member
   [FieldOffset(member_offset)] public TMember Member;
