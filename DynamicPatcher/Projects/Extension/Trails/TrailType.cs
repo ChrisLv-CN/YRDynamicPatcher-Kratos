@@ -29,20 +29,17 @@ namespace Extension.Ext
 
         public TrailType(string name) : base(name)
         {
-            MethodInfo[] methods = this.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic);
-
-            foreach (MethodInfo method in methods.Where(m => m.Name.StartsWith("Init")))
-            {
-                method.Invoke(this, null);
-            }
-        }
-
-        private void InitTrailType()
-        {
             this.Mode = TrailMode.LASER;
             this.Distance = 64;
             this.IgnoreVertical = false;
             this.InitialDelay = 0;
+
+            // 初始化具体效果
+            InitAnimType();
+            InitBeamType();
+            InitElectricType();
+            InitLaserType();
+            InitParticleType();
         }
 
         public override void LoadFromINI(Pointer<CCINIClass> pINI)
@@ -51,24 +48,6 @@ namespace Extension.Ext
             INIReader reader = new INIReader(pINI);
             string section = Name;
 
-            MethodInfo[] methods = this.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic);
-            object[] param = new object[] { reader, section };
-
-            foreach (MethodInfo method in methods.Where(m => m.Name.StartsWith("Read")))
-            {
-                method.Invoke(this, param);
-            }
-
-            base.LoadFromINI(pINI);
-        }
-
-        public Trail CreateObject()
-        {
-            return new Trail(this);
-        }
-
-        private void ReadTrailType(INIReader reader, string section)
-        {
              string mode = null;
             if (reader.ReadNormal(section, "Mode", ref mode))
             {
@@ -112,6 +91,25 @@ namespace Extension.Ext
             {
                 this.InitialDelay = initialDelay;
             }
+
+            // 读取具体效果
+            ReadAnimType(reader, section);
+            ReadBeamType(reader, section);
+            ReadElectricType(reader, section);
+            ReadLaserTrailType(reader, section);
+            ReadParticleType(reader, section);
+
+            base.LoadFromINI(pINI);
+        }
+
+        public Trail CreateObject()
+        {
+            return new Trail(this);
+        }
+
+        private void ReadTrailType(INIReader reader, string section)
+        {
+            
         }
 
     }

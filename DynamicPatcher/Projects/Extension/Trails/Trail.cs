@@ -138,7 +138,7 @@ namespace Extension.Ext
                     BulletEffectHelper.DrawLine(sourcePos, targetPos, Type.LaserType, Type.LaserType.IsHouseColor ? houseColor : default);
                     break;
                 case TrailMode.ELECTIRIC:
-                    BulletEffectHelper.DrawBolt(sourcePos, targetPos, Type.IsAlternateColor);
+                    BulletEffectHelper.DrawBolt(sourcePos, targetPos, Type.BoltType);
                     break;
                 case TrailMode.BEAM:
                     BulletEffectHelper.DrawBeam(sourcePos, targetPos, Type.BeamType);

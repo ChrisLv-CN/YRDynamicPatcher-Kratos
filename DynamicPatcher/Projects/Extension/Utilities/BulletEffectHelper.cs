@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Extension.Ext;
 using DynamicPatcher;
 
 namespace Extension.Utilities
@@ -151,11 +152,27 @@ namespace Extension.Utilities
 
         public static void DrawBolt(CoordStruct sourcePos, CoordStruct targetPos, bool alternate = false)
         {
+            BoltType type = new BoltType(alternate);
+            DrawBolt(sourcePos, targetPos, type);
+        }
+
+        public static void DrawBolt(CoordStruct sourcePos, CoordStruct targetPos, BoltType type)
+        {
             Pointer<EBolt> pBolt = YRMemory.Create<EBolt>();
             if (!pBolt.IsNull)
             {
+                EBoltExt ext = EBoltExt.ExtMap.Find(pBolt);
+                if (null != ext)
+                {
+                    ext.Color1 = type.Color1;
+                    ext.Color2 = type.Color2;
+                    ext.Color3 = type.Color3;
+                    ext.Disable1 = type.Disable1;
+                    ext.Disable2 = type.Disable2;
+                    ext.Disable3 = type.Disable3;
+                }
+                pBolt.Ref.AlternateColor = type.IsAlternateColor;
                 pBolt.Ref.Fire(sourcePos, targetPos, 0);
-                pBolt.Ref.AlternateColor = alternate;
             }
         }
 
@@ -274,6 +291,29 @@ namespace Extension.Utilities
             }
         }
 
+    }
+
+    [Serializable]
+    public class BoltType
+    {
+        public bool IsAlternateColor;
+        public ColorStruct Color1;
+        public ColorStruct Color2;
+        public ColorStruct Color3;
+        public bool Disable1;
+        public bool Disable2;
+        public bool Disable3;
+
+        public BoltType(bool alternate)
+        {
+            IsAlternateColor = alternate;
+            Color1 = default;
+            Color2 = default;
+            Color3 = default;
+            Disable1 = false;
+            Disable2 = false;
+            Disable3 = false;
+        }
     }
 }
 

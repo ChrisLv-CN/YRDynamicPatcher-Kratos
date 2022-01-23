@@ -18,7 +18,7 @@ namespace Extension.Ext
             BeamType = new BeamType(RadBeamType.RadBeam);
         }
 
-        private void ReadBeamTrailType(INIReader reader, string section)
+        private void ReadBeamType(INIReader reader, string section)
         {
 
             ColorStruct customColor = default;
