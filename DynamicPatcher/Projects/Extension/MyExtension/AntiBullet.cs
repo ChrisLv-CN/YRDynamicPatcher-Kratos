@@ -102,12 +102,14 @@ namespace Extension.Ext
                     if (null == pPrimary || pPrimary.IsNull
                         || null == pPrimary.Ref.Projectile || pPrimary.Ref.Projectile.IsNull)
                     {
+                        Logger.LogWarning("单位{0}启用了反抛射体，没有主武器，强制关闭", pTechno.Ref.Type.Ref.Base.Base.ID);
                         disable = true;
                     }
                     else
                     {
                         if (antiBulletData.Self && !pPrimary.Ref.Projectile.Ref.AA)
                         {
+                            Logger.LogWarning("单位{0}启用了反抛射体，主武器不能对空，强制关闭", pTechno.Ref.Type.Ref.Base.Base.ID);
                             disable = true;
                         }
                         else
@@ -363,18 +365,17 @@ namespace Extension.Ext
         public BulletLifeStatus BulletLifeStatus;
         public BulletDamageStatus BulletDamageStatus;
 
-        public unsafe void BulletClass_Update_AntiBullet()
+        public unsafe void BulletClass_Put_AntiBullet(Pointer<CoordStruct> pCoord)
         {
-            Pointer<BulletClass> pBullet = OwnerObject;
-
-            int health = pBullet.Ref.Base.Health;
-            CoordStruct location = pBullet.Ref.Base.Location;
-            Pointer<TechnoClass> pTechno = pBullet.Ref.Owner;
-
+            // Logger.Log("抛射体{0}布置在地图上", OwnerObject);
+            int health = OwnerObject.Ref.Base.Health;
+            CoordStruct location = OwnerObject.Ref.Base.Location;
+            Pointer<TechnoClass> pTechno = OwnerObject.Ref.Owner;
             // 初始化抛射体的生命信息
             if (null == BulletLifeStatus)
             {
                 BulletLifeStatus = new BulletLifeStatus(health, Type.Interceptable);
+                // Logger.Log("初始化抛射体{0}生存属性{1}", OwnerObject, BulletDamageStatus);
             }
 
             // 初始化抛射体的伤害信息
@@ -390,7 +391,15 @@ namespace Extension.Ext
                         BulletDamageStatus.Harmless = extOwner.antiBullet.Data.Harmless;
                     }
                 }
+                // Logger.Log("初始化抛射体{0}攻击属性{1}", OwnerObject, BulletDamageStatus);
             }
+
+        }
+
+        public unsafe void BulletClass_Update_AntiBullet()
+        {
+            Pointer<BulletClass> pBullet = OwnerObject;
+
 
             // 检查抛射体是否已经被摧毁
             if (null != BulletLifeStatus)
@@ -400,6 +409,7 @@ namespace Extension.Ext
                     // Logger.Log("抛射体{0}死亡, {1}", OwnerObject, BulletLifeStatus);
                     if (!BulletLifeStatus.IsHarmless)
                     {
+                        CoordStruct location = OwnerObject.Ref.Base.Base.GetCoords();
                         pBullet.Ref.Detonate(location);
                     }
                     pBullet.Ref.Base.Remove();
@@ -412,24 +422,6 @@ namespace Extension.Ext
                     BulletLifeStatus.IsDetonate = true;
                     return;
                 }
-            }
-
-
-            // 检查抛射体是否命中了其他抛射体，并对其造成伤害
-            Pointer<AbstractClass> pTarget = pBullet.Ref.Target;
-            if (!pTarget.IsNull && AbstractType.Bullet == pTarget.Ref.WhatAmI())
-            {
-                Pointer<BulletClass> pTargetBullet = pTarget.Convert<BulletClass>();
-                BulletExt targetExt = BulletExt.ExtMap.Find(pTargetBullet);
-                if (null != targetExt.BulletLifeStatus && null != BulletDamageStatus)
-                {
-                    // 目标可以被摧毁
-                    if (pBullet.Ref.Type.Ref.Inviso || location.DistanceFrom(pTarget.Ref.GetCoords()) <= pBullet.Ref.Type.Ref.Arm)
-                    {
-                        targetExt.TakeDamage(BulletDamageStatus);
-                    }
-                }
-
             }
         }
 
@@ -446,6 +438,29 @@ namespace Extension.Ext
                 {
                     BulletLifeStatus.TakeDamage(damageStatus.Damage, damageStatus.Harmless);
                 }
+            }
+        }
+
+        public void BulletClass_Detonate_AntiBullet(CoordStruct location)
+        {
+            // 检查抛射体是否命中了其他抛射体，并对其造成伤害
+            Pointer<BulletClass> pBullet = OwnerObject;
+            Pointer<AbstractClass> pTarget = pBullet.Ref.Target;
+            if (!pTarget.IsNull && AbstractType.Bullet == pTarget.Ref.WhatAmI())
+            {
+                // Logger.Log("抛射体{0}引爆自身，目标是{1}", OwnerObject, pTarget);
+                Pointer<BulletClass> pTargetBullet = pTarget.Convert<BulletClass>();
+                BulletExt targetExt = BulletExt.ExtMap.Find(pTargetBullet);
+                if (null != targetExt.BulletLifeStatus && null != BulletDamageStatus)
+                {
+                    // Logger.Log("抛射体{0}的目标{1}可以被摧毁，伤害{2}", OwnerObject, pTarget, BulletDamageStatus);
+                    // 目标可以被摧毁
+                    if (pBullet.Ref.Type.Ref.Inviso || location.DistanceFrom(pTarget.Ref.GetCoords()) <= pBullet.Ref.Type.Ref.Arm)
+                    {
+                        targetExt.TakeDamage(BulletDamageStatus);
+                    }
+                }
+
             }
         }
 

@@ -43,6 +43,7 @@ namespace Extension.Ext
         public CoordStruct EliteTargetFLH; // 精英目标相对位置
         public CoordStruct MoveTo; // 以开火位置为坐标0点，计算TargetFLH
         public CoordStruct EliteMoveTo; // 以开火位置为坐标0点，计算EliteTargetFLH
+        public bool FireToTarget; // 朝附加对象的目标开火，如果附加的对象没有目标，不开火
         public bool IsOnTurret; // 相对炮塔或者身体
         public bool IsOnWorld; // 相对世界
 
@@ -64,6 +65,7 @@ namespace Extension.Ext
             this.EliteTargetFLH = default;
             this.MoveTo = default;
             this.EliteMoveTo = default;
+            this.FireToTarget = false;
             this.IsOnTurret = true;
             this.IsOnWorld = false;
 
@@ -189,6 +191,12 @@ namespace Extension.Ext
                 {
                     autoWeaponType.EliteMoveTo = eliteMoveTo;
                     autoWeaponType.EliteTargetFLH = autoWeaponType.EliteFireFLH + eliteMoveTo;
+                }
+
+                bool fireToTarget = false;
+                if (reader.ReadNormal(section, "AutoWeapon.FireToTarget", ref fireToTarget))
+                {
+                    autoWeaponType.FireToTarget = fireToTarget;
                 }
 
                 bool isOnTurret = true;

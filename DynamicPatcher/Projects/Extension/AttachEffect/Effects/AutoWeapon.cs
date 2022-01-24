@@ -46,17 +46,6 @@ namespace Extension.Ext
 
         public override void Enable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
         {
-            // 创建假想敌
-            // if (pTarget.IsNull)
-            // {
-            //     Pointer<OverlayTypeClass> pOverlayType = OverlayTypeClass.ABSTRACTTYPE_ARRAY.Array[0];
-            //     if (!pOverlayType.IsNull)
-            //     {
-            //         Pointer<ObjectClass> pTargetObject = pOverlayType.Ref.Base.CreateObject(pHouse);
-            //         // Logger.Log("创建一个假想敌, {0}", pTargetObject);
-            //         pTarget.Pointer = pTargetObject;
-            //     }
-            // }
             this.pAttacker.Pointer = pAttacker;
             this.Active = true;
         }
@@ -88,16 +77,13 @@ namespace Extension.Ext
             CoordStruct fireFLH = Type.FireFLH;
             CoordStruct targetFLH = Type.TargetFLH;
             double rofMult = 1;
-            CoordStruct sourcePos = pObject.Ref.Location;
-            CoordStruct targetPos = default;
 
-            Pointer<TechnoClass> pTechno = IntPtr.Zero; // 附着的对象
-            Pointer<HouseClass> pHouse = IntPtr.Zero;
+            Pointer<TechnoClass> pReceiverOwner = IntPtr.Zero; // 附着的对象，如果是Bullet类型，则是Bullet的发射者
+            Pointer<HouseClass> pReceiverHouse = IntPtr.Zero; // 附着的对象的所属
+            Pointer<AbstractClass> pReceiverTarget = IntPtr.Zero; // 附着的对象当前的目标
 
-            CoordStruct bulletSourcePos = default;
-
+            // 获取附属对象的所属，开火FLH，预设目标FLH
             bool isOnBullet = false;
-
             switch (pObject.Ref.Base.WhatAmI())
             {
                 case AbstractType.Unit:
@@ -105,56 +91,37 @@ namespace Extension.Ext
                 case AbstractType.Building:
                 case AbstractType.Infantry:
                     // 以单位获得参考，取目标的位点
-                    pTechno = pObject.Convert<TechnoClass>();
-                    pHouse = pTechno.Ref.Owner;
+                    pReceiverOwner = pObject.Convert<TechnoClass>();
+                    pReceiverHouse = pReceiverOwner.Ref.Owner;
+                    pReceiverTarget = pReceiverOwner.Ref.Target;
                     weaponIndex = Type.WeaponIndex;
-                    if (pTechno.Ref.Veterancy.IsElite())
+                    if (pReceiverOwner.Ref.Veterancy.IsElite())
                     {
                         weaponIndex = Type.EliteWeaponIndex;
                         weaponTypes = Type.EliteWeaponTypes;
                         fireFLH = Type.EliteFireFLH;
                         targetFLH = Type.EliteTargetFLH;
                     }
-                    rofMult = ExHelper.GetROFMult(pTechno);
-                    if (Type.IsOnWorld)
-                    {
-                        // 绑定世界坐标
-                        DirStruct dir = new DirStruct();
-                        bulletSourcePos = ExHelper.GetFLHAbsoluteCoords(sourcePos, fireFLH, dir);
-                        targetPos = ExHelper.GetFLHAbsoluteCoords(sourcePos, targetFLH, dir);
-                    }
-                    else
-                    {
-                        // 绑定单位身上或炮塔
-                        targetPos = ExHelper.GetFLHAbsoluteCoords(pTechno, targetFLH, Type.IsOnTurret);
-                    }
+                    rofMult = ExHelper.GetROFMult(pReceiverOwner);
                     break;
                 case AbstractType.Bullet:
                     isOnBullet = true;
-                    // 以抛射体作为参考，取抛射体当前位置和目标位置获得方向，按照方向获取发射位点和目标位点
+                    // 以抛射体作为参考
                     Pointer<BulletClass> pBullet = pObject.Convert<BulletClass>();
-
-                    pTechno = pBullet.Ref.Owner;
-                    if (!pTechno.IsNull)
+                    pReceiverOwner = pBullet.Ref.Owner;
+                    if (!pReceiverOwner.IsNull)
                     {
-                        pHouse = pTechno.Ref.Owner;
+                        pReceiverHouse = pReceiverOwner.Ref.Owner;
                     }
                     else
                     {
                         BulletExt bulletExt = BulletExt.ExtMap.Find(pBullet);
                         if (null != bulletExt)
                         {
-                            pHouse = bulletExt.pSourceHouse;
+                            pReceiverHouse = bulletExt.pSourceHouse;
                         }
                     }
-
-                    DirStruct bulletDir = new DirStruct();
-                    if (!Type.IsOnWorld)
-                    {
-                        bulletDir = ExHelper.Point2Dir(pBullet.Ref.SourceCoords, pBullet.Ref.TargetCoords);
-                    }
-                    bulletSourcePos = ExHelper.GetFLHAbsoluteCoords(sourcePos, fireFLH, bulletDir);
-                    targetPos = ExHelper.GetFLHAbsoluteCoords(sourcePos, targetFLH, bulletDir);
+                    pReceiverTarget = pBullet.Ref.Target;
                     break;
                 default:
                     return;
@@ -170,53 +137,78 @@ namespace Extension.Ext
 
             // 进入发射流程
             bool weaponLaunch = false;
+            bool needFakeTarget = false;
+            // 装订射击诸元
+            if ((needFakeTarget = TryGetShooterAndTarget(pObject, pReceiverOwner, pReceiverHouse, pReceiverTarget, out Pointer<TechnoClass> pShooter, out Pointer<TechnoClass> pWeaponOwner, out Pointer<AbstractClass> pTarget, out bool dontMakeFakeTarget)) && dontMakeFakeTarget)
+            {
+                // 目标为空，并且不构建假目标，发射终止
+                return;
+            }
             // 发射武器是单位本身的武器还是自定义武器
             if (weaponIndex >= 0 && !isOnBullet)
             {
                 // 发射单位自身的武器
-                if (ReadyToFire(pTechno, pHouse, targetPos, out Pointer<TechnoClass> pShooter, out Pointer<TechnoClass> pWeaponOwner, out Pointer<ObjectClass> pTarget, out FireBulletToTarget callback))
+                if (!pShooter.IsNull)
                 {
                     // Logger.Log("{0}朝{1}发射自身的武器{2}", pShooter.Ref.Type.Ref.Base.Base.ID, pTarget.Ref.Type.Ref.Base.ID, weaponIndex);
                     // 检查武器是否存在，是否ROF结束
                     Pointer<WeaponStruct> pWeaponStruct = pShooter.Ref.GetWeapon(weaponIndex);
-                    if (!pWeaponStruct.IsNull && !pWeaponStruct.Ref.WeaponType.IsNull && CheckAndResetROF(pWeaponStruct.Ref.WeaponType, rofMult))
+                    if (!pWeaponStruct.IsNull && !pWeaponStruct.Ref.WeaponType.IsNull && CheckROF(pWeaponStruct.Ref.WeaponType))
                     {
-                        Logger.Log("{0}朝{1}发射自身的武器{2}", pShooter.Ref.Type.Ref.Base.Base.ID, pTarget.Ref.Type.Ref.Base.ID, weaponIndex);
-                        // 射手发射武器，忽略武器所属
-                        // pShooter.Ref.Fire_IgnoreType(pTarget.Convert<AbstractClass>(), weaponIndex);
-                        TechnoExt ext = TechnoExt.ExtMap.Find(pShooter);
-                        ext?.EnqueueDelayFireWeapon(weaponIndex, pTarget.Convert<AbstractClass>());
-                        weaponLaunch = true;
+                        // 可以发射
+                        // Logger.Log("{0}朝{1}发射自身的武器{2}", pShooter.Ref.Type.Ref.Base.Base.ID, pTarget.Ref.Type.Ref.Base.ID, weaponIndex);
+                        // 准备发射，获取发射位置
+                        GetFireLocation(pObject, pReceiverOwner, pShooter, fireFLH, targetFLH, out CoordStruct forceFirePos, out CoordStruct fakeTargetPos);
+                        if (needFakeTarget && !pReceiverHouse.IsNull && default != fakeTargetPos)
+                        {
+                            // 需要创建假目标
+                            pTarget = MakeFakeTarget(pReceiverHouse, fakeTargetPos);
+                        }
+                        if (!pTarget.IsNull)
+                        {
+                            // 发射武器
+                            TechnoExt ext = TechnoExt.ExtMap.Find(pShooter);
+                            ext?.EnqueueDelayFireWeapon(weaponIndex, pTarget);
+                            weaponLaunch = true;
+                            // 进入冷却
+                            ResetROF(pWeaponStruct.Ref.WeaponType, rofMult);
+                        }
                     }
                 }
             }
-            else if (null != weaponTypes && weaponTypes.Count > 0)
+            else if (null != weaponTypes && weaponTypes.Count > 0 && !pShooter.IsNull)
             {
                 // 发射自定义的武器
+                // 准备发射，获取发射位置
+                GetFireLocation(pObject, pReceiverOwner, pShooter, fireFLH, targetFLH, out CoordStruct forceFirePos, out CoordStruct fakeTargetPos);
                 foreach (string weaponId in weaponTypes)
                 {
 
-                    if (!string.IsNullOrEmpty(weaponId) && !pTechno.IsNull)
+                    if (!string.IsNullOrEmpty(weaponId) && !pReceiverOwner.IsNull)
                     {
                         // 进行ROF检查
                         Pointer<WeaponTypeClass> pWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find(weaponId);
                         if (!pWeapon.IsNull)
                         {
-                            if (CheckAndResetROF(pWeapon, rofMult) && !pHouse.IsNull)
+                            if (CheckROF(pWeapon) && !pReceiverHouse.IsNull)
                             {
-                                if (ReadyToFire(pTechno, pHouse, targetPos, out Pointer<TechnoClass> pShooter, out Pointer<TechnoClass> pWeaponOwner, out Pointer<ObjectClass> pTarget, out FireBulletToTarget callback))
+                                // 可以发射
+                                FireBulletToTarget callback = null;
+                                if (needFakeTarget && !pReceiverHouse.IsNull && default != fakeTargetPos)
                                 {
-                                    // 可以发射武器，发射自定义武器
+                                    // 需要创建假目标
+                                    pTarget = MakeFakeTarget(pReceiverHouse, fakeTargetPos);
+                                    callback = FireBulletToTarget;
+                                }
+                                if (!pTarget.IsNull)
+                                {
+                                    // 发射自定义武器
                                     TechnoExt ext = TechnoExt.ExtMap.Find(pShooter);
-                                    ext?.FireCustomWeapon(pShooter, pWeaponOwner, pTarget.Convert<AbstractClass>(), weaponId, fireFLH, bulletSourcePos, rofMult, callback);
+                                    ext?.FireCustomWeapon(pShooter, pWeaponOwner, pTarget, weaponId, fireFLH, forceFirePos, rofMult, callback);
                                     weaponLaunch = true;
+                                    // 进入冷却
+                                    ResetROF(pWeapon, rofMult);
                                 }
-                                else
-                                {
-                                    Disable(default);
-                                    return;
-                                }
-
                             }
                         }
                     }
@@ -229,7 +221,7 @@ namespace Extension.Ext
             }
         }
 
-        public bool CheckAndResetROF(Pointer<WeaponTypeClass> pWeapon, double rofMult)
+        private bool CheckROF(Pointer<WeaponTypeClass> pWeapon)
         {
             bool canFire = false;
             string weaponId = pWeapon.Ref.Base.ID;
@@ -241,35 +233,45 @@ namespace Extension.Ext
                 canFire = !fireData.UseROF;
                 if (!canFire)
                 {
-                    // 本次发射的rof
-                    int rof = (int)(pWeapon.Ref.ROF * rofMult);
                     if (weaponsROF.TryGetValue(weaponId, out TimerStruct rofTimer))
                     {
                         if (rofTimer.Expired())
                         {
                             canFire = true;
-                            rofTimer.Start(rof);
-                            weaponsROF[weaponId] = rofTimer;
                         }
                     }
                     else
                     {
                         canFire = true;
-                        weaponsROF.Add(weaponId, new TimerStruct(rof));
                     }
                 }
             }
             return canFire;
         }
 
+        private void ResetROF(Pointer<WeaponTypeClass> pWeapon, double rofMult)
+        {
+            string weaponId = pWeapon.Ref.Base.ID;
+            int rof = (int)(pWeapon.Ref.ROF * rofMult);
+            if (weaponsROF.TryGetValue(weaponId, out TimerStruct rofTimer))
+            {
+                rofTimer.Start(rof);
+                weaponsROF[weaponId] = rofTimer;
+            }
+            else
+            {
+                weaponsROF.Add(weaponId, new TimerStruct(rof));
+            }
+        }
+
         // 发射武器前设定攻击者和目标
-        public bool ReadyToFire(Pointer<TechnoClass> pOwner, Pointer<HouseClass> pHouse, CoordStruct targetPos, out Pointer<TechnoClass> pShooter, out Pointer<TechnoClass> pWeaponOwner, out Pointer<ObjectClass> pTarget, out FireBulletToTarget callback)
+        private bool TryGetShooterAndTarget(Pointer<ObjectClass> pReceiver, Pointer<TechnoClass> pReceiverOwner, Pointer<HouseClass> pReceiverHouse, Pointer<AbstractClass> pReceiverTarget, out Pointer<TechnoClass> pShooter, out Pointer<TechnoClass> pWeaponOwner, out Pointer<AbstractClass> pTarget, out bool dontMakeFakeTarget)
         {
             // 默认情况下，由标记持有者朝向预设位置开火
-            pShooter = pOwner;
-            pWeaponOwner = pOwner;
+            pShooter = pReceiverOwner;
+            pWeaponOwner = pReceiverOwner;
             pTarget = IntPtr.Zero;
-            callback = null;
+            dontMakeFakeTarget = false;
 
             // 更改射手
             if (!Type.ReceiverAttack)
@@ -279,14 +281,14 @@ namespace Extension.Ext
                 // 由攻击者开火，朝向AE附属对象进行攻击
                 pShooter = pAttacker;
                 pWeaponOwner = pAttacker;
-                pTarget = pOwner.Convert<ObjectClass>();
+                pTarget = pReceiver.Convert<AbstractClass>();
                 // Logger.Log("由攻击者{0}朝向持有者{1}开火", pShooter.Ref.Type.Ref.Base.Base.ID, pTarget.Ref.Type.Ref.Base.ID);
             }
 
             // 更改所属
             if (Type.ReceiverOwnBullet)
             {
-                pWeaponOwner = pOwner;
+                pWeaponOwner = pReceiverOwner;
             }
             else
             {
@@ -303,39 +305,22 @@ namespace Extension.Ext
                 // 修改目标为攻击者
                 if (Type.ReceiverAttack)
                 {
-                    pTarget = pAttacker.Pointer.Convert<ObjectClass>();
+                    pTarget = pAttacker.Pointer.Convert<AbstractClass>();
                 }
             }
-            else
+            else if (Type.FireToTarget)
             {
-                // 不是攻击标记，目标只能虚拟目标
-                // 朝向一个目标点虚空开火
-                // 创建假想敌
-                Pointer<OverlayTypeClass> pOverlayType = OverlayTypeClass.ABSTRACTTYPE_ARRAY.Array[0];
-                if (!pOverlayType.IsNull)
-                {
-                    pTarget = pOverlayType.Ref.Base.CreateObject(pHouse);
-                    // Logger.Log("创建一个假想敌, {0}", pTarget.Ref.Base.WhatAmI());
-                    pTarget.Ref.SetLocation(targetPos);
-                    pTarget.Ref.InLimbo = false;
-                    pTarget.Ref.IsVisible = false;
-                    callback = this.FireBulletToTarget;
-                }
-                // Pointer<ObjectTypeClass> pObjectType = pTechno.Ref.Type.Convert<ObjectTypeClass>();
-                // if (!pObjectType.IsNull)
-                // {
-                //     pTarget = pObjectType.Ref.CreateObject(pHouse);
-                //     Logger.Log("创建一个假想敌, {0}", pTarget.Ref.Base.WhatAmI());
-                //     pTarget.Ref.SetLocation(targetPos);
-                //     callback = this.FireBulletToTarget;
-                // }
+                pTarget = pReceiverTarget;
+                // Logger.Log("设定目标为附属对象的目标{0}", pTarget.IsNull ? "null" : pTarget.Ref.WhatAmI());
+                // 如果附属对象的目标不存在，此时应为无法开火，固定返回true不创建假目标
+                dontMakeFakeTarget = true;
             }
-            return !pTarget.IsNull && pTarget.Ref.IsAlive;
+            return pTarget.IsNull;
         }
 
 
         // 将假想敌设置在抛射体扩展上，以便在抛射体注销时销毁假想敌
-        public bool FireBulletToTarget(int index, int burst, Pointer<BulletClass> pBullet, Pointer<AbstractClass> pTarget)
+        private bool FireBulletToTarget(int index, int burst, Pointer<BulletClass> pBullet, Pointer<AbstractClass> pTarget)
         {
             BulletExt ext = BulletExt.ExtMap.Find(pBullet);
             if (null != ext && (index + 1) >= burst)
@@ -343,6 +328,76 @@ namespace Extension.Ext
                 ext.FakeTarget.Pointer = pTarget.Convert<ObjectClass>();
             }
             return false;
+        }
+
+        private void GetFireLocation(Pointer<ObjectClass> pObject, Pointer<TechnoClass> pReceiverOwner, Pointer<TechnoClass> pShooter, CoordStruct fireFLH, CoordStruct targetFLH, out CoordStruct forceFirePos, out CoordStruct fakeTargetPos)
+        {
+            forceFirePos = default;
+            fakeTargetPos = default;
+            CoordStruct sourcePos = pObject.Ref.Base.GetCoords();
+            switch (pObject.Ref.Base.WhatAmI())
+            {
+                case AbstractType.Unit:
+                case AbstractType.Aircraft:
+                case AbstractType.Building:
+                case AbstractType.Infantry:
+                    // 获得武器发射位置和预定目标的位置
+                    GetFireLocation(pShooter, sourcePos, fireFLH, targetFLH, ref forceFirePos, ref fakeTargetPos);
+                    break;
+                case AbstractType.Bullet:
+                    Pointer<BulletClass> pBullet = pObject.Convert<BulletClass>();
+                    if (pReceiverOwner == pShooter)
+                    {
+                        // 附加的对象是抛射体，默认武器的发射者为抛射体的发射者，从抛射体所在的位置向目标发射
+                        DirStruct bulletDir = new DirStruct();
+                        if (!Type.IsOnWorld)
+                        {
+                            bulletDir = ExHelper.Point2Dir(pBullet.Ref.SourceCoords, pBullet.Ref.TargetCoords);
+                        }
+                        forceFirePos = ExHelper.GetFLHAbsoluteCoords(sourcePos, fireFLH, bulletDir);
+                        fakeTargetPos = ExHelper.GetFLHAbsoluteCoords(sourcePos, targetFLH, bulletDir);
+                    }
+                    else
+                    {
+                        // 武器的发射者与抛射体的发射者不是同一个人，以发射者计算开火坐标和目标坐标
+                        GetFireLocation(pShooter, sourcePos, fireFLH, targetFLH, ref forceFirePos, ref fakeTargetPos);
+                    }
+                    break;
+            }
+        }
+
+        private void GetFireLocation(Pointer<TechnoClass> pShooter, CoordStruct sourcePos, CoordStruct fireFLH, CoordStruct targetFLH, ref CoordStruct forceFirePos, ref CoordStruct fakeTargetPos)
+        {
+
+            // 武器的发射者与抛射体的发射者不是同一个人，以发射者计算开火坐标和目标坐标
+            if (Type.IsOnWorld)
+            {
+                // 绑定世界坐标
+                DirStruct dir = new DirStruct();
+                forceFirePos = ExHelper.GetFLHAbsoluteCoords(sourcePos, fireFLH, dir);
+                fakeTargetPos = ExHelper.GetFLHAbsoluteCoords(sourcePos, targetFLH, dir);
+            }
+            else
+            {
+                // 绑定单位身上或炮塔
+                fakeTargetPos = ExHelper.GetFLHAbsoluteCoords(pShooter, targetFLH, Type.IsOnTurret);
+            }
+        }
+
+        private Pointer<AbstractClass> MakeFakeTarget(Pointer<HouseClass> pHouse, CoordStruct targetPos)
+        {
+            // 创建假想敌
+            Pointer<OverlayTypeClass> pOverlayType = OverlayTypeClass.ABSTRACTTYPE_ARRAY.Array[0];
+            if (!pOverlayType.IsNull)
+            {
+                Pointer<ObjectClass> pFakeTarget = pOverlayType.Ref.Base.CreateObject(pHouse);
+                // Logger.Log("创建一个假想敌, {0}", pTarget.Ref.Base.WhatAmI());
+                pFakeTarget.Ref.SetLocation(targetPos);
+                pFakeTarget.Ref.InLimbo = false;
+                pFakeTarget.Ref.IsVisible = false;
+                return pFakeTarget.Convert<AbstractClass>();
+            }
+            return IntPtr.Zero;
         }
 
         public override void OnPut(Pointer<ObjectClass> pObject, Pointer<CoordStruct> pCoord, Direction faceDir)

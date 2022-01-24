@@ -205,7 +205,7 @@ namespace Extension.Ext
             }
         }
 
-        public unsafe void BulletClass_Detonate_AttachEffect(Pointer<ObjectClass> pAttacker, TechnoExt targetExt, WarheadTypeExt whExt)
+        public unsafe void BulletClass_Detonate_AttachEffect_Techno(Pointer<ObjectClass> pAttacker, TechnoExt targetExt, WarheadTypeExt whExt)
         {
             if (null != whExt && null != whExt.AttachEffectData)
             {
@@ -275,6 +275,12 @@ namespace Extension.Ext
                     targetExt.AttachEffectManager.SetLocationSpace(aeData.CabinLength);
                 }
             }
+        }
+
+        public unsafe void BulletClass_Detonate_AttachEffect(CoordStruct location)
+        {
+            // 抛射体爆炸，销毁所有AE
+            AttachEffectManager.DestroyAll(OwnerObject.Convert<ObjectClass>());
         }
 
         public unsafe void BulletClass_UnInit_AttachEffect()

@@ -28,6 +28,7 @@ namespace Extension.Ext
             {
                 pSourceHouse.Pointer = OwnerObject.Ref.Owner.Ref.Owner;
             }
+            BulletClass_Put_AntiBullet(pCoord);
             BulletClass_Put_ArcingTrajectory(pCoord);
             BulletClass_Put_AttachEffect(pCoord);
             BulletClass_Put_MissileTrajectory(pCoord);
@@ -102,7 +103,7 @@ namespace Extension.Ext
                             && (pTarget.Ref.Base.Health - realDamage) > 0 // 收到本次伤害后会死，就不再进行赋予
                         )
                         {
-                            BulletClass_Detonate_AttachEffect(pAttacker, targetExt, whExt);
+                            BulletClass_Detonate_AttachEffect_Techno(pAttacker, targetExt, whExt);
                         }
                     }
                 }
@@ -135,6 +136,9 @@ namespace Extension.Ext
                     }
                 }
             }
+
+            BulletClass_Detonate_AttachEffect(location);
+            BulletClass_Detonate_AntiBullet(location);
         }
 
         public unsafe void OnUnInit()

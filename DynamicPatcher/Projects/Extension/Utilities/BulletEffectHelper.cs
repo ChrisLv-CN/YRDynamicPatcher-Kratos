@@ -178,7 +178,7 @@ namespace Extension.Utilities
 
         public static void DrawBolt(Pointer<TechnoClass> pShooter, Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon, CoordStruct sourcePos)
         {
-            pShooter.Ref.Electric_Zap(pTarget, pWeapon, sourcePos);
+            Pointer<EBolt> pEBolt = pShooter.Ref.Electric_Zap(pTarget, pWeapon, sourcePos);
         }
 
         public static void DrawParticele(CoordStruct sourcePos, CoordStruct targetPos, string systemName)
