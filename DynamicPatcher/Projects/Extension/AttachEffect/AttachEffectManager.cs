@@ -73,12 +73,26 @@ namespace Extension.Ext
 
         public void Attach(AttachEffectData aeData, Pointer<ObjectClass> pOwner, Pointer<HouseClass> pHouse, bool attachOnceFlag)
         {
+            // 写在type上附加的AE，攻击者是自己
+            Pointer<TechnoClass> pAttacker = IntPtr.Zero;
+            switch(pOwner.Ref.Base.WhatAmI())
+            {
+                case AbstractType.Unit:
+                case AbstractType.Aircraft:
+                case AbstractType.Building:
+                case AbstractType.Infantry:
+                    pAttacker = pOwner.Convert<TechnoClass>();
+                    break;
+                case AbstractType.Bullet:
+                    pAttacker = pOwner.Convert<BulletClass>().Ref.Owner;
+                    break;
+            }
             if (null != aeData.AttachEffectTypes && aeData.AttachEffectTypes.Count > 0)
             {
                 foreach (string type in aeData.AttachEffectTypes)
                 {
                     // Logger.Log("事件{0}添加AE类型{1}", onUpdate ? "OnUpdate" : "OnInit", type);
-                    Attach(type, pOwner, pHouse, IntPtr.Zero, attachOnceFlag);
+                    Attach(type, pOwner, pHouse, pAttacker, attachOnceFlag);
                 }
             }
 

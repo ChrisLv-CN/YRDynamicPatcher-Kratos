@@ -245,6 +245,11 @@ namespace Extension.Ext
                     break;
             }
 
+            if (!pMaster.Ref.Base.IsActive())
+            {
+                pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(Mission.Sleep, true);
+            }
+
             if (!onStopCommand)
             {
                 // synch Target
@@ -399,6 +404,20 @@ namespace Extension.Ext
             {
                 pStand.Ref.Facing.turn(targetDir);
             }
+        }
+
+        public override void OnPut(Pointer<ObjectClass> pOwner, Pointer<CoordStruct> pCoord, Direction faceDir)
+        {
+            CoordStruct location = pCoord.Data;
+            ++Game.IKnowWhatImDoing;
+            pStand.Ref.Base.Put(location + new CoordStruct(0, 0, 1024), faceDir);
+            --Game.IKnowWhatImDoing;
+            pStand.Ref.Base.SetLocation(location);
+        }
+
+        public override void OnRemove(Pointer<ObjectClass> pOwner)
+        {
+            pStand.Ref.Base.Remove();
         }
 
         public override void OnDestroy(Pointer<ObjectClass> pObject)
