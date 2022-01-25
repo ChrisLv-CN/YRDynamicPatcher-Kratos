@@ -629,10 +629,18 @@ namespace ExtensionHooks
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
             TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-            if (null != ext && !ext.MyMaster.IsNull && (null == ext.StandType || (!ext.StandType.IsTrain && ext.StandType.ZOffset > 0)))
+            if (null != ext && !ext.MyMaster.IsNull && (null == ext.StandType || (!ext.StandType.IsTrain && ext.StandType.ZOffset != 0)))
             {
-                // Logger.Log(" - ooxx {0}, EAX = {1}, ECX = {2}", pTechno.Ref.Type.Ref.Base.Base.ID, R->EAX, R->ECX);
-                R->EAX = pTechno.Ref.Base.Base.IsInAir() ? (uint)Layer.Top : (uint)Layer.Air;
+                Layer layer = ext.StandType.DrawLayer;
+                if (layer == Layer.None)
+                {
+                    // Logger.Log(" - ooxx {0}, EAX = {1}, ECX = {2}", pTechno.Ref.Type.Ref.Base.Base.ID, R->EAX, R->ECX);
+                    R->EAX = pTechno.Ref.Base.Base.IsInAir() ? (uint)Layer.Top : (uint)Layer.Air;
+                }
+                else
+                {
+                    R->EAX = (uint)layer;
+                }
                 return 0x4DB803;
             }
             return 0;

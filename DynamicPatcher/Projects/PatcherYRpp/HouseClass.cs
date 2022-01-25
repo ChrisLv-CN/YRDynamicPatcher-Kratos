@@ -161,6 +161,12 @@ namespace PatcherYRpp
 
         [FieldOffset(22268)] public ColorStruct LaserColor;
 
+        [FieldOffset(22392)] public Bool RecheckPower;
+
+        [FieldOffset(22393)] public Bool RecheckRadar;
+
+        [FieldOffset(22394)] public Bool SpySatActive;
+
         [FieldOffset(90196)] public int ColorSchemeIndex;
 
         public Pointer<SuperClass> FindSuperWeapon(Pointer<SuperWeaponTypeClass> pType)

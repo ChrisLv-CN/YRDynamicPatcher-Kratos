@@ -97,7 +97,18 @@ namespace Extension.Ext
                 ++Game.IKnowWhatImDoing;
                 pNew.Ref.Put(pCoord + new CoordStruct(0, 0, 1024), Direction.N);
                 --Game.IKnowWhatImDoing;
-                pNew.Ref.SetLocation(pCoord);
+                // 直接放置在指定位置
+                LocationMark locationMark = AttachEffectHelper.GetLocation(pObject, Type);
+                if (default != locationMark.Location)
+                {
+                    SetLocation(locationMark.Location);
+                    // 强扭朝向
+                    ForceSetFacing(locationMark.Direction);
+                }
+                else
+                {
+                    pNew.Ref.SetLocation(pCoord);
+                }
             }
         }
 
@@ -246,7 +257,7 @@ namespace Extension.Ext
                     break;
             }
 
-            if (!pMaster.Ref.Base.IsActive())
+            if (!pMaster.Ref.Base.IsActive() || (Type.Powered && !pStand.Ref.Owner.Ref.RecheckPower))
             {
                 pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(Mission.Sleep, true);
             }
@@ -375,10 +386,10 @@ namespace Extension.Ext
 
         private void SetDirection(LocationMark mark)
         {
-            SetDirection(mark.Direction);
+            SetDirection(mark.Direction, false);
         }
 
-        private void SetDirection(DirStruct direction)
+        private void SetDirection(DirStruct direction, bool forceSetTurret)
         {
             if (pStand.Ref.HasTurret() || Type.LockDirection)
             {
@@ -405,6 +416,12 @@ namespace Extension.Ext
             {
                 pStand.Ref.Facing.turn(targetDir);
             }
+        }
+
+        private void ForceSetFacing(DirStruct targetDir)
+        {
+            pStand.Ref.Facing.set(targetDir);
+            pStand.Ref.TurretFacing.set(targetDir);
         }
 
         public override void OnPut(Pointer<ObjectClass> pOwner, Pointer<CoordStruct> pCoord, Direction faceDir)

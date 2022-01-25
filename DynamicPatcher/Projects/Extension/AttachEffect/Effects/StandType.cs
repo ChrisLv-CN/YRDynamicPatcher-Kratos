@@ -39,7 +39,9 @@ namespace Extension.Ext
         public bool LockDirection; // 强制朝向，不论替身在做什么
         public bool IsOnTurret; // 相对炮塔或者身体
         public bool IsOnWorld; // 相对世界
+        public Layer DrawLayer; // 渲染的层
         public int ZOffset; // ZAdjust偏移值
+        public bool Powered; // 是否需要电力支持
         public bool SameTarget; // 与使者同个目标
         public bool SameLoseTarget; // 使者失去目标时替身也失去
         public bool Explodes; // 死亡会爆炸
@@ -60,9 +62,11 @@ namespace Extension.Ext
             this.LockDirection = false;
             this.IsOnTurret = false;
             this.IsOnWorld = false;
+            this.DrawLayer = Layer.None;
             this.ZOffset = 12;
             this.SameTarget = true;
             this.SameLoseTarget = false;
+            this.Powered = false;
             this.Explodes = false;
             this.ExplodesWithMaster = false;
             this.RemoveAtSinking = false;
@@ -109,13 +113,13 @@ namespace Extension.Ext
                 {
                     standType.Direction = dirNum;
                 }
-                
+
                 bool lockDirection = true;
                 if (reader.ReadNormal(section, "Stand.LockDirection", ref lockDirection))
                 {
                     standType.LockDirection = lockDirection;
                 }
-                
+
                 bool isOnTurret = true;
                 if (reader.ReadNormal(section, "Stand.IsOnTurret", ref isOnTurret))
                 {
@@ -126,6 +130,32 @@ namespace Extension.Ext
                 if (reader.ReadNormal(section, "Stand.IsOnWorld", ref isOnWorld))
                 {
                     standType.IsOnWorld = isOnWorld;
+                }
+
+                string layerStr = "None";
+                if (reader.ReadNormal(section, "Stand.DrawLayer", ref layerStr))
+                {
+                    Layer layer = Layer.None;
+                    string t = layerStr.Substring(0, 1).ToUpper();
+                    switch(t)
+                    {
+                        case "U":
+                            layer = Layer.Underground;
+                            break;
+                        case "S":
+                            layer = Layer.Surface;
+                            break;
+                        case "G":
+                            layer = Layer.Ground;
+                            break;
+                        case "A":
+                            layer = Layer.Air;
+                            break;
+                        case "T":
+                            layer = Layer.Top;
+                            break;
+                    }
+                    standType.DrawLayer = layer;
                 }
 
                 int zOffset = 12;
@@ -144,6 +174,12 @@ namespace Extension.Ext
                 if (reader.ReadNormal(section, "Stand.SameLoseTarget", ref sameLoseTarget))
                 {
                     standType.SameLoseTarget = sameLoseTarget;
+                }
+
+                bool powered = true;
+                if (reader.ReadNormal(section, "Stand.Powered", ref powered))
+                {
+                    standType.Powered = powered;
                 }
 
                 bool explodes = false;
