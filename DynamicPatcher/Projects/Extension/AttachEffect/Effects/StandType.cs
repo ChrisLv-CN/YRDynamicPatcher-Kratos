@@ -43,6 +43,7 @@ namespace Extension.Ext
         public bool SameTarget; // 与使者同个目标
         public bool SameLoseTarget; // 使者失去目标时替身也失去
         public bool Explodes; // 死亡会爆炸
+        public bool ExplodesWithMaster; // 使者死亡时强制替身爆炸
         public bool RemoveAtSinking; // 沉船时移除
         public bool PromoteFormMaster; // 与使者同等级
         public double ExperienceToMaster; // 经验给使者
@@ -148,6 +149,12 @@ namespace Extension.Ext
                 if (reader.ReadNormal(section, "Stand.Explodes", ref explodes))
                 {
                     standType.Explodes = explodes;
+                }
+
+                bool explodesWithMaster = false;
+                if (reader.ReadNormal(section, "Stand.ExplodesWithMaster", ref explodesWithMaster))
+                {
+                    standType.ExplodesWithMaster = explodesWithMaster;
                 }
 
                 bool removeAtSinking = false;

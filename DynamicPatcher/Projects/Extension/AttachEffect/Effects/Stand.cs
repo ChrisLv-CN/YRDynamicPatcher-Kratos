@@ -35,6 +35,7 @@ namespace Extension.Ext
         public SwizzleablePointer<TechnoClass> pStand;
 
         private bool onStopCommand = false;
+        private bool notBeHuman = false;
 
         public Stand(StandType type, AttachEffectType attachEffectType) : base(attachEffectType)
         {
@@ -113,7 +114,7 @@ namespace Extension.Ext
         private void ExplodesOrDisappear(bool remove)
         {
             // Logger.Log("替身{0}注销", Type.Type);
-            if (Type.Explodes)
+            if (Type.Explodes || notBeHuman)
             {
                 pStand.Ref.Base.TakeDamage(pStand.Ref.Base.Health + 1, pStand.Ref.Type.Ref.Crewed);
                 if (remove)
@@ -422,6 +423,8 @@ namespace Extension.Ext
 
         public override void OnDestroy(Pointer<ObjectClass> pObject)
         {
+            // 我不做人了JOJO
+            notBeHuman = true;
             // Logger.Log("替身{0}死亡，{1}", pStand.Ref.Type.Ref.Base.Base.ID, Type.Explodes ? "爆炸" : "什么都不做");
             pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(Mission.Sleep, true);
         }
