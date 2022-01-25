@@ -64,6 +64,7 @@ namespace Extension.Ext
             this.SameTarget = true;
             this.SameLoseTarget = false;
             this.Explodes = false;
+            this.ExplodesWithMaster = false;
             this.RemoveAtSinking = false;
             this.PromoteFormMaster = false;
             this.ExperienceToMaster = 0.0;

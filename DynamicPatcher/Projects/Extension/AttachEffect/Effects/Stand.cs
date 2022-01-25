@@ -424,7 +424,7 @@ namespace Extension.Ext
         public override void OnDestroy(Pointer<ObjectClass> pObject)
         {
             // 我不做人了JOJO
-            notBeHuman = true;
+            notBeHuman = Type.ExplodesWithMaster;
             // Logger.Log("替身{0}死亡，{1}", pStand.Ref.Type.Ref.Base.Base.ID, Type.Explodes ? "爆炸" : "什么都不做");
             pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(Mission.Sleep, true);
         }
