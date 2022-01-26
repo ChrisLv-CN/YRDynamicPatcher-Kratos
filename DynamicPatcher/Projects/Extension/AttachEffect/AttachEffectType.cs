@@ -11,7 +11,11 @@ using System.Threading.Tasks;
 
 namespace Extension.Ext
 {
-
+    [Serializable]
+    public enum CumulativeMode
+    {
+        NO = 0, YES = 1, ATTACKER = 2
+    }
 
     [Serializable]
     public partial class AttachEffectType : Enumerable<AttachEffectType>, INewType<AttachEffect>
@@ -31,8 +35,7 @@ namespace Extension.Ext
         public bool PenetratesIronCurtain; // 弹头附加，影响铁幕
         public bool FromTransporter; // 弹头附加，乘客附加时，视为载具
         public bool OwnerTarget; // 弹头附加，属于被赋予对象
-        public bool CumulativeByDifferentAttacker; // 弹头附加，记录攻击者
-        public bool Cumulative; // 可叠加
+        public CumulativeMode Cumulative; // 可叠加
         public int Group; // 分组，同一个分组的效果互相影响，削减或增加持续时间
         public bool OverrideSameGroup; // 是否覆盖同一个分组
         public string Next; // 结束后播放下一个AE
@@ -63,8 +66,7 @@ namespace Extension.Ext
             this.PenetratesIronCurtain = false;
             this.FromTransporter = true;
             this.OwnerTarget = false;
-            this.CumulativeByDifferentAttacker = false;
-            this.Cumulative = false;
+            this.Cumulative = CumulativeMode.NO;
             this.Group = -1;
             this.OverrideSameGroup = false;
             this.Next = null;
@@ -195,16 +197,28 @@ namespace Extension.Ext
                 this.OwnerTarget = ownerTarget;
             }
 
-            bool cumulativeByDifferentAttacker = false;
-            if (reader.ReadNormal(section, "CumulativeByDifferentAttacker", ref cumulativeByDifferentAttacker))
-            {
-                this.CumulativeByDifferentAttacker = cumulativeByDifferentAttacker;
-            }
-
-            bool cumulative = false;
+            string cumulative = "no";
             if (reader.ReadNormal(section, "Cumulative", ref cumulative))
             {
-                this.Cumulative = cumulative;
+                CumulativeMode cumulativeMode = CumulativeMode.NO;
+                string t = cumulative.Substring(0, 1).ToUpper();
+                switch (t)
+                {
+                    case "1":
+                    case "T": // true
+                    case "Y": // yes
+                        cumulativeMode = CumulativeMode.YES;
+                        break;
+                    case "0":
+                    case "F": // false
+                    case "N": // no
+                        cumulativeMode = CumulativeMode.NO;
+                        break;
+                    case "A": // attacker
+                        cumulativeMode = CumulativeMode.ATTACKER;
+                        break;
+                }
+                this.Cumulative = cumulativeMode;
             }
 
             int group = 0;

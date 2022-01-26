@@ -48,7 +48,7 @@ namespace Extension.Ext
         public bool IsOnWorld; // 相对世界
 
         // 攻击者标记
-        public bool IsAttackerMark; // 这是攻击者标记
+        public bool IsAttackerMark; // 允许附加对象和攻击者进行交互
         public bool ReceiverAttack; // 武器由AE的接受者发射
         public bool ReceiverOwnBullet; // 武器所属是AE的接受者
 
@@ -216,11 +216,6 @@ namespace Extension.Ext
                 if (reader.ReadNormal(section, "AutoWeapon.IsAttackerMark", ref isAttackerMark))
                 {
                     autoWeaponType.IsAttackerMark = isAttackerMark;
-                    if (isAttackerMark)
-                    {
-                        autoWeaponType.ReceiverAttack = false;
-                        autoWeaponType.ReceiverOwnBullet = false;
-                    }
                 }
 
                 bool receiverAttack = false;
