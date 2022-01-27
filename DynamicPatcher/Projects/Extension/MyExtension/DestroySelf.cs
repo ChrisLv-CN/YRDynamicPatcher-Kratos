@@ -130,8 +130,20 @@ namespace Extension.Ext
                 DestroySelfData = new DestroySelfData(0, destory);
             }
 
-            int life = default;
+            int life = 0;
             if (reader.ReadNormal(section, "DestroySelf", ref life))
+            {
+                DestroySelfData = new DestroySelfData(life);
+            }
+
+            destory = false;
+            if (reader.ReadNormal(section, "DestroySelf.Delay", ref destory))
+            {
+                DestroySelfData = new DestroySelfData(0, destory);
+            }
+
+            life = 0;
+            if (reader.ReadNormal(section, "DestroySelf.Delay", ref life))
             {
                 DestroySelfData = new DestroySelfData(life);
             }

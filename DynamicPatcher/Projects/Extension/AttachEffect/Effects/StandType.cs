@@ -42,6 +42,7 @@ namespace Extension.Ext
         public Layer DrawLayer; // 渲染的层
         public int ZOffset; // ZAdjust偏移值
         public bool Powered; // 是否需要电力支持
+        public bool SameHouse; // 与使者同所属
         public bool SameTarget; // 与使者同个目标
         public bool SameLoseTarget; // 使者失去目标时替身也失去
         public bool Explodes; // 死亡会爆炸
@@ -64,6 +65,7 @@ namespace Extension.Ext
             this.IsOnWorld = false;
             this.DrawLayer = Layer.None;
             this.ZOffset = 12;
+            this.SameHouse = true;
             this.SameTarget = true;
             this.SameLoseTarget = false;
             this.Powered = false;
@@ -162,6 +164,12 @@ namespace Extension.Ext
                 if (reader.ReadNormal(section, "Stand.ZOffset", ref zOffset))
                 {
                     standType.ZOffset = zOffset;
+                }
+
+                bool sameHouse = true;
+                if (reader.ReadNormal(section, "Stand.SameHouse", ref sameHouse))
+                {
+                    standType.SameHouse = sameHouse;
                 }
 
                 bool sameTarget = true;

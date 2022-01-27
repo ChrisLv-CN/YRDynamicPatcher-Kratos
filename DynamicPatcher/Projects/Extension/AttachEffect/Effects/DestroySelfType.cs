@@ -54,6 +54,28 @@ namespace Extension.Ext
             destroySelfType = null;
 
             bool enable = false;
+            if (reader.ReadNormal(section, "DestroySelf", ref enable))
+            {
+                if (null == destroySelfType)
+                {
+                    destroySelfType = new DestroySelfType();
+                }
+                destroySelfType.Delay = 0;
+                destroySelfType.Enable = enable;
+            }
+
+            int life = 0;
+            if (reader.ReadNormal(section, "DestroySelf", ref life))
+            {
+                if (null == destroySelfType)
+                {
+                    destroySelfType = new DestroySelfType();
+                }
+                destroySelfType.Delay = life;
+                destroySelfType.Enable = true;
+            }
+
+            enable = false;
             if (reader.ReadNormal(section, "DestroySelf.Delay", ref enable))
             {
                 if (null == destroySelfType)
@@ -64,7 +86,7 @@ namespace Extension.Ext
                 destroySelfType.Enable = enable;
             }
 
-            int life = default;
+            life = 0;
             if (reader.ReadNormal(section, "DestroySelf.Delay", ref life))
             {
                 if (null == destroySelfType)

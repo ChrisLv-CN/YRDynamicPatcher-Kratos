@@ -203,8 +203,11 @@ namespace Extension.Ext
                 // Logger.Log("Stand {0} Locomotor {1}", Type.Type, pStand.Pointer.Convert<FootClass>().Ref.Locomotor);
             }
 
-            // synch Owner
-            pStand.Ref.Owner = pMaster.Ref.Owner;
+            if (Type.SameHouse)
+            {
+                // synch Owner
+                pStand.Ref.Owner = pMaster.Ref.Owner;
+            }
 
             // synch Tilt
             if (!Type.IsTrain)
