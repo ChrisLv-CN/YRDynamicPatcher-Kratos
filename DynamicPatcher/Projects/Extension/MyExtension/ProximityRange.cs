@@ -291,7 +291,7 @@ namespace Extension.Ext
                             int height = pBuilding.Ref.Type.Ref.Height;
                             // Logger.Log("Building Height {0}", height);
                             // 建筑只获取抛射体经过的当前格，所以判断高度在范围内即可算命中
-                            hit = sourcePos.Z <= (height * Game.LevelHeight + Proximity.Data.ZOffset);
+                            hit = sourcePos.Z <= (targetPos.Z + height * Game.LevelHeight + Proximity.Data.ZOffset);
                             // 检查建筑是否被炸过
                             if (hit && Proximity.Data.PenetrationBuildingOnce)
                             {

@@ -33,14 +33,14 @@ namespace PatcherYRpp
 
         public unsafe Bool IsAlliedWith(Pointer<HouseClass> pOther)
         {
-            
+
             var func = (delegate* unmanaged[Thiscall]<IntPtr, IntPtr, Bool>)0x4F9A50;
             return func(GetThis(), pOther);
         }
 
         public unsafe Bool IsAlliedWith(Pointer<ObjectClass> pOther)
         {
-            
+
             var func = (delegate* unmanaged[Thiscall]<IntPtr, IntPtr, Bool>)0x4F9A90;
             return func(GetThis(), pOther);
         }
@@ -167,7 +167,15 @@ namespace PatcherYRpp
 
         [FieldOffset(22394)] public Bool SpySatActive;
 
+        [FieldOffset(21412)] public int PowerOutput;
+
+        [FieldOffset(21416)] public int PowerDrain;
+
         [FieldOffset(90196)] public int ColorSchemeIndex;
+
+        public double PowerPercent => PowerOutput != 0 ? (double)PowerDrain / (double)PowerOutput : 1;
+
+        public bool NoPower => PowerPercent >= 1;
 
         public Pointer<SuperClass> FindSuperWeapon(Pointer<SuperWeaponTypeClass> pType)
         {

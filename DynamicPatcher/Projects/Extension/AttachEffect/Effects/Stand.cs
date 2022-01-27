@@ -166,7 +166,7 @@ namespace Extension.Ext
         public void UpdateState(Pointer<BulletClass> pBullet)
         {
             // Synch Target
-            CancelStandTarget();
+            RemoveStandIllegalTarget();
             Pointer<AbstractClass> target = pBullet.Ref.Target;
             if (Type.SameTarget && !target.IsNull)
             {
@@ -243,44 +243,64 @@ namespace Extension.Ext
             // synch PrimaryFactory
             pStand.Ref.IsPrimaryFactory = pMaster.Ref.IsPrimaryFactory;
 
-            // synch Mission
-            Mission mission = pMaster.Convert<MissionClass>().Ref.CurrentMission;
-            switch (mission)
+            // check power off
+            bool masterPowerOff = pMaster.Ref.Owner.Ref.NoPower;
+            if (pMaster.Ref.Base.Base.WhatAmI() == AbstractType.Building && pMaster.Ref.Owner == pStand.Ref.Owner)
             {
-                case Mission.Move:
-                case Mission.AttackMove:
-                    break;
-                case Mission.Guard:
-                case Mission.Area_Guard:
-                    Mission standMission = pStand.Pointer.Convert<MissionClass>().Ref.CurrentMission;
-                    if (standMission != Mission.Attack)
-                    {
-                        pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(mission, true);
-                    }
-                    break;
+                Pointer<BuildingClass> pBuilding = pMaster.Convert<BuildingClass>();
+                if (!masterPowerOff)
+                {
+                    // 关闭当前建筑电源
+                    masterPowerOff = !pBuilding.Ref.HasPower;
+                }
             }
+            bool powerOff = Type.Powered && masterPowerOff;
 
-            if (!pMaster.Ref.Base.IsActive() || (Type.Powered && !pStand.Ref.Owner.Ref.RecheckPower))
+            // synch Mission and Target
+            if (!pMaster.Ref.Base.IsActive() || powerOff)
             {
+                powerOff = true;
+                RemoveStandTarget();
+                onStopCommand = false;
                 pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(Mission.Sleep, true);
+            }
+            else
+            {
+                // synch Mission
+                Mission mission = pMaster.Convert<MissionClass>().Ref.CurrentMission;
+                switch (mission)
+                {
+                    case Mission.Move:
+                    case Mission.AttackMove:
+                        break;
+                    case Mission.Guard:
+                    case Mission.Area_Guard:
+                        Mission standMission = pStand.Pointer.Convert<MissionClass>().Ref.CurrentMission;
+                        if (standMission != Mission.Attack)
+                        {
+                            pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(mission, true);
+                        }
+                        break;
+                }
             }
 
             if (!onStopCommand)
             {
                 // synch Target
-                CancelStandTarget();
+                RemoveStandIllegalTarget();
                 Pointer<AbstractClass> target = pMaster.Ref.Target;
-                if (Type.SameTarget && !target.IsNull)
+                if (!target.IsNull)
                 {
-                    pStand.Ref.SetTarget(target);
-                }
-                if (Type.SameLoseTarget && target.IsNull)
-                {
-                    pStand.Ref.SetTarget(target);
-                    if (target.IsNull && !pStand.Ref.SpawnManager.IsNull)
+                    if (Type.SameTarget && !powerOff)
                     {
-                        pStand.Ref.SpawnManager.Ref.Destination = target;
                         pStand.Ref.SetTarget(target);
+                    }
+                }
+                else
+                {
+                    if (Type.SameLoseTarget || powerOff)
+                    {
+                        RemoveStandTarget();
                     }
                 }
             }
@@ -288,9 +308,10 @@ namespace Extension.Ext
             {
                 onStopCommand = false;
             }
+
         }
 
-        private void CancelStandTarget()
+        private void RemoveStandIllegalTarget()
         {
             Pointer<AbstractClass> pStandTarget;
             if (!(pStandTarget = pStand.Ref.Target).IsNull)
@@ -320,6 +341,20 @@ namespace Extension.Ext
                 {
                     pStand.Ref.SetTarget(Pointer<AbstractClass>.Zero);
                 }
+            }
+        }
+
+        private void RemoveStandTarget()
+        {
+            // Logger.Log("清空替身{0}的目标对象", Type.Type);
+            pStand.Ref.Target = IntPtr.Zero;
+            pStand.Ref.SetTarget(IntPtr.Zero);
+            pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(Mission.Area_Guard, true);
+            if (!pStand.Ref.SpawnManager.IsNull)
+            {
+                pStand.Ref.SpawnManager.Ref.Destination = IntPtr.Zero;
+                pStand.Ref.SpawnManager.Ref.Target = IntPtr.Zero;
+                pStand.Ref.SpawnManager.Ref.SetTarget(IntPtr.Zero);
             }
         }
 
@@ -452,15 +487,7 @@ namespace Extension.Ext
         public override void OnStopCommand()
         {
             // Logger.Log("清空替身{0}的目标对象", Type.Type);
-            pStand.Ref.Target = IntPtr.Zero;
-            pStand.Ref.SetTarget(IntPtr.Zero);
-            pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(Mission.Area_Guard, true);
-            if (!pStand.Ref.SpawnManager.IsNull)
-            {
-                pStand.Ref.SpawnManager.Ref.Destination = IntPtr.Zero;
-                pStand.Ref.SpawnManager.Ref.Target = IntPtr.Zero;
-                pStand.Ref.SpawnManager.Ref.SetTarget(IntPtr.Zero);
-            }
+            RemoveStandTarget();
             onStopCommand = true;
             TechnoExt ext = TechnoExt.ExtMap.Find(pStand);
             ext?.OnStopCommand();
