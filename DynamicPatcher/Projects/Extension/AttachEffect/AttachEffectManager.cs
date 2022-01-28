@@ -125,6 +125,16 @@ namespace Extension.Ext
                     return;
                 }
             }
+            if (aeType.NotAffectTypes != null && aeType.NotAffectTypes.Count > 0)
+            {
+                // 启用黑名单
+                if (aeType.NotAffectTypes.Contains(pOwner.Ref.Type.Ref.Base.ID))
+                {
+                    // Logger.Log("ID {0} 在黑名单内，不能赋予", pOwner.Ref.Type.Ref.Base.ID);
+                    // 存在于黑名单内
+                    return;
+                }
+            }
             CoordStruct location = pOwner.Ref.Base.GetCoords();
             // 检查叠加
             bool add = aeType.Cumulative == CumulativeMode.YES;

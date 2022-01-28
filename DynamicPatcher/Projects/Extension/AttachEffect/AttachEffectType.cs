@@ -21,6 +21,7 @@ namespace Extension.Ext
     public partial class AttachEffectType : Enumerable<AttachEffectType>, INewType<AttachEffect>
     {
         public List<string> AffectTypes; // 可影响的单位
+        public List<string> NotAffectTypes; // 不可影响的单位
         public int Duration; // 持续时间
         public bool HoldDuration; // 无限时间
         public int Delay; // 不可获得同名的延迟
@@ -52,6 +53,7 @@ namespace Extension.Ext
         public AttachEffectType(string name) : base(name)
         {
             this.AffectTypes = null;
+            this.NotAffectTypes = null;
             this.Duration = 1;
             this.HoldDuration = true;
             this.Delay = 0;
@@ -108,6 +110,27 @@ namespace Extension.Ext
                 if (null != types)
                 {
                     this.AffectTypes = types;
+                }
+            }
+
+            List<string> notAffectTypes = null;
+            if (ExHelper.ReadList(reader, section, "NotAffectTypes", ref notAffectTypes))
+            {
+                List<string> types = null;
+                foreach (string typeName in notAffectTypes)
+                {
+                    if (!string.IsNullOrEmpty(typeName) && !"none".Equals(typeName.Trim().ToLower()))
+                    {
+                        if (null == types)
+                        {
+                            types = new List<string>();
+                        }
+                        types.Add(typeName);
+                    }
+                }
+                if (null != types)
+                {
+                    this.NotAffectTypes = types;
                 }
             }
 
