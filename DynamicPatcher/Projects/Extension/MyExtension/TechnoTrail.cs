@@ -47,21 +47,9 @@ namespace Extension.Ext
 
         public List<TrailData> TrailDatas;
 
-        private void ReadTrail(INIReader reader, string section)
+        private void ReadTrail(INIReader reader, string section, INIReader artReader, string artSection)
         {
             // read form Art.ini
-            INIReader artReader = reader;
-            if (null != CCINIClass.INI_Art && !CCINIClass.INI_Art.IsNull)
-            {
-                artReader = new INIReader(CCINIClass.INI_Art);
-            }
-            string artSection = section;
-            string image = default;
-            if (reader.ReadNormal(section, "Image", ref image))
-            {
-                artSection = image;
-            }
-
             if (TrailManager.ReadTrailData(artReader, artSection, out List<TrailData> trailDatas))
             {
                 TrailDatas = trailDatas;
@@ -94,21 +82,9 @@ namespace Extension.Ext
     {
         public List<TrailData> TrailDatas;
 
-        private void ReadTrail(INIReader reader, string section)
+        private void ReadTrail(INIReader reader, string section, INIReader artReader, string artSection)
         {
-            // read form Art.ini
-            INIReader artReader = reader;
-            if (null != CCINIClass.INI_Art && !CCINIClass.INI_Art.IsNull)
-            {
-                artReader = new INIReader(CCINIClass.INI_Art);
-            }
-            string artSection = section;
-            string image = default;
-            if (reader.ReadNormal(section, "Image", ref image))
-            {
-                artSection = image;
-            }
-
+            // read from Art.ini
             if (TrailManager.ReadTrailData(artReader, artSection, out List<TrailData> trailDatas))
             {
                 TrailDatas = trailDatas;

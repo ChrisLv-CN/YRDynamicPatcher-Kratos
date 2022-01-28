@@ -145,6 +145,8 @@ namespace Extension.Ext
                     case AbstractType.Bullet:
                         // 以抛射体作为参考，取抛射体当前位置和目标位置获得方向，按照方向获取发射位点和目标位点
                         Pointer<BulletClass> pBullet = pObject.Convert<BulletClass>();
+                        // 增加抛射体偏移值取下一帧所在实际位置
+                        sourcePos += pBullet.Ref.Velocity.ToCoordStruct();
                         // 获取面向
                         targetDir = ExHelper.Point2Dir(sourcePos, pBullet.Ref.TargetCoords);
                         targetPos = ExHelper.GetFLHAbsoluteCoords(sourcePos, standType.Offset, targetDir);

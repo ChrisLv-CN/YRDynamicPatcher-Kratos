@@ -272,21 +272,10 @@ namespace Extension.Ext
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="section"></param>
-        private void ReadExtraFireWeapon(INIReader reader, string section)
+        private void ReadExtraFireWeapon(INIReader reader, string section, INIReader artReader, string artSection)
         {
 
-            // read flh
-            INIReader artReader = reader;
-            if (null != CCINIClass.INI_Art && !CCINIClass.INI_Art.IsNull)
-            {
-                artReader = new INIReader(CCINIClass.INI_Art);
-            }
-            string artSection = section;
-            string image = default;
-            if (reader.ReadNormal(section, "Image", ref image))
-            {
-                artSection = image;
-            }
+            // read flh from Art.ini
             CoordStruct tempFLH = default;
             if (ExHelper.ReadCoordStruct(artReader, artSection, "ExtraFire.PrimaryFLH", ref tempFLH))
             {

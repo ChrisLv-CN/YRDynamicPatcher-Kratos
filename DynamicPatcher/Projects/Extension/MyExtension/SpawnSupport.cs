@@ -169,20 +169,9 @@ namespace Extension.Ext
         /// <param name="reader"></param>
         /// <param name="section"></param>
         /// <returns></returns>
-        private void ReadSpawnSupport(INIReader reader, string section)
+        private void ReadSpawnSupport(INIReader reader, string section, INIReader artReader, string artSection)
         {
-            // read flh form Carrier
-            INIReader artReader = reader;
-            if (null != CCINIClass.INI_Art && !CCINIClass.INI_Art.IsNull)
-            {
-                artReader = new INIReader(CCINIClass.INI_Art);
-            }
-            string artSection = section;
-            string image = default;
-            if (reader.ReadNormal(section, "Image", ref image))
-            {
-                artSection = image;
-            }
+            // read flh from Carrier's Art.ini
             CoordStruct tempFLH = default;
             if (ExHelper.ReadCoordStruct(artReader, artSection, "SupportWeaponFLH", ref tempFLH))
             {

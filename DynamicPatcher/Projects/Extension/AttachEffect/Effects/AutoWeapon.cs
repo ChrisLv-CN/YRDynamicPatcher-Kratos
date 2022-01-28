@@ -354,6 +354,8 @@ namespace Extension.Ext
                         {
                             bulletDir = ExHelper.Point2Dir(pBullet.Ref.SourceCoords, pBullet.Ref.TargetCoords);
                         }
+                        // 增加抛射体偏移值取下一帧所在实际位置
+                        sourcePos += pBullet.Ref.Velocity.ToCoordStruct();
                         forceFirePos = ExHelper.GetFLHAbsoluteCoords(sourcePos, fireFLH, bulletDir);
                         fakeTargetPos = ExHelper.GetFLHAbsoluteCoords(sourcePos, targetFLH, bulletDir);
                     }

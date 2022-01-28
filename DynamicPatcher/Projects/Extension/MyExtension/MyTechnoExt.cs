@@ -325,13 +325,76 @@ namespace Extension.Ext
     public partial class TechnoTypeExt
     {
 
+        public CoordStruct TurretOffset = new CoordStruct();
+
         [INILoadAction]
         public void LoadINI(Pointer<CCINIClass> pINI)
         {
+            // rules reader
             INIReader reader = new INIReader(pINI);
             string section = OwnerObject.Ref.Base.Base.ID;
 
+            // art reader
+            INIReader artReader = reader;
+            if (null != CCINIClass.INI_Art && !CCINIClass.INI_Art.IsNull)
+            {
+                artReader = new INIReader(CCINIClass.INI_Art);
+            }
+            string artSection = section;
+            string image = default;
+            if (reader.ReadNormal(section, "Image", ref image))
+            {
+                artSection = image;
+            }
+
             ReadAresFlags(reader, section);
+
+            string turretOffsetStr = null;
+            if (artReader.ReadNormal(artSection, "TurretOffset", ref turretOffsetStr))
+            {
+                // Logger.Log("类型{0}炮塔偏移{1}", artSection, turretOffsetStr);
+                try
+                {
+                    CoordStruct offset = new CoordStruct();
+                    if (!string.IsNullOrEmpty(turretOffsetStr))
+                    {
+                        turretOffsetStr = turretOffsetStr.Trim();
+                        if (turretOffsetStr.IndexOf(",") > -1)
+                        {
+                            string[] pos = turretOffsetStr.Split(',');
+                            if (null != pos && pos.Length > 0)
+                            {
+                                for (int i = 0; i < pos.Length; i++)
+                                {
+                                    int value = Convert.ToInt32(pos[i].Trim());
+                                    switch (i)
+                                    {
+                                        case 0:
+                                            offset.X = value;
+                                            break;
+                                        case 1:
+                                            offset.Y = value;
+                                            break;
+                                        case 2:
+                                            offset.Z = value;
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            offset.X = Convert.ToInt32(turretOffsetStr);
+                        }
+                    }
+                    this.TurretOffset = offset;
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError("Illegal value {0} of TurretOffset in Type {1}", turretOffsetStr, section);
+                    Logger.PrintException(e);
+                }
+            }
 
             ReadAircraftDive(reader, section);
             ReadAircraftPut(reader, section);
@@ -339,19 +402,19 @@ namespace Extension.Ext
             ReadAttachEffect(reader, section);
             ReadAttackBeacon(reader, section);
             ReadAutoFireAreaWeapon(reader, section);
-            ReadCrawlingFLH(reader, section);
+            ReadCrawlingFLH(reader, section, artReader, artSection);
             ReadDecoyMissile(reader, section);
             ReadDestroyAnims(reader, section);
             ReadDestroySelf(reader, section);
-            ReadExtraFireWeapon(reader, section);
+            ReadExtraFireWeapon(reader, section, artReader, artSection);
             ReadFireSuperWeapon(reader, section);
             ReadGiftBox(reader, section);
             ReadJumpjetFacingToTarget(reader, section);
             ReadOverrideWeapon(reader, section);
             ReadPassengers(reader, section);
             ReadSpawnFireOnce(reader, section);
-            ReadSpawnSupport(reader, section);
-            ReadTrail(reader, section);
+            ReadSpawnSupport(reader, section, artReader, artSection);
+            ReadTrail(reader, section, artReader, artSection);
             ReadVirtualUnit(reader, section);
         }
 

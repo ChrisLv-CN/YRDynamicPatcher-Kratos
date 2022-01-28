@@ -154,8 +154,22 @@ namespace Extension.Ext
         [INILoadAction]
         public void LoadINI(Pointer<CCINIClass> pINI)
         {
+            // rules reader
             INIReader reader = new INIReader(pINI);
             string section = OwnerObject.Ref.Base.Base.ID;
+
+            // art reader
+            INIReader artReader = reader;
+            if (null != CCINIClass.INI_Art && !CCINIClass.INI_Art.IsNull)
+            {
+                artReader = new INIReader(CCINIClass.INI_Art);
+            }
+            string artSection = section;
+            string image = default;
+            if (reader.ReadNormal(section, "Image", ref image))
+            {
+                artSection = image;
+            }
 
             ReadAresFlags(reader, section);
 
@@ -165,7 +179,7 @@ namespace Extension.Ext
             ReadMissileTrajectory(reader, section);
             ReadProximity(reader, section);
             ReadStraightTrajectory(reader, section);
-            ReadTrail(reader, section);
+            ReadTrail(reader, section, artReader, artSection);
         }
 
     }

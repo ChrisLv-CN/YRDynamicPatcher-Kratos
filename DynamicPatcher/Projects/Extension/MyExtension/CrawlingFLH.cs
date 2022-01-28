@@ -154,25 +154,12 @@ namespace Extension.Ext
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="section"></param>
-        private void ReadCrawlingFLH(INIReader reader, string section)
+        private void ReadCrawlingFLH(INIReader reader, string section, INIReader artReader, string artSection)
         {
-            INIReader artReader = reader;
-            if (null != CCINIClass.INI_Art && !CCINIClass.INI_Art.IsNull)
-            {
-                artReader = new INIReader(CCINIClass.INI_Art);
-            }
-
-            string artSection = section;
-            string image = default;
-            if (reader.ReadNormal(section, "Image", ref image))
-            {
-                artSection = image;
-            }
-
             bool isRead = false;
             CrawlingFLHData temp = new CrawlingFLHData();
 
-            // CrawlingFLH
+            // CrawlingFLH from Art.ini
             CoordStruct tempFLH = default;
             if (ExHelper.ReadCoordStruct(artReader, artSection, "PrimaryFireFLH", ref tempFLH))
             {

@@ -66,6 +66,20 @@ namespace PatcherYRpp
             Z = z;
         }
 
+        public CoordStruct(float x, float y, float z)
+        {
+            X = (int)x;
+            Y = (int)y;
+            Z = (int)z;
+        }
+
+        public CoordStruct(BulletVelocity bulletVelocity)
+        {
+            X = (int)bulletVelocity.X;
+            Y = (int)bulletVelocity.Y;
+            Z = (int)bulletVelocity.Z;
+        }
+
         public static CoordStruct operator -(CoordStruct a)
         {
             return new CoordStruct(-a.X, -a.Y, -a.Z);
@@ -159,6 +173,11 @@ namespace PatcherYRpp
             X = x;
             Y = y;
             Z = z;
+        }
+
+        public CoordStruct ToCoordStruct()
+        {
+            return new CoordStruct(this);
         }
 
         public static BulletVelocity operator -(BulletVelocity a)
@@ -354,6 +373,16 @@ namespace PatcherYRpp
             X = (float)x;
             Y = (float)y;
             Z = (float)z;
+        }
+
+        public CoordStruct ToCoordStruct()
+        {
+            return new CoordStruct(X, Y, Z);
+        }
+
+        public BulletVelocity ToBulletVelocity()
+        {
+            return new BulletVelocity(X, Y, Z);
         }
 
         public static SingleVector3D operator -(SingleVector3D a)

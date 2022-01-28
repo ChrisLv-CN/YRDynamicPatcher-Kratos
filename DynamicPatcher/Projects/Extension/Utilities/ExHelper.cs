@@ -97,18 +97,36 @@ namespace Extension.Utilities
             return res;
         }
 
-        public static unsafe CoordStruct GetFLHAbsoluteCoords(CoordStruct source, CoordStruct flh, DirStruct dir)
+        public static unsafe CoordStruct GetFLHAbsoluteCoords(CoordStruct source, CoordStruct flh, DirStruct dir, CoordStruct turretOffset = default)
         {
             CoordStruct res = source;
             if (null != flh && default != flh)
             {
-                SingleVector3D offset = GetFLHAbsoluteOffset(flh, dir);
-                res += Vector3DToCoordStruct(offset);
+                SingleVector3D offset = GetFLHAbsoluteOffset(flh, dir, turretOffset);
+                res += offset.ToCoordStruct();
             }
             return res;
         }
 
-        public static unsafe CoordStruct GetFLHAbsoluteCoords(Pointer<TechnoClass> pTechno, CoordStruct flh, bool isOnTurret, int flipY = 1)
+        public static unsafe CoordStruct GetFLHAbsoluteCoords(Pointer<TechnoClass> pTechno, CoordStruct flh, bool isOnTurret = true, int flipY = 1)
+        {
+            CoordStruct turretOffset = default;
+            if (isOnTurret)
+            {
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                if (null != ext)
+                {
+                    turretOffset = ext.Type.TurretOffset;
+                }
+                else
+                {
+                    turretOffset.X = pTechno.Ref.Type.Ref.TurretOffset;
+                }
+            }
+            return GetFLHAbsoluteCoords(pTechno, flh, isOnTurret, flipY, turretOffset);
+        }
+
+        public static unsafe CoordStruct GetFLHAbsoluteCoords(Pointer<TechnoClass> pTechno, CoordStruct flh, bool isOnTurret, int flipY, CoordStruct turretOffset)
         {
             CoordStruct res = pTechno.Ref.Base.Base.GetCoords();
             if (null != flh && default != flh)
@@ -145,28 +163,31 @@ namespace Extension.Utilities
                 CoordStruct tempFLH = flh;
                 if (pTechno.Convert<AbstractClass>().Ref.WhatAmI() == AbstractType.Building)
                 {
-                    tempFLH.Z += 100;
-                }
-                else
-                {
-                    tempFLH.X += pTechno.Ref.Type.Ref.TurretOffset;
+                    tempFLH.Z += Game.LevelHeight;
                 }
                 tempFLH.Y *= flipY;
                 SingleVector3D offset = GetFLHOffset(ref matrix3D, tempFLH);
                 // Logger.Log("Real FLH {0}, Location {1}", result, res);
-                res += Vector3DToCoordStruct(offset);
+                res += offset.ToCoordStruct();
+                // turret offset
+                if (default != turretOffset)
+                {
+                    matrix3D = GetMatrix3D(pTechno);
+                    offset = GetFLHOffset(ref matrix3D, turretOffset);
+                    res += offset.ToCoordStruct();
+                }
             }
             return res;
         }
 
-        public static unsafe SingleVector3D GetFLHAbsoluteOffset(CoordStruct flh, DirStruct dir)
+        public static unsafe SingleVector3D GetFLHAbsoluteOffset(CoordStruct flh, DirStruct dir, CoordStruct turretOffset)
         {
             SingleVector3D offset = default;
             if (null != flh && default != flh)
             {
                 Matrix3DStruct matrix3D = new Matrix3DStruct(true);
                 matrix3D.RotateZ((float)dir.radians());
-                offset = GetFLHOffset(ref matrix3D, flh);
+                offset = GetFLHOffset(ref matrix3D, flh + turretOffset);
             }
             return offset;
         }
@@ -228,18 +249,8 @@ namespace Extension.Utilities
         {
             CoordStruct bulletFLH = new CoordStruct(1, 0, 0);
             DirStruct bulletDir = ExHelper.Point2Dir(sourcePos, targetPos);
-            SingleVector3D bulletV = ExHelper.GetFLHAbsoluteOffset(bulletFLH, bulletDir);
-            return ExHelper.Vector3DToBulletVelocity(bulletV);
-        }
-
-        public static CoordStruct Vector3DToCoordStruct(SingleVector3D vector3)
-        {
-            return new CoordStruct((int)vector3.X, (int)vector3.Y, (int)vector3.Z);
-        }
-
-        public static BulletVelocity Vector3DToBulletVelocity(SingleVector3D vector3)
-        {
-            return new BulletVelocity(vector3.X, vector3.Y, vector3.Z);
+            SingleVector3D bulletV = ExHelper.GetFLHAbsoluteOffset(bulletFLH, bulletDir, default);
+            return bulletV.ToBulletVelocity();
         }
 
         public static bool ReadBulletVelocity(INIReader reader, string section, string key, ref BulletVelocity velocity)
@@ -287,14 +298,24 @@ namespace Extension.Utilities
             if (reader.ReadNormal(section, key, ref sXYZ))
             {
                 string[] pos = sXYZ.Split(',');
-                if (null != pos && pos.Length >= 3)
+                if (null != pos && pos.Length > 0)
                 {
-                    float x = Convert.ToSingle(pos[0].Trim());
-                    float y = Convert.ToSingle(pos[1].Trim());
-                    float z = Convert.ToSingle(pos[2].Trim());
-                    xyz.X = x;
-                    xyz.Y = y;
-                    xyz.Z = z;
+                    for (int i = 0; i < pos.Length; i++)
+                    {
+                        float value = Convert.ToSingle(pos[i].Trim());
+                        switch (i)
+                        {
+                            case 0:
+                                xyz.X = value;
+                                break;
+                            case 1:
+                                xyz.Y = value;
+                                break;
+                            case 2:
+                                xyz.Z = value;
+                                break;
+                        }
+                    }
                     return true;
                 }
             }
@@ -561,7 +582,7 @@ namespace Extension.Utilities
                 if (default == bulletSourcePos)
                 {
                     // get flh
-                    sourcePos = GetFLHAbsoluteCoords(pShooter, flh, true, flipY);
+                    sourcePos = GetFLHAbsoluteCoords(pShooter, flh, true, flipY, default);
                 }
                 if (default == bulletVelocity)
                 {
