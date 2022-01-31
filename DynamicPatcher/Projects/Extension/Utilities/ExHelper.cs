@@ -108,7 +108,20 @@ namespace Extension.Utilities
             return res;
         }
 
-        public static unsafe CoordStruct GetFLHAbsoluteCoords(Pointer<TechnoClass> pTechno, CoordStruct flh, bool isOnTurret = true, int flipY = 1)
+        public static unsafe SingleVector3D GetFLHAbsoluteOffset(CoordStruct flh, DirStruct dir, CoordStruct turretOffset)
+        {
+            SingleVector3D offset = default;
+            if (null != flh && default != flh)
+            {
+                Matrix3DStruct matrix3D = new Matrix3DStruct(true);
+                matrix3D.Translate(turretOffset.X, turretOffset.Y, turretOffset.Z);
+                matrix3D.RotateZ((float)dir.radians());
+                offset = GetFLHOffset(ref matrix3D, flh);
+            }
+            return offset;
+        }
+
+        public static unsafe CoordStruct GetFLHAbsoluteCoords(Pointer<TechnoClass> pTechno, CoordStruct flh, bool isOnTurret = true, int flipY = 1, bool nextFrame = true)
         {
             CoordStruct turretOffset = default;
             if (isOnTurret)
@@ -123,42 +136,34 @@ namespace Extension.Utilities
                     turretOffset.X = pTechno.Ref.Type.Ref.TurretOffset;
                 }
             }
-            return GetFLHAbsoluteCoords(pTechno, flh, isOnTurret, flipY, turretOffset);
+            return GetFLHAbsoluteCoords(pTechno, flh, isOnTurret, flipY, turretOffset, nextFrame);
         }
 
-        public static unsafe CoordStruct GetFLHAbsoluteCoords(Pointer<TechnoClass> pTechno, CoordStruct flh, bool isOnTurret, int flipY, CoordStruct turretOffset)
+        public static unsafe CoordStruct GetFLHAbsoluteCoords(Pointer<TechnoClass> pTechno, CoordStruct flh, bool isOnTurret, int flipY, CoordStruct turretOffset, bool nextFrame)
         {
-            CoordStruct res = pTechno.Ref.Base.Base.GetCoords();
+            SingleVector3D res = pTechno.Ref.Base.Base.GetCoords().ToVector3D();
+
+            // get turretOffset location offset
+            CoordStruct sourceOffset = turretOffset;
+            // get nextframe location offset
+            if (nextFrame && pTechno.Convert<AbstractClass>().Ref.WhatAmI() != AbstractType.Building)
+            {
+                Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
+                int speed = 0;
+                if (pFoot.Ref.Locomotor.Ref.Is_Moving() && (speed = pFoot.Ref.GetCurrentSpeed()) > 0)
+                {
+                    sourceOffset += new CoordStruct(speed, 0, 0);
+                }
+            }
+
             if (null != flh && default != flh)
             {
-                /*
                 // Step 1: get body transform matrix
-                // Matrix3DStruct matrix3D;
-                Pointer<FootClass> pFoot;
-                if (pTechno.Convert<AbstractClass>().Ref.WhatAmI() != AbstractType.Building && !(pFoot = pTechno.Convert<FootClass>()).Ref.Locomotor.IsNull)
-                {
-                    // no locomotor means no rotation or transform of any kind (f.ex. buildings) - Kerbiter
-                    matrix3D = pFoot.Ref.Locomotor.Ref.Draw_Matrix(0);
-                }
-                else
-                {
-                    matrix3D = new Matrix3DStruct(true);
-                }
-                // Step 2-3: Turret offset and rotation
-                if (isOnTurret && pTechno.Ref.HasTurret())
-                {
-                    double turretRad = (pTechno.Ref.GetTurretFacing().current(false).value32() - 8) * -(Math.PI / 16);
-                    double bodyRad = (pTechno.Ref.GetRealFacing().current(false).value32() - 8) * -(Math.PI / 16);
-                    float angle = (float)(turretRad - bodyRad);
-                    matrix3D.RotateZ(angle);
-                }
-                */
                 Matrix3DStruct matrix3D = GetMatrix3D(pTechno);
-                // Step 2-3: Turret offset and rotation
-                if (isOnTurret)
-                {
-                    RotateMatrix3D(ref matrix3D, pTechno);
-                }
+                // Step 2: move to turrretOffset
+                matrix3D.Translate(turretOffset.X, turretOffset.Y, turretOffset.Z);
+                // Step 3: rotation
+                RotateMatrix3D(ref matrix3D, pTechno, isOnTurret, nextFrame);
                 // Step 4: apply FLH offset
                 CoordStruct tempFLH = flh;
                 if (pTechno.Convert<AbstractClass>().Ref.WhatAmI() == AbstractType.Building)
@@ -167,29 +172,10 @@ namespace Extension.Utilities
                 }
                 tempFLH.Y *= flipY;
                 SingleVector3D offset = GetFLHOffset(ref matrix3D, tempFLH);
-                // Logger.Log("Real FLH {0}, Location {1}", result, res);
-                res += offset.ToCoordStruct();
-                // turret offset
-                if (default != turretOffset)
-                {
-                    matrix3D = GetMatrix3D(pTechno);
-                    offset = GetFLHOffset(ref matrix3D, turretOffset);
-                    res += offset.ToCoordStruct();
-                }
+                // Step 5: offset techno location
+                res += offset;
             }
-            return res;
-        }
-
-        public static unsafe SingleVector3D GetFLHAbsoluteOffset(CoordStruct flh, DirStruct dir, CoordStruct turretOffset)
-        {
-            SingleVector3D offset = default;
-            if (null != flh && default != flh)
-            {
-                Matrix3DStruct matrix3D = new Matrix3DStruct(true);
-                matrix3D.RotateZ((float)dir.radians());
-                offset = GetFLHOffset(ref matrix3D, flh + turretOffset);
-            }
-            return offset;
+            return res.ToCoordStruct();
         }
 
         public static unsafe Matrix3DStruct GetMatrix3D(Pointer<TechnoClass> pTechno)
@@ -208,29 +194,39 @@ namespace Extension.Utilities
             return matrix3D;
         }
 
-        public static unsafe Matrix3DStruct RotateMatrix3D(ref Matrix3DStruct matrix3D, Pointer<TechnoClass> pTechno)
+        public static unsafe Matrix3DStruct RotateMatrix3D(ref Matrix3DStruct matrix3D, Pointer<TechnoClass> pTechno, bool isOnTurret, bool nextFrame)
         {
-            // Step 2-3: Turret offset and rotation
-            if (pTechno.Ref.HasTurret())
+            // Step 2: rotation
+            if (isOnTurret)
             {
-                /*
-                double turretRad = (pTechno.Ref.GetTurretFacing().current(false).value32() - 8) * -(Math.PI / 16);
-                double bodyRad = (pTechno.Ref.GetRealFacing().current(false).value32() - 8) * -(Math.PI / 16);
-                float angle = (float)(turretRad - bodyRad);
-                matrix3D.RotateZ(angle);
-                */
-                double turretRad = pTechno.Ref.GetTurretFacing().current().radians();
-                if (pTechno.Convert<AbstractClass>().Ref.WhatAmI() == AbstractType.Building)
+                // 旋转到炮塔相同角度
+                if (pTechno.Ref.HasTurret())
                 {
-                    matrix3D.RotateZ((float)turretRad);
+                    DirStruct turretDir = nextFrame ? pTechno.Ref.TurretFacing.next() : pTechno.Ref.TurretFacing.current();
+                    /*
+                    double turretRad = (pTechno.Ref.GetTurretFacing().current(false).value32() - 8) * -(Math.PI / 16);
+                    double bodyRad = (pTechno.Ref.GetRealFacing().current(false).value32() - 8) * -(Math.PI / 16);
+                    float angle = (float)(turretRad - bodyRad);
+                    matrix3D.RotateZ(angle);
+                    */
+                    if (pTechno.Convert<AbstractClass>().Ref.WhatAmI() == AbstractType.Building)
+                    {
+                        double turretRad = turretDir.radians();
+                        matrix3D.RotateZ((float)turretRad);
+                    }
+                    else
+                    {
+                        // 旋转到0点，再转到炮塔的角度
+                        matrix3D.RotateZ(-matrix3D.GetZRotation());
+                        matrix3D.RotateZ((float)turretDir.radians());
+                    }
                 }
-                else
-                {
-                    double bodyRad = pTechno.Ref.Facing.current().radians();
-                    matrix3D.RotateZ((float)turretRad);
-                    matrix3D.RotateZ((float)-bodyRad);
-                    // matrix3D.RotateZ((float)(turretRad - bodyRad));
-                }
+            }
+            else if (nextFrame)
+            {
+                // 旋转到0点，再转到身体下一帧的角度
+                matrix3D.RotateZ(-matrix3D.GetZRotation());
+                matrix3D.RotateZ((float)pTechno.Ref.Facing.next().radians());
             }
             return matrix3D;
         }
@@ -546,7 +542,7 @@ namespace Extension.Utilities
             for (int i = bullets.Count - 1; i >= 0; i--)
             {
                 Pointer<BulletClass> pBullet = bullets.Get(i);
-                CoordStruct targetLocation = pBullet.Ref.Base.Location;
+                CoordStruct targetLocation = pBullet.Ref.Base.Base.GetCoords();
                 if (targetLocation.DistanceFrom(location) <= dist)
                 {
                     pBulletSet.Add(pBullet);

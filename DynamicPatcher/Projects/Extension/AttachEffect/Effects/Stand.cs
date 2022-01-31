@@ -419,7 +419,6 @@ namespace Extension.Ext
             pStand.Ref.Base.SetLocation(location);
             pStand.Ref.SetFocus(Pointer<AbstractClass>.Zero);
             pStand.Ref.SetDestination(Pointer<CellClass>.Zero, true);
-
         }
 
         private void SetDirection(LocationMark mark)

@@ -338,7 +338,7 @@ namespace Extension.Ext
                     if (!string.IsNullOrEmpty(nextAE))
                     {
                         // Logger.Log("赋予NextAE {0}", nextAE);
-                        Attach(nextAE, pOwner, ae.pHouse, IntPtr.Zero);
+                        Attach(nextAE, pOwner, ae.pHouse, ae.pAttacker, false);
                     }
                 }
             }

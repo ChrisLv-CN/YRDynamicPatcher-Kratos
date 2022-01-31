@@ -442,6 +442,11 @@ namespace PatcherYRpp
         public override bool Equals(object obj) => this == (SingleVector3D)obj;
         public override int GetHashCode() => base.GetHashCode();
 
+        public override string ToString()
+        {
+            return string.Format("{{\"X\":{0}, \"Y\": {1}, \"Z\": {2}}}", X, Y, Z);
+        }
+
         public float X;
         public float Y;
         public float Z;

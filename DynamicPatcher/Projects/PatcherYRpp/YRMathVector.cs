@@ -76,6 +76,12 @@ namespace PatcherYRpp
             func(ref this, x, y, z);
         }
 
+        public unsafe void Translate(SingleVector3D vector3D)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref Matrix3DStruct, ref SingleVector3D, void>)0x5AE8F0;
+            func(ref this, ref vector3D);
+        }
+
         public unsafe void TranslateX(float x)
         {
             var func = (delegate* unmanaged[Thiscall]<ref Matrix3DStruct, float, void>)0x5AE980;
@@ -94,16 +100,16 @@ namespace PatcherYRpp
             func(ref this, z);
         }
 
-        public unsafe void Scale(float x, float y, float z)
-        {
-            var func = (delegate* unmanaged[Thiscall]<ref Matrix3DStruct, float, float, float, void>)0x5AEA70;
-            func(ref this, z, y, z);
-        }
-
         public unsafe void Scale(float factor)
         {
             var func = (delegate* unmanaged[Thiscall]<ref Matrix3DStruct, float, void>)0x5AEA10;
             func(ref this, factor);
+        }
+
+        public unsafe void Scale(float x, float y, float z)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref Matrix3DStruct, float, float, float, void>)0x5AEA70;
+            func(ref this, z, y, z);
         }
 
         public unsafe void ScaleX(float x)
@@ -164,10 +170,22 @@ namespace PatcherYRpp
             func(ref this, theta);
         }
 
+        public unsafe void RotateX(float sin, float cos)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref Matrix3DStruct, float, float, void>)0x5AF000;
+            func(ref this, sin, cos);
+        }
+
         public unsafe void RotateY(float theta)
         {
             var func = (delegate* unmanaged[Thiscall]<ref Matrix3DStruct, float, void>)0x5AF080;
             func(ref this, theta);
+        }
+
+        public unsafe void RotateY(float sin, float cos)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref Matrix3DStruct, float, float, void>)0x5AF120;
+            func(ref this, sin, cos);
         }
 
         public unsafe void RotateZ(float theta)
@@ -176,40 +194,59 @@ namespace PatcherYRpp
             func(ref this, theta);
         }
 
+        public unsafe void RotateZ(float sin, float cos)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref Matrix3DStruct, float, float, void>)0x5AF240;
+            func(ref this, sin, cos);
+        }
+
         public unsafe float GetXVal()
         {
             var func = (delegate* unmanaged[Thiscall]<ref Matrix3DStruct, float>)0x5AF2C0;
             return func(ref this);
         }
-        
+
         public unsafe float GetYVal()
         {
             var func = (delegate* unmanaged[Thiscall]<ref Matrix3DStruct, float>)0x5AF310;
             return func(ref this);
         }
-        
+
         public unsafe float GetZVal()
         {
             var func = (delegate* unmanaged[Thiscall]<ref Matrix3DStruct, float>)0x5AF360;
             return func(ref this);
         }
-        
+
         public unsafe float GetXRotation()
         {
             var func = (delegate* unmanaged[Thiscall]<ref Matrix3DStruct, float>)0x5AF3B0;
             return func(ref this);
         }
-        
+
         public unsafe float GetYRotation()
         {
             var func = (delegate* unmanaged[Thiscall]<ref Matrix3DStruct, float>)0x5AF410;
             return func(ref this);
         }
-        
+
         public unsafe float GetZRotation()
         {
             var func = (delegate* unmanaged[Thiscall]<ref Matrix3DStruct, float>)0x5AF470;
             return func(ref this);
+        }
+
+        public unsafe Pointer<SingleVector3D> RotateVector(Pointer<SingleVector3D> ret, Pointer<SingleVector3D> rotate)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref Matrix3DStruct, IntPtr, IntPtr, IntPtr>)0x5AF4D0;
+            return func(ref this, ret, rotate);
+        }
+
+        public unsafe SingleVector3D RotateVector(ref SingleVector3D rotate)
+        {
+            SingleVector3D buffer = default;
+            RotateVector(Pointer<SingleVector3D>.AsPointer(ref buffer), Pointer<SingleVector3D>.AsPointer(ref rotate));
+            return buffer;
         }
     }
 }

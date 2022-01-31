@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using DynamicPatcher;
 
 namespace PatcherYRpp
 {
@@ -355,20 +356,25 @@ namespace PatcherYRpp
             return Value;
         }
 
-        public DirStruct current(bool flip = false)
+        public DirStruct current(bool flip = false, int offset = 0)
         {
-            var ret = this.Value;
+            DirStruct ret = this.Value;
             if (this.in_motion())
             {
-                var diff = this.difference(flip);
-                var num_steps = this.num_steps(flip);
+                int diff = this.difference(flip);
+                int num_steps = this.num_steps(flip);
                 if (num_steps > 0)
                 {
-                    var steps_left = this.Timer.GetTimeLeft();
+                    int steps_left = this.Timer.GetTimeLeft() - offset;
                     ret.Value -= (short)(steps_left * diff / num_steps);
                 }
             }
             return ret;
+        }
+
+        public DirStruct next(bool flip = false)
+        {
+            return current(flip, 1);
         }
 
         public bool set(DirStruct value)
