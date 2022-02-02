@@ -309,6 +309,7 @@ namespace Extension.Ext
             ReadAnimationType(reader, section);
             ReadAttachStatusType(reader, section);
             ReadAutoWeaponType(reader, section);
+            ReadBlackHoleType(reader, section);
             ReadDestroySelfType(reader, section);
             ReadPaintballType(reader, section);
             ReadStandType(reader, section);

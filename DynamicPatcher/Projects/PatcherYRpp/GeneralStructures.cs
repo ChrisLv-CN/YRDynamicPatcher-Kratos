@@ -8,6 +8,7 @@ using DynamicPatcher;
 
 namespace PatcherYRpp
 {
+    [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public struct TimerStruct
     {
@@ -94,6 +95,7 @@ namespace PatcherYRpp
         }
     }
 
+    [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public struct RepeatableTimerStruct
     {
@@ -118,6 +120,7 @@ namespace PatcherYRpp
     }
 
 
+    [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public struct ProgressTimer
     {
@@ -165,6 +168,8 @@ namespace PatcherYRpp
         public RepeatableTimerStruct Timer;
         public int Step; // added to value every time the timer expires
     }
+
+    [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public struct RectangleStruct
     {
@@ -184,6 +189,7 @@ namespace PatcherYRpp
         }
     }
 
+    [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public struct DirStruct
     {
@@ -329,7 +335,7 @@ namespace PatcherYRpp
 
     }
 
-
+    [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public struct FacingStruct
     {
@@ -445,6 +451,7 @@ namespace PatcherYRpp
     }
 
 
+    [Serializable]
     [StructLayout(LayoutKind.Explicit, Size = 828)]
     public struct BytePalette
     {
@@ -453,6 +460,7 @@ namespace PatcherYRpp
         public Pointer<ColorStruct> Entries => Pointer<ColorStruct>.AsPointer(ref Entries_first);
     }
 
+    [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public struct TintStruct
     {
@@ -461,6 +469,7 @@ namespace PatcherYRpp
         int Blue;
     };
 
+    [Serializable]
     [StructLayout(LayoutKind.Explicit, Size = 20)]
     public struct SomeVoxelCache{
 

@@ -14,22 +14,6 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public class ExtraFireROF
-    {
-        private TimerStruct timer;
-
-        public bool CanFire(int ROF)
-        {
-            if (timer.Expired())
-            {
-                timer.Start(ROF);
-                return true;
-            }
-            return false;
-        }
-    }
-
-    [Serializable]
     public class ExtraFireFLHData
     {
 

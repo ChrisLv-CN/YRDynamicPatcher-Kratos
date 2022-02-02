@@ -59,6 +59,7 @@ namespace Extension.Ext
             InitAnimation();
             InitAttachStatus();
             InitAutoWeapon();
+            InitBlackHole();
             InitDestroySelf();
             InitPaintball();
             InitStand();
@@ -97,6 +98,8 @@ namespace Extension.Ext
             AttachStatus?.Enable(pObject, pHouse, pAttacker);
             // 激活自动武器
             AutoWeapon?.Enable(pObject, pHouse, pAttacker);
+            // 激活黑洞
+            BlackHole?.Enable(pObject, pHouse, pAttacker);
             // 激活自毁
             DestroySelf?.Enable(pObject, pHouse, pAttacker);
             // 激活彩弹
@@ -120,6 +123,7 @@ namespace Extension.Ext
             Animation?.Disable(location);
             AttachStatus?.Disable(location);
             AutoWeapon?.Disable(location);
+            BlackHole?.Disable(location);
             DestroySelf?.Disable(location);
             Paintball?.Disable(location);
             Stand?.Disable(location);
@@ -141,6 +145,7 @@ namespace Extension.Ext
             return (null == Animation || Animation.IsAlive())
                 && (null == AttachStatus || AttachStatus.IsAlive())
                 && (null == AutoWeapon || AutoWeapon.IsAlive())
+                && (null == BlackHole || BlackHole.IsAlive())
                 && (null == DestroySelf || DestroySelf.IsAlive())
                 && (null == Paintball || Paintball.IsAlive())
                 && (null == Stand || Stand.IsAlive())
@@ -226,6 +231,7 @@ namespace Extension.Ext
             Animation?.OnUpdate(pObject, isDead, manager);
             AttachStatus?.OnUpdate(pObject, isDead, manager);
             AutoWeapon?.OnUpdate(pObject, isDead, manager);
+            BlackHole?.OnUpdate(pObject, isDead, manager);
             DestroySelf?.OnUpdate(pObject, isDead, manager);
             Paintball?.OnUpdate(pObject, isDead, manager);
             Stand?.OnUpdate(pObject, isDead, manager);
@@ -241,6 +247,7 @@ namespace Extension.Ext
             Animation?.OnTemporalUpdate(ext, pTemporal);
             AttachStatus?.OnTemporalUpdate(ext, pTemporal);
             AutoWeapon?.OnTemporalUpdate(ext, pTemporal);
+            BlackHole?.OnTemporalUpdate(ext, pTemporal);
             DestroySelf?.OnTemporalUpdate(ext, pTemporal);
             Paintball?.OnTemporalUpdate(ext, pTemporal);
             Stand?.OnTemporalUpdate(ext, pTemporal);
@@ -256,6 +263,7 @@ namespace Extension.Ext
             Animation?.OnPut(pObject, pCoord, faceDir);
             AttachStatus?.OnPut(pObject, pCoord, faceDir);
             AutoWeapon?.OnPut(pObject, pCoord, faceDir);
+            BlackHole?.OnPut(pObject, pCoord, faceDir);
             DestroySelf?.OnPut(pObject, pCoord, faceDir);
             Paintball?.OnPut(pObject, pCoord, faceDir);
             Stand?.OnPut(pObject, pCoord, faceDir);
@@ -271,6 +279,7 @@ namespace Extension.Ext
             Animation?.OnRemove(pObject);
             AttachStatus?.OnRemove(pObject);
             AutoWeapon?.OnRemove(pObject);
+            BlackHole?.OnRemove(pObject);
             DestroySelf?.OnRemove(pObject);
             Paintball?.OnRemove(pObject);
             Stand?.OnRemove(pObject);
@@ -287,6 +296,7 @@ namespace Extension.Ext
             Animation?.OnReceiveDamage(pObject, pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
             AttachStatus?.OnReceiveDamage(pObject, pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
             AutoWeapon?.OnReceiveDamage(pObject, pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
+            BlackHole?.OnReceiveDamage(pObject, pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
             DestroySelf?.OnReceiveDamage(pObject, pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
             Paintball?.OnReceiveDamage(pObject, pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
             Stand?.OnReceiveDamage(pObject, pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
@@ -302,6 +312,7 @@ namespace Extension.Ext
             Animation?.OnDestroy(pObject);
             AttachStatus?.OnDestroy(pObject);
             AutoWeapon?.OnDestroy(pObject);
+            BlackHole?.OnDestroy(pObject);
             DestroySelf?.OnDestroy(pObject);
             Paintball?.OnDestroy(pObject);
             Stand?.OnDestroy(pObject);
@@ -317,6 +328,7 @@ namespace Extension.Ext
             Animation?.OnGuardCommand();
             AttachStatus?.OnGuardCommand();
             AutoWeapon?.OnGuardCommand();
+            BlackHole?.OnGuardCommand();
             DestroySelf?.OnGuardCommand();
             Paintball?.OnGuardCommand();
             Stand?.OnGuardCommand();
@@ -332,6 +344,7 @@ namespace Extension.Ext
             Animation?.OnStopCommand();
             AttachStatus?.OnStopCommand();
             AutoWeapon?.OnStopCommand();
+            BlackHole?.OnStopCommand();
             DestroySelf?.OnStopCommand();
             Paintball?.OnStopCommand();
             Stand?.OnStopCommand();
