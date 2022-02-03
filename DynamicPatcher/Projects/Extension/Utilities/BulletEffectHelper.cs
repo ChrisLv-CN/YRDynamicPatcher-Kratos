@@ -22,7 +22,7 @@ namespace Extension.Utilities
         {
             if (crosshair)
             {
-                GreenCrosshair(sourcePos, length, thickness, duration);
+                RedCrosshair(sourcePos, length, thickness, duration);
             }
             Cell(sourcePos, length, new ColorStruct(255, 0, 0), default, thickness, duration);
         }
@@ -50,7 +50,7 @@ namespace Extension.Utilities
         {
             if (crosshair)
             {
-                GreenCrosshair(sourcePos, length, thickness, duration);
+                BlueCrosshair(sourcePos, length, thickness, duration);
             }
             Cell(sourcePos, length, new ColorStruct(0, 0, 255), default, thickness, duration);
         }

@@ -74,6 +74,7 @@ namespace Extension.Ext
 
             int weaponIndex = -1;
             List<string> weaponTypes = Type.WeaponTypes;
+            int randomNum = Type.RandomTypesNum;
             CoordStruct fireFLH = Type.FireFLH;
             CoordStruct targetFLH = Type.TargetFLH;
             double rofMult = 1;
@@ -99,6 +100,7 @@ namespace Extension.Ext
                     {
                         weaponIndex = Type.EliteWeaponIndex;
                         weaponTypes = Type.EliteWeaponTypes;
+                        randomNum = Type.EliteRandomTypesNum;
                         fireFLH = Type.EliteFireFLH;
                         targetFLH = Type.EliteTargetFLH;
                     }
@@ -181,6 +183,19 @@ namespace Extension.Ext
                 // 发射自定义的武器
                 // 准备发射，获取发射位置
                 GetFireLocation(pObject, pReceiverOwner, pShooter, fireFLH, targetFLH, out CoordStruct forceFirePos, out CoordStruct fakeTargetPos);
+                // 随机发射武器
+                if (randomNum > 0)
+                {
+                    List<string> randomWeaponTypes = new List<string>();
+                    int max = weaponTypes.Count;
+                    for (int i = 0; i < randomNum; i++)
+                    {
+                        int index = ExHelper.Random.Next(0, max);
+                        randomWeaponTypes.Add(weaponTypes[index]);
+                    }
+                    weaponTypes = randomWeaponTypes;
+                }
+                // 正式发射武器
                 foreach (string weaponId in weaponTypes)
                 {
 

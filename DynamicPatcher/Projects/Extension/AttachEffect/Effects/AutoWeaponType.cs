@@ -36,6 +36,8 @@ namespace Extension.Ext
         public int EliteWeaponIndex; // 精英时使用单位自身的武器
         public List<string> WeaponTypes; // 武器类型
         public List<string> EliteWeaponTypes; // 精英武器类型
+        public int RandomTypesNum; // 随机使用几个武器
+        public int EliteRandomTypesNum; // 精英时随机使用几个武器
         public bool FireOnce; // 发射后销毁
         public CoordStruct FireFLH; // 开火相对位置
         public CoordStruct EliteFireFLH; // 精英开火相对位置
@@ -58,6 +60,8 @@ namespace Extension.Ext
             this.EliteWeaponIndex = -1;
             this.WeaponTypes = null;
             this.EliteWeaponTypes = null;
+            this.RandomTypesNum = 0;
+            this.EliteRandomTypesNum = 0;
             this.FireOnce = false;
             this.FireFLH = default;
             this.EliteFireFLH = default;
@@ -145,6 +149,25 @@ namespace Extension.Ext
 
             if (null != autoWeaponType)
             {
+                int randomTypesNum = 0;
+                if (reader.ReadNormal(section, "AutoWeapon.RandomTypesNum", ref randomTypesNum))
+                {
+                    if (randomTypesNum > 0)
+                    {
+                        autoWeaponType.RandomTypesNum = randomTypesNum;
+                        autoWeaponType.EliteRandomTypesNum = randomTypesNum;
+                    }
+                }
+
+                int eliteRandomTypesNum = 0;
+                if (reader.ReadNormal(section, "AutoWeapon.EliteRandomTypesNum", ref eliteRandomTypesNum))
+                {
+                    if (eliteRandomTypesNum > 0)
+                    {
+                        autoWeaponType.EliteRandomTypesNum = eliteRandomTypesNum;
+                    }
+                }
+
                 bool fireOnce = false;
                 if (reader.ReadNormal(section, "AutoWeapon.FireOnce", ref fireOnce))
                 {
