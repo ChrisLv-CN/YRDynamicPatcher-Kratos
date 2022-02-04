@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Miscellaneous
 {
-#if FX_ENABLE
+#if OOXX
     [RunClassConstructorFirst]
     public class Preprocess
     {

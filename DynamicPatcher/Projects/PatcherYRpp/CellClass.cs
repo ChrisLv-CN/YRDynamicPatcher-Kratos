@@ -28,6 +28,12 @@ namespace PatcherYRpp
             return ref pCrd;
         }
 
+        public CoordStruct GetCoordsWithBridge()
+        {
+            CoordStruct buffer = this.Base.GetCoords();
+            return FixHeight(ref buffer);
+        }
+
         public unsafe Pointer<CellClass> GetNeighbourCell(uint direction)
         {
             var func = (delegate* unmanaged[Thiscall]<ref CellClass, uint, IntPtr>)0x481810;

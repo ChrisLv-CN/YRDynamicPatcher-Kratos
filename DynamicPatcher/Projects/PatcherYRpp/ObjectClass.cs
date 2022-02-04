@@ -295,6 +295,13 @@ namespace PatcherYRpp
             func(ref this);
         }
 
+        public unsafe void Scatter(CoordStruct location, bool ignoreMission, bool ignoreDestination)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, ref CoordStruct, Bool, Bool, void>)
+                Helpers.GetVirtualFunctionPointer(Pointer<ObjectClass>.AsPointer(ref this), 93);
+            func(ref this, ref location, ignoreMission, ignoreDestination);
+        }
+
         public unsafe Mission GetCurrentMission()
         {
             var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, Mission>)

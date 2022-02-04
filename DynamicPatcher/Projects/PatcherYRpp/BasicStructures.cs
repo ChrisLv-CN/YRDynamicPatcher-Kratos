@@ -11,6 +11,8 @@ namespace PatcherYRpp
     [Serializable]
     public struct ColorStruct : IEquatable<ColorStruct>
     {
+        public static ColorStruct Empty = default;
+
         public ColorStruct(int r, int g, int b)
         {
             R = (byte)r;
@@ -59,6 +61,8 @@ namespace PatcherYRpp
     [Serializable]
     public struct CoordStruct : IEquatable<CoordStruct>
     {
+        public static CoordStruct Empty = default;
+
         public CoordStruct(int x, int y, int z)
         {
             X = x;
@@ -168,7 +172,9 @@ namespace PatcherYRpp
     [Serializable]
     public struct BulletVelocity : IEquatable<BulletVelocity>
     {
-        public BulletVelocity(double x, double y, double z)
+        public static BulletVelocity Empty = default;
+
+    public BulletVelocity(double x, double y, double z)
         {
             X = x;
             Y = y;
@@ -265,6 +271,8 @@ namespace PatcherYRpp
     [Serializable]
     public struct CellStruct : IEquatable<CellStruct>
     {
+        public static CellStruct Empty = default;
+
         public CellStruct(int x, int y)
         {
             X = (short)x;

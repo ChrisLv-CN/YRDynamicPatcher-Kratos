@@ -124,6 +124,26 @@ namespace PatcherYRpp
             return new CellStruct(crd.X / 256, crd.Y / 256);
         }
 
+        // Find nearest spot
+        public unsafe Pointer<CellStruct> Pathfinding_Find(ref CellStruct outBuffer, ref CellStruct position, SpeedType SpeedType, int a5, MovementZone MovementZone, bool alt, int SpaceSizeX, int SpaceSizeY, bool disallowOverlay, bool a11, bool requireBurrowable, bool allowBridge, ref CellStruct closeTo, bool a15, bool buildable)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref MapClass, ref CellStruct, ref CellStruct, SpeedType, int, MovementZone, Bool, int, int, Bool, Bool, Bool, Bool, ref CellStruct, Bool, Bool, IntPtr>)0x56DC20;
+            return func(ref this, ref outBuffer, ref position, SpeedType, a5, MovementZone, alt, SpaceSizeX, SpaceSizeY, disallowOverlay, a11, requireBurrowable, allowBridge, ref closeTo, a15, buildable);
+        }
+
+        public unsafe CellStruct Pathfinding_Find(ref CellStruct position, SpeedType SpeedType, int a5, MovementZone MovementZone, bool alt, int SpaceSizeX, int SpaceSizeY, bool disallowOverlay, bool a11, bool requireBurrowable, bool allowBridge, ref CellStruct closeTo, bool a15, bool buildable)
+        {
+            CellStruct outBuffer = default;
+            Pathfinding_Find(ref outBuffer, ref position, SpeedType, a5, MovementZone, alt, SpaceSizeX, SpaceSizeY, disallowOverlay, a11, requireBurrowable, allowBridge, ref closeTo, a15, buildable);
+            return outBuffer;
+        }
+
+        public unsafe CellStruct Pathfinding_Find(ref CellStruct postion, SpeedType speedType, MovementZone movementZone, int extentX, int extentY, bool buildable)
+        {
+            int a5 = -1; // usually MapClass::CanLocationBeReached call. see how far we can get without it
+            return Pathfinding_Find(ref postion, speedType, a5, movementZone, false, extentX, extentY, true, false, false, false, ref CellStruct.Empty, false, buildable);
+        }
+
         [FieldOffset(312)] public DynamicVectorClass<Pointer<CellClass>> Cells;
 
         [FieldOffset(4444)] public DynamicVectorClass<CellStruct> TaggedCells;

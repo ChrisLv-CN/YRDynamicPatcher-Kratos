@@ -435,6 +435,24 @@ namespace PatcherYRpp
         SpyplaneOverfly = 31
     }
 
+    public enum MovementZone
+    {
+        None = -1,
+        Normal = 0,
+        Crusher = 1,
+        Destroyer = 2,
+        AmphibiousDestroyer = 3,
+        AmphibiousCrusher = 4,
+        Amphibious = 5,
+        Subterrannean = 6,
+        Infantry = 7,
+        InfantryDestroyer = 8,
+        Fly = 9,
+        Water = 10,
+        WaterBeach = 11,
+        CrusherAll = 12
+    }
+
     public enum TargetType
     {
         None = 0,
@@ -575,6 +593,19 @@ namespace PatcherYRpp
         SecondaryFire = 40,
         SecondaryProne = 41,
         NOTHING = -1
+    }
+
+    public enum SpeedType
+    {
+        None = -1,
+        Foot = 0,
+        Track = 1,
+        Wheel = 2,
+        Hover = 3,
+        Winged = 4,
+        Float = 5,
+        Amphibious = 6,
+        FloatBeach = 7
     }
 
     public enum VisualType

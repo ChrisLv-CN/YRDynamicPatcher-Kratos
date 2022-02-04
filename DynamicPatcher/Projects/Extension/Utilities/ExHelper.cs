@@ -44,13 +44,22 @@ namespace Extension.Utilities
                 if (!pType.IsNull)
                 {
                     Pointer<ObjectClass> pObject = pType.Ref.Base.CreateObject(pHouse);
-                    ++Game.IKnowWhatImDoing;
-                    pObject.Ref.Put(location + new CoordStruct(0, 0, 1024), Direction.E);
-                    --Game.IKnowWhatImDoing;
-                    pObject.Ref.SetLocation(location);
+
+                    // 在目标格子位置刷单位
+                    if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
+                    {
+                        pObject.Ref.OnBridge = pCell.Ref.ContainsBridge();
+                        CoordStruct xyz = pCell.Ref.GetCoordsWithBridge();
+                        ++Game.IKnowWhatImDoing;
+                        pObject.Ref.Put(xyz, Direction.E);
+                        --Game.IKnowWhatImDoing;
+                        pObject.Ref.SetLocation(location);
+                        pObject.Ref.Scatter(new CoordStruct(), true, false);
+                    }
+
+                    // 开往目的地
                     if (pObject.Ref.Base.WhatAmI() != AbstractType.Building)
                     {
-                        // 开往目的地
                         CoordStruct des = moveTo;
                         // add focus
                         if (!pFocus.IsNull)
@@ -61,12 +70,17 @@ namespace Extension.Utilities
                                 des = pFocus.Ref.GetCoords();
                             }
                         }
-                        // Pointer<FootClass> pFoot = pObject.Convert<FootClass>();
-                        // pFoot.Ref.Locomotor.Ref.Move_To(moveTo);
                         // MoveTo 会破坏格子的占用
-                        Pointer<CellClass> pCell = MapClass.Instance.GetCellAt(des);
-                        pObject.Convert<TechnoClass>().Ref.SetDestination(pCell, true);
-                        pObject.Convert<MissionClass>().Ref.QueueMission(Mission.Move, false);
+                        if (MapClass.Instance.TryGetCellAt(des, out Pointer<CellClass> pTargetCell))
+                        {
+                            pObject.Convert<TechnoClass>().Ref.SetDestination(pTargetCell, true);
+                            pObject.Convert<MissionClass>().Ref.QueueMission(Mission.Move, false);
+                        }
+                        // else
+                        // {
+                        //     Pointer<FootClass> pFoot = pObject.Convert<FootClass>();
+                        //     pFoot.Ref.Locomotor.Ref.Move_To(des);
+                        // }
                     }
                     // Logger.Log("Create new Techno {0}-{1}. IsAlive={2}, IsOnMap={3}, Mission={4}", pHouse.Ref.Type.Ref.Base.ID, id, pObject.Ref.IsAlive, pObject.Ref.IsOnMap, pObject.Convert<MissionClass>().Ref.CurrentMission);
                     return pObject.Convert<TechnoClass>();

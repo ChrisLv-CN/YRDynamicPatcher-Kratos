@@ -175,7 +175,7 @@ namespace Extension.Ext
                     }
                 }
                 CoordStruct destination = location;
-                Pointer<AbstractClass> pFocus = default;
+                Pointer<AbstractClass> pFocus = IntPtr.Zero;
                 if (pTechno.Ref.Base.Base.WhatAmI() != AbstractType.Building)
                 {
                     Pointer<AbstractClass> dest = pTechno.Convert<FootClass>().Ref.Destination;
