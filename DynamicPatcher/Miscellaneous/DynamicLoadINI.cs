@@ -110,7 +110,7 @@ namespace Miscellaneous
                     Logger.Log("waiting for the end of game frame.");
                     semaphore.WaitOne();
 
-                    Action ReloadRules = () => {
+                    System.Action ReloadRules = () => {
                         string map_name = ScenarioClass.Instance.FileName;
                         pMap = YRMemory.Create<CCFileClass>(map_name);
                         Logger.Log("reloading {0}.", map_name);
@@ -149,7 +149,7 @@ namespace Miscellaneous
                         }
                     };
 
-                    Action ReloadArt = () => {
+                    System.Action ReloadArt = () => {
                         using var memory = new MemoryHandle(Marshal.SizeOf<CCINIClass>());
                         Logger.Log("storing art data.");
                         Helpers.Copy(CCINIClass.INI_Art, (IntPtr)memory.Memory, memory.Size);
