@@ -120,6 +120,7 @@ namespace Extension.Ext
 
         public unsafe void OnUnInit()
         {
+            IsDead = true;
             // Logger.Log("{0} 注销.", OwnerObject);
             TechnoClass_UnInit_AttachEffect();
         }
@@ -219,7 +220,7 @@ namespace Extension.Ext
         public unsafe void OnDestroy()
         {
             // Logger.Log("{0} {1} 收到足够的伤害死亡.", OwnerObject, OwnerObject.Ref.Type.Ref.Base.Base.ID);
-
+            IsDead = true;
             TechnoClass_Destroy_AttachEffect();
             TechnoClass_Destroy_ConvertType();
             TechnoClass_Destroy_DestroyAnims();

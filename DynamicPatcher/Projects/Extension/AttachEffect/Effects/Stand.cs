@@ -71,6 +71,11 @@ namespace Extension.Ext
                 // reset state
                 pStand.Ref.Base.UpdatePlacement(PlacementType.Remove);
                 pStand.Ref.Base.IsOnMap = false;
+                // lock locomotor
+                if (pStand.Ref.Base.Base.WhatAmI() != AbstractType.Building)
+                {
+                    pStand.Convert<FootClass>().Ref.Locomotor.Ref.Lock();
+                }
 
                 // Logger.Log("创建替身{0}, {1}", Type.Type, pStand.Ref.Base.InLimbo);
                 this.pStand.Pointer = pStand;

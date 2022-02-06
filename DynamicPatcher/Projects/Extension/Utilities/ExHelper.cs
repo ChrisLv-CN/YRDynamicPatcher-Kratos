@@ -18,6 +18,7 @@ namespace Extension.Utilities
 
     public static class EXMath
     {
+        public const double HalfPI =Math.PI / 2;
         public const double DEG_TO_RAD = Math.PI / 180;
         public const double BINARY_ANGLE_MAGIC = -(360.0 / (65535 - 1)) * DEG_TO_RAD;
 

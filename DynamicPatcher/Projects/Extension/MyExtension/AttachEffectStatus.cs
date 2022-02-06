@@ -94,7 +94,7 @@ namespace Extension.Ext
 
         public unsafe bool CanICloakByDefault()
         {
-            return OwnerObject.Ref.Type.Ref.Cloakable || OwnerObject.Ref.HasAbility(Ability.Cloak);
+            return (!OwnerObject.IsNull && !OwnerObject.Ref.Type.IsNull) && (OwnerObject.Ref.Type.Ref.Cloakable || OwnerObject.Ref.HasAbility(Ability.Cloak));
         }
 
     }

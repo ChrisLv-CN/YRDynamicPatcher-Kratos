@@ -176,6 +176,11 @@ namespace Extension.Ext
 
                     float angle = (float)(sourceRad - targetRad);
                     targetDir = ExHelper.Radians2Dir(angle);
+
+                    // Matrix3DStruct matrix3D = ExHelper.GetMatrix3D(pMaster);
+                    // matrix3D.RotateZ((float)targetRad);
+                    // float rotateZ = matrix3D.GetZRotation();
+                    // targetDir = ExHelper.Radians2Dir(rotateZ);
                 }
             }
 

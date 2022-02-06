@@ -362,30 +362,30 @@ namespace PatcherYRpp
             return Value;
         }
 
-        public DirStruct current(bool flip = false, int offset = 0)
+        public DirStruct current(int offset = 0)
         {
             DirStruct ret = this.Value;
             if (this.in_motion())
             {
-                int diff = this.difference(flip);
-                int num_steps = this.num_steps(flip);
+                var diff = this.difference();
+                var num_steps = this.num_steps();
                 if (num_steps > 0)
                 {
-                    int steps_left = this.Timer.GetTimeLeft() - offset;
+                    var steps_left = this.Timer.GetTimeLeft() - offset;
                     ret.Value -= (short)(steps_left * diff / num_steps);
                 }
             }
             return ret;
         }
 
-        public DirStruct next(bool flip = false)
+        public DirStruct next()
         {
-            return current(flip, 1);
+            return current(1);
         }
 
         public bool set(DirStruct value)
         {
-            bool ret = (this.current(false) != value);
+            bool ret = (this.current() != value);
             if (ret)
             {
                 this.Value = value;
@@ -397,46 +397,46 @@ namespace PatcherYRpp
 
         public bool turn(DirStruct value)
         {
-            return turn(value, false);
-        }
-
-        public bool turn(DirStruct value, bool flip = false)
-        {
             if (this.Value == value)
                 return false;
-            this.Initial = this.current(flip);
+            this.Initial = this.current();
             this.Value = value;
             if (this.turn_rate() > 0)
             {
-                this.Timer.Start(this.num_steps(flip));
+                this.Timer.Start(this.num_steps());
             }
             return true;
         }
 
-        private int difference(bool flip)
+        // private int difference(bool flip)
+        // {
+        //     // return Math.Abs((int)this.Value.value()) - Math.Abs((int)this.Initial.value());
+        //     // return this.Value.value() - this.Initial.value();
+        //     int v = this.Value.value();
+        //     if (v < 0)
+        //         v = 65536 - -v;
+        //     int i = this.Initial.value();
+        //     if (i < 0)
+        //         i = 65536 - -i;
+        //     int a = v - i;
+        //     int b = this.Value.value() - this.Initial.value();
+        //     int diff = Math.Abs(a) < Math.Abs(b) ? a : b;
+        //     if (!flip)
+        //     {
+        //         return diff;
+        //     }
+        //     int flipDiff = 65536 - Math.Abs(diff);
+        //     return diff < 0 ? flipDiff : -flipDiff;
+        // }
+
+        private int difference()
         {
-            // return Math.Abs((int)this.Value.value()) - Math.Abs((int)this.Initial.value());
-            // return this.Value.value() - this.Initial.value();
-            int v = this.Value.value();
-            if (v < 0)
-                v = 65536 - -v;
-            int i = this.Initial.value();
-            if (i < 0)
-                i = 65536 - -i;
-            int a = v - i;
-            int b = this.Value.value() - this.Initial.value();
-            int diff = Math.Abs(a) < Math.Abs(b) ? a : b;
-            if (!flip)
-            {
-                return diff;
-            }
-            int flipDiff = 65536 - Math.Abs(diff);
-            return diff < 0 ? flipDiff : -flipDiff;
+            return (short)(this.Value.value() - this.Initial.value());
         }
 
-        private int num_steps(bool flip)
+        private int num_steps()
         {
-            return Math.Abs(this.difference(flip)) / this.turn_rate();
+            return Math.Abs(this.difference()) / this.turn_rate();
         }
 
         public override string ToString()
