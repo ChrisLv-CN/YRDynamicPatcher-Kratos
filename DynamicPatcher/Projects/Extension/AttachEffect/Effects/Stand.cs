@@ -61,7 +61,57 @@ namespace Extension.Ext
 
         private void CreateAndPutStand(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse)
         {
-            CoordStruct pCoord = pObject.Ref.Location;
+            CoordStruct location = pObject.Ref.Base.GetCoords();
+            Pointer<TechnoClass> pStand = ExHelper.CreateTechno(Type.Type, pHouse, location, location);
+            if (!pStand.IsNull)
+            {
+                // reset state
+                pStand.Ref.Base.UpdatePlacement(PlacementType.Remove);
+                pStand.Ref.Base.IsOnMap = false;
+                // lock locomotor
+                if (pStand.Ref.Base.Base.WhatAmI() != AbstractType.Building)
+                {
+                    pStand.Convert<FootClass>().Ref.Locomotor.Ref.Lock();
+                }
+
+                // Logger.Log("创建替身{0}, {1}", Type.Type, pStand.Ref.Base.InLimbo);
+                this.pStand.Pointer = pStand;
+                // 同步部分扩展设置
+                TechnoExt ext = TechnoExt.ExtMap.Find(pStand);
+                if (null != ext)
+                {
+                    if (this.Type.VirtualUnit)
+                    {
+                        ext.VirtualUnit = this.Type.VirtualUnit;
+                    }
+                    Pointer<TechnoClass> pBulletOwner = IntPtr.Zero;
+                    if (pObject.Ref.Base.WhatAmI() == AbstractType.Bullet && !(pBulletOwner = pObject.Convert<BulletClass>().Ref.Owner).IsNull)
+                    {
+                        // 附加在抛射体上的，取抛射体的所有者
+                        ext.MyMaster.Pointer = pBulletOwner.Convert<ObjectClass>();
+                    }
+                    else
+                    {
+                        ext.MyMaster.Pointer = pObject;
+                    }
+                    ext.StandType = Type;
+                }
+
+                // 直接放置在指定位置
+                LocationMark locationMark = AttachEffectHelper.GetLocation(pObject, Type);
+                if (default != locationMark.Location)
+                {
+                    SetLocation(locationMark.Location);
+                    // 强扭朝向
+                    ForceSetFacing(locationMark.Direction);
+                }
+            }
+        }
+
+        /*
+        private void CreateAndPutStand(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse)
+        {
+            CoordStruct pCoord = pObject.Ref.Base.GetCoords();
             // Pointer<TechnoClass> pStand = ExHelper.CreateTechno(Type.Type, pHouse, pCoord, pCoord);
             Pointer<TechnoTypeClass> pType = TechnoTypeClass.ABSTRACTTYPE_ARRAY.Find(Type.Type);
             if (!pType.IsNull)
@@ -116,6 +166,7 @@ namespace Extension.Ext
                 }
             }
         }
+        */
 
         // 销毁
         public override void Disable(CoordStruct location)

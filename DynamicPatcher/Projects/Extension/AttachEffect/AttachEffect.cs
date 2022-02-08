@@ -162,6 +162,7 @@ namespace Extension.Ext
         {
             this.immortal = false;
             this.lifeTimer.Start(timeLeft);
+            // Logger.Log("启动{0}生命计时器，生命{1}，计时{2}", Name, duration, timeLeft);
         }
 
         public bool IsSameGroup(AttachEffectType otherType)
@@ -169,36 +170,37 @@ namespace Extension.Ext
             return this.Type.Group > -1 && otherType.Group > -1 && this.Type.Group == otherType.Group;
         }
 
-        public void MergeDuation(int duration)
+        public void MergeDuation(int otherDuration)
         {
-            if (delayToEnable)
+            if (delayToEnable || otherDuration == 0)
             {
                 // Logger.Log("{0}延迟激活中，不接受时延修改", Name);
                 return;
             }
             // 重设时间
-            if (duration < 0)
+            if (otherDuration < 0)
             {
-                // 削减时间
-                this.duration -= duration;
-                if (this.duration < 0)
+                // 剩余时间
+                int timeLeft = immortal ? this.duration : lifeTimer.GetTimeLeft();
+                // 削减生命总长
+                this.duration += otherDuration;
+                if (this.duration <= 0 || timeLeft <= 0)
                 {
-                    // 减没了
+                    // 削减的时间超过总长度，直接减没了
                     this.Active = false;
                 }
                 else
                 {
-                    // 还有剩
-                    int timeLeft = lifeTimer.GetTimeLeft();
-                    // Logger.Log("削减{0}原有的时间{1}到{2}", Name, timeLeft, timeLeft - otherType.Duration);
-                    timeLeft -= duration;
-                    if (timeLeft < 0)
+                    // Logger.Log("削减{0}持续时间{1}，{2}生命{3}，当前剩余{4}", Name, otherDuration, this.immortal ? "无限" : "", this.duration, timeLeft);
+                    timeLeft += otherDuration;
+                    if (timeLeft <= 0)
                     {
-                        // 彻底没了
+                        // 削减完后彻底没了
                         this.Active = false;
                     }
                     else
                     {
+                        // 还有剩
                         // 重设时间
                         StartLifeTimer(timeLeft);
                     }
@@ -207,12 +209,12 @@ namespace Extension.Ext
             else
             {
                 // 累加持续时间
-                this.duration += duration;
+                this.duration += otherDuration;
                 if (!immortal)
                 {
                     int timeLeft = lifeTimer.GetTimeLeft();
-                    // Logger.Log("延长{0}原有的时间{1}到{2}", Name, timeLeft, timeLeft + otherType.Duration);
-                    timeLeft += duration;
+                    // Logger.Log("增加{0}持续时间{1}，当前剩余{2}", Name, otherDuration, timeLeft);
+                    timeLeft += otherDuration;
                     StartLifeTimer(timeLeft);
                 }
             }

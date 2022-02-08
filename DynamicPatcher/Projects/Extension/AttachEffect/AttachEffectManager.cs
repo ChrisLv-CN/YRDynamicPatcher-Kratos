@@ -175,6 +175,7 @@ namespace Extension.Ext
                             if (aeType.OverrideSameGroup)
                             {
                                 // 替换
+                                // Logger.Log("待添加新的{0}，发现同组已存在{1}，关闭", aeType.Name, temp.Name);
                                 // 关闭发现的同组
                                 temp.Disable(location);
                                 add = true;
@@ -182,8 +183,10 @@ namespace Extension.Ext
                             }
                             else
                             {
+                                // Logger.Log("待添加新的{0}，发现同组已存在{1}，调整持续时间{2}", aeType.Name, temp.Name, aeType.Duration);
                                 // 调整持续时间
                                 temp.MergeDuation(aeType.Duration);
+                                AttachEffects[i] = temp;
                             }
                         }
                     }
@@ -196,7 +199,7 @@ namespace Extension.Ext
                 AttachEffect ae = aeType.CreateObject();
                 // 入队
                 int index = AttachEffectHelper.FindInsertIndex(this, ae);
-                // Logger.Log("添加AE类型{0}进入队列，插入位置{1}", type, index);
+                // Logger.Log("添加AE类型{0}进入队列，插入位置{1}", aeType.Name, index);
                 AttachEffects.Insert(index, ae);
                 // 激活
                 ae.Enable(pOwner, pHouse, pAttacker);
