@@ -47,6 +47,20 @@ namespace PatcherYRpp
             return (MapCoords.Y << 9) + MapCoords.X;
         }
 
+        // gets a coordinate in a random direction a fixed distance in leptons away from coords
+        public static unsafe Pointer<CoordStruct> GetRandomCoordsNear(ref CoordStruct outBuffer, CoordStruct coords, int distance, bool center)
+        {
+            var func = (delegate* unmanaged[Thiscall]<int, ref CoordStruct, ref CoordStruct, int, Bool, IntPtr>)ASM.FastCallTransferStation;
+            return func(0x49F420, ref outBuffer, ref coords, distance, center);
+        }
+        // gets a coordinate in a random direction a fixed distance in leptons away from coords
+        public static unsafe CoordStruct GetRandomCoordsNear(ref CoordStruct coords, int distance, bool center)
+        {
+            CoordStruct outBuffer = default;
+            GetRandomCoordsNear(ref outBuffer, coords, distance, center);
+            return outBuffer;
+        }
+
         // no fast call. unmanaged call will lead to StackOverflowException.
         //[UnmanagedFunctionPointer(CallingConvention.FastCall)]
         //public delegate DamageAreaResult DamageAreaFunction(in CoordStruct Coords, int Damage, /*Pointer<TechnoClass>*/IntPtr SourceObject,

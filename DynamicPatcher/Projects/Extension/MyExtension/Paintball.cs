@@ -46,7 +46,7 @@ namespace Extension.Ext
             else
             {
                 infinite = false;
-                timer.Start(duration + 1);
+                timer.Start(duration + 1); // 颜色多持续一帧
             }
         }
 

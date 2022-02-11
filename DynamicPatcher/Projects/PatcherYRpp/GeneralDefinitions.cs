@@ -32,19 +32,49 @@ namespace PatcherYRpp
 
     public enum CellFlags
     {
-        IsWaypoint = 0x04,
-        Explored = 0x08, //this means no shroud
+        Empty = 0x0,
+        CenterRevealed = 0x1,
+        EdgeRevealed = 0x2,
+        IsWaypoint = 0x4,
+        Explored = 0x8, // this means no shroud
         FlagPresent = 0x10,
+        FlagToShroud = 0x20,
+        IsPlot = 0x40,
+        Bridge_80 = 0x80,
         Bridge = 0x100,
+        Unknown_200 = 0x200,
+        Bridge_400 = 0x400,
+        Bridge_800 = 0x800,
+        Unknown_1000 = 0x1000,
+        Unknown_2000 = 0x2000,
+        Unknown_4000 = 0x4000,
+        Unknown_8000 = 0x8000,
+        Unknown_10000 = 0x10000,
         VeinsPresent = 0x20000,
+        Unknown_40000 = 0x40000,
         EMPPresent = 0x80000,
-        Fogged = 0x400000
+        Unknown_100000 = 0x100000,
+        Unknown_200000 = 0x200000,
+        Fogged = 0x400000,
+
+        Revealed = CenterRevealed | EdgeRevealed
     }
 
-    public enum CellFlags_12C
+    public enum AltCellFlags
     {
-        ContainsBuilding = 0x02,
-        NoShadow = 0x08 //else tooltip is TXT_SHADOW
+        // ContainsBuilding = 0x02,
+        // NoShadow = 0x08 //else tooltip is TXT_SHADOW
+        Unknown_1 = 0x1,
+        ContainsBuilding = 0x2,
+        Unknown_4 = 0x4, // 47EED4 PlaceShape related
+        Mapped = 0x8, //else tooltip is TXT_SHADOW
+        NoFog = 0x10,
+        Unknown_20 = 0x20,
+        Unknown_40 = 0x40,
+        Unknown_80 = 0x80,
+        Unknown_100 = 0x100,
+
+        Clear = Mapped | NoFog
     }
 
     public enum CloakStates

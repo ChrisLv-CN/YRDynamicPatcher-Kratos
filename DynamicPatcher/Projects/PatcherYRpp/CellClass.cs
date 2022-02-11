@@ -200,7 +200,7 @@ namespace PatcherYRpp
 
         [FieldOffset(286)] public byte Powerup; //The crate type on this cell. Also indicates some other weird properties
 
-        [FieldOffset(300)] public CellFlags_12C CopyFlags;
+        [FieldOffset(300)] public AltCellFlags AltFlags;
         [FieldOffset(320)] public CellFlags Flags;
     }
 

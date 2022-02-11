@@ -141,6 +141,7 @@ namespace Extension.Ext
         {
             // Logger.Log("{0} UnLimbo", OwnerObject.Ref.Type.Ref.Base.Base.ID);
             TechnoClass_Remove_AttachEffect();
+            TechnoClass_Remove_Trail(IsDead);
         }
 
         public unsafe void OnReceiveDamage(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,

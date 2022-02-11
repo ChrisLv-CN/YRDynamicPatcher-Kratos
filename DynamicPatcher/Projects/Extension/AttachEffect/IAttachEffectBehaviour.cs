@@ -27,6 +27,8 @@ namespace Extension.Ext
         void Enable(Pointer<ObjectClass> pOwner, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker);
         // AE关闭，销毁相关资源
         void Disable(CoordStruct location);
+        // 重置计时器
+        void ResetDuration();
         // 更新
         void OnUpdate(Pointer<ObjectClass> pOwner, bool isDead, AttachEffectManager manager);
         // 被超时空冻结更新
@@ -61,6 +63,8 @@ namespace Extension.Ext
         public virtual void Enable(Pointer<ObjectClass> pOwner, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker) { }
         // AE关闭，销毁相关资源
         public virtual void Disable(CoordStruct location) { }
+        // 重置计时器
+        public virtual void ResetDuration() { }
         // 更新
         public virtual void OnUpdate(Pointer<ObjectClass> pOwner, bool isDead, AttachEffectManager manager) { }
         // 被超时空冻结更新

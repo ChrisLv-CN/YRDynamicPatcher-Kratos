@@ -56,6 +56,11 @@ namespace Extension.Ext
             }
         }
 
+        public void ClearLastLocation()
+        {
+            this.LastLocation = default;
+        }
+
         private bool CanDraw()
         {
             if (!canDraw)

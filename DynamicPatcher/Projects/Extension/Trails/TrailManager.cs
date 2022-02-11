@@ -58,6 +58,14 @@ namespace Extension.Ext
             }
         }
 
+        public void ClearLocation()
+        {
+            foreach(Trail trail in Trails)
+            {
+                trail.ClearLastLocation();
+            }
+        }
+
         public void DrawTrail(Pointer<TechnoClass> pTechno, DrivingState drivingState = DrivingState.Moving)
         {
             foreach (Trail trail in Trails)

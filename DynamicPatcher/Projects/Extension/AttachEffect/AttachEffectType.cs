@@ -37,6 +37,7 @@ namespace Extension.Ext
         public bool FromTransporter; // 弹头附加，乘客附加时，视为载具
         public bool OwnerTarget; // 弹头附加，属于被赋予对象
         public CumulativeMode Cumulative; // 可叠加
+        public bool ResetDurationOnReapply; // 不可叠加时，重复获得时是否重置计时器
         public int Group; // 分组，同一个分组的效果互相影响，削减或增加持续时间
         public bool OverrideSameGroup; // 是否覆盖同一个分组
         public string Next; // 结束后播放下一个AE
@@ -69,6 +70,7 @@ namespace Extension.Ext
             this.FromTransporter = true;
             this.OwnerTarget = false;
             this.Cumulative = CumulativeMode.NO;
+            this.ResetDurationOnReapply = false;
             this.Group = -1;
             this.OverrideSameGroup = false;
             this.Next = null;
@@ -148,6 +150,12 @@ namespace Extension.Ext
             if (reader.ReadNormal(section, "HoldDuration", ref holdDuration))
             {
                 this.HoldDuration = holdDuration;
+            }
+
+            bool resetDurationOnReapply = false;
+            if (reader.ReadNormal(section, "ResetDurationOnReapply", ref resetDurationOnReapply))
+            {
+                this.ResetDurationOnReapply = resetDurationOnReapply;
             }
 
             int delay = 0;

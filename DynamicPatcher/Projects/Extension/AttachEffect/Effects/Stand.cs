@@ -340,31 +340,40 @@ namespace Extension.Ext
                 }
             }
 
-            if (!onStopCommand)
+            if (Type.ForceAttackMaster)
             {
-                // synch Target
-                RemoveStandIllegalTarget();
-                Pointer<AbstractClass> target = pMaster.Ref.Target;
-                if (!target.IsNull)
+                if (!powerOff)
                 {
-                    if (Type.SameTarget && !powerOff)
-                    {
-                        pStand.Ref.SetTarget(target);
-                    }
-                }
-                else
-                {
-                    if (Type.SameLoseTarget || powerOff)
-                    {
-                        RemoveStandTarget();
-                    }
+                    pStand.Ref.SetTarget(pMaster.Convert<AbstractClass>());
                 }
             }
             else
             {
-                onStopCommand = false;
+                if (!onStopCommand)
+                {
+                    // synch Target
+                    RemoveStandIllegalTarget();
+                    Pointer<AbstractClass> target = pMaster.Ref.Target;
+                    if (!target.IsNull)
+                    {
+                        if (Type.SameTarget && !powerOff)
+                        {
+                            pStand.Ref.SetTarget(target);
+                        }
+                    }
+                    else
+                    {
+                        if (Type.SameLoseTarget || powerOff)
+                        {
+                            RemoveStandTarget();
+                        }
+                    }
+                }
+                else
+                {
+                    onStopCommand = false;
+                }
             }
-
         }
 
         private void RemoveStandIllegalTarget()

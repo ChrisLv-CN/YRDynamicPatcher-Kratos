@@ -32,12 +32,20 @@ namespace Extension.Ext
         public unsafe void TechnoClass_Update_Trail()
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
-            if (null != trailManager && pTechno.Ref.Base.IsVisible && pTechno.Ref.CloakStates == CloakStates.UnCloaked)
+            if (null == trailManager || pTechno.Ref.Base.InLimbo || !pTechno.Ref.Base.IsVisible || pTechno.Ref.CloakStates == CloakStates.Cloaked)
             {
-                // 绘制尾巴
-                trailManager.DrawTrail(pTechno, DrivingState);
+                return;
             }
+            // 绘制尾巴
+            trailManager.DrawTrail(pTechno, DrivingState);
+        }
 
+        public unsafe void TechnoClass_Remove_Trail(bool isDead)
+        {
+            if (!isDead)
+            {
+                trailManager.ClearLocation();
+            }
         }
 
     }
@@ -52,6 +60,7 @@ namespace Extension.Ext
             // read form Art.ini
             if (TrailManager.ReadTrailData(artReader, artSection, out List<TrailData> trailDatas))
             {
+                // Logger.Log("[{0}] 读取 Image={1} 的Art尾巴参数，共{2}条", section, artSection, trailDatas.Count);
                 TrailDatas = trailDatas;
             }
         }

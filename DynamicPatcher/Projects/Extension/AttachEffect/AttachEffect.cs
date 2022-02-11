@@ -66,7 +66,7 @@ namespace Extension.Ext
             InitTransform();
         }
 
-        public void StartLifeTimer()
+        public void SetupLifeTimer()
         {
             if (!this.immortal)
             {
@@ -91,7 +91,7 @@ namespace Extension.Ext
         private void EnableEffects(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
         {
             delayToEnable = false;
-            StartLifeTimer();
+            SetupLifeTimer();
             // 激活动画
             Animation?.Enable(pObject, pHouse, pAttacker);
             // 激活属性加成
@@ -158,7 +158,7 @@ namespace Extension.Ext
             return duration <= 0 || (!immortal && lifeTimer.Expired());
         }
 
-        private void StartLifeTimer(int timeLeft)
+        private void ForceStartLifeTimer(int timeLeft)
         {
             this.immortal = false;
             this.lifeTimer.Start(timeLeft);
@@ -202,7 +202,7 @@ namespace Extension.Ext
                     {
                         // 还有剩
                         // 重设时间
-                        StartLifeTimer(timeLeft);
+                        ForceStartLifeTimer(timeLeft);
                     }
                 }
             }
@@ -215,9 +215,22 @@ namespace Extension.Ext
                     int timeLeft = lifeTimer.GetTimeLeft();
                     // Logger.Log("增加{0}持续时间{1}，当前剩余{2}", Name, otherDuration, timeLeft);
                     timeLeft += otherDuration;
-                    StartLifeTimer(timeLeft);
+                    ForceStartLifeTimer(timeLeft);
                 }
             }
+        }
+
+        public void ResetDuration()
+        {
+            SetupLifeTimer();
+            Animation?.ResetDuration();
+            AttachStatus?.ResetDuration();
+            AutoWeapon?.ResetDuration();
+            BlackHole?.ResetDuration();
+            DestroySelf?.ResetDuration();
+            Paintball?.ResetDuration();
+            Stand?.ResetDuration();
+            Transform?.ResetDuration();
         }
 
         public void OnUpdate(Pointer<ObjectClass> pObject, bool isDead, AttachEffectManager manager)

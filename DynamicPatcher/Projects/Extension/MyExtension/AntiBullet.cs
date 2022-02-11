@@ -304,6 +304,7 @@ namespace Extension.Ext
         public int Health;
         public bool IsDetonate;
         public bool IsHarmless;
+        public bool SkipAE;
 
 
         public BulletLifeStatus(int health, bool interceptable = false)
@@ -313,26 +314,32 @@ namespace Extension.Ext
             this.Health = health;
             this.IsDetonate = false;
             this.IsHarmless = false;
+            this.SkipAE = false;
         }
 
-        public void Detonate(bool harmless)
+        public void Detonate(bool harmless, bool skipAE = false)
         {
             this.Health = -1;
             this.IsDetonate = true;
             this.IsHarmless = harmless;
+            this.SkipAE = skipAE;
         }
 
-        public void TakeDamage(int damage, bool harmless)
+        public void TakeDamage(int damage, bool harmless, bool skipAE = false)
         {
             this.Health -= damage;
             this.IsDetonate = this.Health <= 0;
             this.IsHarmless = harmless;
+            if (IsDetonate)
+            {
+                this.SkipAE = skipAE;
+            }
         }
 
         public override string ToString()
         {
-            return string.Format("{{\"Interceptable\":{0}, \"Health\":{1}, \"IsDetonate\":{2}, \"IsHarmless\":{3}}}",
-                Interceptable, Health, IsDetonate, IsHarmless
+            return string.Format("{{\"Interceptable\":{0}, \"Health\":{1}, \"IsDetonate\":{2}, \"IsHarmless\":{3}, \"SkipAE\":{4}}}",
+                Interceptable, Health, IsDetonate, IsHarmless, SkipAE
             );
         }
     }

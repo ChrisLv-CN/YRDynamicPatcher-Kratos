@@ -31,6 +31,7 @@ namespace Extension.Ext
     {
         public PaintballType Type;
         private TechnoExt OwnerExt;
+        private ColorStruct Color;
 
         public Paintball(PaintballType type, AttachEffectType attachEffectType) : base(attachEffectType)
         {
@@ -44,8 +45,8 @@ namespace Extension.Ext
                 OwnerExt = TechnoExt.ExtMap.Find(pTechno);
                 if (null != OwnerExt)
                 {
-                    ColorStruct color = Type.IsHouseColor ? pHouse.Ref.LaserColor : Type.Color;
-                    OwnerExt.PaintballState.Enable(color, AttachEffectType.Duration);
+                    Color = Type.IsHouseColor ? pHouse.Ref.LaserColor : Type.Color;
+                    OwnerExt.PaintballState.Enable(Color, AttachEffectType.Duration);
                 }
             }
         }
@@ -54,6 +55,14 @@ namespace Extension.Ext
         // {
         //     OwnerExt?.PaintballState.Disable();
         // }
+
+        public override void ResetDuration()
+        {
+            if (null != OwnerExt)
+            {
+                OwnerExt.PaintballState.Enable(Color, AttachEffectType.Duration);
+            }
+        }
 
     }
 

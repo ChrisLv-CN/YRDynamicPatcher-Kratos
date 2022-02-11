@@ -75,7 +75,7 @@ namespace Extension.Ext
         {
             // 写在type上附加的AE，攻击者是自己
             Pointer<TechnoClass> pAttacker = IntPtr.Zero;
-            switch(pOwner.Ref.Base.WhatAmI())
+            switch (pOwner.Ref.Base.WhatAmI())
             {
                 case AbstractType.Unit:
                 case AbstractType.Aircraft:
@@ -141,10 +141,10 @@ namespace Extension.Ext
             if (!add)
             {
                 // 不同攻击者是否叠加
-                bool canCumulative = aeType.Cumulative == CumulativeMode.ATTACKER && !pAttacker.IsNull && pAttacker.Ref.Base.IsAlive;
+                bool isAttackMark = aeType.Cumulative == CumulativeMode.ATTACKER && !pAttacker.IsNull && pAttacker.Ref.Base.IsAlive;
                 // 攻击者标记AE名称相同，但可以来自不同的攻击者，可以叠加，不检查Delay
                 // 检查冷却计时器
-                if (!canCumulative && DisableDelayTimers.TryGetValue(aeType.Name, out TimerStruct delayTimer) && delayTimer.InProgress())
+                if (!isAttackMark && DisableDelayTimers.TryGetValue(aeType.Name, out TimerStruct delayTimer) && delayTimer.InProgress())
                 {
                     // Logger.Log("类型[0]尚在冷却中，无法添加", autoWeaponType.Name);
                     return;
@@ -156,13 +156,33 @@ namespace Extension.Ext
                     AttachEffect temp = AttachEffects[i];
                     if (aeType.Group < 0)
                     {
-                        // 找同名，如果是攻击者标记，同名且为同一攻击者，不附加
-                        if (temp.Type.Name.Equals(aeType.Name) && (!canCumulative || temp.pAttacker.Pointer == pAttacker))
+                        // 找同名
+                        if (temp.Type.Name.Equals(aeType.Name))
                         {
                             // 找到了
-                            // Logger.Log("类型{0}已经存在，无法添加", aeType.Name);
                             find = true;
-                            break;
+                            if (isAttackMark)
+                            {
+                                if (temp.pAttacker.Pointer == pAttacker)
+                                {
+                                    // 是攻击者标记，且相同的攻击者，重置持续时间
+                                    if (temp.Type.ResetDurationOnReapply)
+                                    {
+                                        temp.ResetDuration();
+                                        AttachEffects[i] = temp;
+                                    }
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                // 不是攻击者标记，重置持续时间
+                                if (temp.Type.ResetDurationOnReapply)
+                                {
+                                    temp.ResetDuration();
+                                    AttachEffects[i] = temp;
+                                }
+                            }
                         }
                     }
                     else
@@ -244,7 +264,7 @@ namespace Extension.Ext
 
         public bool HasStand()
         {
-            foreach(AttachEffect ae in AttachEffects)
+            foreach (AttachEffect ae in AttachEffects)
             {
                 if (null != ae.Stand && ae.IsActive())
                 {

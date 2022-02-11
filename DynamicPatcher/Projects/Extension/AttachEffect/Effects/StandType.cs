@@ -45,6 +45,7 @@ namespace Extension.Ext
         public bool SameHouse; // 与使者同所属
         public bool SameTarget; // 与使者同个目标
         public bool SameLoseTarget; // 使者失去目标时替身也失去
+        public bool ForceAttackMaster; // 强制选择使者为目标
         public bool Explodes; // 死亡会爆炸
         public bool ExplodesWithMaster; // 使者死亡时强制替身爆炸
         public bool RemoveAtSinking; // 沉船时移除
@@ -68,6 +69,7 @@ namespace Extension.Ext
             this.SameHouse = true;
             this.SameTarget = true;
             this.SameLoseTarget = false;
+            this.ForceAttackMaster = false;
             this.Powered = false;
             this.Explodes = false;
             this.ExplodesWithMaster = false;
@@ -182,6 +184,12 @@ namespace Extension.Ext
                 if (reader.ReadNormal(section, "Stand.SameLoseTarget", ref sameLoseTarget))
                 {
                     standType.SameLoseTarget = sameLoseTarget;
+                }
+
+                bool forceAttackMaster = true;
+                if (reader.ReadNormal(section, "Stand.ForceAttackMaster", ref forceAttackMaster))
+                {
+                    standType.ForceAttackMaster = forceAttackMaster;
                 }
 
                 bool powered = true;

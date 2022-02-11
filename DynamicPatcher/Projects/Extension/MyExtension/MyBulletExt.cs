@@ -61,7 +61,8 @@ namespace Extension.Ext
         {
             // 爆炸的位置离目标位置非常近视为命中
             CoordStruct targetLocation = location;
-            bool snapped = false;
+            // 炸膛或者垂直抛射体不检查与目标的贴近距离
+            bool snapped = OwnerObject.Ref.Type.Ref.Dropping || OwnerObject.Ref.Type.Ref.Vertical;
             int snapDistance = 64;
             Pointer<AbstractClass> pBulletTarget = OwnerObject.Ref.Target;
             if (!pBulletTarget.IsNull && OwnerObject.Ref.Base.DistanceFrom(pBulletTarget.Convert<ObjectClass>()) < snapDistance)
@@ -69,7 +70,7 @@ namespace Extension.Ext
                 targetLocation = pBulletTarget.Convert<AbstractClass>().Ref.GetCoords();
                 snapped = true;
             }
-            if (snapped)
+            if (null == BulletLifeStatus || !BulletLifeStatus.SkipAE)
             {
                 // 使用弹头爆炸事件进行AE赋予
                 int damage = OwnerObject.Ref.Base.Health;
@@ -91,9 +92,6 @@ namespace Extension.Ext
                     {
                         continue;
                     }
-                    // CoordStruct pos1 = pTarget.Ref.Base.Location;
-                    // BulletEffectHelper.GreenLine(pos1, pos1 + new CoordStruct(0, 0, 2048), 1, 15);
-                    // Logger.Log("pTarget {0}", pTarget.Ref.Type.Ref.Base.Base.ID);
                     TechnoExt targetExt = TechnoExt.ExtMap.Find(pTarget);
                     if (null != targetExt)
                     {
