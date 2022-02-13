@@ -129,7 +129,8 @@ namespace Extension.Ext
                     return;
             }
 
-            bool attackerInvisible = pAttacker.IsNull || pAttacker.Ref.Base.Health <= 0 || !pAttacker.Ref.Base.IsAlive || pAttacker.Ref.Base.InLimbo || pAttacker.Ref.IsImmobilized || !pAttacker.Ref.Transporter.IsNull;
+            // bool attackerInvisible = pAttacker.IsNull || pAttacker.Ref.Base.Health <= 0 || !pAttacker.Ref.Base.IsAlive || pAttacker.Ref.Base.InLimbo || pAttacker.Ref.IsImmobilized || !pAttacker.Ref.Transporter.IsNull;
+            bool attackerInvisible = pAttacker.Pointer.IsDeadOrInvisible() || pAttacker.Ref.IsImmobilized || !pAttacker.Ref.Transporter.IsNull;
             // 攻击者标记下，攻击者死亡或不存在或AE被赋予抛射体，AE结束，没有启用标记，却设置了反向，同样结束AE
             if (Type.IsAttackerMark ? (isOnBullet || attackerInvisible) : !Type.ReceiverAttack)
             {

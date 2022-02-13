@@ -21,28 +21,24 @@ namespace Extension.Ext
         public GiftBoxData Data;
         public bool IsOpen;
         public int Delay;
-        public List<string> Gifts = new List<string>();
+
+        private TimerStruct delayTimer;
 
         public GiftBox(GiftBoxData data)
         {
             this.Enable = data.Enable;
             this.Data = data;
-            this.IsOpen = false;
-            this.Delay = data.DelayMax == 0 ? data.Delay : ExHelper.Random.Next(data.DelayMin, data.DelayMax);
-            if (data.Gifts.Count == 0)
-            {
-                this.Enable = false;
-            }
+            Setup();
         }
 
         public bool Open()
         {
-            return Enable && (IsOpen ? false : CheckDelay());
+            return Enable && !IsOpen && CanOpen();
         }
 
-        private bool CheckDelay()
+        private bool CanOpen()
         {
-            if (--this.Delay <= 0)
+            if (this.Delay <= 0 || delayTimer.Expired())
             {
                 this.IsOpen = true;
                 return true;
@@ -50,10 +46,14 @@ namespace Extension.Ext
             return false;
         }
 
-        public void Reset()
+        public void Setup()
         {
-            this.Delay = Data.DelayMax == 0 ? Data.Delay : ExHelper.Random.Next(Data.DelayMin, Data.DelayMax);
             this.IsOpen = false;
+            this.Delay = Data.DelayMax == 0 ? Data.Delay : ExHelper.Random.Next(Data.DelayMin, Data.DelayMax);
+            if (this.Delay > 0)
+            {
+                delayTimer = new TimerStruct(this.Delay);
+            }
         }
     }
 
@@ -192,20 +192,26 @@ namespace Extension.Ext
                 }
                 if (giftBox.Data.Remove)
                 {
-                    if (giftBox.Data.Destroy)
-                    {
-                        pTechno.Ref.Base.TakeDamage(pTechno.Ref.Base.Health + 1, pTechno.Ref.Type.Ref.Crewed);
-                        // pTechno.Ref.Base.Destroy();
-                    }
-                    else
-                    {
-                        pTechno.Ref.Base.Remove();
-                        pTechno.Ref.Base.UnInit();
-                    }
+                    // 奇葩的bug，步兵和Jumpjet无法释放占领的格子，改成用DestorySefl在下一帧自爆
+                    DestroySelfData data = new DestroySelfData(0);
+                    data.Peaceful = !giftBox.Data.Destroy;
+                    this.DestroySelfStatus = new DestroySelfStatus(data);
+
+                    // pTechno.Ref.Base.Remove();
+                    // if (giftBox.Data.Destroy)
+                    // {
+                    //     pTechno.Ref.Base.TakeDamage(pTechno.Ref.Base.Health + 1, pTechno.Ref.Type.Ref.Crewed);
+                    //     // pTechno.Ref.Base.Destroy();
+                    // }
+                    // else
+                    // {
+                    //     pTechno.Ref.Base.UnInit();
+                    // }
                 }
                 else
                 {
-                    giftBox.Reset();
+                    // 重置
+                    giftBox.Setup();
                 }
             }
         }

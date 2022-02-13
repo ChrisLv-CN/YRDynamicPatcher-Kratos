@@ -335,7 +335,7 @@ namespace Extension.Ext
         private bool IsDeadOrStand(Pointer<TechnoClass> pTarget, Pointer<TechnoClass> pBulletOwner)
         {
             // 检查死亡和发射者
-            if (pTarget.IsNull || pTarget == pBulletOwner || pTarget.Ref.Base.Health <= 0 || !pTarget.Ref.Base.IsAlive || pTarget.Ref.IsCrashing || pTarget.Ref.IsSinking || pTarget.Ref.Base.InLimbo || pTarget.Ref.IsImmobilized)
+            if (pTarget.IsNull || pTarget == pBulletOwner || pTarget.IsDeadOrInvisible() || pTarget.Ref.IsImmobilized)
             {
                 return true;
             }
@@ -371,7 +371,7 @@ namespace Extension.Ext
 
         private bool ManualDetonation(CoordStruct sourcePos, bool KABOOM = true, Pointer<TechnoClass> pBulletOwner = default, Pointer<AbstractClass> pTarget = default, CoordStruct detonatePos = default)
         {
-            if (!KABOOM && (pBulletOwner.IsNull || pBulletOwner.Ref.Base.Health <= 0 || !pBulletOwner.Ref.Base.IsAlive || pBulletOwner.Ref.IsCrashing || pBulletOwner.Ref.IsSinking))
+            if (!KABOOM && pBulletOwner.IsDead())
             {
                 // 发射者死亡，抛射体跟着一起玩完
                 Proximity = null;

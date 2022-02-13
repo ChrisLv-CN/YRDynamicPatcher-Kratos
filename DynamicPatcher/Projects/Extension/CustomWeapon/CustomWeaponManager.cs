@@ -99,8 +99,12 @@ namespace Extension.Ext
         {
             Pointer<TechnoClass> pAttacker = ext.OwnerObject;
             // 失去目标时清空所有待发射队列
-            if (pAttacker.IsNull || pAttacker.Ref.Target.IsNull || !pAttacker.Ref.Base.IsAlive)
+            if (pAttacker.IsNull || pAttacker.Ref.Target.IsNull || ext.IsDead)
             {
+                // if (simulateBurstQueue.Count > 0)
+                // {
+                //     Logger.Log("{0} - {1}{2}失去目标清空所有待发射队列，目标类型{3}", Game.CurrentFrame, pAttacker.IsNull ? "null" : pAttacker.Ref.Type.Ref.Base.Base.ID, ext.IsDead ? " is Dead" : " " + pAttacker, pAttacker.Ref.Target.IsNull ? "null" : pAttacker.Ref.Target.Ref.WhatAmI());
+                // }
                 simulateBurstQueue.Clear();
             }
             else
@@ -121,7 +125,7 @@ namespace Extension.Ext
                             // 检查目标幸存和射程
                             if (!pWeaponType.IsNull
                                 && !pShooter.IsNull && pShooter.Ref.Base.IsAlive
-                                && !pTarget.IsNull && pTarget.Convert<ObjectClass>().Ref.IsAlive
+                                && !pTarget.IsNull && (!pTarget.CastToTechno(out Pointer<TechnoClass> pTemp) || !pTemp.IsDeadOrInvisible())
                                 && (!burst.FireData.CheckRange || pShooter.Ref.Base.Base.GetCoords().DistanceFrom(pTarget.Ref.GetCoords()) <= burst.Range)
                                 && (pAttacker.Ref.Transporter.IsNull || (pWeaponType.Ref.FireInTransport || burst.FireData.OnlyFireInTransport))
                             )
@@ -196,6 +200,7 @@ namespace Extension.Ext
                             }
                         }
                         SimulateBurst newBurst = new SimulateBurst(pWeapon, pShooter, pTarget, fireFLH, burst, range, fireData, flipY, callback);
+                        // Logger.Log("{0} - {1}{2}添加订单模拟Burst发射{3}发，目标类型{4}，入队", Game.CurrentFrame, pAttacker.IsNull ? "null" : pAttacker.Ref.Type.Ref.Base.Base.ID, pAttacker, burst, pAttacker.Ref.Target.IsNull ? "null" : pAttacker.Ref.Target.Ref.WhatAmI());
                         // 发射武器
                         SimulateBurstFire(pShooter, pAttacker, pTarget, pWeapon, ref newBurst);
                         // 入队
@@ -208,6 +213,7 @@ namespace Extension.Ext
                         if (!fireData.CheckRange || pShooter.Ref.Base.Base.GetCoords().DistanceFrom(pTarget.Ref.GetCoords()) <= range)
                         {
                             // 直接发射武器
+                            // Logger.Log("{0} - {1}{2}添加订单发射自定义武器{3}，目标类型{4}，入队", Game.CurrentFrame, pAttacker.IsNull ? "null" : pAttacker.Ref.Type.Ref.Base.Base.ID, pAttacker, pWeapon.Ref.Base.ID, pAttacker.Ref.Target.IsNull ? "null" : pAttacker.Ref.Target.Ref.WhatAmI());
                             ExHelper.FireWeaponTo(pShooter, pAttacker, pTarget, pWeapon, fireFLH, callback, bulletSourcePos, fireData.RadialFire, fireData.RadialAngle);
                             isFire = true;
                         }
@@ -216,6 +222,7 @@ namespace Extension.Ext
                 else
                 {
                     // 直接发射武器
+                    // Logger.Log("{0} - {1}{2}添加订单发射自定义武器{3}，目标类型{4}，入队", Game.CurrentFrame, pAttacker.IsNull ? "null" : pAttacker.Ref.Type.Ref.Base.Base.ID, pAttacker, pWeapon.Ref.Base.ID, pAttacker.Ref.Target.IsNull ? "null" : pAttacker.Ref.Target.Ref.WhatAmI());
                     ExHelper.FireWeaponTo(pShooter, pAttacker, pTarget, pWeapon, flh, callback, bulletSourcePos);
                     isFire = true;
                 }

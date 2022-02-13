@@ -84,8 +84,7 @@ namespace Extension.Ext
         {
             if (null != OnLandTypes && OnLandTypes.Count > 0)
             {
-                Pointer<CellClass> pCell = MapClass.Instance.GetCellAt(sourcePos);
-                if (!pCell.IsNull)
+                if (MapClass.Instance.TryGetCellAt(sourcePos, out Pointer<CellClass> pCell))
                 {
                     LandType landType = pCell.Ref.LandType;
 
@@ -106,32 +105,36 @@ namespace Extension.Ext
 
         public void DrawTrail(Pointer<HouseClass> pHouse, CoordStruct sourcePos, CoordStruct createOffset = default)
         {
-            if (default != LastLocation)
+            if (default != sourcePos)
             {
-                CoordStruct targetPos = LastLocation;
-                int distance = Type.Distance;
-                if (sourcePos.DistanceFrom(targetPos) > distance || forceDraw)
+                if (default != LastLocation)
                 {
-                    if ((CanDraw() && CheckVertical(sourcePos, targetPos)) || forceDraw)
+                    CoordStruct targetPos = LastLocation;
+                    int distance = Type.Distance;
+                    if (sourcePos.DistanceFrom(targetPos) > distance || this.forceDraw)
                     {
-                        forceDraw = false;
-                        if (IsOnLand(sourcePos))
+                        if ((CanDraw() && CheckVertical(sourcePos, targetPos)) || this.forceDraw)
                         {
-                            RealDrawTrail(sourcePos, targetPos, pHouse);
+                            forceDraw = false;
+                            if (IsOnLand(sourcePos))
+                            {
+                                RealDrawTrail(sourcePos, targetPos, pHouse);
+                            }
+                            drivingState = DrivingState.Moving;
                         }
-                        drivingState = DrivingState.Moving;
+                        LastLocation = sourcePos;
                     }
-                    LastLocation = sourcePos;
                 }
-            }
-            else
-            {
-                LastLocation = sourcePos - createOffset;
+                else
+                {
+                    LastLocation = sourcePos - createOffset;
+                }
             }
         }
 
         public void RealDrawTrail(CoordStruct sourcePos, CoordStruct targetPos, Pointer<HouseClass> pHouse)
         {
+            // Logger.Log("{0} - Draw the Tail {1}", Game.CurrentFrame, Type);
             switch (Type.Mode)
             {
                 case TrailMode.LASER:
@@ -159,6 +162,7 @@ namespace Extension.Ext
 
         public void DrawAnimTrail(CoordStruct sourcePos, Pointer<HouseClass> pHouse)
         {
+            // Logger.Log("{0} - Draw the Anim Tail {1}", Game.CurrentFrame, Type);
             string animType = Type.WhileDrivingAnim;
             switch (drivingState)
             {

@@ -103,8 +103,7 @@ namespace Extension.Ext
                     if (!Type.AircraftPutData.FouceOffset)
                     {
                         // check Building has Helipad
-                        Pointer<CellClass> pCell = MapClass.Instance.GetCellAt(pCoord.Ref);
-                        if (!pCell.IsNull)
+                        if (MapClass.Instance.TryGetCellAt(pCoord.Ref, out Pointer<CellClass> pCell))
                         {
                             Pointer<BuildingClass> pBuilding = pCell.Ref.GetBuilding();
                             if (!pBuilding.IsNull && pBuilding.Ref.Type.Ref.Helipad)
@@ -131,8 +130,10 @@ namespace Extension.Ext
                 CoordStruct pos = location + Type.AircraftPutData.PosOffset;
                 // Logger.Log("Change put Location {0} to {1}", location, pos);
                 OwnerObject.Ref.Base.SetLocation(pos);
-                Pointer<CellClass> pCell = MapClass.Instance.GetCellAt(location);
-                OwnerObject.Ref.SetDestination(pCell, true);
+                if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
+                {
+                    OwnerObject.Ref.SetDestination(pCell, true);
+                }
                 OwnerObject.Convert<MissionClass>().Ref.QueueMission(Mission.Enter, false);
             }
         }

@@ -27,6 +27,11 @@ namespace Extension.Ext
         public bool IgnoreVertical;
         public int InitialDelay;
 
+        public override string ToString()
+        {
+            return string.Format("{{\"Mode\":{0}, \"Distance\":{1}, \"InitialDelay\":{2}, \"IgnoreVertical\":{3}}}", Mode, Distance, InitialDelay, IgnoreVertical);
+        }
+
         public TrailType(string name) : base(name)
         {
             this.Mode = TrailMode.LASER;

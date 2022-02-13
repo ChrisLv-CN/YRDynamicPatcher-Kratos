@@ -37,6 +37,37 @@ namespace Extension.Utilities
     {
         public static Random Random = new Random(114514);
 
+        public static bool IsDead(this Pointer<TechnoClass> pTechno)
+        {
+            return pTechno.IsNull || pTechno.Convert<ObjectClass>().IsDead() || pTechno.Ref.IsCrashing || pTechno.Ref.IsSinking;
+        }
+
+        public static bool IsDead(this Pointer<ObjectClass> pObject)
+        {
+            return pObject.IsNull || pObject.Ref.Health <= 0 || !pObject.Ref.IsAlive;
+        }
+
+        public static bool IsInvisible(this Pointer<TechnoClass> pTechno)
+        {
+            return pTechno.IsNull || pTechno.Convert<ObjectClass>().IsInvisible() || pTechno.Ref.CloakStates == CloakStates.Cloaked || pTechno.Ref.CloakStates == CloakStates.Cloaking;
+        }
+
+        public static bool IsInvisible(this Pointer<ObjectClass> pObject)
+        {
+            return pObject.IsNull || pObject.Ref.InLimbo; // || !pObject.Ref.IsVisible;
+        }
+
+        public static bool IsDeadOrInvisible(this Pointer<TechnoClass> pTarget)
+        {
+            return pTarget.IsDead() || pTarget.IsInvisible();
+        }
+
+        public static bool IsDeadOrInvisible(this Pointer<BulletClass> pBullet)
+        {
+            Pointer<ObjectClass> pObject = pBullet.Convert<ObjectClass>();
+            return pObject.IsDead() || pObject.IsInvisible();
+        }
+
         public static Pointer<TechnoClass> CreateTechno(string id, Pointer<HouseClass> pHouse, CoordStruct location, CoordStruct moveTo, Pointer<AbstractClass> pFocus = default)
         {
             if (!string.IsNullOrEmpty(id))
@@ -55,33 +86,38 @@ namespace Extension.Utilities
                         pObject.Ref.Put(xyz, Direction.E);
                         --Game.IKnowWhatImDoing;
                         pObject.Ref.SetLocation(location);
-                        pObject.Ref.Scatter(new CoordStruct(), true, false);
                     }
-
-                    // 开往目的地
-                    if (pObject.Ref.Base.WhatAmI() != AbstractType.Building)
+                    if (location == moveTo || pFocus.IsNull)
                     {
-                        CoordStruct des = moveTo;
-                        // add focus
-                        if (!pFocus.IsNull)
+                        pObject.Ref.Scatter(CoordStruct.Empty, true, false);
+                    }
+                    else
+                    {
+                        // 开往目的地
+                        if (pObject.Ref.Base.WhatAmI() != AbstractType.Building)
                         {
-                            pObject.Convert<TechnoClass>().Ref.SetFocus(pFocus);
-                            if (pObject.Ref.Base.WhatAmI() == AbstractType.Unit)
+                            CoordStruct des = moveTo;
+                            // add focus
+                            if (!pFocus.IsNull)
                             {
-                                des = pFocus.Ref.GetCoords();
+                                pObject.Convert<TechnoClass>().Ref.SetFocus(pFocus);
+                                if (pObject.Ref.Base.WhatAmI() == AbstractType.Unit)
+                                {
+                                    des = pFocus.Ref.GetCoords();
+                                }
                             }
+                            // MoveTo 会破坏格子的占用
+                            if (MapClass.Instance.TryGetCellAt(des, out Pointer<CellClass> pTargetCell))
+                            {
+                                pObject.Convert<TechnoClass>().Ref.SetDestination(pTargetCell, true);
+                                pObject.Convert<MissionClass>().Ref.QueueMission(Mission.Move, false);
+                            }
+                            // else
+                            // {
+                            //     Pointer<FootClass> pFoot = pObject.Convert<FootClass>();
+                            //     pFoot.Ref.Locomotor.Ref.Move_To(des);
+                            // }
                         }
-                        // MoveTo 会破坏格子的占用
-                        if (MapClass.Instance.TryGetCellAt(des, out Pointer<CellClass> pTargetCell))
-                        {
-                            pObject.Convert<TechnoClass>().Ref.SetDestination(pTargetCell, true);
-                            pObject.Convert<MissionClass>().Ref.QueueMission(Mission.Move, false);
-                        }
-                        // else
-                        // {
-                        //     Pointer<FootClass> pFoot = pObject.Convert<FootClass>();
-                        //     pFoot.Ref.Locomotor.Ref.Move_To(des);
-                        // }
                     }
                     // Logger.Log("Create new Techno {0}-{1}. IsAlive={2}, IsOnMap={3}, Mission={4}", pHouse.Ref.Type.Ref.Base.ID, id, pObject.Ref.IsAlive, pObject.Ref.IsOnMap, pObject.Convert<MissionClass>().Ref.CurrentMission);
                     return pObject.Convert<TechnoClass>();
@@ -477,7 +513,13 @@ namespace Extension.Utilities
         public static List<Pointer<TechnoClass>> GetCellSpreadTechnos(CoordStruct location, double spread, bool includeInAir, bool ignoreBulidingOuter)
         {
             HashSet<Pointer<TechnoClass>> pTechnoSet = new HashSet<Pointer<TechnoClass>>();
-            CellStruct cur = MapClass.Instance.GetCellAt(location).Ref.MapCoords;
+            
+            CellStruct cur = MapClass.Coord2Cell(location);
+            if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCurretCell))
+            {
+                cur = pCurretCell.Ref.MapCoords;
+            }
+
             uint range = (uint)(spread + 0.99);
             CellSpreadEnumerator enumerator = new CellSpreadEnumerator(range);
 
@@ -654,6 +696,7 @@ namespace Extension.Utilities
             // Pointer<TechnoClass> pRealAttacker = pTarget.Value != pAttacker.Value ? pAttacker : IntPtr.Zero;
             pBullet = pWeapon.Ref.Projectile.Ref.CreateBullet(pTarget, pAttacker, damage, pWH, speed, bright);
             pBullet.Ref.WeaponType = pWeapon;
+            // Logger.Log("{0}发射武器{1}，创建抛射体，目标类型{2}", pAttacker, pWeapon.Ref.Base.ID, pTarget.Ref.WhatAmI());
 
             // pBullet.Ref.SetTarget(pTarget);
             pBullet.Ref.MoveTo(sourcePos, bulletVelocity);

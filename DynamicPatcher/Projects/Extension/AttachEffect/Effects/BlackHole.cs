@@ -126,7 +126,7 @@ namespace Extension.Ext
             foreach (Pointer<BulletClass> pBullet in pBulletList)
             {
                 // 检查死亡
-                if (pBullet.IsNull || pBullet.Ref.Type.Ref.Inviso || pBullet.Ref.Base.InLimbo || !pBullet.Ref.Base.IsAlive || pBullet.Ref.Base.Health <= 0)
+                if (pBullet.IsDeadOrInvisible())
                 {
                     continue;
                 }

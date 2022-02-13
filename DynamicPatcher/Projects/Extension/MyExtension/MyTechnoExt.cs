@@ -56,7 +56,7 @@ namespace Extension.Ext
             // 检查死亡
             if (!IsDead)
             {
-                IsDead = OwnerObject.Ref.Base.Health <= 0 || !OwnerObject.Ref.Base.IsAlive || OwnerObject.Ref.IsCrashing || OwnerObject.Ref.IsSinking;
+                IsDead = OwnerObject.IsDead();
                 // Logger.Log("{0} {1} update事件检测到死亡.", OwnerObject, OwnerObject.Ref.Type.Ref.Base.Base.ID);
             }
             if (!IsDead)
@@ -148,8 +148,9 @@ namespace Extension.Ext
             Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
         {
             // 检查死亡
-            if (OwnerObject.Ref.Base.Health <= 0 || !OwnerObject.Ref.Base.IsAlive)
+            if (IsDead || OwnerObject.IsDead())
             {
+                IsDead = true;
                 // Logger.Log("{0} {1} ReceiveDamage事件检测到死亡.", OwnerObject, OwnerObject.Ref.Type.Ref.Base.Base.ID);
                 return;
             }

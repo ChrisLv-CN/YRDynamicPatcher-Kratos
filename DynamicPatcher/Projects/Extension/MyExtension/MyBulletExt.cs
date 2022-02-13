@@ -42,7 +42,7 @@ namespace Extension.Ext
             BulletClass_Update_DestroySelf(); // 自毁使用AntiBullet逻辑制造伤害
             BulletClass_Update_AntiBullet();
             // 检查死亡
-            if (OwnerObject.IsNull || OwnerObject.Ref.Base.InLimbo || !OwnerObject.Ref.Base.IsAlive || OwnerObject.Ref.Base.Health <= 0 ||
+            if (OwnerObject.IsDeadOrInvisible() ||
                 (null != BulletLifeStatus && BulletLifeStatus.IsDetonate))
             {
                 // Logger.Log("{0} {1} update事件检测到死亡.", OwnerObject, OwnerObject.Ref.Type.Ref.Base.Base.ID);
@@ -88,7 +88,7 @@ namespace Extension.Ext
                 foreach (Pointer<TechnoClass> pTarget in pTechnoList)
                 {
                     // 检查死亡
-                    if (pTarget.IsNull || pTarget.Ref.Base.InLimbo || !pTarget.Ref.Base.IsAlive || pTarget.Ref.Base.Health <= 0)
+                    if (pTarget.IsDeadOrInvisible())
                     {
                         continue;
                     }
@@ -115,7 +115,7 @@ namespace Extension.Ext
                     {
                         // 检查死亡
                         // Logger.Log(" - {0}, InLimbo = {1}, IsAlive = {2}， Health = {3}", pBullet, pBullet.IsNull ? "null" : pBullet.Ref.Base.InLimbo, pBullet.IsNull ? "null" : pBullet.Ref.Base.IsAlive, pBullet.IsNull ? "null" : pBullet.Ref.Base.Health);
-                        if (pBullet.IsNull || pBullet.Ref.Type.Ref.Inviso || pBullet.Ref.Base.InLimbo || !pBullet.Ref.Base.IsAlive || pBullet.Ref.Base.Health <= 0)
+                        if (pBullet.IsDeadOrInvisible())
                         {
                             continue;
                         }
