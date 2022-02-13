@@ -416,7 +416,7 @@ namespace Extension.Utilities
             for (int i = bullets.Count - 1; i >= 0; i--)
             {
                 Pointer<BulletClass> pBullet = bullets.Get(i);
-                if (null == pBullet || pBullet.IsNull || !pBullet.Ref.Base.IsActive() || !pBullet.Ref.Base.IsAlive
+                if (pBullet.IsDeadOrInvisible()
                     || pBullet.Ref.Type.Ref.Inviso
                     || null == pBullet.Ref.Owner || pBullet.Ref.Owner.IsNull || pBullet.Ref.Owner.Ref.Owner == pTechno.Ref.Owner
                     || (allied && pBullet.Ref.Owner.Ref.Owner.Ref.IsAlliedWith(pTechno.Ref.Owner)))
@@ -454,8 +454,8 @@ namespace Extension.Utilities
             for (int i = technos.Count - 1; i >= 0; i--)
             {
                 Pointer<TechnoClass> pTechno = technos.Get(i);
-                if (null == pTechno || pTechno.IsNull || !pTechno.Ref.Base.IsAlive
-                    || (pTechno.Ref.Base.IsActive() ? false : !civilian)
+                if (pTechno.IsDeadOrInvisible()
+                    // || (pTechno.Ref.Base.IsActive() ? false : !civilian) // ObjectClass.IsActive() 会导致联机不同步
                     || null == pTechno.Ref.Owner || pTechno.Ref.Owner.IsNull
                     || (pTechno.Ref.Owner == pHouse ? !owner : (pTechno.Ref.Owner.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
                 {
@@ -476,8 +476,8 @@ namespace Extension.Utilities
             for (int i = aircrafts.Count - 1; i >= 0; i--)
             {
                 Pointer<AircraftClass> pAircraft = aircrafts.Get(i);
-                if (null == pAircraft || pAircraft.IsNull || !pAircraft.Ref.Base.Base.Base.IsAlive
-                    || (pAircraft.Ref.Base.Base.Base.IsActive() ? false : !civilian)
+                if (pAircraft.Convert<TechnoClass>().IsDeadOrInvisible()
+                    // || (pAircraft.Ref.Base.Base.Base.IsActive() ? false : !civilian) // ObjectClass.IsActive() 会导致联机不同步
                     || null == pAircraft.Ref.Base.Base.Owner || pAircraft.Ref.Base.Base.Owner.IsNull
                     || (pAircraft.Ref.Base.Base.Owner == pHouse ? !owner : (pAircraft.Ref.Base.Base.Owner.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
                 {

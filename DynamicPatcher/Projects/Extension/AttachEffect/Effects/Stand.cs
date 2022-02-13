@@ -313,7 +313,8 @@ namespace Extension.Ext
             bool powerOff = Type.Powered && masterPowerOff;
 
             // synch Mission and Target
-            if (!pMaster.Ref.Base.IsActive() || powerOff)
+            // if (!pMaster.Ref.Base.IsActive() || powerOff) // ObjectClass.IsActive() 会导致联机不同步，迷
+            if (powerOff)
             {
                 powerOff = true;
                 RemoveStandTarget();

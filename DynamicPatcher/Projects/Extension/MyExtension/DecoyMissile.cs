@@ -331,7 +331,7 @@ namespace Extension.Ext
                     {
                         CoordStruct pos = pBullet.Ref.Base.Location;
                         Pointer<BulletClass> pDecoy = decoyMissile.CloseEnoughDecoy(pos, location.DistanceFrom(pos));
-                        if (null != pDecoy && !pDecoy.IsNull && pDecoy.Ref.Base.IsActive() && pDecoy.Ref.Base.IsAlive
+                        if (!pDecoy.IsDeadOrInvisible()
                             && pDecoy.Ref.Base.Location.DistanceFrom(pBullet.Ref.Base.Location) <= distance * 2)
                         {
                             pBullet.Ref.SetTarget(pDecoy.Convert<AbstractClass>());
@@ -350,7 +350,7 @@ namespace Extension.Ext
                             decoyMissile.Fire = true;
                             CoordStruct pos = pBullet.Ref.Base.Location;
                             Pointer<BulletClass> pDecoy = decoyMissile.CloseEnoughDecoy(pos, location.DistanceFrom(pos));
-                            if (null != pDecoy && !pDecoy.IsNull && pDecoy.Ref.Base.IsActive() && pDecoy.Ref.Base.IsAlive)
+                            if (!pDecoy.IsDeadOrInvisible())
                             {
                                 pBullet.Ref.SetTarget(pDecoy.Convert<AbstractClass>());
                             }
