@@ -629,8 +629,9 @@ namespace ExtensionHooks
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
             TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-            if (null != ext && !ext.MyMaster.IsNull && (null == ext.StandType || (!ext.StandType.IsTrain && ext.StandType.ZOffset != 0)))
+            if (null != ext && !ext.MyMaster.IsNull && null != ext.StandType && !ext.StandType.IsTrain && ext.StandType.ZOffset != 0)
             {
+                // Logger.Log("{0} - {1}{2} StandType.DrawLayer = {3}, StandType.ZOffset = {4}", Game.CurrentFrame, pTechno.Ref.Type.Ref.Base.Base.ID, pTechno, ext.StandType.DrawLayer, ext.StandType.ZOffset);
                 Layer layer = ext.StandType.DrawLayer;
                 if (layer == Layer.None)
                 {

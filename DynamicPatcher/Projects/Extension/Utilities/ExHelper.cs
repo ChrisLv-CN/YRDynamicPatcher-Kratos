@@ -9,7 +9,6 @@ using Extension.Ext;
 
 namespace Extension.Utilities
 {
-
     public delegate bool FoundBullet(Pointer<BulletClass> pBullet);
     public delegate bool FoundTechno(Pointer<TechnoClass> pTechno);
     public delegate bool FoundAircraft(Pointer<AircraftClass> pAircraft);
@@ -68,62 +67,24 @@ namespace Extension.Utilities
             return pObject.IsDead() || pObject.IsInvisible();
         }
 
-        public static Pointer<TechnoClass> CreateTechno(string id, Pointer<HouseClass> pHouse, CoordStruct location, CoordStruct moveTo, Pointer<AbstractClass> pFocus = default)
+        public static int Category(this LandType landType)
         {
-            if (!string.IsNullOrEmpty(id))
+            switch (landType)
             {
-                Pointer<TechnoTypeClass> pType = TechnoTypeClass.Find(id);
-                if (!pType.IsNull)
-                {
-                    Pointer<ObjectClass> pObject = pType.Ref.Base.CreateObject(pHouse);
-
-                    // 在目标格子位置刷单位
-                    if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
-                    {
-                        pObject.Ref.OnBridge = pCell.Ref.ContainsBridge();
-                        CoordStruct xyz = pCell.Ref.GetCoordsWithBridge();
-                        ++Game.IKnowWhatImDoing;
-                        pObject.Ref.Put(xyz, Direction.E);
-                        --Game.IKnowWhatImDoing;
-                        pObject.Ref.SetLocation(location);
-                    }
-                    if (location == moveTo || pFocus.IsNull)
-                    {
-                        pObject.Ref.Scatter(CoordStruct.Empty, true, false);
-                    }
-                    else
-                    {
-                        // 开往目的地
-                        if (pObject.Ref.Base.WhatAmI() != AbstractType.Building)
-                        {
-                            CoordStruct des = moveTo;
-                            // add focus
-                            if (!pFocus.IsNull)
-                            {
-                                pObject.Convert<TechnoClass>().Ref.SetFocus(pFocus);
-                                if (pObject.Ref.Base.WhatAmI() == AbstractType.Unit)
-                                {
-                                    des = pFocus.Ref.GetCoords();
-                                }
-                            }
-                            // MoveTo 会破坏格子的占用
-                            if (MapClass.Instance.TryGetCellAt(des, out Pointer<CellClass> pTargetCell))
-                            {
-                                pObject.Convert<TechnoClass>().Ref.SetDestination(pTargetCell, true);
-                                pObject.Convert<MissionClass>().Ref.QueueMission(Mission.Move, false);
-                            }
-                            // else
-                            // {
-                            //     Pointer<FootClass> pFoot = pObject.Convert<FootClass>();
-                            //     pFoot.Ref.Locomotor.Ref.Move_To(des);
-                            // }
-                        }
-                    }
-                    // Logger.Log("Create new Techno {0}-{1}. IsAlive={2}, IsOnMap={3}, Mission={4}", pHouse.Ref.Type.Ref.Base.ID, id, pObject.Ref.IsAlive, pObject.Ref.IsOnMap, pObject.Convert<MissionClass>().Ref.CurrentMission);
-                    return pObject.Convert<TechnoClass>();
-                }
+                case LandType.Rock:
+                case LandType.Wall:
+                    // 不可用
+                    return 0;
+                case LandType.Water:
+                    // 水
+                    return 2;
+                case LandType.Beach:
+                    // 两栖
+                    return 3;
+                default:
+                    // 陆地
+                    return 1;
             }
-            return Pointer<TechnoClass>.Zero;
         }
 
         public static CoordStruct GetFLH(CoordStruct source, CoordStruct flh, DirStruct dir, bool flip = false)
@@ -513,7 +474,7 @@ namespace Extension.Utilities
         public static List<Pointer<TechnoClass>> GetCellSpreadTechnos(CoordStruct location, double spread, bool includeInAir, bool ignoreBulidingOuter)
         {
             HashSet<Pointer<TechnoClass>> pTechnoSet = new HashSet<Pointer<TechnoClass>>();
-            
+
             CellStruct cur = MapClass.Coord2Cell(location);
             if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCurretCell))
             {

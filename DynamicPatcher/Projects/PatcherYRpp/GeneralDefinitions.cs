@@ -647,4 +647,14 @@ namespace PatcherYRpp
         Ripple = 4,
         Hidden = 5
     }
+
+    public enum MarkType
+    {
+        UP = 0,
+        DOWN = 1,
+        CHANGE = 2,
+        CHANGE_REDRAW = 3,
+        OVERLAP_DOWN = 4,
+        OVERLAP_UP = 5
+    }
 }

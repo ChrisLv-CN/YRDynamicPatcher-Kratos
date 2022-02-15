@@ -135,6 +135,12 @@ namespace PatcherYRpp
             return func(ref this, direction);
         }
 
+        public unsafe bool CanEnterCell()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref CellClass, Bool>)0x486FF0;
+            return func(ref this);
+        }
+
         public unsafe bool TileIs(TileType tileType)
         {
             if (tileType != TileType.Unknown)

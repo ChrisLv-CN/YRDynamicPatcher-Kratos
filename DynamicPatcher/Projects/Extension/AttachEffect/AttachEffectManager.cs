@@ -337,7 +337,7 @@ namespace Extension.Ext
                     // Logger.Log("{0}更新AE类型{1}", pOwner, ae.Type.Name);
                     ae.OnUpdate(pOwner, isDead, this);
                     // 如果是替身，额外执行替身的定位操作
-                    if (null != ae.Stand && ae.IsActive())
+                    if (null != ae.Stand)
                     {
                         AttachEffectHelper.UpdateStandLocation(this, pOwner, ae.Stand, ref markIndex);
                     }

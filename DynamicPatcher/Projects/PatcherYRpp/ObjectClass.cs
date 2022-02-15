@@ -91,7 +91,7 @@ namespace PatcherYRpp
 
         public unsafe bool IsActive()
         {
-            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, bool>)
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, Bool>)
                 Helpers.GetVirtualFunctionPointer(Pointer<ObjectClass>.AsPointer(ref this), 39);
             return func(ref this);
         }
@@ -155,21 +155,21 @@ namespace PatcherYRpp
         // cleanup things (lose line trail, deselect, etc). Permanently: destroyed/removed/gone opposed to just going out of sight.
         public unsafe void Disappear(bool permanently)
         {
-            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, bool, void>)
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, Bool, void>)
                 Helpers.GetVirtualFunctionPointer(Pointer<ObjectClass>.AsPointer(ref this), 55);
             func(ref this, permanently);
         }
 
         public unsafe bool SpawnParachuted(CoordStruct where)
         {
-            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, ref CoordStruct, bool>)
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, ref CoordStruct, Bool>)
                 Helpers.GetVirtualFunctionPointer(Pointer<ObjectClass>.AsPointer(ref this), 58);
             return func(ref this, ref where);
         }
 
         public unsafe bool UnInit()
         {
-            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, bool>)
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, Bool>)
                 Helpers.GetVirtualFunctionPointer(Pointer<ObjectClass>.AsPointer(ref this), 62);
             return func(ref this);
         }
@@ -190,28 +190,35 @@ namespace PatcherYRpp
 
         public unsafe bool UpdatePlacement(PlacementType type)
         {
-            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, PlacementType, bool>)
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, PlacementType, Bool>)
+                Helpers.GetVirtualFunctionPointer(Pointer<ObjectClass>.AsPointer(ref this), 73);
+            return func(ref this, type);
+        }
+
+        public unsafe bool Mark(MarkType type)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, MarkType, Bool>)
                 Helpers.GetVirtualFunctionPointer(Pointer<ObjectClass>.AsPointer(ref this), 73);
             return func(ref this, type);
         }
 
         public unsafe void MarkForRedraw()
         {
-            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, bool>)
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, Bool>)
                 Helpers.GetVirtualFunctionPointer(Pointer<ObjectClass>.AsPointer(ref this), 77);
             func(ref this);
         }
 
         public unsafe bool CanBeSelected()
         {
-            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, bool>)
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, Bool>)
                 Helpers.GetVirtualFunctionPointer(Pointer<ObjectClass>.AsPointer(ref this), 78);
             return func(ref this);
         }
 
         public unsafe bool CanBeSelectedNow()
         {
-            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, bool>)
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, Bool>)
                 Helpers.GetVirtualFunctionPointer(Pointer<ObjectClass>.AsPointer(ref this), 79);
             return func(ref this);
         }
@@ -253,7 +260,7 @@ namespace PatcherYRpp
 
         public unsafe bool IsIronCurtained()
         {
-            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, bool>)
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, Bool>)
                 Helpers.GetVirtualFunctionPointer(Pointer<ObjectClass>.AsPointer(ref this), 88);
             return func(ref this);
         }
@@ -283,7 +290,7 @@ namespace PatcherYRpp
         public unsafe DamageState ReceiveDamage(int damage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
             Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
         {
-            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, IntPtr, int, IntPtr, IntPtr, bool, bool, IntPtr, DamageState>)
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, IntPtr, int, IntPtr, IntPtr, Bool, Bool, IntPtr, DamageState>)
                 Helpers.GetVirtualFunctionPointer(Pointer<ObjectClass>.AsPointer(ref this), 91);
             return func(ref this, Pointer<int>.AsPointer(ref damage), distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
         }
@@ -316,6 +323,7 @@ namespace PatcherYRpp
             func(ref this, mission);
         }
 
+        // 使用这个函数坐标必须是格子的中心，否则会造成格子被错误占用
         public unsafe void SetLocation(CoordStruct where)
         {
             var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, ref CoordStruct, void>)
@@ -330,9 +338,46 @@ namespace PatcherYRpp
             return func(ref this);
         }
 
-        public double GetHealthPercentage()
+        public unsafe void SetHeight(int height)
         {
-            return Math.Round((double)Health / Type.Ref.Strength, 2);
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, int, void>)
+                Helpers.GetVirtualFunctionPointer(Pointer<ObjectClass>.AsPointer(ref this), 115);
+            func(ref this, height);
+        }
+
+        public unsafe int GetZ()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, int>)
+                Helpers.GetVirtualFunctionPointer(Pointer<ObjectClass>.AsPointer(ref this), 116);
+            return func(ref this);
+        }
+
+        public unsafe bool IsBeingWarpedOut()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, Bool>)
+                Helpers.GetVirtualFunctionPointer(Pointer<ObjectClass>.AsPointer(ref this), 117);
+            return func(ref this);
+        }
+
+        public unsafe bool IsWarpingIn()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, Bool>)
+                Helpers.GetVirtualFunctionPointer(Pointer<ObjectClass>.AsPointer(ref this), 118);
+            return func(ref this);
+        }
+
+        public unsafe bool IsWarpingSomethingOut()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, Bool>)
+                Helpers.GetVirtualFunctionPointer(Pointer<ObjectClass>.AsPointer(ref this), 119);
+            return func(ref this);
+        }
+
+        public unsafe bool IsNotWarping()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, Bool>)
+                Helpers.GetVirtualFunctionPointer(Pointer<ObjectClass>.AsPointer(ref this), 120);
+            return func(ref this);
         }
 
         public unsafe int Distance(Pointer<ObjectClass> that)
@@ -345,6 +390,35 @@ namespace PatcherYRpp
         {
             var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, IntPtr, int>)0x5F6440;
             return func(ref this, that);
+        }
+
+        public unsafe bool IsRedHP()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, Bool>)0x5F5CD0;
+            return func(ref this);
+        }
+
+        public unsafe bool IsYellowHP()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, Bool>)0x5F5D20;
+            return func(ref this);
+        }
+
+        public unsafe bool IsGreenHP()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, Bool>)0x5F5D90;
+            return func(ref this);
+        }
+
+        public unsafe HealthState GetHealthStatus()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, HealthState>)0x5F5DD0;
+            return func(ref this);
+        }
+
+        public double GetHealthPercentage()
+        {
+            return Math.Round((double)Health / Type.Ref.Strength, 2);
         }
 
         public CoordStruct GetFLH(int idxWeapon, CoordStruct baseCoords)

@@ -146,67 +146,79 @@ namespace Extension.Ext
             {
                 Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
                 CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
-                if (giftBox.Data.RandomRange > 0)
+
+                // 获取投送单位的位置
+                if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
                 {
-                    CellStruct cell = MapClass.Coord2Cell(location);
-                    CellStruct[] cellOffset = new CellSpreadEnumerator((uint)giftBox.Data.RandomRange).ToArray();
-                    int max = cellOffset.Count();
-                    for (int i = 0; i < max; i++)
+                    // 投送后需要前往的目的地
+                    Pointer<AbstractClass> pDest = IntPtr.Zero; // 载具当前的移动目的地
+                    Pointer<AbstractClass> pFocus = IntPtr.Zero; // 步兵的移动目的地
+                    // 获取目的地
+                    if (pTechno.Ref.Base.Base.WhatAmI() != AbstractType.Building)
                     {
-                        int index = ExHelper.Random.Next(max - 1);
-                        CellStruct offset = cellOffset[index];
-                        // Logger.Log("随机获取周围格子索引{0}, 共{1}格, 获取的格子偏移{2}, 单位当前坐标{3}, 第一个格子的坐标{4}, 尝试次数{5}, 当前偏移{6}", index, max, offset, location, MapClass.Cell2Coord(cell + cellOffset[0]), i, cellOffset[i]);
-                        if (offset == default)
+                        pDest = pTechno.Convert<FootClass>().Ref.Destination;
+                        pFocus = pTechno.Ref.Focus;
+                    }
+                    // 开始投送单位，每生成一个单位就选择一次位置
+                    foreach (string id in giftBox.Data.GetGiftList())
+                    {
+                        // 随机选择周边的格子
+                        if (giftBox.Data.RandomRange > 0)
                         {
-                            continue;
-                        }
-                        CoordStruct where = MapClass.Cell2Coord(cell + offset);
-                        if (MapClass.Instance.TryGetCellAt(where, out Pointer<CellClass> pCell) && !pCell.IsNull)
-                        {
-                            if (giftBox.Data.EmptyCell && (!pCell.Ref.GetBuilding().IsNull || !pCell.Ref.GetUnit(false).IsNull || !pCell.Ref.GetInfantry(false).IsNull))
+                            int landTypeCategory = pCell.Ref.LandType.Category();
+                            CellStruct cell = MapClass.Coord2Cell(location);
+                            CellStruct[] cellOffset = new CellSpreadEnumerator((uint)giftBox.Data.RandomRange).ToArray();
+                            int max = cellOffset.Count();
+                            for (int i = 0; i < max; i++)
                             {
-                                // Logger.Log("获取到的格子被占用, 建筑{0}, 步兵{1}, 载具{2}", !pCell.Ref.GetBuilding().IsNull, !pCell.Ref.GetUnit(false).IsNull, !pCell.Ref.GetInfantry(false).IsNull);
-                                continue;
+                                int index = ExHelper.Random.Next(max - 1);
+                                CellStruct offset = cellOffset[index];
+                                // Logger.Log("随机获取周围格子索引{0}, 共{1}格, 获取的格子偏移{2}, 单位当前坐标{3}, 第一个格子的坐标{4}, 尝试次数{5}, 当前偏移{6}", index, max, offset, location, MapClass.Cell2Coord(cell + cellOffset[0]), i, cellOffset[i]);
+                                if (offset == default)
+                                {
+                                    continue;
+                                }
+                                if (MapClass.Instance.TryGetCellAt(cell + offset, out Pointer<CellClass> pTargetCell))
+                                {
+                                    if (pTargetCell.Ref.LandType.Category() != landTypeCategory
+                                        || (giftBox.Data.EmptyCell && !pTargetCell.Ref.GetContent().IsNull))
+                                    {
+                                        // Logger.Log("获取到的格子被占用, 建筑{0}, 步兵{1}, 载具{2}", !pCell.Ref.GetBuilding().IsNull, !pCell.Ref.GetUnit(false).IsNull, !pCell.Ref.GetInfantry(false).IsNull);
+                                        continue;
+                                    }
+                                    pCell = pTargetCell;
+                                    location = pCell.Ref.GetCoordsWithBridge();
+                                    // Logger.Log("获取到的格子坐标{0}", location);
+                                    break;
+                                }
                             }
-                            location = pCell.Ref.Base.GetCoords();
-                            // Logger.Log("获取到的格子坐标{0}", location);
-                            break;
                         }
+                        // 投送的位置
+                        CoordStruct put = pCell.Ref.GetCoordsWithBridge();
+                        bool onBridge = pCell.Ref.ContainsBridge();
+                        // 投送单位
+                        CreateAndPutTechno(id, pHouse, location, put, onBridge, pDest, pFocus);
                     }
-                }
-                CoordStruct destination = location;
-                Pointer<AbstractClass> pFocus = IntPtr.Zero;
-                if (pTechno.Ref.Base.Base.WhatAmI() != AbstractType.Building)
-                {
-                    Pointer<AbstractClass> dest = pTechno.Convert<FootClass>().Ref.Destination;
-                    if (!dest.IsNull)
-                    {
-                        destination = dest.Ref.GetCoords();
-                    }
-                    pFocus = pTechno.Ref.Focus;
                 }
 
-                foreach (string id in giftBox.Data.GetGiftList())
-                {
-                    Pointer<TechnoClass> pGift = ExHelper.CreateTechno(id, pHouse, location, destination, pFocus);
-                }
+                // 销毁或重置盒子
                 if (giftBox.Data.Remove)
                 {
-                    // 奇葩的bug，步兵和Jumpjet无法释放占领的格子，改成用DestorySefl在下一帧自爆
-                    DestroySelfData data = new DestroySelfData(0);
-                    data.Peaceful = !giftBox.Data.Destroy;
-                    this.DestroySelfStatus = new DestroySelfStatus(data);
+                    // // 奇葩的bug，步兵和Jumpjet无法释放占领的格子，改成用DestorySefl在下一帧自爆
+                    // DestroySelfData data = new DestroySelfData(0);
+                    // data.Peaceful = !giftBox.Data.Destroy;
+                    // this.DestroySelfStatus = new DestroySelfStatus(data);
 
-                    // pTechno.Ref.Base.Remove();
-                    // if (giftBox.Data.Destroy)
-                    // {
-                    //     pTechno.Ref.Base.TakeDamage(pTechno.Ref.Base.Health + 1, pTechno.Ref.Type.Ref.Crewed);
-                    //     // pTechno.Ref.Base.Destroy();
-                    // }
-                    // else
-                    // {
-                    //     pTechno.Ref.Base.UnInit();
-                    // }
+                    pTechno.Ref.Base.Remove();
+                    if (giftBox.Data.Destroy)
+                    {
+                        pTechno.Ref.Base.TakeDamage(pTechno.Ref.Base.Health + 1, pTechno.Ref.Type.Ref.Crewed);
+                        // pTechno.Ref.Base.Destroy();
+                    }
+                    else
+                    {
+                        pTechno.Ref.Base.UnInit();
+                    }
                 }
                 else
                 {
@@ -214,6 +226,59 @@ namespace Extension.Ext
                     giftBox.Setup();
                 }
             }
+        }
+
+        public unsafe Pointer<TechnoClass> CreateAndPutTechno(string id, Pointer<HouseClass> pHouse, CoordStruct location, CoordStruct put, bool onBridge, Pointer<AbstractClass> pDest, Pointer<AbstractClass> pFocus = default)
+        {
+            if (!string.IsNullOrEmpty(id))
+            {
+                Pointer<TechnoTypeClass> pType = TechnoTypeClass.Find(id);
+                if (!pType.IsNull)
+                {
+                    // 新建单位
+                    Pointer<TechnoClass> pTechno = pType.Ref.Base.CreateObject(pHouse).Convert<TechnoClass>();
+                    // 在目标格子位置刷出单位
+                    pTechno.Ref.Base.OnBridge = onBridge;
+                    ++Game.IKnowWhatImDoing;
+                    pTechno.Ref.Base.Put(put, Direction.E);
+                    --Game.IKnowWhatImDoing;
+                    // 单位放到礼盒相同的位置
+                    pTechno.Ref.Base.SetLocation(put); // 奇葩的bug，步兵和Jumpjet无法释放占领的格子
+                    // pTechno.Ref.UpdateThreatInCell(MapClass.Instance.GetCellAt(location));
+                    // pTechno.Ref.Base.Location.X = put.X;
+                    // pTechno.Ref.Base.Location.Y = put.Y;
+                    pTechno.Ref.Base.Location.Z = location.Z; // x和y必须是格子中心，仅z可调
+                    // 开往预定目的地
+                    if (pDest.IsNull && pFocus.IsNull)
+                    {
+                        pTechno.Ref.Base.Scatter(CoordStruct.Empty, true, false);
+                    }
+                    else
+                    {
+                        if (pTechno.Ref.Base.Base.WhatAmI() != AbstractType.Building)
+                        {
+                            CoordStruct des = pDest.IsNull ? location : pDest.Ref.GetCoords();
+                            // add focus
+                            if (!pFocus.IsNull)
+                            {
+                                pTechno.Ref.SetFocus(pFocus);
+                                if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Unit)
+                                {
+                                    des = pFocus.Ref.GetCoords();
+                                }
+                            }
+                            // MoveTo 会破坏格子的占用
+                            if (MapClass.Instance.TryGetCellAt(des, out Pointer<CellClass> pTargetCell))
+                            {
+                                pTechno.Ref.SetDestination(pTargetCell, true);
+                                pTechno.Convert<MissionClass>().Ref.QueueMission(Mission.Move, false);
+                            }
+                        }
+                    }
+                    return pTechno;
+                }
+            }
+            return IntPtr.Zero;
         }
 
 

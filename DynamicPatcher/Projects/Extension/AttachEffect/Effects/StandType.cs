@@ -92,11 +92,11 @@ namespace Extension.Ext
             standType = null;
             // Logger.Log("替身类型 {0} 读取INI配置", section);
             string type = null;
-            if (reader.ReadNormal(section, "Stand.Type", ref type))
+            if (reader.ReadNormal(section, "Stand.Type", ref type) && !string.IsNullOrEmpty(type))
             {
                 standType = new StandType();
 
-                standType.Type = type;
+                standType.Type = type.Trim();
                 // Logger.Log("替身类型 {0} 名为 {1}", section, type);
 
                 CoordStruct offset = default;

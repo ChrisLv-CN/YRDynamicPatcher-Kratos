@@ -189,6 +189,19 @@ namespace PatcherYRpp
             return func(ref this, pTarget, pWeapon, ref sourceCoord);
         }
 
+        /*
+         *  Cell->AddThreat(this->Owner, -this->ThreatPosed);
+         *  this->ThreatPosed = 0;
+         *  int Threat = this->CalculateThreat(); // this is another gem of a function, to be revealed another time...
+         *  this->ThreatPosed = Threat;
+         *  Cell->AddThreat(this->Owner, Threat);
+         */
+        public unsafe void UpdateThreatInCell(Pointer<CellClass> pCell)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr, void>)0x70F6E0;
+            func(ref this, pCell);
+        }
+
         [FieldOffset(0)] public ObjectClass Base;
 
         [FieldOffset(276)] public PassengersClass Passengers;

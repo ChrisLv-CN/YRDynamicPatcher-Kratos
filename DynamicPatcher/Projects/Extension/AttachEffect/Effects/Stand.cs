@@ -26,7 +26,6 @@ namespace Extension.Ext
 
     }
 
-
     [Serializable]
     public class Stand : AttachEffectBehaviour
     {
@@ -62,111 +61,69 @@ namespace Extension.Ext
         private void CreateAndPutStand(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse)
         {
             CoordStruct location = pObject.Ref.Base.GetCoords();
-            Pointer<TechnoClass> pStand = ExHelper.CreateTechno(Type.Type, pHouse, location, location);
-            if (!pStand.IsNull)
-            {
-                // reset state
-                pStand.Ref.Base.UpdatePlacement(PlacementType.Remove);
-                pStand.Ref.Base.IsOnMap = false;
-                // lock locomotor
-                if (pStand.Ref.Base.Base.WhatAmI() != AbstractType.Building)
-                {
-                    pStand.Convert<FootClass>().Ref.Locomotor.Ref.Lock();
-                }
 
-                // Logger.Log("创建替身{0}, {1}", Type.Type, pStand.Ref.Base.InLimbo);
-                this.pStand.Pointer = pStand;
-                // 同步部分扩展设置
-                TechnoExt ext = TechnoExt.ExtMap.Find(pStand);
-                if (null != ext)
-                {
-                    if (this.Type.VirtualUnit)
-                    {
-                        ext.VirtualUnit = this.Type.VirtualUnit;
-                    }
-                    Pointer<TechnoClass> pBulletOwner = IntPtr.Zero;
-                    if (pObject.Ref.Base.WhatAmI() == AbstractType.Bullet && !(pBulletOwner = pObject.Convert<BulletClass>().Ref.Owner).IsNull)
-                    {
-                        // 附加在抛射体上的，取抛射体的所有者
-                        ext.MyMaster.Pointer = pBulletOwner.Convert<ObjectClass>();
-                    }
-                    else
-                    {
-                        ext.MyMaster.Pointer = pObject;
-                    }
-                    ext.StandType = Type;
-                }
-
-                // 直接放置在指定位置
-                LocationMark locationMark = AttachEffectHelper.GetLocation(pObject, Type);
-                if (default != locationMark.Location)
-                {
-                    SetLocation(locationMark.Location);
-                    // 强扭朝向
-                    ForceSetFacing(locationMark.Direction);
-                }
-            }
-        }
-
-        /*
-        private void CreateAndPutStand(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse)
-        {
-            CoordStruct pCoord = pObject.Ref.Base.GetCoords();
-            // Pointer<TechnoClass> pStand = ExHelper.CreateTechno(Type.Type, pHouse, pCoord, pCoord);
-            Pointer<TechnoTypeClass> pType = TechnoTypeClass.ABSTRACTTYPE_ARRAY.Find(Type.Type);
+            Pointer<TechnoTypeClass> pType = TechnoTypeClass.Find(Type.Type);
             if (!pType.IsNull)
             {
-                Pointer<ObjectClass> pNew = pType.Ref.Base.CreateObject(pHouse);
-                Pointer<TechnoClass> pStand = pNew.Convert<TechnoClass>();
-                // reset state
-                pStand.Ref.Base.UpdatePlacement(PlacementType.Remove);
-                pStand.Ref.Base.IsOnMap = false;
-                // lock locomotor
-                if (pStand.Ref.Base.Base.WhatAmI() != AbstractType.Building)
+                // 创建替身
+                pStand.Pointer = pType.Ref.Base.CreateObject(pHouse).Convert<TechnoClass>();
+                if (!pStand.IsNull)
                 {
-                    pStand.Convert<FootClass>().Ref.Locomotor.Ref.Lock();
-                }
+                    // 同步部分扩展设置
+                    TechnoExt ext = TechnoExt.ExtMap.Find(pStand);
+                    if (null != ext)
+                    {
+                        if (this.Type.VirtualUnit)
+                        {
+                            ext.VirtualUnit = this.Type.VirtualUnit;
+                        }
+                        Pointer<TechnoClass> pBulletOwner = IntPtr.Zero;
+                        if (pObject.Ref.Base.WhatAmI() == AbstractType.Bullet && !(pBulletOwner = pObject.Convert<BulletClass>().Ref.Owner).IsNull)
+                        {
+                            // 附加在抛射体上的，取抛射体的所有者
+                            ext.MyMaster.Pointer = pBulletOwner.Convert<ObjectClass>();
+                        }
+                        else
+                        {
+                            ext.MyMaster.Pointer = pObject;
+                        }
+                        ext.StandType = Type;
+                    }
 
-                // Logger.Log("创建替身{0}, {1}", Type.Type, pStand.Ref.Base.InLimbo);
-                this.pStand.Pointer = pStand;
-                // 同步部分扩展设置
-                TechnoExt ext = TechnoExt.ExtMap.Find(pStand);
-                if (null != ext)
-                {
-                    if (this.Type.VirtualUnit)
+                    // 初始化替身
+                    // reset state
+                    pStand.Ref.Base.UpdatePlacement(PlacementType.Remove);
+                    pStand.Ref.Base.IsOnMap = false;
+                    // lock locomotor
+                    if (pStand.Ref.Base.Base.WhatAmI() != AbstractType.Building)
                     {
-                        ext.VirtualUnit = this.Type.VirtualUnit;
+                        pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Ref.Lock();
                     }
-                    Pointer<TechnoClass> pBulletOwner = IntPtr.Zero;
-                    if (pObject.Ref.Base.WhatAmI() == AbstractType.Bullet && !(pBulletOwner = pObject.Convert<BulletClass>().Ref.Owner).IsNull)
+
+                    // 在格子位置刷出替身单位
+                    if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
                     {
-                        // 附加在抛射体上的，取抛射体的所有者
-                        ext.MyMaster.Pointer = pBulletOwner.Convert<ObjectClass>();
+                        pStand.Ref.Base.OnBridge = pCell.Ref.ContainsBridge();
+                        CoordStruct xyz = pCell.Ref.GetCoordsWithBridge();
+                        ++Game.IKnowWhatImDoing;
+                        pStand.Ref.Base.Put(xyz, Direction.E);
+                        --Game.IKnowWhatImDoing;
                     }
-                    else
+
+                    // 放置到指定位置
+                    LocationMark locationMark = AttachEffectHelper.GetLocation(pObject, Type);
+                    if (default != locationMark.Location)
                     {
-                        ext.MyMaster.Pointer = pObject;
+                        // SetLocation(locationMark.Location);
+                        // 强扭朝向
+                        ForceSetFacing(locationMark.Direction);
                     }
-                    ext.StandType = Type;
-                }
-                ++Game.IKnowWhatImDoing;
-                pNew.Ref.Put(pCoord + new CoordStruct(0, 0, 1024), Direction.N);
-                --Game.IKnowWhatImDoing;
-                // 直接放置在指定位置
-                LocationMark locationMark = AttachEffectHelper.GetLocation(pObject, Type);
-                if (default != locationMark.Location)
-                {
-                    SetLocation(locationMark.Location);
-                    // 强扭朝向
-                    ForceSetFacing(locationMark.Direction);
-                }
-                else
-                {
-                    pNew.Ref.SetLocation(pCoord);
+
+                    // Logger.Log("{0} - 创建替身[{1}]{2}", Game.CurrentFrame, Type.Type, pStand.Pointer);
                 }
             }
+
         }
-        */
 
         // 销毁
         public override void Disable(CoordStruct location)
@@ -279,7 +236,7 @@ namespace Extension.Ext
             pStand.Ref.Base.OnBridge = pMaster.Ref.Base.OnBridge;
             pStand.Ref.CloakStates = pMaster.Ref.CloakStates;
             pStand.Ref.BeingWarpedOut = pMaster.Ref.BeingWarpedOut;
-            pStand.Ref.Deactivated = pMaster.Ref.Deactivated;
+            pStand.Ref.Deactivated = pMaster.Ref.Deactivated; // 遥控坦克
 
             pStand.Ref.IronCurtainTimer = pMaster.Ref.IronCurtainTimer;
             pStand.Ref.IdleActionTimer = pMaster.Ref.IdleActionTimer;
@@ -482,7 +439,12 @@ namespace Extension.Ext
                 //     pStand.Pointer.Convert<FootClass>().Ref.MoveTo(default);
                 // }
             }
+            // Logger.Log("{0} - 移动替身[{1}]{2}到位置{3}", Game.CurrentFrame, Type.Type, pStand.Pointer, location);
             pStand.Ref.Base.SetLocation(location);
+            if (pStand.Ref.Base.Base.WhatAmI() != AbstractType.Building)
+            {
+                pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Ref.Move_To(location);
+            }
             pStand.Ref.SetFocus(Pointer<AbstractClass>.Zero);
             pStand.Ref.SetDestination(Pointer<CellClass>.Zero, true);
         }
@@ -529,11 +491,13 @@ namespace Extension.Ext
 
         public override void OnPut(Pointer<ObjectClass> pOwner, Pointer<CoordStruct> pCoord, Direction faceDir)
         {
-            CoordStruct location = pCoord.Data;
-            ++Game.IKnowWhatImDoing;
-            pStand.Ref.Base.Put(location + new CoordStruct(0, 0, 1024), faceDir);
-            --Game.IKnowWhatImDoing;
-            pStand.Ref.Base.SetLocation(location);
+            if (pStand.Ref.Base.InLimbo)
+            {
+                CoordStruct location = pCoord.Data;
+                ++Game.IKnowWhatImDoing;
+                pStand.Ref.Base.Put(location, faceDir);
+                --Game.IKnowWhatImDoing;
+            }
         }
 
         public override void OnRemove(Pointer<ObjectClass> pOwner)
