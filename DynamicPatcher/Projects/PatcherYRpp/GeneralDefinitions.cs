@@ -30,6 +30,24 @@ namespace PatcherYRpp
         Special_2 = 10
     }
 
+    public enum OccupationFlags
+    {
+        Empty = 0x0,
+        SubCenter = 0x1, // SubOccupations-Center
+        SubTop = 0x2, // SubOccupations-Top (Abandoned)
+        SubRight = 0x4, // SubOccupations-Right
+        SubLeft = 0x8, // SubOccupations-Left // this means no shroud 
+        SubDown = 0x10, // SubOccupations-Down / Terrains
+        Units = 0x20,
+        Aircrafts = 0x40,
+        Buildings = 0x80
+    }
+
+    public enum AltOccupationFlags
+    {
+        Empty = 0x0,
+    }
+
     public enum CellFlags
     {
         Empty = 0x0,
@@ -65,8 +83,8 @@ namespace PatcherYRpp
         // ContainsBuilding = 0x02,
         // NoShadow = 0x08 //else tooltip is TXT_SHADOW
         Unknown_1 = 0x1,
-        ContainsBuilding = 0x2,
-        Unknown_4 = 0x4, // 47EED4 PlaceShape related
+        ContainsBuilding = 0x2, // IsCursorHere1
+        Unknown_4 = 0x4, // 47EED4 PlaceShape related | IsCursorHere2
         Mapped = 0x8, //else tooltip is TXT_SHADOW
         NoFog = 0x10,
         Unknown_20 = 0x20,

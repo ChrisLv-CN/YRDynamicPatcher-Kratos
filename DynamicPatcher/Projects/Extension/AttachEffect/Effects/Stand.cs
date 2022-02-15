@@ -101,13 +101,11 @@ namespace Extension.Ext
                     }
 
                     // 在格子位置刷出替身单位
-                    if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
+                    if (!TryPutStand(location))
                     {
-                        pStand.Ref.Base.OnBridge = pCell.Ref.ContainsBridge();
-                        CoordStruct xyz = pCell.Ref.GetCoordsWithBridge();
-                        ++Game.IKnowWhatImDoing;
-                        pStand.Ref.Base.Put(xyz, Direction.E);
-                        --Game.IKnowWhatImDoing;
+                        // 刷不出来？
+                        Disable(location);
+                        return;
                     }
 
                     // 放置到指定位置
@@ -123,6 +121,22 @@ namespace Extension.Ext
                 }
             }
 
+        }
+
+        private bool TryPutStand(CoordStruct location)
+        {
+            if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
+            {
+                var occFlags = pCell.Ref.OccupationFlags;
+                pStand.Ref.Base.OnBridge = pCell.Ref.ContainsBridge();
+                CoordStruct xyz = pCell.Ref.GetCoordsWithBridge();
+                ++Game.IKnowWhatImDoing;
+                pStand.Ref.Base.Put(xyz, Direction.E);
+                --Game.IKnowWhatImDoing;
+                pCell.Ref.OccupationFlags = occFlags;
+                return true;
+            }
+            return false;
         }
 
         // 销毁
@@ -494,9 +508,11 @@ namespace Extension.Ext
             if (pStand.Ref.Base.InLimbo)
             {
                 CoordStruct location = pCoord.Data;
-                ++Game.IKnowWhatImDoing;
-                pStand.Ref.Base.Put(location, faceDir);
-                --Game.IKnowWhatImDoing;
+                if (!TryPutStand(location))
+                {
+                    // Put不出来？
+                    Disable(location);
+                }
             }
         }
 

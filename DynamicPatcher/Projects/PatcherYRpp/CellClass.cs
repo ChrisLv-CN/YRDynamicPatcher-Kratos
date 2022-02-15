@@ -206,6 +206,10 @@ namespace PatcherYRpp
 
         [FieldOffset(286)] public byte Powerup; //The crate type on this cell. Also indicates some other weird properties
 
+        [FieldOffset(292)] public int OccupationFlags;
+
+        [FieldOffset(296)] public int AltOccupationFlags;
+
         [FieldOffset(300)] public AltCellFlags AltFlags;
         [FieldOffset(320)] public CellFlags Flags;
     }

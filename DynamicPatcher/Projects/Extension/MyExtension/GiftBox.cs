@@ -193,22 +193,39 @@ namespace Extension.Ext
                                 }
                             }
                         }
-                        // 投送的位置
-                        CoordStruct put = pCell.Ref.GetCoordsWithBridge();
-                        bool onBridge = pCell.Ref.ContainsBridge();
                         // 投送单位
-                        CreateAndPutTechno(id, pHouse, location, put, onBridge, pDest, pFocus);
+                        Pointer<TechnoClass> pGift = ExHelper.CreateAndPutTechno(id, pHouse, location, pCell);
+                        // 开往预定目的地
+                        if (pDest.IsNull && pFocus.IsNull)
+                        {
+                            pGift.Ref.Base.Scatter(CoordStruct.Empty, true, false);
+                        }
+                        else
+                        {
+                            if (pGift.Ref.Base.Base.WhatAmI() != AbstractType.Building)
+                            {
+                                CoordStruct des = pDest.IsNull ? location : pDest.Ref.GetCoords();
+                                if (!pFocus.IsNull)
+                                {
+                                    pGift.Ref.SetFocus(pFocus);
+                                    if (pGift.Ref.Base.Base.WhatAmI() == AbstractType.Unit)
+                                    {
+                                        des = pFocus.Ref.GetCoords();
+                                    }
+                                }
+                                if (MapClass.Instance.TryGetCellAt(des, out Pointer<CellClass> pTargetCell))
+                                {
+                                    pGift.Ref.SetDestination(pTargetCell, true);
+                                    pGift.Convert<MissionClass>().Ref.QueueMission(Mission.Move, false);
+                                }
+                            }
+                        }
                     }
                 }
 
                 // 销毁或重置盒子
                 if (giftBox.Data.Remove)
                 {
-                    // // 奇葩的bug，步兵和Jumpjet无法释放占领的格子，改成用DestorySefl在下一帧自爆
-                    // DestroySelfData data = new DestroySelfData(0);
-                    // data.Peaceful = !giftBox.Data.Destroy;
-                    // this.DestroySelfStatus = new DestroySelfStatus(data);
-
                     pTechno.Ref.Base.Remove();
                     if (giftBox.Data.Destroy)
                     {
@@ -227,60 +244,6 @@ namespace Extension.Ext
                 }
             }
         }
-
-        public unsafe Pointer<TechnoClass> CreateAndPutTechno(string id, Pointer<HouseClass> pHouse, CoordStruct location, CoordStruct put, bool onBridge, Pointer<AbstractClass> pDest, Pointer<AbstractClass> pFocus = default)
-        {
-            if (!string.IsNullOrEmpty(id))
-            {
-                Pointer<TechnoTypeClass> pType = TechnoTypeClass.Find(id);
-                if (!pType.IsNull)
-                {
-                    // 新建单位
-                    Pointer<TechnoClass> pTechno = pType.Ref.Base.CreateObject(pHouse).Convert<TechnoClass>();
-                    // 在目标格子位置刷出单位
-                    pTechno.Ref.Base.OnBridge = onBridge;
-                    ++Game.IKnowWhatImDoing;
-                    pTechno.Ref.Base.Put(put, Direction.E);
-                    --Game.IKnowWhatImDoing;
-                    // 单位放到礼盒相同的位置
-                    pTechno.Ref.Base.SetLocation(put); // 奇葩的bug，步兵和Jumpjet无法释放占领的格子
-                    // pTechno.Ref.UpdateThreatInCell(MapClass.Instance.GetCellAt(location));
-                    // pTechno.Ref.Base.Location.X = put.X;
-                    // pTechno.Ref.Base.Location.Y = put.Y;
-                    pTechno.Ref.Base.Location.Z = location.Z; // x和y必须是格子中心，仅z可调
-                    // 开往预定目的地
-                    if (pDest.IsNull && pFocus.IsNull)
-                    {
-                        pTechno.Ref.Base.Scatter(CoordStruct.Empty, true, false);
-                    }
-                    else
-                    {
-                        if (pTechno.Ref.Base.Base.WhatAmI() != AbstractType.Building)
-                        {
-                            CoordStruct des = pDest.IsNull ? location : pDest.Ref.GetCoords();
-                            // add focus
-                            if (!pFocus.IsNull)
-                            {
-                                pTechno.Ref.SetFocus(pFocus);
-                                if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Unit)
-                                {
-                                    des = pFocus.Ref.GetCoords();
-                                }
-                            }
-                            // MoveTo 会破坏格子的占用
-                            if (MapClass.Instance.TryGetCellAt(des, out Pointer<CellClass> pTargetCell))
-                            {
-                                pTechno.Ref.SetDestination(pTargetCell, true);
-                                pTechno.Convert<MissionClass>().Ref.QueueMission(Mission.Move, false);
-                            }
-                        }
-                    }
-                    return pTechno;
-                }
-            }
-            return IntPtr.Zero;
-        }
-
 
     }
 
