@@ -347,7 +347,31 @@ namespace PatcherYRpp
         NoRed = 0x2,
         NoGreen = 0x4,
         NoBlue = 0x8
-    };
+    }
+
+    public enum GameMode
+    {
+        Campaign = 0x0,
+        LAN = 0x3,
+        Internet = 0x4,
+        Skirmish = 0x5,
+    }
+
+    public enum InfDeath
+    {
+        None = 0,
+        Die1 = 1,
+        Die2 = 2,
+        Explode = 3,
+        Flames = 4,
+        Electro = 5,
+        HeadPop = 6,
+        Nuked = 7,
+        Virus = 8,
+        Mutate = 9,
+        Brute = 10
+    }
+
     public enum LandType
     {
         Clear = 0,

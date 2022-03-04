@@ -180,41 +180,47 @@ namespace Extension.Utilities
 
         public static unsafe CoordStruct GetFLHAbsoluteCoords(Pointer<TechnoClass> pTechno, CoordStruct flh, bool isOnTurret, int flipY, CoordStruct turretOffset, bool nextFrame)
         {
-            SingleVector3D res = pTechno.Ref.Base.Base.GetCoords().ToVector3D();
-
-            // get turretOffset location offset
-            CoordStruct sourceOffset = turretOffset;
-            // get nextframe location offset
-            if (nextFrame && pTechno.Convert<AbstractClass>().Ref.WhatAmI() != AbstractType.Building)
+            if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Building)
             {
-                Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
-                int speed = 0;
-                if (pFoot.Ref.Locomotor.Ref.Is_Moving() && (speed = pFoot.Ref.GetCurrentSpeed()) > 0)
-                {
-                    sourceOffset += new CoordStruct(speed, 0, 0);
-                }
+                // 建筑不能使用矩阵方法测算FLH
+                return GetFLHAbsoluteCoords(pTechno.Ref.Base.Base.GetCoords(), flh, pTechno.Ref.Facing.current(), turretOffset);
             }
-
-            if (null != flh && default != flh)
+            else
             {
-                // Step 1: get body transform matrix
-                Matrix3DStruct matrix3D = GetMatrix3D(pTechno);
-                // Step 2: move to turrretOffset
-                matrix3D.Translate(turretOffset.X, turretOffset.Y, turretOffset.Z);
-                // Step 3: rotation
-                RotateMatrix3D(ref matrix3D, pTechno, isOnTurret, nextFrame);
-                // Step 4: apply FLH offset
-                CoordStruct tempFLH = flh;
-                if (pTechno.Convert<AbstractClass>().Ref.WhatAmI() == AbstractType.Building)
+                SingleVector3D res = pTechno.Ref.Base.Base.GetCoords().ToVector3D();
+                // get turretOffset location offset
+                CoordStruct sourceOffset = turretOffset;
+                if (nextFrame)
                 {
-                    tempFLH.Z += Game.LevelHeight;
+                    // get nextframe location offset
+                    Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
+                    int speed = 0;
+                    if (pFoot.Ref.Locomotor.Ref.Is_Moving() && (speed = pFoot.Ref.GetCurrentSpeed()) > 0)
+                    {
+                        sourceOffset += new CoordStruct(speed, 0, 0);
+                    }
                 }
-                tempFLH.Y *= flipY;
-                SingleVector3D offset = GetFLHOffset(ref matrix3D, tempFLH);
-                // Step 5: offset techno location
-                res += offset;
+                if (null != flh && default != flh)
+                {
+                    // Step 1: get body transform matrix
+                    Matrix3DStruct matrix3D = GetMatrix3D(pTechno);
+                    // Step 2: move to turrretOffset
+                    matrix3D.Translate(turretOffset.X, turretOffset.Y, turretOffset.Z);
+                    // Step 3: rotation
+                    RotateMatrix3D(ref matrix3D, pTechno, isOnTurret, nextFrame);
+                    // Step 4: apply FLH offset
+                    CoordStruct tempFLH = flh;
+                    if (pTechno.Convert<AbstractClass>().Ref.WhatAmI() == AbstractType.Building)
+                    {
+                        tempFLH.Z += Game.LevelHeight;
+                    }
+                    tempFLH.Y *= flipY;
+                    SingleVector3D offset = GetFLHOffset(ref matrix3D, tempFLH);
+                    // Step 5: offset techno location
+                    res += offset;
+                }
+                return res.ToCoordStruct();
             }
-            return res.ToCoordStruct();
         }
 
         public static unsafe Matrix3DStruct GetMatrix3D(Pointer<TechnoClass> pTechno)

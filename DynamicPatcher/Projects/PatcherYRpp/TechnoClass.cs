@@ -67,6 +67,48 @@ namespace PatcherYRpp
             return func(ref this);
         }
 
+        public unsafe bool IsEngineer()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, Bool>)Helpers.GetVirtualFunctionPointer(Pointer<TechnoClass>.AsPointer(ref this), 204);
+            return func(ref this);
+        }
+
+        public unsafe bool EnterGrinder()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, Bool>)Helpers.GetVirtualFunctionPointer(Pointer<TechnoClass>.AsPointer(ref this), 207);
+            return func(ref this);
+        }
+
+        public unsafe bool EnterBioReactor()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, Bool>)Helpers.GetVirtualFunctionPointer(Pointer<TechnoClass>.AsPointer(ref this), 208);
+            return func(ref this);
+        }
+
+        public unsafe bool EnterTankBunker()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, Bool>)Helpers.GetVirtualFunctionPointer(Pointer<TechnoClass>.AsPointer(ref this), 209);
+            return func(ref this);
+        }
+
+        public unsafe bool EnterBattleBunker()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, Bool>)Helpers.GetVirtualFunctionPointer(Pointer<TechnoClass>.AsPointer(ref this), 210);
+            return func(ref this);
+        }
+
+        public unsafe bool GarrisonStructure()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, Bool>)Helpers.GetVirtualFunctionPointer(Pointer<TechnoClass>.AsPointer(ref this), 211);
+            return func(ref this);
+        }
+
+        public unsafe bool IsPowerOnline()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, Bool>)Helpers.GetVirtualFunctionPointer(Pointer<TechnoClass>.AsPointer(ref this), 212);
+            return func(ref this);
+        }
+
         public unsafe bool IsCloseEnough(Pointer<AbstractClass> pTarget, int weaponIdx)
         {
             var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr, int, Bool>)Helpers.GetVirtualFunctionPointer(Pointer<TechnoClass>.AsPointer(ref this), 234);
@@ -175,6 +217,18 @@ namespace PatcherYRpp
         {
             var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, Ability, Bool>)0x70D0D0;
             return func(ref this, ability);
+        }
+
+        public unsafe bool IsMindControlled()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, Bool>)0x7105E0;
+            return func(ref this);
+        }
+
+        public unsafe void DrawALinkTo(CoordStruct from, CoordStruct to, ColorStruct color)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, CoordStruct, CoordStruct, ColorStruct, void>)0x704E40;
+            func(ref this, from, to, color);
         }
 
         public unsafe Pointer<LaserDrawClass> CreateLaser(Pointer<AbstractClass> pTarget, int weaponIndex, Pointer<WeaponTypeClass> pWeapon, CoordStruct sourceCoord)
@@ -354,6 +408,8 @@ namespace PatcherYRpp
         [FieldOffset(979)] public Bool IsPrimaryFactory; // doubleclicking a warfac/barracks sets it as primary
 
         [FieldOffset(980)] public Bool Spawned;
+
+        [FieldOffset(1050)] public Bool IsHumanControlled;
 
         [FieldOffset(1060)] public Bool IsOnCarryall;
 

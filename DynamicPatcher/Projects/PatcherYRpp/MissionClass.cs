@@ -31,11 +31,30 @@ namespace PatcherYRpp
             return func(ref this, mission);
         }
 
+        public unsafe Bool OverrideMission(Mission mission)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref MissionClass, Mission, Bool>)Helpers.GetVirtualFunctionPointer(Pointer<MissionClass>.AsPointer(ref this), 125);
+            return func(ref this, mission);
+        }
+
         public unsafe Bool Mission_Revert()
         {
             var func = (delegate* unmanaged[Thiscall]<ref MissionClass, Bool>)Helpers.GetVirtualFunctionPointer(Pointer<MissionClass>.AsPointer(ref this), 126);
             return func(ref this);
         }
+
+        public unsafe Bool Mission_Overriden()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref MissionClass, Bool>)Helpers.GetVirtualFunctionPointer(Pointer<MissionClass>.AsPointer(ref this), 127);
+            return func(ref this);
+        }
+
+        public unsafe Bool Ready_To_Commence()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref MissionClass, Bool>)Helpers.GetVirtualFunctionPointer(Pointer<MissionClass>.AsPointer(ref this), 128);
+            return func(ref this);
+        }
+
 
         public unsafe Bool Mission_Guard()
         {

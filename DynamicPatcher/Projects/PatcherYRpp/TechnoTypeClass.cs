@@ -32,6 +32,8 @@ namespace PatcherYRpp
 
         [FieldOffset(992)] public int PixelSelectionBracketDelta;
 
+        [FieldOffset(1460)] public MovementZone MovementZone;
+
         [FieldOffset(1464)] public int GuardRange;
 
         [FieldOffset(1512)] public int Sight;
@@ -41,6 +43,8 @@ namespace PatcherYRpp
         [FieldOffset(1560)] public int FlightLevel;
 
         [FieldOffset(1656)] public int Speed;
+
+        [FieldOffset(1660)] public SpeedType SpeedType;
 
         [FieldOffset(1664)] public int InitialAmmo;
 

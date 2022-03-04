@@ -44,7 +44,7 @@ namespace Extension.Ext
 
         public override bool IsAlive()
         {
-            if (pStand.IsNull || !pStand.Ref.Base.IsAlive)
+            if (pStand.IsNull || pStand.Pointer.IsDead())
             {
                 pStand.Pointer = IntPtr.Zero;
                 return false;
@@ -91,14 +91,22 @@ namespace Extension.Ext
                     }
 
                     // 初始化替身
-                    // reset state
                     pStand.Ref.Base.UpdatePlacement(PlacementType.Remove);
                     pStand.Ref.Base.IsOnMap = false;
-                    // lock locomotor
-                    if (pStand.Ref.Base.Base.WhatAmI() != AbstractType.Building)
+                    pStand.Ref.Base.NeedsRedraw = true;
+                    bool canGuard = pHouse.Ref.ControlledByHuman();
+                    if (pStand.Ref.Base.Base.WhatAmI() == AbstractType.Building)
                     {
+                        canGuard = true;
+                    }
+                    else
+                    {
+                        // lock locomotor
                         pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Ref.Lock();
                     }
+                    // only computer units can hunt
+                    Mission mission = canGuard ? Mission.Guard : Mission.Hunt;
+                    pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(mission, false);
 
                     // 在格子位置刷出替身单位
                     if (!TryPutStand(location))
@@ -112,7 +120,7 @@ namespace Extension.Ext
                     LocationMark locationMark = AttachEffectHelper.GetLocation(pObject, Type);
                     if (default != locationMark.Location)
                     {
-                        // SetLocation(locationMark.Location);
+                        SetLocation(locationMark.Location);
                         // 强扭朝向
                         ForceSetFacing(locationMark.Direction);
                     }
@@ -128,6 +136,22 @@ namespace Extension.Ext
             if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
             {
                 var occFlags = pCell.Ref.OccupationFlags;
+                // if (occFlags.HasFlag(OccupationFlags.Buildings))
+                // {
+                //     // Logger.Log("当前格子上有建筑");
+                //     BulletEffectHelper.RedCell(pCell.Ref.GetCoordsWithBridge(), 128, 1, 450);
+                //     BulletEffectHelper.RedLineZ(pCell.Ref.GetCoordsWithBridge(), 1024, 1, 450);
+                //     SpeedType speedType = pStand.Ref.Type.Ref.SpeedType;
+                //     MovementZone movementZone = pStand.Ref.Type.Ref.MovementZone;
+                //     CellStruct cell = MapClass.Instance.Pathfinding_Find(ref pCell.Ref.MapCoords, speedType, movementZone, 1, 1, false);
+                //     if (MapClass.Instance.TryGetCellAt(cell, out Pointer<CellClass> pNewCell))
+                //     {
+                //         pCell = pNewCell;
+                //         occFlags = pCell.Ref.OccupationFlags;
+                //         Pointer<ObjectClass> pObject = pCell.Ref.GetContent();
+                //         // Logger.Log("找到一个满足条件的空格子, occFlags = {0}, pObject = {1}", occFlags, pObject.IsNull ? "null" : pObject.Ref.Base.WhatAmI());
+                //     }
+                // }
                 pStand.Ref.Base.OnBridge = pCell.Ref.ContainsBridge();
                 CoordStruct xyz = pCell.Ref.GetCoordsWithBridge();
                 ++Game.IKnowWhatImDoing;
@@ -170,18 +194,15 @@ namespace Extension.Ext
 
         public override void OnUpdate(Pointer<ObjectClass> pObject, bool isDead, AttachEffectManager manager)
         {
-            CoordStruct sourcePos = pObject.Ref.Location;
+            CoordStruct sourcePos = pObject.Ref.Base.GetCoords();
+
             // 只同步状态，位置和朝向由StandManager控制
-            // if (pObject.CastToTechno(out Pointer<TechnoClass> pMaster))
-            // {
-            //     UpdateState(pMaster);
-            // }
             switch (pObject.Ref.Base.WhatAmI())
             {
                 case AbstractType.Unit:
                 case AbstractType.Aircraft:
-                case AbstractType.Building:
                 case AbstractType.Infantry:
+                case AbstractType.Building:
                     UpdateState(pObject.Convert<TechnoClass>());
                     break;
                 case AbstractType.Bullet:
@@ -395,77 +416,58 @@ namespace Extension.Ext
             }
         }
 
-        // public void UpdateLocation(Pointer<TechnoClass> pMaster)
-        // {
-        //     CoordStruct location = ExHelper.GetFLHAbsoluteCoords(pMaster, Type.Offset, Type.IsOnTurret);
-        //     DirStruct targetDir = GetDirection(pMaster);
-
-        //     SetLocation(location);
-        //     SetDirection(targetDir);
-        // }
-
         public void UpdateLocation(LocationMark mark)
         {
-            SetLocation(mark);
-            SetDirection(mark);
-        }
-
-        private void SetLocation(LocationMark mark)
-        {
             SetLocation(mark.Location);
+            SetDirection(mark.Direction, false);
         }
 
         private void SetLocation(CoordStruct location)
         {
             // Logger.Log("移动替身{0}的位置到{1}", Type.Type, location);
-            CoordStruct sourcePos = pStand.Ref.Base.Base.GetCoords();
-            if (sourcePos != location)
+            // 播放移动动画，替身类型需要是火车
+            if (Type.IsTrain)
             {
-                // 播放行动动画
-                // switch (pStand.Ref.Base.Base.WhatAmI())
-                // {
-                //     case AbstractType.Infantry:
-                //         // Pointer<InfantryClass> pInf = pStand.Pointer.Convert<InfantryClass>();
-                //         // if (SequenceAnimType.WALK != pInf.Ref.SequenceAnim)
-                //         // {
-                //         //     Logger.Log("丫动起来 {0}, {1}", Type.Type, pInf.Ref.SequenceAnim);
-                //         //     pInf.Convert<FootClass>().Ref.Inf_PlayAnim(SequenceAnimType.WALK);
-                //         // }
-                //         break;
-                //     case AbstractType.Unit:
-                //         // if (default == pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Ref.DestinationCoord)
-                //         // {
-                //         //     Logger.Log("丫动起来 {0}", Type.Type);
-                //         //     // pStand.Pointer.Convert<FootClass>().Ref.MoveTo(location);
-                //         // }
-                //         // pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Ref.Move_To(location);
-                //         if (!pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Ref.Is_Moving())
-                //         {
-                //             pStand.Pointer.Convert<FootClass>().Ref.MoveTo(location);
-                //         }
-                //         break;
-                // }
-            }
-            else
-            {
-                // if (pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Ref.Is_Moving())
-                // {
-                //     pStand.Pointer.Convert<FootClass>().Ref.MoveTo(default);
-                // }
+                CoordStruct sourcePos = pStand.Ref.Base.Base.GetCoords();
+                if (sourcePos != location)
+                {
+                    // 替身在移动，并且JOJO也在移动时，播放行走动画
+                    // 播放行动动画
+                    // switch (pStand.Ref.Base.Base.WhatAmI())
+                    // {
+                    //     case AbstractType.Infantry:
+                    //         // Pointer<InfantryClass> pInf = pStand.Pointer.Convert<InfantryClass>();
+                    //         // if (SequenceAnimType.WALK != pInf.Ref.SequenceAnim)
+                    //         // {
+                    //         //     Logger.Log("丫动起来 {0}, {1}", Type.Type, pInf.Ref.SequenceAnim);
+                    //         //     pInf.Convert<FootClass>().Ref.Inf_PlayAnim(SequenceAnimType.WALK);
+                    //         // }
+                    //         break;
+                    //     case AbstractType.Unit:
+                    //         // if (default == pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Ref.DestinationCoord)
+                    //         // {
+                    //         //     Logger.Log("丫动起来 {0}", Type.Type);
+                    //         //     // pStand.Pointer.Convert<FootClass>().Ref.MoveTo(location);
+                    //         // }
+                    //         // pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Ref.Move_To(location);
+                    //         if (!pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Ref.Is_Moving())
+                    //         {
+                    //             pStand.Pointer.Convert<FootClass>().Ref.MoveTo(location);
+                    //         }
+                    //         break;
+                    // }
+                }
+                else
+                {
+                    // if (pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Ref.Is_Moving())
+                    // {
+                    //     pStand.Pointer.Convert<FootClass>().Ref.MoveTo(default);
+                    // }
+                }
             }
             // Logger.Log("{0} - 移动替身[{1}]{2}到位置{3}", Game.CurrentFrame, Type.Type, pStand.Pointer, location);
             pStand.Ref.Base.SetLocation(location);
-            if (pStand.Ref.Base.Base.WhatAmI() != AbstractType.Building)
-            {
-                pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Ref.Move_To(location);
-            }
-            pStand.Ref.SetFocus(Pointer<AbstractClass>.Zero);
-            pStand.Ref.SetDestination(Pointer<CellClass>.Zero, true);
-        }
-
-        private void SetDirection(LocationMark mark)
-        {
-            SetDirection(mark.Direction, false);
+            pStand.Ref.SetFocus(IntPtr.Zero);
         }
 
         private void SetDirection(DirStruct direction, bool forceSetTurret)
@@ -480,7 +482,14 @@ namespace Extension.Ext
             if ((pStand.Ref.Target.IsNull || Type.LockDirection) && !pStand.Ref.Type.Ref.TurretSpins)
             {
                 // Logger.Log("设置替身{0}炮塔的朝向", Type.Type);
-                TurnTurretFacing(direction);
+                if (forceSetTurret)
+                {
+                    ForceSetFacing(direction);
+                }
+                else
+                {
+                    TurnTurretFacing(direction);
+                }
             }
 
         }

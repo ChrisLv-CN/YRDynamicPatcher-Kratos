@@ -226,6 +226,7 @@ namespace Extension.Ext
             TechnoClass_Destroy_AttachEffect();
             TechnoClass_Destroy_ConvertType();
             TechnoClass_Destroy_DestroyAnims();
+            TechnoClass_Destroy_GiftBox();
         }
 
 

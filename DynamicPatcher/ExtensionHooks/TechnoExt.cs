@@ -608,6 +608,20 @@ namespace ExtensionHooks
             return 0;
         }
 
+        [Hook(HookType.AresHook, Address = 0x4D94B0, Size = 5)]
+        public static unsafe UInt32 TechnoClass_SetDestination(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
+            TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+            if (null != ext && !ext.MyMaster.IsNull)
+            {
+                // 跳过目的地设置
+                // Logger.Log("跳过替身的目的地设置");
+                return 0x4D9711;
+            }
+            return 0;
+        }
+
         [Hook(HookType.AresHook, Address = 0x704363, Size = 5)]
         public static unsafe UInt32 TechnoClass_GetZAdjust(REGISTERS* R)
         {
@@ -654,7 +668,7 @@ namespace ExtensionHooks
             if (pTechno.Ref.Base.Base.IsInAir())
             {
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                if (null != ext &&  ext.AttachEffectManager.HasStand())
+                if (null != ext && ext.AttachEffectManager.HasStand())
                 {
                     // Override JumpjetHeight / CruiseHeight check so it always results in 3 / Layer::Air.
                     R->EDX = Int32.MaxValue;
@@ -663,6 +677,7 @@ namespace ExtensionHooks
             }
             return 0;
         }
+
 
     }
 }

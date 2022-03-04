@@ -63,6 +63,40 @@ namespace PatcherYRpp
             func(GetThis(), amount);
         }
 
+        // whether any human player controls this house
+        public unsafe bool ControlledByHuman()
+        {
+            bool result = this.CurrentPlayer;
+            if (SessionClass.Instance.GameMode == GameMode.Campaign)
+            {
+                result = result || this.PlayerControl;
+            }
+            return result;
+        }
+
+        // whether the human player on this PC can control this house
+        public unsafe bool ControlledByPlayer()
+        {
+            if (SessionClass.Instance.GameMode != GameMode.Campaign)
+            {
+                return GetThis() == Player;
+            }
+            return this.CurrentPlayer || this.PlayerControl;
+        }
+
+        public unsafe Pointer<SuperClass> FindSuperWeapon(Pointer<SuperWeaponTypeClass> pType)
+        {
+            for (int i = 0; i < Supers.Count; i++)
+            {
+                var pItem = Supers[i];
+                if (pItem.Ref.Type == pType)
+                {
+                    return pItem;
+                }
+            }
+            return Pointer<SuperClass>.Zero;
+        }
+
         [FieldOffset(48)] public int ArrayIndex;
 
         [FieldOffset(52)] public Pointer<HouseTypeClass> Type;
@@ -176,20 +210,6 @@ namespace PatcherYRpp
         public double PowerPercent => PowerOutput != 0 ? (double)PowerDrain / (double)PowerOutput : 1;
 
         public bool NoPower => PowerPercent >= 1;
-
-        public Pointer<SuperClass> FindSuperWeapon(Pointer<SuperWeaponTypeClass> pType)
-        {
-            for (int i = 0; i < Supers.Count; i++)
-            {
-                var pItem = Supers[i];
-                if (pItem.Ref.Type == pType)
-                {
-                    return pItem;
-                }
-            }
-
-            return Pointer<SuperClass>.Zero;
-        }
 
     }
 }
