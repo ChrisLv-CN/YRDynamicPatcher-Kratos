@@ -33,6 +33,7 @@ namespace Extension.Ext
 
         public SwizzleablePointer<TechnoClass> pStand;
 
+        private bool isBuilding = false;
         private bool onStopCommand = false;
         private bool notBeHuman = false;
 
@@ -97,12 +98,13 @@ namespace Extension.Ext
                     bool canGuard = pHouse.Ref.ControlledByHuman();
                     if (pStand.Ref.Base.Base.WhatAmI() == AbstractType.Building)
                     {
+                        isBuilding = true;
                         canGuard = true;
                     }
                     else
                     {
                         // lock locomotor
-                        pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Ref.Lock();
+                        pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Lock();
                     }
                     // only computer units can hunt
                     Mission mission = canGuard ? Mission.Guard : Mission.Hunt;
@@ -246,7 +248,7 @@ namespace Extension.Ext
             pStand.Ref.Base.NeedsRedraw = true;
             if (pStand.Ref.Base.Base.WhatAmI() != AbstractType.Building)
             {
-                pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Ref.Lock();
+                pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Lock();
                 // pStand.Pointer.Convert<FootClass>().Ref.Jumpjet_LocationClear();
                 // Logger.Log("Stand {0} Locomotor {1}", Type.Type, pStand.Pointer.Convert<FootClass>().Ref.Locomotor);
             }
@@ -291,48 +293,130 @@ namespace Extension.Ext
             // synch PrimaryFactory
             pStand.Ref.IsPrimaryFactory = pMaster.Ref.IsPrimaryFactory;
 
-            // check power off
+            // get mission
+            Mission masterMission = pMaster.Convert<MissionClass>().Ref.CurrentMission;
+
+            // check power off and moving
+            bool masterIsBuilding = false;
             bool masterPowerOff = pMaster.Ref.Owner.Ref.NoPower;
-            if (pMaster.Ref.Base.Base.WhatAmI() == AbstractType.Building && pMaster.Ref.Owner == pStand.Ref.Owner)
+            bool masterIsMoving = masterMission == Mission.Move || masterMission == Mission.AttackMove;
+            if (masterIsBuilding = (pMaster.Ref.Base.Base.WhatAmI() == AbstractType.Building))
             {
-                Pointer<BuildingClass> pBuilding = pMaster.Convert<BuildingClass>();
-                if (!masterPowerOff)
+                if (pMaster.Ref.Owner == pStand.Ref.Owner)
                 {
-                    // 关闭当前建筑电源
-                    masterPowerOff = !pBuilding.Ref.HasPower;
+                    Pointer<BuildingClass> pBuilding = pMaster.Convert<BuildingClass>();
+                    if (!masterPowerOff)
+                    {
+                        // 关闭当前建筑电源
+                        masterPowerOff = !pBuilding.Ref.HasPower;
+                    }
                 }
             }
-            bool powerOff = Type.Powered && masterPowerOff;
-
-            // synch Mission and Target
-            // if (!pMaster.Ref.Base.IsActive() || powerOff) // ObjectClass.IsActive() 会导致联机不同步，迷
-            if (powerOff)
+            else if (!masterIsMoving)
             {
-                powerOff = true;
-                RemoveStandTarget();
-                onStopCommand = false;
-                pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(Mission.Sleep, true);
+                Pointer<FootClass> pFoot = pMaster.Convert<FootClass>();
+                masterIsMoving = pFoot.Ref.Locomotor.Is_Moving() && pFoot.Ref.GetCurrentSpeed() > 0;
             }
-            else
+
+            ILocomotion masterLoco = null;
+            ILocomotion standLoco = null;
+            if (!masterIsBuilding)
             {
-                // synch Mission
-                Mission mission = pMaster.Convert<MissionClass>().Ref.CurrentMission;
-                switch (mission)
+                masterLoco = pMaster.Convert<FootClass>().Ref.Locomotor;
+            }
+            if (!isBuilding)
+            {
+                standLoco = pStand.Pointer.Convert<FootClass>().Ref.Locomotor;
+            }
+
+            // synch Moving anim
+            if (Type.IsTrain && !isBuilding)
+            {
+                // switch (pStand.Ref.Base.Base.WhatAmI())
+                // {
+                //     case AbstractType.Infantry:
+                //         Pointer<InfantryClass> pInf = pStand.Pointer.Convert<InfantryClass>();
+                //         // pInf.Convert<FootClass>().Ref.Inf_PlayAnim(SequenceAnimType.FIRE_WEAPON);
+                        
+                //         pInf.Ref.SequenceAnim = SequenceAnimType.FIRE_WEAPON;
+                //         break;
+                //     case AbstractType.Unit:
+
+                //         break;
+                // }
+                // CoordStruct sourcePos = pStand.Ref.Base.Base.GetCoords();
+                // ILocomotion loco = pStand.Pointer.Convert<FootClass>().Ref.Locomotor;
+                // Guid locoId = loco.ToLocomotionClass().Ref.GetClassID();
+                // if (LocomotionClass.Walk == locoId)
+                // {
+                //     Pointer<WalkLocomotionClass> pLoco = loco.ToLocomotionClass<WalkLocomotionClass>();
+                //     if (masterIsMoving)
+                //     {
+                //         pLoco.Ref.Destination = ExHelper.GetFLHAbsoluteCoords(pStand.Pointer, new CoordStruct(1024, 0, 0));
+                //         pLoco.Ref.IsMoving = false;
+                //     }
+                //     else
+                //     {
+                //         pLoco.Ref.Destination = default;
+                //         pLoco.Ref.IsMoving = false;
+                //     }
+                // }
+                // else if (LocomotionClass.Mech == locoId)
+                // {
+                //     Pointer<MechLocomotionClass> pLoco = loco.ToLocomotionClass<MechLocomotionClass>();
+                //     if (masterIsMoving)
+                //     {
+                //         pLoco.Ref.Destination = ExHelper.GetFLHAbsoluteCoords(pStand.Pointer, new CoordStruct(1024, 0, 0));
+                //         pLoco.Ref.IsMoving = true;
+                //     }
+                //     else
+                //     {
+                //         pLoco.Ref.Destination = default;
+                //         pLoco.Ref.IsMoving = false;
+                //     }
+
+                // }
+            }
+            else if (Type.SameTilter && null != masterLoco && null != standLoco)
+            {
+                // synch Tilter
+                Guid masterLocoId = masterLoco.ToLocomotionClass().Ref.GetClassID();
+                Guid standLocoId = standLoco.ToLocomotionClass().Ref.GetClassID();
+                if (LocomotionClass.Drive == masterLocoId && LocomotionClass.Drive == standLocoId)
                 {
-                    case Mission.Move:
-                    case Mission.AttackMove:
-                        break;
+                    Pointer<DriveLocomotionClass> pMasterLoco = masterLoco.ToLocomotionClass<DriveLocomotionClass>();
+                    Pointer<DriveLocomotionClass> pStandLoco = standLoco.ToLocomotionClass<DriveLocomotionClass>();
+                    pStandLoco.Ref.Ramp1 = pMasterLoco.Ref.Ramp1;
+                    pStandLoco.Ref.Ramp2 = pMasterLoco.Ref.Ramp2;
+                }
+            }
+
+            // check fire
+            bool powerOff = Type.Powered && masterPowerOff;
+            bool canFire = !powerOff && (Type.MobileFire || !masterIsMoving);
+            if (canFire)
+            {
+                // synch mission
+                switch (masterMission)
+                {
                     case Mission.Guard:
                     case Mission.Area_Guard:
                         Mission standMission = pStand.Pointer.Convert<MissionClass>().Ref.CurrentMission;
                         if (standMission != Mission.Attack)
                         {
-                            pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(mission, true);
+                            pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(masterMission, true);
                         }
                         break;
                 }
             }
+            else
+            {
+                RemoveStandTarget();
+                onStopCommand = false;
+                pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(Mission.Sleep, true);
+            }
 
+            // synch target
             if (Type.ForceAttackMaster)
             {
                 if (!powerOff)
@@ -349,14 +433,14 @@ namespace Extension.Ext
                     Pointer<AbstractClass> target = pMaster.Ref.Target;
                     if (!target.IsNull)
                     {
-                        if (Type.SameTarget && !powerOff)
+                        if (Type.SameTarget && canFire)
                         {
                             pStand.Ref.SetTarget(target);
                         }
                     }
                     else
                     {
-                        if (Type.SameLoseTarget || powerOff)
+                        if (Type.SameLoseTarget || !canFire)
                         {
                             RemoveStandTarget();
                         }
@@ -424,47 +508,6 @@ namespace Extension.Ext
 
         private void SetLocation(CoordStruct location)
         {
-            // Logger.Log("移动替身{0}的位置到{1}", Type.Type, location);
-            // 播放移动动画，替身类型需要是火车
-            if (Type.IsTrain)
-            {
-                CoordStruct sourcePos = pStand.Ref.Base.Base.GetCoords();
-                if (sourcePos != location)
-                {
-                    // 替身在移动，并且JOJO也在移动时，播放行走动画
-                    // 播放行动动画
-                    // switch (pStand.Ref.Base.Base.WhatAmI())
-                    // {
-                    //     case AbstractType.Infantry:
-                    //         // Pointer<InfantryClass> pInf = pStand.Pointer.Convert<InfantryClass>();
-                    //         // if (SequenceAnimType.WALK != pInf.Ref.SequenceAnim)
-                    //         // {
-                    //         //     Logger.Log("丫动起来 {0}, {1}", Type.Type, pInf.Ref.SequenceAnim);
-                    //         //     pInf.Convert<FootClass>().Ref.Inf_PlayAnim(SequenceAnimType.WALK);
-                    //         // }
-                    //         break;
-                    //     case AbstractType.Unit:
-                    //         // if (default == pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Ref.DestinationCoord)
-                    //         // {
-                    //         //     Logger.Log("丫动起来 {0}", Type.Type);
-                    //         //     // pStand.Pointer.Convert<FootClass>().Ref.MoveTo(location);
-                    //         // }
-                    //         // pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Ref.Move_To(location);
-                    //         if (!pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Ref.Is_Moving())
-                    //         {
-                    //             pStand.Pointer.Convert<FootClass>().Ref.MoveTo(location);
-                    //         }
-                    //         break;
-                    // }
-                }
-                else
-                {
-                    // if (pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Ref.Is_Moving())
-                    // {
-                    //     pStand.Pointer.Convert<FootClass>().Ref.MoveTo(default);
-                    // }
-                }
-            }
             // Logger.Log("{0} - 移动替身[{1}]{2}到位置{3}", Game.CurrentFrame, Type.Type, pStand.Pointer, location);
             pStand.Ref.Base.SetLocation(location);
             pStand.Ref.SetFocus(IntPtr.Zero);

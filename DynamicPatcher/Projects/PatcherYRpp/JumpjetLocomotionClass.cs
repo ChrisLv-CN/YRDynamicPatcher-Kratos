@@ -13,13 +13,6 @@ namespace PatcherYRpp
     public struct JumpjetLocomotionClass
     {
 
-        public unsafe void Do_Turn(DirStruct dir)
-        {
-            var func = (delegate* unmanaged[Stdcall]<ref JumpjetLocomotionClass, DirStruct, void>)
-                Helpers.GetVirtualFunctionPointer(Pointer<JumpjetLocomotionClass>.AsPointer(ref this), 19);
-            func(ref this, dir);
-        }
-
         [FieldOffset(28)] public double TurnRate;
 
         [FieldOffset(32)] public int Speed;

@@ -9,7 +9,6 @@ using DynamicPatcher;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 328)]
-    [Serializable]
     public struct VocClass
     {
         public static readonly IntPtr ArrayPointer = new IntPtr(0xB1D378);

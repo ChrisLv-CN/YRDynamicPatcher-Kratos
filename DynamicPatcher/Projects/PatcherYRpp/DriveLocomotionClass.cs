@@ -9,11 +9,13 @@ using DynamicPatcher;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 112)]
-    [Serializable]
     public struct DriveLocomotionClass
     {
+        [FieldOffset(28)] public double Ramp1;
 
-        [FieldOffset(52)] public CoordStruct DestinationCoord; // 0x34 DriveLocomotionClass
+        [FieldOffset(32)] public double Ramp2;
+
+        [FieldOffset(52)] public CoordStruct Destination; // 0x34 DriveLocomotionClass
 
         [FieldOffset(64)] public CoordStruct HeadToCoord; // 0x40 DriveLocomotionClass
 

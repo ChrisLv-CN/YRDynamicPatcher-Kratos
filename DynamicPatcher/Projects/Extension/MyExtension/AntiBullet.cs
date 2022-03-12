@@ -376,6 +376,15 @@ namespace Extension.Ext
         {
             // Logger.Log("抛射体{0}布置在地图上", OwnerObject);
             int health = OwnerObject.Ref.Base.Health;
+            // 抛射体武器伤害为负数或者零时的特殊处理
+            if (health < 0)
+            {
+                health = -health;
+            }
+            else if (health == 0)
+            {
+                health = 1; // 武器伤害为0，如[NukeCarrier]
+            }
             CoordStruct location = OwnerObject.Ref.Base.Location;
             Pointer<TechnoClass> pTechno = OwnerObject.Ref.Owner;
             // 初始化抛射体的生命信息
@@ -424,6 +433,7 @@ namespace Extension.Ext
                     // Logger.Log("抛射体{0}注销", OwnerObject);
                     return;
                 }
+                // 检查抛射体存活
                 if (BulletLifeStatus.Health <= 0)
                 {
                     BulletLifeStatus.IsDetonate = true;

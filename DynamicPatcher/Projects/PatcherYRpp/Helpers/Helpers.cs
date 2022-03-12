@@ -55,23 +55,56 @@ namespace PatcherYRpp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IntPtr GetVirtualFunctionPointer(IntPtr pThis, int index)
+        public static IntPtr GetVirtualFunctionTable(IntPtr pThis, int tableIndex)
         {
             Pointer<Pointer<IntPtr>> pVfptr = pThis;
-            Pointer<IntPtr> vfptr = pVfptr.Data;
-            IntPtr address = vfptr[index];
+            Pointer<IntPtr> vfptr = pVfptr[tableIndex];
+            return vfptr;
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IntPtr GetVirtualFunctionTable<T>(Pointer<T> pThis, int tableIndex)
+        {
+            return GetVirtualFunctionTable((IntPtr)pThis, tableIndex);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IntPtr GetVirtualFunctionTable<T>(ref this T pThis, int tableIndex) where T : struct
+        {
+            return GetVirtualFunctionTable(Pointer<T>.AsPointer(ref pThis), tableIndex);
+        }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IntPtr GetVirtualFunctionPointer(IntPtr pThis, int index, int tableIndex = 0)
+        {
+            Pointer<IntPtr> vfptr = GetVirtualFunctionTable(pThis, tableIndex);
+            IntPtr address = vfptr[index];
             return address;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IntPtr GetVirtualFunctionPointer<T>(Pointer<T> pThis, int index)
+        public static IntPtr GetVirtualFunctionPointer<T>(Pointer<T> pThis, int index, int tableIndex = 0)
         {
-            return GetVirtualFunctionPointer((IntPtr)pThis, index);
+            return GetVirtualFunctionPointer((IntPtr)pThis, index, tableIndex);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IntPtr GetVirtualFunctionPointer<T>(this T pThis, int index)
+        public static IntPtr GetVirtualFunctionPointer<T>(ref this T pThis, int index, int tableIndex = 0) where T : struct
         {
-            return GetVirtualFunctionPointer(Pointer<T>.AsPointer(ref pThis), index);
+            return GetVirtualFunctionPointer(Pointer<T>.AsPointer(ref pThis), index, tableIndex);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SetVirtualFunctionPointer(IntPtr pThis, int index, IntPtr functionAddress, int tableIndex = 0)
+        {
+            Pointer<IntPtr> vfptr = GetVirtualFunctionTable(pThis, tableIndex);
+            vfptr[index] = functionAddress;
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SetVirtualFunctionPointer<T>(Pointer<T> pThis, int index, IntPtr functionAddress, int tableIndex = 0)
+        {
+            SetVirtualFunctionPointer((IntPtr)pThis, index, functionAddress, tableIndex);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SetVirtualFunctionPointer<T>(ref this T pThis, int index, IntPtr functionAddress, int tableIndex = 0) where T : struct
+        {
+            SetVirtualFunctionPointer(Pointer<T>.AsPointer(ref pThis), index, functionAddress, tableIndex);
         }
 
 
@@ -86,6 +119,13 @@ namespace PatcherYRpp
         public static unsafe void Copy(IntPtr from, IntPtr to, int byteCount)
         {
             Unsafe.CopyBlock(to.ToPointer(), from.ToPointer(), (uint)byteCount);
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Pointer<T> GetThisPointer<T>(ref this T pThis) where T : struct
+        {
+            return Pointer<T>.AsPointer(ref pThis);
         }
     }
 }

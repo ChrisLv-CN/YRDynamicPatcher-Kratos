@@ -17,7 +17,7 @@ namespace Extension.Ext
         public unsafe void BulletClass_Put_ArcingTrajectory(Pointer<CoordStruct> pCoord)
         {
             Pointer<BulletClass> pBullet = OwnerObject;
-            if (pBullet.Ref.Type.Ref.Arcing)
+            if (pBullet.Ref.Type.Ref.Arcing && Type.ArcingAdvanced)
             {
                 CoordStruct sourcePos = pCoord.Data;
                 CoordStruct targetPos = pBullet.Ref.TargetCoords;
@@ -85,17 +85,29 @@ namespace Extension.Ext
 
     public partial class BulletTypeExt
     {
-        public int ArcingFixedSpeed;
+        public bool ArcingAdvanced = true;
+        public int ArcingFixedSpeed = 0;
 
         /// <summary>
         /// [ProjectileType]
+        /// AdvancedBallistics=yes
+        /// Arcing=yes
         /// Arcing.FixedSpeed=0
+        /// Acceleration=0
+        /// Inaccurate=yes
+        /// BallisticScatter.Min=0
+        /// BallisticScatter.Max=BallisticScatter
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="section"></param>
         /// <returns></returns>
         private void ReadArcingTrajectory(INIReader reader, string section)
         {
+            bool advanced = true;
+            if (reader.ReadNormal(section, "AdvancedBallistics", ref advanced))
+            {
+                ArcingAdvanced = advanced;
+            }
 
             int fixedSpeed = 0;
             if (reader.ReadNormal(section, "Arcing.FixedSpeed", ref fixedSpeed))

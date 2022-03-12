@@ -118,7 +118,13 @@ namespace PatcherYRpp
         [FieldOffset(1408)] public double SpeedMultiplier;
         [FieldOffset(1444)] public Pointer<AbstractClass> Destination;
         [FieldOffset(1448)] public Pointer<AbstractClass> LastDestination;
-        [FieldOffset(1652)] public Pointer<LocomotionClass> Locomotor;
+        [FieldOffset(1540)] public int PathDirections;
+        [FieldOffset(1600)] public TimerStruct PathDelayTimer;
+        [FieldOffset(1616)] public TimerStruct BaseAttackTimer;
+        [FieldOffset(1628)] public TimerStruct SightTimer;
+        [FieldOffset(1640)] public TimerStruct BlockagePathTimer;
+        [FieldOffset(1652)] public COMPtr<ILocomotion> locomotor;
+        public ILocomotion Locomotor { get => locomotor.Object; set => locomotor.Object = value; }
         [FieldOffset(1711)] public Bool FacingChanging;
         [FieldOffset(1718)] public Bool FrozenStill;
     }

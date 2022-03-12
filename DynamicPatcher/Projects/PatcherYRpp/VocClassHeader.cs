@@ -9,7 +9,6 @@ using DynamicPatcher;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 12)]
-    [Serializable]
     public struct VocClassHeader
     {
         [FieldOffset(0)] public IntPtr Next;

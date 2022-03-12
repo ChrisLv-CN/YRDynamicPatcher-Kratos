@@ -19,6 +19,23 @@ namespace Extension.Ext
         public SwizzleablePointer<ObjectClass> MyMaster = new SwizzleablePointer<ObjectClass>(IntPtr.Zero);
         public StandType StandType;
 
+        public unsafe bool TechnoClass_CanFire_StandUnit(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon)
+        {
+            if (null == StandType || StandType.MobileFire)
+            {
+                return false;
+            }
+            if (!MyMaster.IsNull && MyMaster.Pointer.CastToTechno(out Pointer<TechnoClass> pTechno))
+            {
+                if (pTechno.Ref.Base.Base.WhatAmI() != AbstractType.Building)
+                {
+                    // 检查JOJO是否处于移动状态
+
+                }
+            }
+            return false;
+        }
+
         public unsafe bool TechnoClass_RegisterDestruction_StandUnit(Pointer<TechnoClass> pKiller, int cost)
         {
             if (cost != 0)

@@ -185,7 +185,8 @@ namespace ExtensionHooks
                 {
                     ext.CrateMultiplier.FirepowerMultiplier = pow_FirepowerMultiplier;
                     ext.RecalculateStatus();
-                    R->AL = Convert.ToByte(pTechno.Ref.Owner.Ref.PlayerControl);
+                    // R->AL = Convert.ToByte(pTechno.Ref.Owner.Ref.PlayerControl);
+                    R->AL = pTechno.Ref.Owner.Ref.PlayerControl;
                     return 0x483258;
                 }
             }
@@ -209,7 +210,8 @@ namespace ExtensionHooks
                 {
                     ext.CrateMultiplier.ArmorMultiplier = pow_ArmorMultiplier;
                     ext.RecalculateStatus();
-                    R->AL = Convert.ToByte(pTechno.Ref.Owner.Ref.PlayerControl);
+                    // R->AL = Convert.ToByte(pTechno.Ref.Owner.Ref.PlayerControl);
+                    R->AL = pTechno.Ref.Owner.Ref.PlayerControl;
                     return 0x482E89;
                 }
             }
@@ -233,7 +235,8 @@ namespace ExtensionHooks
                 {
                     ext.CrateMultiplier.SpeedMultiplier = pow_SpeedMultiplier;
                     ext.RecalculateStatus();
-                    R->CL = Convert.ToByte(pTechno.Ref.Owner.Ref.PlayerControl);
+                    // R->CL = Convert.ToByte(pTechno.Ref.Owner.Ref.PlayerControl);
+                    R->CL = pTechno.Ref.Owner.Ref.PlayerControl;
                     return 0x483078;
                 }
             }

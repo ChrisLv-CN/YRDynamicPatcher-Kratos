@@ -68,7 +68,7 @@ namespace PatcherYRpp
         public int UniqueID;
 
         [FieldOffset(20)]
-        public byte AbstractFlags;
+        public AbstractFlags AbstractFlags;
 
         [FieldOffset(24)]
         public int unknown_18;

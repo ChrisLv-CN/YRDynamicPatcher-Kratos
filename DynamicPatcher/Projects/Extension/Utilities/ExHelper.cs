@@ -195,7 +195,7 @@ namespace Extension.Utilities
                     // get nextframe location offset
                     Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
                     int speed = 0;
-                    if (pFoot.Ref.Locomotor.Ref.Is_Moving() && (speed = pFoot.Ref.GetCurrentSpeed()) > 0)
+                    if (pFoot.Ref.Locomotor.Is_Moving() && (speed = pFoot.Ref.GetCurrentSpeed()) > 0)
                     {
                         sourceOffset += new CoordStruct(speed, 0, 0);
                     }
@@ -226,15 +226,11 @@ namespace Extension.Utilities
         public static unsafe Matrix3DStruct GetMatrix3D(Pointer<TechnoClass> pTechno)
         {
             // Step 1: get body transform matrix
-            Matrix3DStruct matrix3D;
-            Pointer<LocomotionClass> pLoco = pTechno.Convert<FootClass>().Ref.Locomotor;
-            if (!pLoco.IsNull)
+            Matrix3DStruct matrix3D = new Matrix3DStruct(true);
+            ILocomotion loco = pTechno.Convert<FootClass>().Ref.Locomotor;
+            if (null != loco)
             {
-                matrix3D = pLoco.Ref.Draw_Matrix(0).Ref;
-            }
-            else
-            {
-                matrix3D = new Matrix3DStruct(true);
+                loco.Draw_Matrix(Pointer<Matrix3DStruct>.AsPointer(ref matrix3D), IntPtr.Zero);
             }
             return matrix3D;
         }

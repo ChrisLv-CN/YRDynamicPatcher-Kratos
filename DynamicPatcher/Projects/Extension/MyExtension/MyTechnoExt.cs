@@ -240,6 +240,10 @@ namespace Extension.Ext
             {
                 return;
             }
+            if (ceaseFire = TechnoClass_CanFire_StandUnit(pTarget, pWeapon))
+            {
+                return;
+            }
 
         }
 

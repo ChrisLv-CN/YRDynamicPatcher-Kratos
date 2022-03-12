@@ -258,6 +258,8 @@ namespace PatcherYRpp
 
         [FieldOffset(0)] public ObjectClass Base;
 
+        [FieldOffset(248)] public ProgressTimer Animtaion;
+
         [FieldOffset(276)] public PassengersClass Passengers;
 
         [FieldOffset(284)] public IntPtr transporter; // unit carrying me

@@ -46,12 +46,14 @@ namespace Extension.Ext
         public bool SameTarget; // 与使者同个目标
         public bool SameLoseTarget; // 使者失去目标时替身也失去
         public bool ForceAttackMaster; // 强制选择使者为目标
+        public bool MobileFire; // 移动攻击
         public bool Explodes; // 死亡会爆炸
         public bool ExplodesWithMaster; // 使者死亡时强制替身爆炸
         public bool RemoveAtSinking; // 沉船时移除
         public bool PromoteFormMaster; // 与使者同等级
         public double ExperienceToMaster; // 经验给使者
         public bool VirtualUnit; // 不可被选择
+        public bool SameTilter; // 同步倾斜
         public bool IsTrain; // 火车类型
         public bool CabinHead; // 插入车厢前端
         public int CabinGroup; // 车厢分组
@@ -70,6 +72,7 @@ namespace Extension.Ext
             this.SameTarget = true;
             this.SameLoseTarget = false;
             this.ForceAttackMaster = false;
+            this.MobileFire = true;
             this.Powered = false;
             this.Explodes = false;
             this.ExplodesWithMaster = false;
@@ -77,6 +80,7 @@ namespace Extension.Ext
             this.PromoteFormMaster = false;
             this.ExperienceToMaster = 0.0;
             this.VirtualUnit = false;
+            this.SameTilter = true;
             this.IsTrain = false;
             this.CabinHead = false;
             this.CabinGroup = -1;
@@ -186,10 +190,16 @@ namespace Extension.Ext
                     standType.SameLoseTarget = sameLoseTarget;
                 }
 
-                bool forceAttackMaster = true;
+                bool forceAttackMaster = false;
                 if (reader.ReadNormal(section, "Stand.ForceAttackMaster", ref forceAttackMaster))
                 {
                     standType.ForceAttackMaster = forceAttackMaster;
+                }
+
+                bool mobileFire = true;
+                if (reader.ReadNormal(section, "Stand.MobileFire", ref mobileFire))
+                {
+                    standType.MobileFire = mobileFire;
                 }
 
                 bool powered = true;
@@ -240,6 +250,12 @@ namespace Extension.Ext
                 if (reader.ReadNormal(section, "Stand.VirtualUnit", ref virtualUnit))
                 {
                     standType.VirtualUnit = virtualUnit;
+                }
+
+                bool sameTilter = false;
+                if (reader.ReadNormal(section, "Stand.SameTilter", ref sameTilter))
+                {
+                    standType.SameTilter = sameTilter;
                 }
 
                 bool isTrain = false;

@@ -85,14 +85,14 @@ namespace PatcherYRpp
             return this.GetTimeLeft() > 0;
         }
 
-        public int StartTime;
-        public int gap;
-        public int TimeLeft;
-
         public override string ToString()
         {
             return string.Format("{{\"StartTime\":{0}, \"gap\":{1}, \"TimeLeft\":{2}}}", StartTime, gap, TimeLeft);
         }
+
+        public int StartTime;
+        public int gap;
+        public int TimeLeft;
     }
 
     [Serializable]
@@ -115,6 +115,12 @@ namespace PatcherYRpp
             Base.Start(this.Duration);
         }
 
+        public override string ToString()
+        {
+            return string.Format("{{\"Duration\":{0}, \"Base\":{1}}}",
+                Duration, Base);
+        }
+
         public TimerStruct Base;
         public int Duration;
     }
@@ -128,7 +134,8 @@ namespace PatcherYRpp
         {
             this.Value = 0;
             this.HasChanged = false;
-            this.Step = 1;
+            this.Rate = 1;
+            this.Step = 0;
 
             this.Timer = new RepeatableTimerStruct(duration);
         }
@@ -138,9 +145,9 @@ namespace PatcherYRpp
             this.Timer.Start(duration);
         }
 
-        public void Start(int duration, int step)
+        public void Start(int duration, int rate)
         {
-            this.Step = step;
+            this.Rate = rate;
             this.Start(duration);
         }
 
@@ -155,7 +162,7 @@ namespace PatcherYRpp
             else
             {
                 // timer expired. move one step forward.
-                this.Value += this.Step;
+                this.Value += this.Rate;
                 this.HasChanged = true;
                 this.Timer.Restart();
             }
@@ -163,10 +170,17 @@ namespace PatcherYRpp
             return this.HasChanged;
         }
 
+        public override string ToString()
+        {
+            return string.Format("{{\"Value\":{0}, \"HasChanged\":{1}, \"Timer\":{2}, \"Rate\":{3}, \"Step\":{4}}}",
+                Value, HasChanged, Timer, Rate, Step);
+        }
+
         public int Value; // the current value
         public Bool HasChanged; // if the timer expired this frame and the value changed
         public RepeatableTimerStruct Timer;
-        public int Step; // added to value every time the timer expires
+        public int Rate; // added to value every time the timer expires
+        public int Step;
     }
 
     [Serializable]
@@ -471,7 +485,8 @@ namespace PatcherYRpp
 
     [Serializable]
     [StructLayout(LayoutKind.Explicit, Size = 20)]
-    public struct SomeVoxelCache{
+    public struct SomeVoxelCache
+    {
 
     }
 }
