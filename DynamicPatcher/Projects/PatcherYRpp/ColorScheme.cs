@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 828)]
-    [Serializable]
     public struct ColorScheme
     {
     }

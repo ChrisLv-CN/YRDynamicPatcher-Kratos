@@ -6,15 +6,21 @@
     "System.Runtime.CompilerServices.Unsafe.dll",
     "System.Windows.Forms.dll",
     "System.Drawing.dll",
+    "System.Numerics.dll",
 
     "PatcherYRpp.dll",
     "PatcherYRpp.Utilities.dll",
     "Extension.dll",
-    "Extension.FX.dll"
+    "Extension.FX.dll",
+
+    "Microsoft.VisualStudio.Interop.dll"
   ],
-  "#preprocessor_symbols": [
-    "#REALTIME_INI",
-    "#FX_ENABLE"
+  "preprocessor_symbols": [
+    "REALTIME_INI",
+    "FX_ENABLE",
+    "_FX_USED3D",
+    "_FX_TOFIX",
+    "_FX_CNCDDRAW"
   ],
   "show_hidden": false,
   "load_temp_file_in_memory": false,

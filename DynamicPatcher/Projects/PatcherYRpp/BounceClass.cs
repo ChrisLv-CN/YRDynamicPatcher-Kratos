@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size=80)]
-    [Serializable]
     public struct BounceClass
     {
         public enum Status
@@ -57,7 +56,7 @@ namespace PatcherYRpp
         [FieldOffset(16)] public double MaxVelocity; // 0.0 disables check
         [FieldOffset(24)] public SingleVector3D Coords; // position with precision
         [FieldOffset(36)] public SingleVector3D Velocity; // speed components
-        [FieldOffset(48)] public Quaternion CurrentAngle; // quaternion for drawing
-        [FieldOffset(64)] public Quaternion AngularVelocity; // second quaternion as per-frame delta
+        [FieldOffset(48)] public Quaternion_ CurrentAngle; // quaternion for drawing
+        [FieldOffset(64)] public Quaternion_ AngularVelocity; // second quaternion as per-frame delta
     }
 }

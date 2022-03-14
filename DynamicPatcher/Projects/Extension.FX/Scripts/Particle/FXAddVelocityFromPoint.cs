@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -42,7 +43,7 @@ namespace Extension.FX.Scripts.Particle
             }
             else
             {
-                particle.Velocity += (end - start).Direction * speed;
+                particle.Velocity += (end - start).Direction() * speed;
             }
         }
     }

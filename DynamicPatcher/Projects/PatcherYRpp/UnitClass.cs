@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 2280)]
-    [Serializable]
     public struct UnitClass
     {
         public static readonly IntPtr ArrayPointer = new IntPtr(0x8B4108);
@@ -28,6 +27,12 @@ namespace PatcherYRpp
         }
 
         [FieldOffset(0)] public FootClass Base;
+        [FieldOffset(0)] public TechnoClass BaseTechno;
+        [FieldOffset(0)] public RadioClass BaseRadio;
+        [FieldOffset(0)] public MissionClass BaseMission;
+        [FieldOffset(0)] public ObjectClass BaseObject;
+        [FieldOffset(0)] public AbstractClass BaseAbstract;
+
         [FieldOffset(1732)] public Pointer<UnitTypeClass> Type;
         [FieldOffset(1736)] public IntPtr FollowerCar;
         [FieldOffset(1744)] public Bool HasFollowerCar;

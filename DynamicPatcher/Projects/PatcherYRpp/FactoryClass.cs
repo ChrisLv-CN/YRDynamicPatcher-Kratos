@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 116)]
-    [Serializable]
     public struct FactoryClass
     {
         [FieldOffset(92)] public byte OnHold;

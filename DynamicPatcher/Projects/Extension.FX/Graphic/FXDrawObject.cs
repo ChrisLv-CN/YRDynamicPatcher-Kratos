@@ -4,6 +4,7 @@ using SharpDX.DXGI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.ConstrainedExecution;
 using System.Text;
 using System.Threading.Tasks;
@@ -118,16 +119,16 @@ namespace Extension.FX.Graphic
             Vector3 sourcePosition = FXEngine.WorldToClient(Location);
             Vector3 facingPosition = FXEngine.WorldToClient(Location + facing);
 
-            Vector2 direction = (facingPosition.XY - sourcePosition.XY).Direction * Scale.X * TextureHeight / 2;
+            Vector2 direction = (facingPosition.XY() - sourcePosition.XY()).Direction() * Scale.X * TextureHeight / 2;
 
-            SetLocalBuffer(new Vector3(sourcePosition.XY - direction, sourcePosition.Z), new Vector3(sourcePosition.XY + direction, sourcePosition.Z));
+            SetLocalBuffer(new Vector3(sourcePosition.XY() - direction, sourcePosition.Z), new Vector3(sourcePosition.XY() + direction, sourcePosition.Z));
             //Vector3 sourcePosition = FXEngine.WorldToClient(Location);
             //float baseZ = sourcePosition.Z + sourcePosition.Y;
 
-            //Vector2 pos1 = sourcePosition.XY + new Vector2(-TextureWidth / 2, -TextureHeight / 2);
-            //Vector2 pos2 = sourcePosition.XY + new Vector2(-TextureWidth / 2, TextureHeight / 2);
-            //Vector2 pos3 = sourcePosition.XY + new Vector2(TextureWidth / 2, -TextureHeight / 2);
-            //Vector2 pos4 = sourcePosition.XY + new Vector2(TextureWidth / 2, TextureHeight / 2);
+            //Vector2 pos1 = sourcePosition.XY() + new Vector2(-TextureWidth / 2, -TextureHeight / 2);
+            //Vector2 pos2 = sourcePosition.XY() + new Vector2(-TextureWidth / 2, TextureHeight / 2);
+            //Vector2 pos3 = sourcePosition.XY() + new Vector2(TextureWidth / 2, -TextureHeight / 2);
+            //Vector2 pos4 = sourcePosition.XY() + new Vector2(TextureWidth / 2, TextureHeight / 2);
 
             //vertices[0] = new VS_INPUT(new SharpDX.Vector3(pos1.X, pos1.Y, baseZ - pos1.Y), new SharpDX.Vector2(0.0f, 0.0f));
             //vertices[1] = new VS_INPUT(new SharpDX.Vector3(pos2.X, pos2.Y, baseZ - pos2.Y), new SharpDX.Vector2(0.0f, 1.0f));
@@ -137,14 +138,14 @@ namespace Extension.FX.Graphic
 
         public void SetLocalBuffer(Vector3 sourcePosition, Vector3 targetPosition)
         {
-            Vector2 unitNormal = (sourcePosition.XY - targetPosition.XY).Normal.Direction;
+            Vector2 unitNormal = (sourcePosition.XY() - targetPosition.XY()).Normal().Direction();
             Vector2 normal = unitNormal * Scale.Y * TextureWidth / 2;
 
             float baseZ = sourcePosition.Z + sourcePosition.Y;
-            Vector2 pos1 = sourcePosition.XY - normal;
-            Vector2 pos2 = sourcePosition.XY + normal;
-            Vector2 pos3 = targetPosition.XY - normal;
-            Vector2 pos4 = targetPosition.XY + normal;
+            Vector2 pos1 = sourcePosition.XY() - normal;
+            Vector2 pos2 = sourcePosition.XY() + normal;
+            Vector2 pos3 = targetPosition.XY() - normal;
+            Vector2 pos4 = targetPosition.XY() + normal;
 
             vertices[0] = new VS_INPUT(new SharpDX.Vector3(pos1.X, pos1.Y, baseZ - pos1.Y), new SharpDX.Vector2(0.0f, 0.0f));
             vertices[2] = new VS_INPUT(new SharpDX.Vector3(pos2.X, pos2.Y, baseZ - pos2.Y), new SharpDX.Vector2(1.0f, 0.0f));

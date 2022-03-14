@@ -8,30 +8,44 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 328)]
-    [Serializable]
     public struct CellClass
     {
         public static int BridgeHeight { get => new Pointer<int>(0xB0C07C).Ref; }
 
-        public static CoordStruct Cell2Coord(CellStruct cell, int z = 0)
+        public unsafe void SetupLAT()
         {
-            return new CoordStruct(cell.X * 256 + 128, cell.Y * 256 + 128, z);
-        }
-        public static CellStruct Coord2Cell(CoordStruct crd)
-        {
-            return new CellStruct(crd.X / 256, crd.Y / 256);
+            var func = (delegate* unmanaged[Thiscall]<ref CellClass, void>)0x47CA80;
+            func(ref this);
         }
 
-        public ref CoordStruct FixHeight(ref CoordStruct pCrd)
+        public unsafe void Setup(int unk)
         {
-            pCrd.Z += Convert.ToByte(ContainsBridge()) * BridgeHeight;
-            return ref pCrd;
+            var func = (delegate* unmanaged[Thiscall]<ref CellClass, int, void>)0x47D2B0;
+            func(ref this, unk);
         }
 
-        public CoordStruct GetCoordsWithBridge()
+        public unsafe void AddContent(Pointer<ObjectClass> pContent, bool onBridge)
         {
-            CoordStruct buffer = this.Base.GetCoords();
-            return FixHeight(ref buffer);
+            var func = (delegate* unmanaged[Thiscall]<ref CellClass, IntPtr, Bool, void>)0x47E8A0;
+            func(ref this, pContent, onBridge);
+        }
+
+        public unsafe void RemoveContent(Pointer<ObjectClass> pContent, bool onBridge)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref CellClass, IntPtr, Bool, void>)0x47EA90;
+            func(ref this, pContent, onBridge);
+        }
+
+        public unsafe bool CanThisExistHere(SpeedType speedType, Pointer<BuildingTypeClass> pObject, Pointer<HouseClass> pOwner)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref CellClass, IntPtr, IntPtr, Bool>)0x47C620;
+            return func(ref this, pObject, pOwner);
+        }
+
+        public unsafe bool CanPutTiberium()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref CellClass, int, Bool>)0x4838E0;
+            return func(ref this, 0);
         }
 
         public unsafe Pointer<CellClass> GetNeighbourCell(uint direction)
@@ -40,20 +54,40 @@ namespace PatcherYRpp
             return func(ref this, direction);
         }
 
-        public unsafe Pointer<ObjectClass> GetSomeObject(ref CoordStruct pCrd, bool alt)
+        public unsafe void CollectCrate(Pointer<FootClass> pCollector)
         {
-            var func = (delegate* unmanaged[Thiscall]<ref CellClass, ref CoordStruct, bool, IntPtr>)0x47C5A0;
-            return func(ref this, ref pCrd, alt);
+            var func = (delegate* unmanaged[Thiscall]<ref CellClass, IntPtr, void>)0x481A00;
+            func(ref this, pCollector);
         }
 
-        public Pointer<ObjectClass> GetContent()
+        // returns the tiberium's index in OverlayTypes
+        public unsafe int GetContainedTiberiumIndex()
         {
-            return ContainsBridge() ? AltObject : FirstObject;
+            var func = (delegate* unmanaged[Thiscall]<ref CellClass, int>)0x485010;
+            return func(ref this);
+        }
+        public unsafe int GetContainedTiberiumValue()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref CellClass, int>)0x485020;
+            return func(ref this);
         }
 
-        public bool ContainsBridge()
+        // add or create tiberium of the specified type
+        public unsafe bool IncreaseTiberium(int idxTiberium, int amount)
         {
-            return (Flags & CellFlags.Bridge) != 0;
+            var func = (delegate* unmanaged[Thiscall]<ref CellClass, int, int, Bool>)0x487190;
+            return func(ref this, idxTiberium, amount);
+        }
+        public unsafe bool ReduceTiberium(int amount)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref CellClass, int, Bool>)0x480A80;
+            return func(ref this, amount);
+        }
+
+        public unsafe void MarkForRedraw()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref CellClass, void>)0x486E70;
+            func(ref this);
         }
 
         public unsafe Pointer<CoordStruct> FindInfantrySubposition(Pointer<CoordStruct> outBuffer, ref CoordStruct coords, bool ignoreContents, bool alt, bool useCellCoords)
@@ -141,6 +175,46 @@ namespace PatcherYRpp
             return func(ref this);
         }
 
+        public bool ContainsBridge()
+        {
+            return (Flags & CellFlags.Bridge) != 0;
+        }
+
+        public Pointer<ObjectClass> GetContent()
+        {
+            return ContainsBridge() ? AltObject : FirstObject;
+        }
+
+        public int GetLevel()
+        {
+            return this.Level + (this.ContainsBridge() ? Game.BridgeLevels : 0);
+        }
+
+        public static CoordStruct Cell2Coord(CellStruct cell, int z = 0)
+        {
+            return new CoordStruct(cell.X * 256 + 128, cell.Y * 256 + 128, z);
+        }
+
+        public static CellStruct Coord2Cell(CoordStruct crd)
+        {
+            return new CellStruct(crd.X / 256, crd.Y / 256);
+        }
+
+        public ref CoordStruct FixHeight(ref CoordStruct pCrd)
+        {
+            if (this.ContainsBridge())
+            {
+                pCrd.Z += Game.BridgeHeight;
+            }
+            return ref pCrd;
+        }
+
+        public CoordStruct GetCoordsWithBridge()
+        {
+            CoordStruct buffer = this.Base.GetCoords();
+            return FixHeight(ref buffer);
+        }
+
         public unsafe bool TileIs(TileType tileType)
         {
             if (tileType != TileType.Unknown)
@@ -173,8 +247,7 @@ namespace PatcherYRpp
             return false;
         }
 
-        [FieldOffset(0)]
-        public AbstractClass Base;
+        [FieldOffset(0)] public AbstractClass Base;
 
         [FieldOffset(36)] public CellStruct MapCoords;   //Where on the map does this Cell lie?
 
@@ -182,7 +255,7 @@ namespace PatcherYRpp
         public Pointer<CellClass> BridgeOwnerCell { get => bridgeOwnerCell; set => bridgeOwnerCell = value; }
 
         [FieldOffset(56)] public int IsoTileTypeIndex;   //What tile is this Cell?
-                                                         //[FieldOffset(60)] public TagClass* AttachedTag;          // The cell tag
+        [FieldOffset(60)] public Pointer<TagClass> AttachedTag;          // The cell tag
         [FieldOffset(64)] public Pointer<BuildingTypeClass> Rubble;              // The building type that provides the rubble image
         [FieldOffset(68)] public int OverlayTypeIndex;   //What Overlay lies on this Cell?
         [FieldOffset(72)] public int SmudgeTypeIndex;    //What Smudge lies on this Cell?
@@ -191,6 +264,7 @@ namespace PatcherYRpp
         [FieldOffset(84)] public int InfantryOwnerIndex;
         [FieldOffset(88)] public int AltInfantryOwnerIndex;
 
+        [FieldOffset(120)] public uint CloakedByHouses;
 
         [FieldOffset(224)] public Pointer<FootClass> Jumpjet; // a jumpjet occupying this cell atm
         [FieldOffset(228)] public Pointer<ObjectClass> FirstObject;   //The first Object on this Cell. NextObject functions as a linked list.
@@ -206,11 +280,19 @@ namespace PatcherYRpp
 
         [FieldOffset(286)] public byte Powerup; //The crate type on this cell. Also indicates some other weird properties
 
-        [FieldOffset(292)] public OccupationFlags OccupationFlags;
+        [FieldOffset(288)] public byte Shroudedness; // trust me, you don't wanna know... if you do, see 0x7F4194 and cry
+        [FieldOffset(289)] public byte Foggedness; // same value as above: -2: Occluded completely, -1: Visible, 0...48: frame in fog.shp or shroud.shp
+        [FieldOffset(290)] public byte BlockedNeighbours; // number of somehow occupied cells next to this
 
-        [FieldOffset(296)] public int AltOccupationFlags;
+        [FieldOffset(292)] public OccupationFlags OccupationFlags; // 0x1F: infantry subpositions: center, TL, TR, BL, BR
+        [FieldOffset(296)] public int AltOccupationFlags; // 0x20: Units, 0x40: Objects, Aircraft, Overlay, 0x80: Building
 
-        [FieldOffset(300)] public AltCellFlags AltFlags;
+        [FieldOffset(300)] public AltCellFlags AltFlags; // related to Flags below
+
+        [FieldOffset(304)] public int ShroudCounter;
+        [FieldOffset(308)] public uint GapsCoveringThisCell; // actual count of gapgens in this cell, no idea why they need a second layer
+        [FieldOffset(312)] public Bool VisibilityChanged;
+
         [FieldOffset(320)] public CellFlags Flags;
     }
 

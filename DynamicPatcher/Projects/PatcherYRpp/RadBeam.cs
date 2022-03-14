@@ -9,7 +9,6 @@ using DynamicPatcher;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 200)]
-    [Serializable]
     public struct RadBeam
     {
 

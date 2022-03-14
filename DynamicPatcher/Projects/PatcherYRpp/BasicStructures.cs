@@ -77,11 +77,11 @@ namespace PatcherYRpp
             Z = (int)z;
         }
 
-        public CoordStruct(BulletVelocity bulletVelocity)
+        public CoordStruct(double x, double y, double z)
         {
-            X = (int)bulletVelocity.X;
-            Y = (int)bulletVelocity.Y;
-            Z = (int)bulletVelocity.Z;
+            X = (int)x;
+            Y = (int)y;
+            Z = (int)z;
         }
 
         public static CoordStruct operator -(CoordStruct a)
@@ -179,11 +179,6 @@ namespace PatcherYRpp
             X = x;
             Y = y;
             Z = z;
-        }
-
-        public CoordStruct ToCoordStruct()
-        {
-            return new CoordStruct(this);
         }
 
         public static BulletVelocity operator -(BulletVelocity a)
@@ -383,16 +378,6 @@ namespace PatcherYRpp
             Z = (float)z;
         }
 
-        public CoordStruct ToCoordStruct()
-        {
-            return new CoordStruct(X, Y, Z);
-        }
-
-        public BulletVelocity ToBulletVelocity()
-        {
-            return new BulletVelocity(X, Y, Z);
-        }
-
         public static SingleVector3D operator -(SingleVector3D a)
         {
             return new SingleVector3D(-a.X, -a.Y, -a.Z);
@@ -462,9 +447,9 @@ namespace PatcherYRpp
 
     [StructLayout(LayoutKind.Sequential)]
     [Serializable]
-    public struct Quaternion
+    public struct Quaternion_
     {
-        public Quaternion(float x, float y, float z, float w)
+        public Quaternion_(float x, float y, float z, float w)
         {
             X = x;
             Y = y;

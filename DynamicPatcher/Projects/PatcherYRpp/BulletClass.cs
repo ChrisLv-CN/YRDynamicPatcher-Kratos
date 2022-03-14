@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Sequential)]
-    [Serializable]
     public struct BulletData
     {
         public TimerStruct UnknownTimer;
@@ -18,7 +17,6 @@ namespace PatcherYRpp
     };
 
     [StructLayout(LayoutKind.Explicit, Size = 352)]
-    [Serializable]
     public struct BulletClass
     {
         public static readonly IntPtr ArrayPointer = new IntPtr(0xA8ED40);
@@ -27,14 +25,14 @@ namespace PatcherYRpp
         // 123 virtual function
         public unsafe void SetTarget(Pointer<AbstractClass> pTarget)
         {
-            var func = (delegate* unmanaged[Thiscall]<ref BulletClass, IntPtr, void>)Helpers.GetVirtualFunctionPointer(Pointer<BulletClass>.AsPointer(ref this), 123);
+            var func = (delegate* unmanaged[Thiscall]<ref BulletClass, IntPtr, void>)this.GetVirtualFunctionPointer(123);
             func(ref this, pTarget);
         }
 
         public unsafe bool MoveTo(CoordStruct where, BulletVelocity velocity)
         {
             var func = (delegate* unmanaged[Thiscall]<ref BulletClass, ref CoordStruct, ref BulletVelocity, Bool>)
-                Helpers.GetVirtualFunctionPointer(Pointer<BulletClass>.AsPointer(ref this), 124);
+                this.GetVirtualFunctionPointer(124);
             return func(ref this, ref where, ref velocity);
         }
 

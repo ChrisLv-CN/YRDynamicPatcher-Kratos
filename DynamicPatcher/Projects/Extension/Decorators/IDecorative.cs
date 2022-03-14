@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PatcherYRpp.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,7 @@ namespace Extension.Decorators
         public void Remove(Decorator decorator);
     }
 
-    public interface IDecorative<TDecorator> where TDecorator : Decorator
+    public interface IDecorative<TDecorator> : IDecorative where TDecorator : Decorator
     {
         public IEnumerable<TDecorator> GetDecorators();
     }

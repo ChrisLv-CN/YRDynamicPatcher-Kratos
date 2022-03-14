@@ -10,7 +10,6 @@ using DynamicPatcher;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 20)]
-    [Serializable]
     public struct SlaveControl
     {
         [FieldOffset(0)] public Pointer<InfantryClass> Slave;

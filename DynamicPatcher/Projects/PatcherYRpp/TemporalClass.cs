@@ -10,7 +10,6 @@ using DynamicPatcher;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 80)]
-    [Serializable]
     public struct TemporalClass
     {
         public static readonly IntPtr ArrayPointer = new IntPtr(0xB0EC60);

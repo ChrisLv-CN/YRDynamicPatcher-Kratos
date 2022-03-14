@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 1776)]
-    [Serializable]
     public struct InfantryClass
     {
         public static readonly IntPtr ArrayPointer = new IntPtr(0xA83DE8);
@@ -16,17 +15,22 @@ namespace PatcherYRpp
 
         public unsafe bool IsDeployed()
         {
-            var func = (delegate* unmanaged[Thiscall]<ref InfantryClass, Bool>)Helpers.GetVirtualFunctionPointer(Pointer<InfantryClass>.AsPointer(ref this), 341);
+            var func = (delegate* unmanaged[Thiscall]<ref InfantryClass, Bool>)this.GetVirtualFunctionPointer(341);
             return func(ref this);
         }
 
         public unsafe bool PlayAnim(int animNumber, bool bUnk, int dwUnk)
         {
-            var func = (delegate* unmanaged[Thiscall]<ref InfantryClass, int, Bool, int, Bool>)Helpers.GetVirtualFunctionPointer(Pointer<InfantryClass>.AsPointer(ref this), 342);
+            var func = (delegate* unmanaged[Thiscall]<ref InfantryClass, int, Bool, int, Bool>)this.GetVirtualFunctionPointer(342);
             return func(ref this, animNumber, bUnk, dwUnk);
         }
 
         [FieldOffset(0)] public FootClass Base;
+        [FieldOffset(0)] public TechnoClass BaseTechno;
+        [FieldOffset(0)] public RadioClass BaseRadio;
+        [FieldOffset(0)] public MissionClass BaseMission;
+        [FieldOffset(0)] public ObjectClass BaseObject;
+        [FieldOffset(0)] public AbstractClass BaseAbstract;
 
         [FieldOffset(1728)] public Pointer<InfantryTypeClass> Type;
 

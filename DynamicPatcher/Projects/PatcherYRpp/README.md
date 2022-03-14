@@ -35,7 +35,7 @@ public struct YourClass
   // your virtual function
   public unsafe void function()
   {
-      var func = (delegate* unmanaged[Thiscall]<ref YourClass, void>)Helpers.GetVirtualFunctionPointer(Pointer<YourClass>.AsPointer(ref this), virtual_function_index);
+      var func = (delegate* unmanaged[Thiscall]<ref YourClass, void>)this.GetVirtualFunctionPointer(Pointer<YourClass>.AsPointer(ref this), virtual_function_index);
       func(ref this);
   }
 

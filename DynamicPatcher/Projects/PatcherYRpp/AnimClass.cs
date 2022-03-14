@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 456)]
-    [Serializable]
     public struct AnimClass
     {
         public unsafe void SetOwnerObject(Pointer<ObjectClass> pOwner)

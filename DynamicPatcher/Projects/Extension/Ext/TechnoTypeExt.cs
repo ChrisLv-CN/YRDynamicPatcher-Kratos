@@ -19,8 +19,7 @@ namespace Extension.Ext
     {
         public static Container<TechnoTypeExt, TechnoTypeClass> ExtMap = new Container<TechnoTypeExt, TechnoTypeClass>("TechnoTypeClass");
 
-        [NonSerialized]
-        public TechnoScript Script;
+        public List<Script.Script> Scripts;
 
         public TechnoTypeExt(Pointer<TechnoTypeClass> OwnerObject) : base(OwnerObject)
         {
@@ -33,21 +32,16 @@ namespace Extension.Ext
             INIReader reader = new INIReader(exINI);
             string section = OwnerObject.Ref.Base.Base.ID;
 
-            reader.ReadScript(section, "Script", ref Script);
+            reader.ReadScripts(section, "Scripts", ref Scripts);
         }
 
         public override void SaveToStream(IStream stream)
         {
             base.SaveToStream(stream);
-
-            stream.WriteObject(Script?.Name);
         }
         public override void LoadFromStream(IStream stream)
         {
             base.LoadFromStream(stream);
-
-            stream.ReadObject(out string scriptName);
-            Script = ScriptManager.GetScript<TechnoScript>(scriptName);
         }
 
         //public override void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -63,16 +57,16 @@ namespace Extension.Ext
         //}
 
         //[Hook(HookType.AresHook, Address = 0x711835, Size = 5)]
-        public static unsafe UInt32 TechnoTypeClass_CTOR(REGISTERS* R)
+        static public unsafe UInt32 TechnoTypeClass_CTOR(REGISTERS* R)
         {
             var pItem = (Pointer<TechnoTypeClass>)R->ESI;
-            
+
             TechnoTypeExt.ExtMap.FindOrAllocate(pItem);
             return 0;
         }
 
         //[Hook(HookType.AresHook, Address = 0x711AE0, Size = 5)]
-        public static unsafe UInt32 TechnoTypeClass_DTOR(REGISTERS* R)
+        static public unsafe UInt32 TechnoTypeClass_DTOR(REGISTERS* R)
         {
             var pItem = (Pointer<TechnoTypeClass>)R->ECX;
 
@@ -82,7 +76,7 @@ namespace Extension.Ext
 
         //[Hook(HookType.AresHook, Address = 0x716132, Size = 5)]
         //[Hook(HookType.AresHook, Address = 0x716123, Size = 5)]
-        public static unsafe UInt32 TechnoTypeClass_LoadFromINI(REGISTERS* R)
+        static public unsafe UInt32 TechnoTypeClass_LoadFromINI(REGISTERS* R)
         {
             var pItem = (Pointer<TechnoTypeClass>)R->EBP;
             var pINI = R->Stack<Pointer<CCINIClass>>(0x380);
@@ -93,7 +87,7 @@ namespace Extension.Ext
 
         //[Hook(HookType.AresHook, Address = 0x716DC0, Size = 5)]
         //[Hook(HookType.AresHook, Address = 0x7162F0, Size = 6)]
-        public static unsafe UInt32 TechnoTypeClass_SaveLoad_Prefix(REGISTERS* R)
+        static public unsafe UInt32 TechnoTypeClass_SaveLoad_Prefix(REGISTERS* R)
         {
             var pItem = R->Stack<Pointer<TechnoTypeClass>>(0x4);
             var pStm = R->Stack<Pointer<IStream>>(0x8);
@@ -104,14 +98,14 @@ namespace Extension.Ext
         }
 
         //[Hook(HookType.AresHook, Address = 0x716DAC, Size = 0xA)]
-        public static unsafe UInt32 TechnoTypeClass_Load_Suffix(REGISTERS* R)
+        static public unsafe UInt32 TechnoTypeClass_Load_Suffix(REGISTERS* R)
         {
             TechnoTypeExt.ExtMap.LoadStatic();
             return 0;
         }
 
         //[Hook(HookType.AresHook, Address = 0x717094, Size = 5)]
-        public static unsafe UInt32 TechnoTypeClass_Save_Suffix(REGISTERS* R)
+        static public unsafe UInt32 TechnoTypeClass_Save_Suffix(REGISTERS* R)
         {
             TechnoTypeExt.ExtMap.SaveStatic();
             return 0;

@@ -10,7 +10,6 @@ using DynamicPatcher;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 36)]
-    [Serializable]
     public struct Surface
     {
         private static IntPtr ppTile = new IntPtr(0x8872FC);
@@ -226,4 +225,22 @@ namespace PatcherYRpp
 
     }
 
+    [StructLayout(LayoutKind.Explicit, Size = 36)]
+    public struct DSurface
+    {
+        public static unsafe void Constructor(Pointer<DSurface> pThis, int Width, int Height, bool BackBuffer, bool Force3D)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref DSurface, int, int, Bool, Bool, IntPtr>)0x4BA5A0;
+            func(ref pThis.Ref, Width, Height, BackBuffer, Force3D);
+        }
+
+
+        public static unsafe void Destructor(Pointer<DSurface> pThis)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref DSurface, void>)Helpers.GetVirtualFunctionPointer(pThis, 0);
+            func(ref pThis.Ref);
+        }
+
+        [FieldOffset(0)] public Surface Base;
+    }
 }

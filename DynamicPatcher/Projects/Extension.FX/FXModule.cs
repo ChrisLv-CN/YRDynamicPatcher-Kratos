@@ -43,6 +43,11 @@ namespace Extension.FX
             Scripts.AddRange(scripts);
         }
 
+        public void Remove(FXScript script)
+        {
+            Scripts.Remove(script);
+        }
+
         public override string ToString()
         {
             return GetType().FullName;

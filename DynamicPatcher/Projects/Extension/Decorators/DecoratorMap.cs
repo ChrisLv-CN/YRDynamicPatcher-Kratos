@@ -1,20 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Extension.Decorators
 {
     [Serializable]
-    class DecoratorMap
+    class DecoratorMap : Dictionary<DecoratorId, Decorator>
     {
-        public DecoratorMap()
+        public DecoratorMap() : base()
         {
-            dictionary = new Dictionary<DecoratorId, Decorator>();
-
             pairs = new EnumerableBuffer<PairDecorator>(this);
-            events = new EnumerableBuffer<EventDecorator>(this);
+        }
+
+        protected DecoratorMap(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+
+        [SecurityPermission(SecurityAction.LinkDemand,
+            Flags = SecurityPermissionFlag.SerializationFormatter)]
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
         }
 
         public TDecorator CreateDecorator<TDecorator>(DecoratorId id, string description, params object[] parameters) where TDecorator : Decorator
@@ -30,45 +40,28 @@ namespace Extension.Decorators
 
         public Decorator Get(DecoratorId id)
         {
-            if (this.TryGet(id, out Decorator decorator))
+            if (this.TryGetValue(id, out Decorator decorator))
             {
                 return decorator;
             }
             return null;
         }
 
-        public bool TryGet(DecoratorId id, out Decorator decorator)
-        {
-            return dictionary.TryGetValue(id, out decorator);
-        }
-
         public void Add(Decorator decorator)
         {
-            dictionary.Add(decorator.ID, decorator);
+            base.Add(decorator.ID, decorator);
             NotifyChanged();
         }
 
         public void Remove(Decorator decorator)
         {
-            dictionary.Remove(decorator.ID);
+            base.Remove(decorator.ID);
             NotifyChanged();
-        }
-
-        public void Remove(DecoratorId id)
-        {
-            Decorator decorator = this.Get(id);
-            if (decorator != null)
-            {
-                this.Remove(decorator);
-            }
         }
 
         private Action NotifyChanged;
 
         public IEnumerable<PairDecorator> GetPairDecorators() => pairs.Get();
-        public IEnumerable<EventDecorator> GetEventDecorators() => events.Get();
-
-        Dictionary<DecoratorId, Decorator> dictionary;
 
         // convenient to remove when enumerating
         [Serializable]
@@ -88,7 +81,7 @@ namespace Extension.Decorators
             {
                 if (hasChanged)
                 {
-                    list = (from d in map.dictionary.Values where d is TDecorator select d as TDecorator).ToList();
+                    list = (from d in map.Values where d is TDecorator select d as TDecorator).ToList();
                     hasChanged = false;
                 }
                 return list;
@@ -96,6 +89,5 @@ namespace Extension.Decorators
         }
 
         EnumerableBuffer<PairDecorator> pairs;
-        EnumerableBuffer<EventDecorator> events;
     }
 }

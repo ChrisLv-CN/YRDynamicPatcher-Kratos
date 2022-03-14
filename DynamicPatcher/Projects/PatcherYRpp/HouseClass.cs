@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DynamicPatcher;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -9,7 +10,6 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 90296)]
-    [Serializable]
     public struct HouseClass
     {
         private static IntPtr arrayPoint = new IntPtr(0xA80228);
@@ -63,25 +63,112 @@ namespace PatcherYRpp
             func(GetThis(), amount);
         }
 
-        // whether any human player controls this house
-        public unsafe bool ControlledByHuman()
+        public static unsafe Pointer<HouseClass> FindByCountryIndex(int houseType)
         {
-            bool result = this.CurrentPlayer;
-            if (SessionClass.Instance.GameMode == GameMode.Campaign)
-            {
-                result = result || this.PlayerControl;
-            }
-            return result;
+            var func = (delegate* unmanaged[Thiscall]<int, IntPtr>)0x502D30;
+            return func(houseType);
+        }
+        public static unsafe Pointer<HouseClass> FindByIndex(int idxHouse)
+        {
+            var func = (delegate* unmanaged[Thiscall]<int, IntPtr>)0x510ED0;
+            return func(idxHouse);
+        }
+        public static unsafe int FindIndexByName(AnsiString name)
+        {
+            var func = (delegate* unmanaged[Thiscall]<IntPtr, int>)0x50C170;
+            return func(name);
         }
 
-        // whether the human player on this PC can control this house
-        public unsafe bool ControlledByPlayer()
+        // gets the first house of a type with this name
+        public static Pointer<HouseClass> FindByCountryName(AnsiString name)
         {
-            if (SessionClass.Instance.GameMode != GameMode.Campaign)
+            var idx = HouseTypeClass.FindIndexOfName(name);
+            return FindByCountryIndex(idx);
+        }
+
+        // gets the first house of a type with name Neutral
+        public static Pointer<HouseClass> FindNeutral()
+        {
+            return FindByCountryName("Neutral");
+        }
+
+        // gets the first house of a type with name Special
+        public static Pointer<HouseClass> FindSpecial()
+        {
+            return FindByCountryName("Special");
+        }
+
+        // gets the first house of a side with this name
+        public static Pointer<HouseClass> FindBySideIndex(int index)
+        {
+            foreach (var pHouse in Array)
             {
-                return GetThis() == Player;
+                if (pHouse.Ref.Type.Ref.SideIndex == index)
+                {
+                    return pHouse;
+                }
             }
-            return this.CurrentPlayer || this.PlayerControl;
+            return Pointer<HouseClass>.Zero;
+        }
+
+        // gets the first house of a type with this name
+        public static Pointer<HouseClass> FindBySideName(AnsiString name)
+        {
+            var idx = SideClass.ABSTRACTTYPE_ARRAY.FindIndex(name);
+            return FindBySideIndex(idx);
+        }
+
+        // gets the first house of a type from the Civilian side
+        public static Pointer<HouseClass> FindCivilianSide()
+        {
+            return FindBySideName("Civilian");
+        }
+
+        public unsafe bool ControlledByHuman()
+        {
+            var func = (delegate* unmanaged[Thiscall]<IntPtr, Bool>)0x50B730;
+            return func(GetThis());
+        }
+
+        // // whether any human player controls this house
+        // public unsafe bool ControlledByHuman()
+        // {
+        //     bool result = this.CurrentPlayer;
+        //     if (SessionClass.Instance.GameMode == GameMode.Campaign)
+        //     {
+        //         result = result || this.PlayerControl;
+        //     }
+        //     return result;
+        // }
+
+        // // whether the human player on this PC can control this house
+        // public unsafe bool ControlledByPlayer()
+        // {
+        //     if (SessionClass.Instance.GameMode != GameMode.Campaign)
+        //     {
+        //         return GetThis() == Player;
+        //     }
+        //     return this.CurrentPlayer || this.PlayerControl;
+        // }
+
+        // Target ought to be Object, I imagine, but cell doesn't work then
+        public unsafe void SendSpyPlanes(int AircraftTypeIdx, int AircraftAmount, Mission SetMission, Pointer<AbstractClass> Target, Pointer<ObjectClass> Destination)
+        {
+            var func = (delegate* unmanaged[Thiscall]<int, ref HouseClass, int, int, Mission, IntPtr, IntPtr, void>)ASM.FastCallTransferStation;
+            func(0x65EAB0, ref this, AircraftTypeIdx, AircraftAmount, SetMission, Target, Destination);
+        }
+
+        public unsafe Edge GetCurrentEdge()
+        {
+            var func = (delegate* unmanaged[Thiscall]<IntPtr, Edge>)0x50DA80;
+            return func(GetThis());
+        }
+        public unsafe Edge GetStartingEdge()
+        {
+            var edge = this.StartingEdge;
+            if (edge < Edge.North || edge > Edge.West)
+                edge = this.GetCurrentEdge();
+            return edge;
         }
 
         public unsafe Pointer<SuperClass> FindSuperWeapon(Pointer<SuperWeaponTypeClass> pType)
@@ -159,6 +246,8 @@ namespace PatcherYRpp
 
         [FieldOffset(440)] public double BuildTimeMultiplier;
 
+        [FieldOffset(480)] public Edge StartingEdge;
+
         [FieldOffset(492)] public Bool CurrentPlayer;
 
         [FieldOffset(493)] public Bool PlayerControl;
@@ -200,6 +289,8 @@ namespace PatcherYRpp
         [FieldOffset(22393)] public Bool RecheckRadar;
 
         [FieldOffset(22394)] public Bool SpySatActive;
+
+        [FieldOffset(22396)] public Edge Edge;
 
         [FieldOffset(21412)] public int PowerOutput;
 

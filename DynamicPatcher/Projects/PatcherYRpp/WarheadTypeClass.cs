@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 464)]
-    [Serializable]
     public struct WarheadTypeClass
     {
         public static readonly IntPtr ArrayPointer = new IntPtr(0x8874C0);
@@ -46,7 +45,7 @@ namespace PatcherYRpp
         [FieldOffset(345)] public Bool Parasite;
         [FieldOffset(346)] public Bool Temporal;
         [FieldOffset(347)] public Bool IsLocomotor;
-        //[FieldOffset(348)] public Guid Locomotor;
+        [FieldOffset(348)] public Guid Locomotor;
         [FieldOffset(364)] public Bool Airstrike;
         [FieldOffset(365)] public Bool Psychedelic;
         [FieldOffset(366)] public Bool BombDisarm;

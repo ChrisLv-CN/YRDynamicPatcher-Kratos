@@ -279,7 +279,7 @@ namespace Extension.FX.Graphic
         }
 
 
-        public static void DrawTexture(ShaderResourceView texture, Definitions.Vector3 clientPosition, Definitions.Vector2 clientRotaion, Definitions.Vector2 clientScale)
+        public static void DrawTexture(ShaderResourceView texture, System.Numerics.Vector3 clientPosition, System.Numerics.Vector2 clientRotaion, System.Numerics.Vector2 clientScale)
         {
 
         }

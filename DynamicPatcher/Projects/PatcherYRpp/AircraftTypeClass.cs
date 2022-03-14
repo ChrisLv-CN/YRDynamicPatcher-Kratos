@@ -8,14 +8,16 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 3600)]
-    [Serializable]
     public struct AircraftTypeClass
     {
         public static readonly IntPtr ArrayPointer = new IntPtr(0xA8B218);
 
         public static YRPP.GLOBAL_DVC_ARRAY<AircraftTypeClass> ABSTRACTTYPE_ARRAY = new YRPP.GLOBAL_DVC_ARRAY<AircraftTypeClass>(ArrayPointer);
 
+
         [FieldOffset(0)] public TechnoTypeClass Base;
+        [FieldOffset(0)] public ObjectTypeClass BaseObjectType;
+        [FieldOffset(0)] public AbstractTypeClass BaseAbstractType;
 
         [FieldOffset(3580)] public Bool Carryall;
 

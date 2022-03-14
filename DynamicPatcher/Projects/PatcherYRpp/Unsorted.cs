@@ -13,6 +13,13 @@ namespace PatcherYRpp
         private static IntPtr pCurrentFrame = new IntPtr(0xA8ED84);
         public static int CurrentFrame { get => pCurrentFrame.Convert<int>().Data; set => pCurrentFrame.Convert<int>().Ref = value; }
 
+        // The height in the middle of a cell with a slope of 30 degrees
+        public const int LevelHeight = 104;//89DE70
+        public const int BridgeLevels = 4;
+        public const int BridgeHeight = LevelHeight * BridgeLevels;//ABC5DC
+
+        public const int CellSize = 256;
+
         /*
          * This thing is ridiculous
          * all xxTypeClass::Create functions use it:
@@ -72,10 +79,6 @@ namespace PatcherYRpp
         // Note: SomeMutex has been renamed to this because it reflects the usage better
         private static IntPtr pIKnowWhatImDoing = new IntPtr(0xA8E7AC);
         public static int IKnowWhatImDoing { get => pIKnowWhatImDoing.Convert<int>().Data; set => pIKnowWhatImDoing.Convert<int>().Ref = value; }
-
-        // The height in the middle of a cell with a slope of 30 degrees
-        public const int LevelHeight = 104;//89DE70
-        public const int BridgeHeight = LevelHeight * 4;//ABC5DC
 
         /*
         public static unsafe Vector3D<float> MatrixMultiply(ref Vector3D<float> ret, Matrix3DStruct matrix3DStruct, Vector3D<float> vec)

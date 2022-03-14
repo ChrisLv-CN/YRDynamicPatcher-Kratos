@@ -39,7 +39,8 @@ namespace Extension.Utilities
             string str = GetString(buffer);
 
             string[] strs = str.Split(',');
-            for (int i = 0; i < strs.Length; i++)
+            int i;
+            for (i = 0; i < strs.Length; i++)
             {
                 string s = strs[i].Trim();
                 if (TryParse(s, ref outValue[i]) == false)
@@ -48,7 +49,7 @@ namespace Extension.Utilities
                 }
             }
 
-            return 0;
+            return i;
         }
 
         static bool TryParse(string str, ref T outValue)
@@ -147,6 +148,7 @@ namespace Extension.Utilities
             return double.TryParse(str, out outValue);
         }
     }
+
     public class INI_EX
     {
         Pointer<CCINIClass> IniFile;
@@ -186,6 +188,14 @@ namespace Extension.Utilities
             }
             return false;
         }
+        public bool Read<T>(string section, string key, ref T[] pBuffer, int Count = 1)
+        {
+            if (ReadString(section, key) > 0)
+            {
+                return Parser<T>.Parse(value(), ref pBuffer) == Count;
+            }
+            return false;
+        }
 
         public bool ReadBool(string section, string key, ref bool bBuffer)
         {
@@ -205,6 +215,24 @@ namespace Extension.Utilities
         public bool ReadArray<T>(string section, string key, ref T[] aBuffer)
         {
             return Read(section, key, ref aBuffer, aBuffer.Length);
+        }
+
+        public bool ReadList<T>(string section, string key, ref List<T> list)
+        {
+            string str = null;
+            if (Read(section, key, ref str))
+            {
+                string[] strs = str.Split(',');
+                T[] buffer = new T[strs.Length];
+                if (ReadArray(section,key, ref buffer))
+                {
+                    list.Clear();
+                    list.AddRange(buffer);
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

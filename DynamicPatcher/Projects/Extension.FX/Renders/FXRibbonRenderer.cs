@@ -3,6 +3,7 @@ using Extension.FX.Graphic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,7 +31,7 @@ namespace Extension.FX.Renders
             Vector3 curPosition = particle.Position;
             Vector3 previousPosition = particle.Map.GetValueOrDefault("PreviousPosition", curPosition);
 
-            var distance = (curPosition - previousPosition).Length;
+            var distance = (curPosition - previousPosition).Length();
             if (distance > 128)
             {
                 var texture = FXGraphic.GetTexture(Texture);

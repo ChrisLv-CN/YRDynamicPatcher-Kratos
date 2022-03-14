@@ -1,12 +1,12 @@
-
-using System.Collections;
-using System;
-using System.Threading;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using DynamicPatcher;
-using PatcherYRpp;
 using Extension.Ext;
+using Extension.Script;
+using PatcherYRpp;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ExtensionHooks
 {
@@ -53,7 +53,8 @@ namespace ExtensionHooks
                 BulletExt ext = BulletExt.ExtMap.Find(pBullet);
                 // Logger.Log("BulletExt init {0}", ext == null?"Ext is null":"is ready.");
                 ext?.OnInit();
-                ext?.Scriptable?.OnInit();
+
+                ext?.AttachedComponent.Foreach(c => (c as IBulletScriptable)?.OnInit());
             }
             catch (Exception e)
             {
@@ -72,7 +73,8 @@ namespace ExtensionHooks
                 Pointer<CoordStruct> pCoord = R->Stack<IntPtr>(-0x20);
                 // Logger.Log("BulletExt init {0} {1}", ext == null?"Ext is null":"is ready.", pCoord.Data);
                 ext?.OnPut(pCoord);
-                ext?.Scriptable?.OnPut(pCoord, default);
+
+                ext?.AttachedComponent.Foreach(c => (c as IBulletScriptable)?.OnPut(pCoord.Data, default));
             }
             catch (Exception e)
             {
@@ -89,7 +91,8 @@ namespace ExtensionHooks
                 Pointer<BulletClass> pBullet = (IntPtr)R->EBP;
                 BulletExt ext = BulletExt.ExtMap.Find(pBullet);
                 ext?.OnUpdate();
-                ext?.Scriptable?.OnUpdate();
+
+                ext?.AttachedComponent.Foreach(c => c.OnUpdate());
             }
             catch (Exception e)
             {
@@ -202,7 +205,8 @@ namespace ExtensionHooks
                 Pointer<CoordStruct> pCoordsDetonation = R->Base<IntPtr>(0x8);
                 BulletExt ext = BulletExt.ExtMap.Find(pBullet);
                 ext?.OnDetonate(pCoordsDetonation.Data);
-                ext?.Scriptable?.OnDetonate(pCoordsDetonation.Data);
+
+                ext?.AttachedComponent.Foreach(c => (c as IBulletScriptable)?.OnDetonate(pCoordsDetonation.Data));
             }
             catch (Exception e)
             {

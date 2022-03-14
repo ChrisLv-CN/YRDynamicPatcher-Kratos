@@ -54,7 +54,7 @@ namespace PatcherYRpp.Utilities
         public int BlockLength { get; }
         public int BlockRange => (BlockLength - 1) / 2;
 
-        public int CurrentFrame { get; private set; }
+        public int Version { get; private set; }
 
         private void AllocateBlocks()
         {
@@ -138,14 +138,14 @@ namespace PatcherYRpp.Utilities
                 block.AddObject(pObject);
             }
 
-            CurrentFrame = Game.CurrentFrame;
+            Version = Game.CurrentFrame;
         }
 
         public bool HasChange()
         {   
             // we assume that nothing move in one frame
             // TOCHECK: whether one frame don't change the object array
-            if (CurrentFrame == Game.CurrentFrame)
+            if (Version == Game.CurrentFrame)
             {
                 return false;
             }
@@ -164,7 +164,7 @@ namespace PatcherYRpp.Utilities
             ObjectBlockID centerId = GetIDBy(location);
             var list = new List<ObjectBlock>() { centerBlock };
 
-            int rangeInCells = range / 256;
+            int rangeInCells = range / Game.CellSize;
             int rangeInBlocks = rangeInCells / BlockLength;
             int tryRangeInBlocks = rangeInBlocks + 1;
 
@@ -180,16 +180,20 @@ namespace PatcherYRpp.Utilities
                     // check try block distance
                     if (Math.Abs(x) > rangeInBlocks || Math.Abs(y) > rangeInBlocks)
                     {
-                        ObjectBlockID id = GetIDBy(location + new CellStruct(x * rangeInCells, y * rangeInCells));
+                        var offset = new CellStruct(x * rangeInCells / tryRangeInBlocks, y * rangeInCells / tryRangeInBlocks);
+                        ObjectBlockID id = GetIDBy(location + offset);
                         if (Math.Abs(id.X - centerId.X) > rangeInBlocks || Math.Abs(id.Y - centerId.Y) > rangeInBlocks)
                         {
                             ObjectBlock block = GetBlock(id);
-                            list.Add(block);
+                            if (!list.Contains(block))
+                            {
+                                list.Add(block);
+                            }
                         }
                     }
                     else
                     {
-                        ObjectBlock block = GetBlock(new ObjectBlockID(centerId.X + y, centerId.Y + y));
+                        ObjectBlock block = GetBlock(new ObjectBlockID(centerId.X + x, centerId.Y + y));
                         list.Add(block);
                     }
                 }
@@ -197,6 +201,23 @@ namespace PatcherYRpp.Utilities
 
 
             return list;
+        }
+
+        public void PointerExpired(Pointer<ObjectClass> pObject)
+        {
+            CoordStruct crd = pObject.Ref.Base.GetCoords();
+            ObjectBlock block = GetBlock(crd);
+            block.RemoveObject(pObject);
+        }
+
+        public void ObjectMoved(Pointer<ObjectClass> pObject, CoordStruct oldCoord)
+        {
+            ObjectBlock oldBlock = GetBlock(oldCoord);
+            oldBlock.RemoveObject(pObject);
+
+            CoordStruct newCoord = pObject.Ref.Base.GetCoords();
+            ObjectBlock newBlock = GetBlock(newCoord);
+            newBlock.AddObject(pObject);
         }
     }
 
@@ -210,9 +231,13 @@ namespace PatcherYRpp.Utilities
             Container = container;
             ID = id;
             Center = new CellStruct(id.X * blockLength + blockRange, id.Y * blockLength + blockRange);
-            Objects = new List<Pointer<ObjectClass>>();
+            objects = new List<Pointer<ObjectClass>>();
         }
 
+        public ObjectBlockContainer Container { get; }
+        public ObjectBlockID ID { get; }
+        public CellStruct Center { get; }
+        public List<Pointer<ObjectClass>> Objects => objects;
         public bool IsObjectInBlock(Pointer<ObjectClass> pObject)
         {
             CellStruct objectLoc = CellClass.Coord2Cell(pObject.Ref.Base.GetCoords());
@@ -224,12 +249,17 @@ namespace PatcherYRpp.Utilities
 
         public void AddObject(Pointer<ObjectClass> pObject)
         {
-            Objects.Add(pObject);
+            objects.Add(pObject);
+        }
+
+        public void RemoveObject(Pointer<ObjectClass> pObject)
+        {
+            objects.Remove(pObject);
         }
 
         public void Clear()
         {
-            Objects.Clear();
+            objects.Clear();
         }
 
         public List<ObjectBlock> GetNearBlocks()
@@ -253,9 +283,26 @@ namespace PatcherYRpp.Utilities
             return list;
         }
 
-        public ObjectBlockContainer Container { get; }
-        public ObjectBlockID ID { get; }
-        public CellStruct Center { get; }
-        public List<Pointer<ObjectClass>> Objects { get; }
+        // not good method, we don't want it before every query
+        public void FixErrors()
+        {
+            bool OutOfBlock(Pointer<ObjectClass> pObject)
+            {
+                var crd = pObject.Ref.Base.GetCoords();
+                var block = Container.GetBlock(crd);
+
+                if (block == this)
+                {
+                    return false;
+                }
+
+                block.AddObject(pObject);
+                return true;
+            }
+
+            objects.RemoveAll(o => o.Ref.Base.Vfptr == IntPtr.Zero || OutOfBlock(o));
+        }
+
+        private List<Pointer<ObjectClass>> objects;
     }
 }

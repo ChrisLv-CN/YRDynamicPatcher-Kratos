@@ -1,4 +1,5 @@
 ﻿using DynamicPatcher;
+using Extension.Components;
 using Extension.Decorators;
 using Extension.Script;
 using Extension.Utilities;
@@ -15,26 +16,13 @@ using System.Threading.Tasks;
 namespace Extension.Ext
 {
     [Serializable]
-    public partial class TechnoExt : Extension<TechnoClass>, IDecorative, IDecorative<EventDecorator>, IDecorative<PairDecorator>
+    public partial class TechnoExt : Extension<TechnoClass>, IHaveComponent
     {
         public static Container<TechnoExt, TechnoClass> ExtMap = new Container<TechnoExt, TechnoClass>("TechnoClass");
 
-        internal Lazy<TechnoScriptable> scriptable;
-        public TechnoScriptable Scriptable
-        {
-            get
-            {
-                if (scriptable.IsValueCreated || Type.Script != null)
-                {
-                    return scriptable.Value;
-                }
-                return null;
-            }
-        }
+        private SwizzleablePointer<TechnoTypeClass> pSourceType;
 
-        SwizzleablePointer<TechnoTypeClass> pSourceType;
-
-        ExtensionReference<TechnoTypeExt> type;
+        private ExtensionReference<TechnoTypeExt> type;
         public TechnoTypeExt Type
         {
             get
@@ -50,30 +38,20 @@ namespace Extension.Ext
             }
         }
 
+        private ExtComponent<TechnoExt> _extComponent;
+        private DecoratorComponent _decoratorComponent;
+        public ExtComponent<TechnoExt> ExtComponent => _extComponent.GetAwaked();
+        public DecoratorComponent DecoratorComponent => _decoratorComponent;
+        public Component AttachedComponent => ExtComponent;
+
         public TechnoExt(Pointer<TechnoClass> OwnerObject) : base(OwnerObject)
         {
-            scriptable = new Lazy<TechnoScriptable>(() => ScriptManager.GetScriptable(Type.Script, this) as TechnoScriptable);
+            _extComponent = new ExtComponent<TechnoExt>(this, 0, "TechnoExt root component");
+            _decoratorComponent = new DecoratorComponent();
+            _extComponent.OnAwake += () => ScriptManager.CreateScriptableTo(_extComponent, Type.Scripts, this);
+            _extComponent.OnAwake += () => _decoratorComponent.AttachToComponent(_extComponent);
             pSourceType = new SwizzleablePointer<TechnoTypeClass>(OwnerObject.Ref.Type);
         }
-
-        DecoratorMap decoratorMap = new DecoratorMap();
-
-        public TDecorator CreateDecorator<TDecorator>(DecoratorId id, string description, params object[] parameters) where TDecorator : Decorator
-        {
-            TDecorator decorator = decoratorMap.CreateDecorator<TDecorator>(id, description, parameters);
-            decorator.Decorative = this;
-            return decorator;
-        }
-
-        public Decorator Get(DecoratorId id) => decoratorMap.Get(id);
-
-        public void Remove(DecoratorId id) => decoratorMap.Remove(id);
-
-        public void Remove(Decorator decorator) => decoratorMap.Remove(decorator);
-
-        IEnumerable<EventDecorator> IDecorative<EventDecorator>.GetDecorators() => decoratorMap.GetEventDecorators();
-
-        IEnumerable<PairDecorator> IDecorative<PairDecorator>.GetDecorators() => decoratorMap.GetPairDecorators();
 
         public override void OnDeserialization(object sender)
         {
@@ -95,13 +73,13 @@ namespace Extension.Ext
         public override void SaveToStream(IStream stream)
         {
             base.SaveToStream(stream);
-            Scriptable?.SaveToStream(stream);
+            _extComponent.Foreach(c => c.SaveToStream(stream));
         }
 
         public override void LoadFromStream(IStream stream)
         {
             base.LoadFromStream(stream);
-            Scriptable?.LoadFromStream(stream);
+            _extComponent.Foreach(c => c.LoadFromStream(stream));
         }
 
         //[Hook(HookType.AresHook, Address = 0x6F3260, Size = 5)]
@@ -120,8 +98,7 @@ namespace Extension.Ext
 
             TechnoExt ext = TechnoExt.ExtMap.Find(pItem);
             ext?.OnUnInit();
-            ext?.Scriptable?.OnUnInit();
-
+            ext?.AttachedComponent.Foreach(c => (c as ITechnoScriptable)?.OnUnInit());
             TechnoExt.ExtMap.Remove(pItem);
             return 0;
         }

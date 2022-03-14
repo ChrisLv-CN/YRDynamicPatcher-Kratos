@@ -8,14 +8,12 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 88)]
-    [Serializable]
     public struct INIClass
     {
 
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 88)]
-    [Serializable]
     public struct CCINIClass
     {
         private static IntPtr ppINI_Rules = new IntPtr(0x887048);

@@ -1,15 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-
-using Vector3D = PatcherYRpp.SingleVector3D;
 
 namespace PatcherYRpp.Utilities
 {
     public static class MathEx
     {
+        private static Random _random = new Random(60);
+        private static object _randomLocker = new object();
+        public static void SetRandomSeed(int seed)
+        {
+            _random = new Random(seed);
+        }
+        public static Random Random => _random;
+        public static object RandomLocker => _randomLocker;
+
         // ===============================================
         // Utilities for numeric
         #region Numeric
@@ -22,7 +30,7 @@ namespace PatcherYRpp.Utilities
         }
         public static bool Approximately(float a, float b)
         {
-            return Approximately(a, b);
+            return Approximately((double)a, b);
         }
         public static bool IsNearlyZero(double val)
         {
@@ -143,11 +151,11 @@ namespace PatcherYRpp.Utilities
 
 
         #region Miscellaneous
-        public static Vector3D GetForwardVector(Pointer<TechnoClass> pTechno, bool getTurret = false)
+        public static Vector3 GetForwardVector(Pointer<TechnoClass> pTechno, bool getTurret = false)
         {
             FacingStruct facing = getTurret ? pTechno.Ref.TurretFacing : pTechno.Ref.Facing;
 
-            return facing.current().ToVector3D();
+            return facing.current().ToVector3();
         }
 
 
@@ -157,39 +165,153 @@ namespace PatcherYRpp.Utilities
         // ===============================================
         // Utilities for Vectors
         #region Vectors
-        public static Vector3D ZeroVector3D = new Vector3D(0, 0, 0);
-        public static Vector3D GetNormalizedVector3D(Vector3D vector)
+        public static Vector3 GetNormalizedVector3(Vector3 vector)
         {
-            return vector == ZeroVector3D ? ZeroVector3D : vector * (1 / vector.Magnitude());
+            return vector == Vector3.Zero ? Vector3.Zero : vector * (1 / vector.Length());
+        }
+        public static Vector3 Normalize(this Vector3 vector)
+        {
+            return GetNormalizedVector3(vector);
+        }
+
+        public static float RadAngle(Vector3 a, Vector3 b)
+        {
+            float num = (float)Math.Sqrt(a.Length() * b.Length());
+            if (num < Epsilon)
+                return 0f;
+            return (float)Math.Acos(Dot(a, b) / num);
+        }
+        public static float DegAngle(Vector3 a, Vector3 b)
+        {
+            return (float)Rad2Deg(RadAngle(a, b));
+        }
+        public static float Dot(Vector3 a, Vector3 b)
+        {
+            return a.X * b.X + a.Y * b.Y + a.Z * b.Z;
+        }
+        public static Vector3 Cross(Vector3 a, Vector3 b)
+        {
+            return new Vector3(
+                a.Y * b.Z - a.Z - b.Y,
+                a.Z * b.X - a.X - b.Z,
+                a.X * b.Y - a.Y * b.X);
+        }
+        public static Vector3 Lerp(Vector3 a, Vector3 b, float t)
+        {
+            return a + (b - a) * t;
+        }
+
+        public static Vector3 Slerp(Vector3 a, Vector3 b, float t)
+        {
+            Quaternion r = MathEx.FromToRotation(a, b);
+            Quaternion q = Quaternion.Slerp(Quaternion.Identity, r, t);
+            return Vector3.Normalize(Vector3.Transform(a, q));
+        }
+
+        public static float CalculateRandomRange(float min = 0.0f, float max = 1.0f)
+        {
+            if (min == max)
+            {
+                return min;
+            }
+
+            float length = max - min;
+            return min + (float)_random.NextDouble() * length;
+
+        }
+
+        public static Vector3 CalculateRandomUnitVector()
+        {
+            const float r = 1;
+            const float PI2 = (float)(Math.PI * 2);
+
+            float azimuth = (float)(_random.NextDouble() * PI2);
+            float elevation = (float)(_random.NextDouble() * PI2);
+
+            return new Vector3(
+                (float)(r * Math.Cos(elevation) * Math.Cos(azimuth)),
+                (float)(r * Math.Cos(elevation) * Math.Sin(azimuth)),
+                (float)(r * Math.Sin(elevation))
+                );
+
+        }
+        public static Vector3 CalculateRandomPointInSphere(float innerRadius, float outerRadius)
+        {
+            return CalculateRandomUnitVector() * CalculateRandomRange(innerRadius, outerRadius);
+        }
+
+        public static Vector3 CalculateRandomPointInBox(Vector3 size)
+        {
+            return new Vector3(
+                CalculateRandomRange(0, size.X) - size.X / 2f,
+                CalculateRandomRange(0, size.Y) - size.Y / 2f,
+                CalculateRandomRange(0, size.Z) - size.Z / 2f
+                );
         }
 
         #endregion
 
+        #region Quaternion
 
+        // https://stackoverflow.com/questions/1171849/finding-quaternion-representing-the-rotation-from-one-vector-to-another
+        public static Quaternion FromToRotation(Vector3 fromDirection, Vector3 toDirection)
+        {
+            var from = Vector3.Normalize(fromDirection);
+            var to = Vector3.Normalize(toDirection);
+
+            var dot = Vector3.Dot(from, to);
+            // same direction
+            if (dot > 0.999999)
+            {
+                return Quaternion.Identity;
+            }
+
+            Vector3 normal;
+            // opposite directions
+            if (dot < -0.999999)
+            {
+                normal = Vector3.Cross(Vector3.UnitX, from);
+                if (normal.Length() < 0.000001)
+                    normal = Vector3.Cross(Vector3.UnitY, from);
+                normal = Vector3.Normalize(normal);
+                return Quaternion.CreateFromAxisAngle(normal, (float)Math.PI);
+            }
+
+            normal = Vector3.Cross(from, to);
+            var q = new Quaternion(normal, 1 + dot);
+            q = Quaternion.Normalize(q);
+            return q;
+        }
+        #endregion
 
 
         // ===============================================
         // Utilities for Convertions
         #region Convertions
-        public static Vector3D ToVector3D(this DirStruct dir)
+        public static Vector3 ToVector3(this DirStruct dir)
         {
             double rad = -dir.radians();
-            Vector3D vec = new Vector3D(Math.Cos(rad), Math.Sin(rad), 0);
+            Vector3 vec = new Vector3((float)Math.Cos(rad), (float)Math.Sin(rad), 0f);
             return vec;
         }
 
-        public static Vector3D ToVector3D(this CoordStruct coord)
+        public static Vector3 ToVector3(this CoordStruct coord)
         {
-            return new Vector3D(coord.X, coord.Y, coord.Z);
+            return new Vector3(coord.X, coord.Y, coord.Z);
         }
-        public static CoordStruct ToCoordStruct(this Vector3D vec)
+        public static CoordStruct ToCoordStruct(this Vector3 vec)
         {
             return new CoordStruct((int)vec.X, (int)vec.Y, (int)vec.Z);
         }
 
-        public static Vector3D ToVector3D(this BulletVelocity velocity)
+        public static ColorStruct ToColorStruct(this Vector3 vector)
         {
-            return new Vector3D(velocity.X, velocity.Y, velocity.Z);
+            return new ColorStruct((int)vector.X, (int)vector.Y, (int)vector.Z);
+        }
+
+        public static Vector3 ToVector3(this BulletVelocity velocity)
+        {
+            return new Vector3((float)velocity.X, (float)velocity.Y, (float)velocity.Z);
         }
 
         #endregion

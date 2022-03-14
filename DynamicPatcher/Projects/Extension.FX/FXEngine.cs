@@ -8,17 +8,21 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Extension.FX
 {
-    public class FXEngine
+    public static class FXEngine
     {
         static FXEngine()
         {
+            DynamicPatcher.Logger.LogWarning("FX feature is not finished yet, it may be unstable and imperfect.");
+#if FX_USED3D
             InitializeGraphic();
+#endif
         }
 
         #region Constant
@@ -148,6 +152,16 @@ namespace Extension.FX
 
             return new Vector3(right.X, right.Y, right.Z);
         }
+
+        public static Vector2 XY(this Vector3 vector) => new Vector2(vector.X, vector.Y);
+        public static Vector2 XZ(this Vector3 vector) => new Vector2(vector.X, vector.Z);
+        public static Vector2 YZ(this Vector3 vector) => new Vector2(vector.Y, vector.Z);
+        public static Vector2 Normalize(this Vector2 vector) => Vector2.Normalize(vector);
+        public static Vector2 Direction(this Vector2 vector) => Vector2.Normalize(vector);
+        public static Vector2 Normal(this Vector2 vector) => new Vector2(-vector.Y, vector.X);
+
+        public static Vector3 Normalize(this Vector3 vector) => Vector3.Normalize(vector);
+        public static Vector3 Direction(this Vector3 vector) => Vector3.Normalize(vector);
         #endregion
 
         #region Work
@@ -180,11 +194,7 @@ namespace Extension.FX
         /// </summary>
         public static void RemoveSystem(FXSystem system)
         {
-            WorkListRWLock.EnterWriteLock();
-
             WorkSystems.Remove(system);
-
-            WorkListRWLock.ExitWriteLock();
         }
 
         public static void Restart()
@@ -238,13 +248,17 @@ namespace Extension.FX
         {
             try
             {
+#if FX_USED3D
                 KeepScreenSize();
+#endif
 
                 WorkListRWLock.EnterReadLock();
 
                 if (WorkSystems.Any())
                 {
+#if FX_USED3D
                     BeginDraw();
+#endif
 
                     if (FXEngine.EnableParallelRender)
                     {
@@ -258,7 +272,9 @@ namespace Extension.FX
                         }
                     }
 
+#if FX_USED3D
                     EndDraw();
+#endif
                 }
                 else
                 {
@@ -283,7 +299,7 @@ namespace Extension.FX
         }
         public static void BeginDraw()
         {
-#if TOFIX
+#if FX_TOFIX
             ZBuffer.FillZTexture();
             
             YRGraphic.FillTexture();
@@ -296,7 +312,7 @@ namespace Extension.FX
         {
             //FXGraphic.EndDraw();
             YRGraphic.EndDraw();
-#if TOFIX
+#if FX_TOFIX
             FXGraphic.Render();
 
             Rendered = true;

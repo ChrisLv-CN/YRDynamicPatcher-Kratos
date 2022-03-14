@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Extension.FX.Scripts.Particle
 {
-    class FXDrag : FXScript
+    public class FXDrag : FXScript
     {
         public FXDrag(FXSystem system, FXEmitter emitter) : base(system, emitter)
         {

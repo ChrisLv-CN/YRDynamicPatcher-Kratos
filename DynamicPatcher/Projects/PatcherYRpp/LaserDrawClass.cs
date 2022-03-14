@@ -9,7 +9,6 @@ using static PatcherYRpp.YRPP;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 92)]
-    [Serializable]
     public struct LaserDrawClass
     {
         public static unsafe void Constructor(Pointer<LaserDrawClass> pThis, CoordStruct source, CoordStruct target, int zAdjust, byte unknown,

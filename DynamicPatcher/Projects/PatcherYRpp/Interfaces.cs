@@ -1,3 +1,4 @@
+using Microsoft.VisualStudio.OLE.Interop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,7 +42,7 @@ namespace PatcherYRpp
 		[PreserveSig]
 		ZGradient Z_Gradient(); //Z gradient control value.
 		[PreserveSig]
-		bool Process(); //Process movement of object.
+		bool Process(); //Process movement of object.]
 		[PreserveSig]
 		void Move_To(CoordStruct to);   //Instruct to move to location specified.
 		[PreserveSig]

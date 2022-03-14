@@ -8,15 +8,13 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 3576)]
-    [Serializable]
     public struct TechnoTypeClass
     {
         public static readonly IntPtr ArrayPointer = new IntPtr(0xA8EB00);
 
         public static YRPP.GLOBAL_DVC_ARRAY<TechnoTypeClass> ABSTRACTTYPE_ARRAY = new YRPP.GLOBAL_DVC_ARRAY<TechnoTypeClass>(ArrayPointer);
 
-        [FieldOffset(0)]
-        public ObjectTypeClass Base;
+        [FieldOffset(0)] public ObjectTypeClass Base;
 
         [FieldOffset(668)] public AbilitiesStruct VeteranAbilities;
 
@@ -143,7 +141,9 @@ namespace PatcherYRpp
 
         [FieldOffset(3412)] public Bool Spawned;
 
-        [FieldOffset(3476)] public Bool Jumpjet;
+        [FieldOffset(3434)] public Bool BalloonHover;
+
+        [FieldOffset(3476)] public Bool JumpJet;
 
         [FieldOffset(3516)] public Bool IsSelectableCombatant;
 
@@ -163,7 +163,6 @@ namespace PatcherYRpp
     }
 
     [StructLayout(LayoutKind.Sequential, Size = 18)]
-    [Serializable]
     public struct AbilitiesStruct
     {
         public Bool FASTER; //0x00
@@ -187,7 +186,6 @@ namespace PatcherYRpp
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 28)]
-    [Serializable]
     public struct WeaponStruct
     {
         [FieldOffset(0)] public Pointer<WeaponTypeClass> WeaponType;

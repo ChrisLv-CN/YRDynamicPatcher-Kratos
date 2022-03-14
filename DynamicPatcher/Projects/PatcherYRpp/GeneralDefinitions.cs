@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PatcherYRpp
 {
-
+    [Flags]
     public enum AbstractFlags
     {
         None = 0x0,
@@ -30,6 +30,7 @@ namespace PatcherYRpp
         Special_2 = 10
     }
 
+    [Flags]
     public enum OccupationFlags
     {
         Empty = 0x0,
@@ -43,11 +44,13 @@ namespace PatcherYRpp
         Buildings = 0x80
     }
 
+    [Flags]
     public enum AltOccupationFlags
     {
         Empty = 0x0,
     }
 
+    [Flags]
     public enum CellFlags
     {
         Empty = 0x0,
@@ -78,6 +81,7 @@ namespace PatcherYRpp
         Revealed = CenterRevealed | EdgeRevealed
     }
 
+    [Flags]
     public enum AltCellFlags
     {
         // ContainsBuilding = 0x02,
@@ -563,6 +567,50 @@ namespace PatcherYRpp
         TechCapture = 0x10000
     }
 
+    public enum RadioCommand
+    {
+        AnswerInvalid = 0, // static (no message)
+        AnswerPositive = 1, // Roger.
+        RequestLink = 2, // Come in.
+        NotifyUnlink = 3, // Over and out.
+        RequestPickUp = 4,// "Please pick me up."
+        RequestAttach = 5,// "Attach to transport."
+        RequestDelivery = 6,// "I've got a delivery for you."
+        NotifyBeginLoad = 7, // I'm performing load/unload maneuver. Be careful.
+        NotifyUnloaded = 8, // I'm clear.
+        RequestUnload = 9, // You are clear to unload. Driving away now.
+        AnswerNegative = 10, // Am unable to comply.
+        RequestBeginProduction = 11, // I'm starting construction now... act busy.
+        RequestEndProduction = 12, // I've finished construction. You are free.
+        RequestRedraw = 13, // We bumped, redraw yourself please.
+        RequestLoading = 14, // I'm trying to load up now.
+        AnswerLoading = 14, // Loading up now.
+        QueryCanEnter = 15, // May I become a passenger?
+        QueryCanUnload = 16, // Are you ready to receive shipment?
+        QueryWantEnter = 17, // Are you trying to become a passenger?
+        RequestMoveTo = 18, // Move to location X.
+        QueryMoving = 19, // Do you need to move?
+        AnswerAwaiting = 20, // All right already. Now what?
+        RequestCompleteEnter = 21, // I'm a passenger now.
+        RequestDockRefinery = 22, // Backup into refinery now.
+        AnswerLeave = 23, // Run away!
+        NotifyLeave = 23, // Running away.
+        RequestTether = 24, // Tether established.
+        RequestUntether = 25, // Tether broken.
+        RequestAlternativeTether = 26, // Alternative tether established.
+        RequestAlternativeUntether = 27, // Alternative tether broken.
+        RequestRepair = 28, // Repair one step.
+        QueryReadiness = 29, // Are you prepared to fight?
+        RequestAttack = 30, // Attack this target please.
+        RequestReload = 31, // Reload one step.
+        AnswerBlocked = 32, // Circumstances prevent success.
+        QueryDone = 33, // All done with the request?
+        AnswerDone = 33, // All done with the request.
+        QueryNeedRepair = 34, // Do you need service depot work?
+        QueryOnBuilding = 35, // Are you located on top of me?
+        QueryCanTote = 36, // Want ride
+    };
+
     public enum BlitterFlags
     {
         None = 0x0,
@@ -699,4 +747,14 @@ namespace PatcherYRpp
         OVERLAP_DOWN = 4,
         OVERLAP_UP = 5
     }
+
+    public enum Edge
+    {
+        None = -1,
+        North = 0,
+        East = 1,
+        South = 2,
+        West = 3,
+        Air = 4
+    };
 }

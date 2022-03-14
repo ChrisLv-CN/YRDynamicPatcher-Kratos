@@ -10,7 +10,6 @@ using DynamicPatcher;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 4468)]
-    [Serializable]
     public struct MapClass
     {
         private static IntPtr instance = new IntPtr(0x87F7E8);
@@ -138,6 +137,14 @@ namespace PatcherYRpp
             return new CellStruct(crd.X / 256, crd.Y / 256);
         }
 
+        public unsafe CellStruct PickCellOnEdge(Edge Edge, CellStruct CurrentLocation, CellStruct Fallback,
+            SpeedType SpeedType, bool ValidateReachability, MovementZone MovZone)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref MapClass, out CellStruct, Edge, ref CellStruct, ref CellStruct, SpeedType, Bool, MovementZone, IntPtr>)0x4AA440;
+            func(ref this, out CellStruct tmp, Edge, ref CurrentLocation, ref Fallback, SpeedType, ValidateReachability, MovZone);
+            return tmp;
+        }
+
         // Find nearest spot
         public unsafe Pointer<CellStruct> Pathfinding_Find(ref CellStruct outBuffer, ref CellStruct position, SpeedType SpeedType, int a5, MovementZone MovementZone, bool alt, int SpaceSizeX, int SpaceSizeY, bool disallowOverlay, bool a11, bool requireBurrowable, bool allowBridge, ref CellStruct closeTo, bool a15, bool buildable)
         {
@@ -145,7 +152,7 @@ namespace PatcherYRpp
             return func(ref this, ref outBuffer, ref position, SpeedType, a5, MovementZone, alt, SpaceSizeX, SpaceSizeY, disallowOverlay, a11, requireBurrowable, allowBridge, ref closeTo, a15, buildable);
         }
 
-        public unsafe CellStruct Pathfinding_Find(ref CellStruct position, SpeedType SpeedType, int a5, MovementZone MovementZone, bool alt, int SpaceSizeX, int SpaceSizeY, bool disallowOverlay, bool a11, bool requireBurrowable, bool allowBridge, ref CellStruct closeTo, bool a15, bool buildable)
+        public unsafe CellStruct Pathfinding_Find(CellStruct position, SpeedType SpeedType, int a5, MovementZone MovementZone, bool alt, int SpaceSizeX, int SpaceSizeY, bool disallowOverlay, bool a11, bool requireBurrowable, bool allowBridge, CellStruct closeTo, bool a15, bool buildable)
         {
             CellStruct outBuffer = default;
             Pathfinding_Find(ref outBuffer, ref position, SpeedType, a5, MovementZone, alt, SpaceSizeX, SpaceSizeY, disallowOverlay, a11, requireBurrowable, allowBridge, ref closeTo, a15, buildable);
@@ -155,7 +162,7 @@ namespace PatcherYRpp
         public unsafe CellStruct Pathfinding_Find(ref CellStruct postion, SpeedType speedType, MovementZone movementZone, int extentX, int extentY, bool buildable)
         {
             int a5 = -1; // usually MapClass::CanLocationBeReached call. see how far we can get without it
-            return Pathfinding_Find(ref postion, speedType, a5, movementZone, false, extentX, extentY, true, false, false, false, ref CellStruct.Empty, false, buildable);
+            return Pathfinding_Find(postion, speedType, a5, movementZone, false, extentX, extentY, true, false, false, false, CellStruct.Empty, false, buildable);
         }
 
         [FieldOffset(312)] public DynamicVectorClass<Pointer<CellClass>> Cells;

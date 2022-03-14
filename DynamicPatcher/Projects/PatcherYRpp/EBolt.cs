@@ -9,7 +9,6 @@ using DynamicPatcher;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 48)]
-    [Serializable]
     public struct EBolt
     {
 

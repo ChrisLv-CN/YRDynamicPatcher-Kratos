@@ -10,7 +10,6 @@ using DynamicPatcher;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 116)]
-    [Serializable]
     public struct SpawnManagerClass
     {
 

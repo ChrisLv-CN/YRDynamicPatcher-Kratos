@@ -55,7 +55,8 @@ namespace ExtensionHooks
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext?.OnInit();
-                ext?.Scriptable?.OnInit();
+
+                ext?.AttachedComponent.Foreach(c => (c as ITechnoScriptable)?.OnInit());
             }
             catch (Exception e)
             {
@@ -74,7 +75,8 @@ namespace ExtensionHooks
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 // technoClassUpdate?.Invoke(pTechno, ext);
                 ext?.OnUpdate();
-                ext?.Scriptable?.OnUpdate();
+
+                ext?.AttachedComponent.Foreach(c => c?.OnUpdate());
             }
             catch (Exception e)
             {
@@ -93,8 +95,8 @@ namespace ExtensionHooks
                 Pointer<TechnoClass> pTechno = pTemporal.Ref.Target;
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext?.OnTemporalUpdate(pTemporal);
-                ext?.Scriptable?.OnTemporalUpdate(pTemporal);
 
+                ext?.AttachedComponent.Foreach(c => (c as ITechnoScriptable)?.OnTemporalUpdate(pTemporal));
             }
             catch (Exception e)
             {
@@ -141,8 +143,8 @@ namespace ExtensionHooks
 
             TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
             ext?.OnPut(pCoord, faceDir);
-            ext?.Scriptable?.OnPut(pCoord, faceDir);
 
+            ext?.AttachedComponent.Foreach(c => (c as ITechnoScriptable)?.OnPut(pCoord.Data, faceDir));
             return 0;
         }
 
@@ -155,7 +157,8 @@ namespace ExtensionHooks
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext?.OnRemove();
-                ext?.Scriptable?.OnRemove();
+
+                ext?.AttachedComponent.Foreach(c => (c as ITechnoScriptable)?.OnRemove());
             }
             catch (Exception e)
             {
@@ -178,8 +181,8 @@ namespace ExtensionHooks
 
             TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
             ext?.OnReceiveDamage(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
-            ext?.Scriptable?.OnReceiveDamage(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
 
+            ext?.AttachedComponent.Foreach(c => (c as ITechnoScriptable)?.OnReceiveDamage(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse));
             return 0;
         }
 
@@ -212,7 +215,8 @@ namespace ExtensionHooks
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 bool ceaseFire = false;
                 ext?.CanFire(pTarget, pWeapon, ref ceaseFire);
-                ext?.Scriptable?.CanFire(pTarget, pWeapon, ref ceaseFire);
+
+                ext?.AttachedComponent.Foreach(c => (c as ITechnoScriptable)?.CanFire(pTarget, pWeapon, ref ceaseFire));
                 if (ceaseFire)
                 {
                     return (uint)0x6FCB7E;
@@ -236,7 +240,8 @@ namespace ExtensionHooks
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext?.OnFire(pTarget, nWeaponIndex);
-                ext?.Scriptable?.OnFire(pTarget, nWeaponIndex);
+
+                ext?.AttachedComponent.Foreach(c => (c as ITechnoScriptable)?.OnFire(pTarget, nWeaponIndex));
             }
             catch (Exception e)
             {
@@ -320,7 +325,8 @@ namespace ExtensionHooks
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 bool selectable = true;
                 ext?.OnSelect(ref selectable);
-                ext?.Scriptable?.OnSelect(ref selectable);
+
+                ext?.AttachedComponent.Foreach(c => (c as ITechnoScriptable)?.OnSelect(ref selectable));
                 if (!selectable)
                 {
                     return 0x5F45A9;
@@ -472,7 +478,8 @@ namespace ExtensionHooks
                 // Logger.Log("{0} Guard Command", pTechno.IsNull ? "Unknow" : pTechno.Ref.Type.Ref.Base.Base.ID);
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext?.OnGuardCommand();
-                ext?.Scriptable?.OnGuardCommand();
+
+                ext?.AttachedComponent.Foreach(c => (c as ITechnoScriptable)?.OnGuardCommand());
             }
             return 0;
         }
@@ -487,7 +494,8 @@ namespace ExtensionHooks
                 // Logger.Log("{0} Stop Command", pTechno.IsNull ? "Unknow" : pTechno.Ref.Type.Ref.Base.Base.ID);
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext?.OnStopCommand();
-                ext?.Scriptable?.OnStopCommand();
+
+                ext?.AttachedComponent.Foreach(c => (c as ITechnoScriptable)?.OnStopCommand());
             }
             return 0;
         }

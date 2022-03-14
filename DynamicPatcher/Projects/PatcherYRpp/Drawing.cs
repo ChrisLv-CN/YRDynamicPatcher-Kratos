@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 1)]
-    [Serializable]
     public struct Drawing
     {
         public static int Color16bit(ColorStruct color)

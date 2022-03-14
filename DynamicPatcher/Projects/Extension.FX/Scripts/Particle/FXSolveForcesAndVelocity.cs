@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -31,7 +32,7 @@ namespace Extension.FX.Scripts.Particle
             var physicsDrag = particle.PhysicsDrag;
 
             // Apply Mass to Physics Force
-            physicsForce *= 1 / Math.Max(particle.Mass, 0.0001);
+            physicsForce *= (float)(1 / Math.Max(particle.Mass, 0.0001));
 
             // Apply Forces to Velocity, Apply Drag irrespective of Mass
             var velocity = particle.Velocity;
@@ -40,14 +41,14 @@ namespace Extension.FX.Scripts.Particle
             // Clamps Particle.Velocity to a maximum value if Module.Clamp Velocity is true.
             if (SpeedLimit.HasValue)
             {
-                velocity = velocity.Direction * FXEngine.Clamp((float)velocity.Length, 0, (float)SpeedLimit);
+                velocity = velocity.Direction() * FXEngine.Clamp((float)velocity.Length(), 0, (float)SpeedLimit);
             }
 
             // Limit Particle Acceleration
             if (AccelerationLimit.HasValue)
             {
                 var delta = velocity - particle.Velocity;
-                velocity = particle.Velocity + delta.Direction * FXEngine.Clamp((float)delta.Length, 0, (float)AccelerationLimit);
+                velocity = particle.Velocity + delta.Direction() * FXEngine.Clamp((float)delta.Length(), 0, (float)AccelerationLimit);
             }
 
             // Apply velocity to derive the new particle position

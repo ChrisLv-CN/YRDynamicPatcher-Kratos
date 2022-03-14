@@ -36,29 +36,11 @@ namespace PatcherYRpp.Utilities
 	*/
     public class CellSpreadEnumerator : IEnumerable<CellStruct>, IEnumerator<CellStruct>
     {
-        CellStruct current;
-        uint spread;
-        uint curspread;
-        bool hasTwo;
-        bool hadTwo;
-
         public const uint Max = 0x100u;
 
         public CellStruct Current => current;
 
         object IEnumerator.Current => Current;
-
-        public void Dispose() { }
-
-        public IEnumerator<CellStruct> GetEnumerator() => this;
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-
-        public void Reset()
-        {
-            Reset(0);
-        }
 
         public CellSpreadEnumerator(uint spread, uint start = 0u)
         {
@@ -85,6 +67,12 @@ namespace PatcherYRpp.Utilities
             hasTwo = true;
             hadTwo = true;
         }
+
+        public void Reset()
+        {
+            Reset(0);
+        }
+
 
         public bool MoveNext()
         {
@@ -158,5 +146,70 @@ namespace PatcherYRpp.Utilities
 
             return true;
         }
+
+        public void Dispose() { }
+        public IEnumerator<CellStruct> GetEnumerator() => this;
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+
+        CellStruct current;
+        uint spread;
+        uint curspread;
+        bool hasTwo;
+        bool hadTwo;
+    }
+
+    public class RandomCellEnumerator : IEnumerable<CellStruct>, IEnumerator<CellStruct>
+    {
+        public CellStruct Current => GetRandomCell();
+
+        object IEnumerator.Current => Current;
+
+        public RandomCellEnumerator(int range, int cellCount)
+        {
+            _range = range;
+            _cellCount = cellCount;
+
+            Reset();
+        }
+
+        private CellStruct GetRandomCell()
+        {
+            CellStruct tmp;
+            CoordStruct offset;
+            Random random = MathEx.Random;
+            do
+            {
+                offset = new CoordStruct(random.Next(-_range, _range + 1), random.Next(-_range, _range + 1), 0);
+                tmp = CellClass.Coord2Cell(offset);
+            } while (offset.DistanceFrom(new CoordStruct(0, 0, 0)) > _range);
+
+            return tmp;
+        }
+
+        public bool MoveNext()
+        {
+            if (_curCell < _cellCount)
+            {
+                _curCell++;
+                return true;
+            }
+
+            return false;
+        }
+
+        public void Reset()
+        {
+            _curCell = 0;
+        }
+
+
+        public void Dispose() { }
+        public IEnumerator<CellStruct> GetEnumerator() => this;
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        private int _curCell;
+        private int _range;
+        private int _cellCount;
     }
 }

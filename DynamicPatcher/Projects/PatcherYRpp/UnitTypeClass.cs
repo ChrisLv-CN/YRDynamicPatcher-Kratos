@@ -15,8 +15,9 @@ namespace PatcherYRpp
 
         public static YRPP.GLOBAL_DVC_ARRAY<UnitTypeClass> ABSTRACTTYPE_ARRAY = new YRPP.GLOBAL_DVC_ARRAY<UnitTypeClass>(ArrayPointer);
 
-
         [FieldOffset(0)] public TechnoTypeClass Base;
+        [FieldOffset(0)] public ObjectTypeClass BaseObjectType;
+        [FieldOffset(0)] public AbstractTypeClass BaseAbstractType;
 
         [FieldOffset(3596)] public Bool Passive;
 

@@ -16,7 +16,8 @@ namespace Extension.FX.Parameters
         public FXRandomRangeFloat(string name, float min, float max)
             : base(name, () => FXEngine.CalculateRandomRange(min, max))
         {
-
+            Min = min;
+            Max = max;
         }
 
         public float Min { get; }

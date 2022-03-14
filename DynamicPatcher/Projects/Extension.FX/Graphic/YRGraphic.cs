@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -79,7 +80,7 @@ namespace Extension.FX.Graphic
             var rect = SurfaceRect;
             //var coords = TacticalClass.Instance.Ref.ClientToCoords(new Point2D(rect.Width / 2, rect.Height / 2));
 
-            drawObject.SetLocalBuffer(new Definitions.Vector3(rect.Width / 2, 0, int.MaxValue), new Definitions.Vector3(rect.Width / 2, rect.Height, int.MaxValue));
+            drawObject.SetLocalBuffer(new Vector3(rect.Width / 2, 0, int.MaxValue), new Vector3(rect.Width / 2, rect.Height, int.MaxValue));
 
             int rowPitch = PrimarySurface.GetWidth() * PrimarySurface.GetBytesPerPixel();
             int depthPitch = PrimarySurface.GetHeight() * PrimarySurface.GetPitch();

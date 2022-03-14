@@ -55,6 +55,8 @@ namespace Extension.FX.Scripts.Emitter
             SpawnInfo.IntervalDt = 0;
             SpawnInfo.SpawnGroup = SpawnGroup;
 
+            if (shouldSpawn) // TOCHECK FOR CanEverSpawn == false
+                CanEverSpawn = true;
             base.EmitterUpdate();
         }
     }

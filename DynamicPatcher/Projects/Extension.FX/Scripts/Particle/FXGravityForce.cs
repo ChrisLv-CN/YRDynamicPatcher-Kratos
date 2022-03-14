@@ -1,4 +1,5 @@
 ﻿using Extension.FX.Definitions;
+using System.Numerics;
 
 namespace Extension.FX.Scripts.Particle
 {

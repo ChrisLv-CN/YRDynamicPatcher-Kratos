@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -135,9 +136,12 @@ namespace Extension.FX
                     return;
             }
 
-            foreach (var script in MEmitterUpdate.Scripts)
-            {
-                script.EmitterUpdate();
+            if (ExecutionState != FXExecutionState.Inactive)
+            { // TOCHECK
+                foreach (var script in MEmitterUpdate.Scripts)
+                {
+                    script.EmitterUpdate();
+                }
             }
 
             UpdateParticles();

@@ -8,13 +8,17 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 1752)]
-    [Serializable]
     public struct AircraftClass
     {
         public static readonly IntPtr ArrayPointer = new IntPtr(0xA8E390);
         public static ref DynamicVectorClass<Pointer<AircraftClass>> Array { get => ref DynamicVectorClass<Pointer<AircraftClass>>.GetDynamicVector(ArrayPointer); }
 
         [FieldOffset(0)] public FootClass Base;
+        [FieldOffset(0)] public TechnoClass BaseTechno;
+        [FieldOffset(0)] public RadioClass BaseRadio;
+        [FieldOffset(0)] public MissionClass BaseMission;
+        [FieldOffset(0)] public ObjectClass BaseObject;
+        [FieldOffset(0)] public AbstractClass BaseAbstract;
 
         [FieldOffset(1732)] public Pointer<AircraftTypeClass> Type;
 

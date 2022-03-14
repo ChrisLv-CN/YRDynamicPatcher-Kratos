@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 8)]
-    [Serializable]
     public struct PassengersClass
     {
         public unsafe void AddPassenger(Pointer<FootClass> pPassenger)

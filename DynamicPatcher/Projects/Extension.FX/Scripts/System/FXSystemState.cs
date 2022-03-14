@@ -54,7 +54,6 @@ namespace Extension.FX.Scripts.System
 
                 if (loopCountIncreased)
                 {
-                    System.LoopCount++;
                     System.LoopedAge = 0;
                 }
                 else
@@ -73,6 +72,7 @@ namespace Extension.FX.Scripts.System
 
             if (loopCountIncreased)
             {
+                System.LoopCount++;
                 if (LoopCount > 1)
                 {
                     // DELAY: If the loop count really did go up, we need to factor in delays, decide on the new loop variables

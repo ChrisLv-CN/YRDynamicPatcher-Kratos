@@ -9,7 +9,6 @@ using PatcherYRpp.FileFormats;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 4584)]
-    [Serializable]
     public struct DisplayClass
     {
 
@@ -19,28 +18,28 @@ namespace PatcherYRpp
         public unsafe Bool ConvertAction(Pointer<CellStruct> cell, bool bShrouded, Pointer<ObjectClass> pObject, Action action, int dwUnk)
         {
             var func = (delegate* unmanaged[Thiscall]<ref DisplayClass, IntPtr, Bool, IntPtr, Action, int, Bool>)
-                Helpers.GetVirtualFunctionPointer(Pointer<DisplayClass>.AsPointer(ref this), 46);
+                this.GetVirtualFunctionPointer(46);
             return func(ref this, cell, bShrouded, pObject, action, dwUnk);
         }
 
         public unsafe void LeftMouseButtonDown(Pointer<Point2D> point)
         {
             var func = (delegate* unmanaged[Thiscall]<ref DisplayClass, IntPtr, void>)
-                Helpers.GetVirtualFunctionPointer(Pointer<DisplayClass>.AsPointer(ref this), 47);
+                this.GetVirtualFunctionPointer(47);
             func(ref this, point);
         }
 
         public unsafe void LeftMouseButtonUp(Pointer<CoordStruct> pCoords, Pointer<CellStruct> pCell, Pointer<ObjectClass> pObject, Action action, int dwUnk = 0)
         {
             var func = (delegate* unmanaged[Thiscall]<ref DisplayClass, IntPtr, IntPtr, IntPtr, Action, int, void>)
-                Helpers.GetVirtualFunctionPointer(Pointer<DisplayClass>.AsPointer(ref this), 48);
+                this.GetVirtualFunctionPointer(48);
             func(ref this, pCoords, pCell, pObject, action, dwUnk);
         }
 
         public unsafe void RightMouseButtonUp(int dwUnk)
         {
             var func = (delegate* unmanaged[Thiscall]<ref DisplayClass, int, void>)
-                Helpers.GetVirtualFunctionPointer(Pointer<DisplayClass>.AsPointer(ref this), 49);
+                this.GetVirtualFunctionPointer(49);
             func(ref this, dwUnk);
         }
 

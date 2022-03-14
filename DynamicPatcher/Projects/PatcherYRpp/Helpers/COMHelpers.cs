@@ -13,9 +13,13 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
 
+    /// <summary>
+    /// COM pointer helper that do not affect RefCount.
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
     [DebuggerDisplay("PTR={IUnknown}, OBJ={Interface}")]
     [StructLayout(LayoutKind.Sequential)]
-    public struct COMPtr<TObject>
+    public struct COMPtr<TObject> where TObject : class
     {
         public static Guid Guid = typeof(TObject).GUID;
 
@@ -39,9 +43,12 @@ namespace PatcherYRpp
             get => QueryInterface<TObject>();
             set
             {
-                Release();
+                if (value == null)
+                    return;
                 _IUnknown = Marshal.GetIUnknownForObject(value);
                 _IUnknown = COMHelpers.QueryInterface(_IUnknown, Guid);
+                Marshal.Release(_IUnknown);
+                Marshal.Release(_IUnknown);
             }
         }
         public TObject Interface
@@ -50,6 +57,10 @@ namespace PatcherYRpp
             set => Object = value;
         }
 
+        /// <summary>
+        /// get: don't forget to Marshal.Release(IUnknown you get)
+        /// set: assume that you had already Marshal.AddRed(IUnknown you get)
+        /// </summary>
         public IntPtr IUnknown
         {
             get => _IUnknown;
@@ -58,7 +69,19 @@ namespace PatcherYRpp
 
         public IntPtr QueryInterfacePtr<TQueryObject>()
         {
-            return _IUnknown == IntPtr.Zero ? IntPtr.Zero : COMHelpers.QueryInterface<TQueryObject>(_IUnknown);
+            if (_IUnknown == IntPtr.Zero)
+                return IntPtr.Zero;
+
+            try
+            {
+                IntPtr iUnk = COMHelpers.QueryInterface<TQueryObject>(_IUnknown);
+                Marshal.Release(iUnk);
+                return iUnk;
+            }
+            catch (COMException)
+            {
+                return IntPtr.Zero;
+            }
         }
 
         public IntPtr QueryInterfacePtr(Guid iid)
@@ -68,7 +91,9 @@ namespace PatcherYRpp
 
             try
             {
-                return COMHelpers.QueryInterface(_IUnknown, iid);
+                IntPtr iUnk = COMHelpers.QueryInterface(_IUnknown, iid);
+                Marshal.Release(iUnk);
+                return iUnk;
             }
             catch (COMException)
             {
@@ -81,6 +106,11 @@ namespace PatcherYRpp
             return _IUnknown == IntPtr.Zero ? default : (TQueryObject)Marshal.GetObjectForIUnknown(_IUnknown);
         }
 
+        public void AddRef()
+        {
+            if (_IUnknown != IntPtr.Zero)
+                Marshal.AddRef(_IUnknown);
+        }
         public void Release()
         {
             if (_IUnknown != IntPtr.Zero)
@@ -88,13 +118,22 @@ namespace PatcherYRpp
             _IUnknown = IntPtr.Zero;
         }
 
+        /// <summary>
+        /// create instance and AddRef
+        /// </summary>
         public void CreateInstance()
         {
             CreateInstance(Guid);
         }
+        /// <summary>
+        /// create instance and AddRef
+        /// </summary>
+        /// <param name="clsid"></param>
         public void CreateInstance(Guid clsid)
         {
-            Object = COMHelpers.CreateInstance<TObject>(clsid);
+            TObject obj = COMHelpers.CreateInstance<TObject>(clsid);
+            Object = obj;
+            AddRef();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -103,6 +142,65 @@ namespace PatcherYRpp
         public static implicit operator COMPtr<TObject>(IntPtr iUnknown) => new COMPtr<TObject>(iUnknown);
 
         private IntPtr _IUnknown;
+    }
+
+    public class COMObject<TObject> where TObject : class
+    {
+        public static Guid Guid = typeof(TObject).GUID;
+
+        public COMObject()
+        {
+            _object = null;
+        }
+
+        public COMObject(IntPtr pIUnknown)
+        {
+            _object = (TObject)Marshal.GetObjectForIUnknown(pIUnknown);
+        }
+
+        public COMObject(TObject obj)
+        {
+            _object = obj;
+        }
+
+        public COMObject(object obj)
+        {
+            _object = (TObject)obj;
+        }
+
+        public TObject Object
+        {
+            get => _object;
+            set => _object = value;
+        }
+        public TObject Interface
+        {
+            get => Object;
+            set => Object = value;
+        }
+
+        public TQueryObject QueryInterface<TQueryObject>() where TQueryObject : class
+        {
+            return Object as TQueryObject;
+        }
+
+        public void CreateInstance()
+        {
+            CreateInstance(Guid);
+        }
+
+        public void CreateInstance(Guid clsid)
+        {
+            TObject obj = COMHelpers.CreateInstance<TObject>(clsid);
+            _object = obj;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator TObject(COMObject<TObject> com) => com.Object;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator COMObject<TObject>(TObject iUnknown) => new COMObject<TObject>(iUnknown);
+
+        private TObject _object;
     }
 
     public static class COMHelpers
@@ -116,6 +214,12 @@ namespace PatcherYRpp
         {
             return CreateInstance<TObject>(typeof(TObject).GUID);
         }
+        /// <summary>
+        /// don't forget to Marshal.Release(IUnknown you get)
+        /// </summary>
+        /// <param name="pUnk"></param>
+        /// <param name="iid"></param>
+        /// <returns></returns>
         public static IntPtr QueryInterface(IntPtr pUnk, Guid iid)
         {
             int hResult = Marshal.QueryInterface(pUnk, ref iid, out IntPtr ppv);
@@ -124,12 +228,18 @@ namespace PatcherYRpp
                     $"QueryInterface({pUnk}, {iid}) fail! HR={hResult}, Message:{Marshal.GetExceptionForHR(hResult).Message}", hResult);
             return ppv;
         }
+        /// <summary>
+        /// don't forget to Marshal.Release(IUnknown you get)
+        /// </summary>
+        /// <typeparam name="TObject"></typeparam>
+        /// <param name="pUnk"></param>
+        /// <returns></returns>
         public static IntPtr QueryInterface<TObject>(IntPtr pUnk)
         {
             return QueryInterface(pUnk, typeof(TObject).GUID);
         }
 
-        public static COMPtr<TObject> GetCOMPtr<TObject>(this TObject obj)
+        public static COMPtr<TObject> GetCOMPtr<TObject>(this TObject obj) where TObject : class
         {
             return new COMPtr<TObject>(obj);
         }

@@ -50,7 +50,7 @@ namespace Extension.FX
                 }
 
                 var nextLoopedAge = LoopedAge + FXEngine.DeltaTime;
-                loopCountIncreased = nextLoopedAge > CurrentLoopDelay;
+                loopCountIncreased = nextLoopedAge > CurrentLoopDelay; // TOCHECK
 
                 if (loopCountIncreased)
                 {

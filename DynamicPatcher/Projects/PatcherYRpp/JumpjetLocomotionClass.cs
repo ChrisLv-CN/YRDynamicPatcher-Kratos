@@ -9,7 +9,6 @@ using DynamicPatcher;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 152)]
-    [Serializable]
     public struct JumpjetLocomotionClass
     {
 

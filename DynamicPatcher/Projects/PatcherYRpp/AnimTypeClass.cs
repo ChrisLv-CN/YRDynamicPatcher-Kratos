@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 888)]
-    [Serializable]
     public struct AnimTypeClass
     {
         public static readonly IntPtr ArrayPointer = new IntPtr(0x8B4150);

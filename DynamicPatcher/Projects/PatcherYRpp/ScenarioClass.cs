@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 41)]
-    [Serializable]
     public struct Variable
     {
         [FieldOffset(0)] public byte Name_first;
@@ -17,7 +16,6 @@ namespace PatcherYRpp
     };
 
     [StructLayout(LayoutKind.Explicit, Size = 14144)]
-    [Serializable]
     public struct ScenarioClass
     {
         private static IntPtr instance = new IntPtr(0xA8B230);

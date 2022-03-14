@@ -16,14 +16,21 @@ namespace Extension.Script
         public void OnUpdate();
         public void OnUnInit();
     }
+
     public interface IObjectScriptable : IAbstractScriptable
     {
-        public void OnPut(Pointer<CoordStruct> pCoord, Direction faceDir);
+        public void OnPut(CoordStruct pCoord, Direction faceDir);
         public void OnRemove();
         public void OnReceiveDamage(Pointer<int> pDamage, int DistanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
             Pointer<ObjectClass> pAttacker, bool IgnoreDefenses, bool PreventPassengerEscape, Pointer<HouseClass> pAttackingHouse);
         public void OnDestroy();
     }
+
+    public interface IBulletScriptable : IObjectScriptable
+    {
+        public void OnDetonate(CoordStruct location);
+    }
+
     public interface ITechnoScriptable : IObjectScriptable
     {
         public void OnTemporalUpdate(Pointer<TemporalClass> pTemporal);
@@ -40,15 +47,13 @@ namespace Extension.Script
     }
 
     [Serializable]
-    public abstract class Scriptable<T> : IScriptable
+    public abstract class Scriptable<T> : ScriptComponent, IScriptable
     {
         public T Owner { get; protected set; }
         public Scriptable(T owner)
         {
             Owner = owner;
         }
-        public virtual void SaveToStream(IStream stream) { }
-        public virtual void LoadFromStream(IStream stream) { }
     }
 
     [Serializable]
@@ -57,18 +62,16 @@ namespace Extension.Script
         public TechnoScriptable(TechnoExt owner) : base(owner) { }
 
         public virtual void OnInit() { }
-        public virtual void OnUpdate() { }
         public virtual void OnUnInit() { }
 
         public virtual void OnTemporalUpdate(Pointer<TemporalClass> pTemporal) { }
 
-        public virtual void OnPut(Pointer<CoordStruct> pCoord, Direction faceDir) { }
+        public virtual void OnPut(CoordStruct pCoord, Direction faceDir) { }
         public virtual void OnRemove() { }
 
         public virtual void OnReceiveDamage(Pointer<int> pDamage, int DistanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
             Pointer<ObjectClass> pAttacker, bool IgnoreDefenses, bool PreventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
         { }
-        public virtual void OnDestroy() { }
 
         public virtual void CanFire(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon, ref bool ceaseFire) { }
         public virtual void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex) { }
@@ -79,22 +82,20 @@ namespace Extension.Script
     }
 
     [Serializable]
-    public class BulletScriptable : Scriptable<BulletExt>, IObjectScriptable
+    public class BulletScriptable : Scriptable<BulletExt>, IBulletScriptable
     {
         public BulletScriptable(BulletExt owner) : base(owner) { }
 
         public virtual void OnInit() { }
-        public virtual void OnUpdate() { }
         public virtual void OnUnInit() { }
 
         public virtual void OnDetonate(CoordStruct location) { }
 
-        public virtual void OnPut(Pointer<CoordStruct> pCoord, Direction faceDir) { }
+        public virtual void OnPut(CoordStruct pCoord, Direction faceDir) { }
         public virtual void OnRemove() { }
 
         public virtual void OnReceiveDamage(Pointer<int> pDamage, int DistanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
             Pointer<ObjectClass> pAttacker, bool IgnoreDefenses, bool PreventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
         { }
-        public virtual void OnDestroy() { }
     }
 }

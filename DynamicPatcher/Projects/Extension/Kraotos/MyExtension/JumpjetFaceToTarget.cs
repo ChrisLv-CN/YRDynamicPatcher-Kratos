@@ -67,7 +67,7 @@ namespace Extension.Ext
             Pointer<TechnoClass> pTechno = OwnerObject;
             if (null != Type.JJFacingData && Type.JJFacingData.Enable
                 && pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Unit
-                && pTechno.Ref.Type.Ref.Jumpjet
+                && pTechno.Ref.Type.Ref.JumpJet
                 && pTechno.Convert<AbstractClass>().Ref.IsInAir()
             )
             {

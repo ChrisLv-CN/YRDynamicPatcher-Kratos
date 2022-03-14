@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
 	[StructLayout(LayoutKind.Explicit, Size = 152, Pack = 1)]
-	[Serializable]
 	public struct AbstractTypeClass
 	{
 		public static readonly IntPtr ArrayPointer = new IntPtr(0xA8E968);
@@ -17,7 +16,7 @@ namespace PatcherYRpp
 
 		public unsafe bool LoadFromINI(Pointer<CCINIClass> pINI)
 		{
-			var func = (delegate* unmanaged[Thiscall]<ref AbstractTypeClass, IntPtr, Bool>)Helpers.GetVirtualFunctionPointer(Pointer<AbstractTypeClass>.AsPointer(ref this), 25);
+			var func = (delegate* unmanaged[Thiscall]<ref AbstractTypeClass, IntPtr, Bool>)this.GetVirtualFunctionPointer(25);
 			return func(ref this, pINI);
 		}
 

@@ -588,7 +588,7 @@ namespace Extension.Ext
             onStopCommand = true;
             TechnoExt ext = TechnoExt.ExtMap.Find(pStand);
             ext?.OnStopCommand();
-            ext?.Scriptable?.OnStopCommand();
+            // ext?.Scriptable?.OnStopCommand();
         }
 
     }

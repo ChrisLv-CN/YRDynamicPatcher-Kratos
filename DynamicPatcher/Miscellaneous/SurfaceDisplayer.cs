@@ -3,17 +3,14 @@ using PatcherYRpp;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-#if FX_ENABLE
-using System.Drawing.Imaging;
-using System.Windows.Forms;
-#endif
+// using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Miscellaneous
 {
-#if FX_ENABLE
 #if false
     class DisplayerForm : Form
     {
@@ -104,6 +101,5 @@ namespace Miscellaneous
 
         private Bitmap _image;
     }
-#endif
 #endif
 }

@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 128)]
-    [Serializable]
     public struct SuperClass
     {
         public unsafe void Launch(CellStruct cell, bool isPlayer)

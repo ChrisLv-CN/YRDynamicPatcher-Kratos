@@ -1,8 +1,10 @@
 using System.Drawing;
 using System.Threading;
-using DynamicPatcher;
 using PatcherYRpp;
 using PatcherYRpp.Utilities;
+using Extension;
+using Extension.Utilities;
+using DynamicPatcher;
 using System;
 using System.Collections.Generic;
 using Extension.Ext;
@@ -35,6 +37,36 @@ namespace Extension.Utilities
     public static class ExHelper
     {
         public static Random Random = new Random(114514);
+
+        public static CoordStruct ToCoordStruct(this BulletVelocity bulletVelocity)
+        {
+            return new CoordStruct(bulletVelocity.X, bulletVelocity.Y, bulletVelocity.Z);
+        }
+
+        public static CoordStruct ToCoordStruct(this SingleVector3D vector3D)
+        {
+            return new CoordStruct(vector3D.X, vector3D.Y, vector3D.Z);
+        }
+
+        public static BulletVelocity ToBulletVelocity(this CoordStruct coord)
+        {
+            return new BulletVelocity(coord.X, coord.Y, coord.Z);
+        }
+
+        public static BulletVelocity ToBulletVelocity(this SingleVector3D vector3D)
+        {
+            return new BulletVelocity(vector3D.X, vector3D.Y, vector3D.Z);
+        }
+
+        public static SingleVector3D ToSingleVector3D(this CoordStruct coord)
+        {
+            return new SingleVector3D(coord.X, coord.Y, coord.Z);
+        }
+
+        public static SingleVector3D ToSingleVector3D(this BulletVelocity bulletVelocity)
+        {
+            return new SingleVector3D(bulletVelocity.X, bulletVelocity.Y, bulletVelocity.Z);
+        }
 
         public static bool IsDead(this Pointer<TechnoClass> pTechno)
         {
@@ -187,7 +219,7 @@ namespace Extension.Utilities
             }
             else
             {
-                SingleVector3D res = pTechno.Ref.Base.Base.GetCoords().ToVector3D();
+                SingleVector3D res = pTechno.Ref.Base.Base.GetCoords().ToSingleVector3D();
                 // get turretOffset location offset
                 CoordStruct sourceOffset = turretOffset;
                 if (nextFrame)

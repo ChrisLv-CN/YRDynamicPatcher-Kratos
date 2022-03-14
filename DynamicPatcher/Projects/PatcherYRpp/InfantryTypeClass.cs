@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 3792)]
-    [Serializable]
     public struct InfantryTypeClass
     {
         
@@ -17,6 +16,8 @@ namespace PatcherYRpp
         public static YRPP.GLOBAL_DVC_ARRAY<InfantryTypeClass> ABSTRACTTYPE_ARRAY = new YRPP.GLOBAL_DVC_ARRAY<InfantryTypeClass>(ArrayPointer);
 
         [FieldOffset(0)] public TechnoTypeClass Base;
+        [FieldOffset(0)] public ObjectTypeClass BaseObjectType;
+        [FieldOffset(0)] public AbstractTypeClass BaseAbstractType;
 
         [FieldOffset(3773)] public Bool Crawls;
 

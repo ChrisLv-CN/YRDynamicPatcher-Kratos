@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 256)]
-	[Serializable]
     public struct SuperWeaponTypeClass
 	{
 		public static readonly IntPtr ArrayPointer = new IntPtr(0xA8E330);

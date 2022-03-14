@@ -10,7 +10,6 @@ using DynamicPatcher;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 24)]
-    [Serializable]
     public struct SpawnNode
     {
         [FieldOffset(0)] public Pointer<TechnoClass> Unit;
