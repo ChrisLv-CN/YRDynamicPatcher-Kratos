@@ -261,6 +261,10 @@ namespace Extension.Ext
                             }
                         }
                     }
+                    else
+                    {
+                        Logger.LogWarning("Gift box release gift failed, unknown TechnoType [{0}]", id);
+                    }
                 }
             }
 
