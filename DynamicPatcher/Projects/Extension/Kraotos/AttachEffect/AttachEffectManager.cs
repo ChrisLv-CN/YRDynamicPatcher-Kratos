@@ -1,8 +1,8 @@
 using System.Collections;
 using DynamicPatcher;
-using Extension.Ext;
 using Extension.Utilities;
 using PatcherYRpp;
+using PatcherYRpp.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -348,7 +348,7 @@ namespace Extension.Ext
                     int delay = ae.Type.Delay;
                     if (ae.Type.RandomDelay)
                     {
-                        delay = ExHelper.Random.Next(ae.Type.MinDelay, ae.Type.MaxDelay);
+                        delay = MathEx.Random.Next(ae.Type.MinDelay, ae.Type.MaxDelay);
                     }
                     if (delay > 0)
                     {

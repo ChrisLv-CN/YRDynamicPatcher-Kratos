@@ -1,6 +1,7 @@
 using DynamicPatcher;
 using Extension.Utilities;
 using PatcherYRpp;
+using PatcherYRpp.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +41,7 @@ namespace Extension.Ext
                 }
                 else
                 {
-                    index = ExHelper.Random.Next(0, destroyAnims.Count - 1);
+                    index = MathEx.Random.Next(0, destroyAnims.Count - 1);
                     // Logger.Log("随机选择摧毁动画{0}/{1}", index, facing);
                 }
                 string animID = destroyAnims[index];

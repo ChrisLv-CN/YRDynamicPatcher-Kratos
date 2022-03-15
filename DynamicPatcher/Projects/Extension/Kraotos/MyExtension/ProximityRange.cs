@@ -168,7 +168,7 @@ namespace Extension.Ext
                     int range = ext.ProximityRangeData.Range;
                     if (ext.ProximityRangeData.Random)
                     {
-                        range = ExHelper.Random.Next(ext.ProximityRangeData.MinRange, ext.ProximityRangeData.MaxRange);
+                        range = MathEx.Random.Next(ext.ProximityRangeData.MinRange, ext.ProximityRangeData.MaxRange);
                     }
                     proximityRange = new ProximityRange(ext.ProximityRangeData, range);
                 }

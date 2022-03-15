@@ -1,6 +1,7 @@
 using DynamicPatcher;
 using Extension.Utilities;
 using PatcherYRpp;
+using PatcherYRpp.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,9 +51,9 @@ namespace Extension.Ext
                 if (Type.MissileBulletData.ShakeVelocity != 0)
                 {
                     BulletVelocity velocity = OwnerObject.Ref.Velocity;
-                    double shakeX = ExHelper.Random.NextDouble() * Type.MissileBulletData.ShakeVelocity;
-                    double shakeY = ExHelper.Random.NextDouble() * Type.MissileBulletData.ShakeVelocity;
-                    double shakeZ = ExHelper.Random.NextDouble();
+                    double shakeX = MathEx.Random.NextDouble() * Type.MissileBulletData.ShakeVelocity;
+                    double shakeY = MathEx.Random.NextDouble() * Type.MissileBulletData.ShakeVelocity;
+                    double shakeZ = MathEx.Random.NextDouble();
                     OwnerObject.Ref.Velocity.X *= shakeX;
                     OwnerObject.Ref.Velocity.Y *= shakeY;
                     OwnerObject.Ref.Velocity.Z *= shakeZ;

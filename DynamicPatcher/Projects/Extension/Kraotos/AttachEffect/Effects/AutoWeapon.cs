@@ -2,6 +2,7 @@ using DynamicPatcher;
 using Extension.Ext;
 using Extension.Utilities;
 using PatcherYRpp;
+using PatcherYRpp.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -191,7 +192,7 @@ namespace Extension.Ext
                     int max = weaponTypes.Count;
                     for (int i = 0; i < randomNum; i++)
                     {
-                        int index = ExHelper.Random.Next(0, max);
+                        int index = MathEx.Random.Next(0, max);
                         randomWeaponTypes.Add(weaponTypes[index]);
                     }
                     weaponTypes = randomWeaponTypes;

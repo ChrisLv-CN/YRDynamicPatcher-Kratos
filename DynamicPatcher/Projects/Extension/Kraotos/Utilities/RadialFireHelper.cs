@@ -1,4 +1,5 @@
 using PatcherYRpp;
+using PatcherYRpp.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,7 +42,7 @@ namespace Extension.Utilities
 
         private void InitData(DirStruct dir, int splitAngle)
         {
-            degrees = EXMath.Rad2Deg(dir.radians()) + splitAngle;
+            degrees = MathEx.Rad2Deg(dir.radians()) + splitAngle;
             delta = splitAngle / (burst + 1);
             deltaZ = 1f / (burst / 2f + 1);
         }
@@ -60,7 +61,7 @@ namespace Extension.Utilities
             }
             double angle = degrees + delta * (index + 1);
             // Logger.Log("{0} - Burst = {1}, Degrees = {2}, Delta = {3}, DeltaZ = {4}, Angle = {5}, Z = {6}", index, burst, degrees, delta, deltaZ, angle, z);
-            double radians = EXMath.Deg2Rad(angle);
+            double radians = MathEx.Deg2Rad(angle);
             DirStruct targetDir = ExHelper.Radians2Dir(radians);
             Matrix3DStruct matrix3D = new Matrix3DStruct(true);
             matrix3D.RotateZ((float)targetDir.radians());

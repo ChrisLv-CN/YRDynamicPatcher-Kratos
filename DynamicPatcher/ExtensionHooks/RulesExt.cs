@@ -14,18 +14,6 @@ using Extension.Script;
 namespace ExtensionHooks
 {
 
-    public class ScenarioExtHooks
-    {
-        
-        [Hook(HookType.AresHook, Address = 0x6875F3, Size = 6)]
-        public static unsafe UInt32 Scenario_Start1(REGISTERS* R)
-        {
-            ExHelper.Random = new Random(114514);
-            return (uint)0;
-        }
-
-    }
-
     public class RulesExtHooks
     {
         [Hook(HookType.AresHook, Address = 0x667A1D, Size = 5)]

@@ -49,7 +49,7 @@ namespace Extension.Ext
         public void Reset()
         {
             this.IsOpen = false;
-            this.Delay = Data.DelayMax == 0 ? Data.Delay : ExHelper.Random.Next(Data.DelayMin, Data.DelayMax);
+            this.Delay = Data.DelayMax == 0 ? Data.Delay : MathEx.Random.Next(Data.DelayMin, Data.DelayMax);
             if (this.Delay > 0)
             {
                 delayTimer = new TimerStruct(this.Delay);
@@ -103,7 +103,7 @@ namespace Extension.Ext
                 }
                 for (int i = 0; i < nums; i++)
                 {
-                    gifts.Add(Gifts[ExHelper.Random.Next(0, Gifts.Count)]);
+                    gifts.Add(Gifts[MathEx.Random.Next(0, Gifts.Count)]);
                 }
             }
             else
@@ -209,7 +209,7 @@ namespace Extension.Ext
                         int max = cellOffset.Count();
                         for (int i = 0; i < max; i++)
                         {
-                            int index = ExHelper.Random.Next(max - 1);
+                            int index = MathEx.Random.Next(max - 1);
                             CellStruct offset = cellOffset[index];
                             // Logger.Log("随机获取周围格子索引{0}, 共{1}格, 获取的格子偏移{2}, 单位当前坐标{3}, 第一个格子的坐标{4}, 尝试次数{5}, 当前偏移{6}", index, max, offset, location, MapClass.Cell2Coord(cell + cellOffset[0]), i, cellOffset[i]);
                             if (offset == default)
@@ -233,28 +233,31 @@ namespace Extension.Ext
                     }
                     // 投送单位
                     Pointer<TechnoClass> pGift = ExHelper.CreateAndPutTechno(id, pHouse, location, pCell);
-                    // 开往预定目的地
-                    if (pDest.IsNull && pFocus.IsNull)
+                    if (!pGift.IsNull)
                     {
-                        pGift.Ref.Base.Scatter(CoordStruct.Empty, true, false);
-                    }
-                    else
-                    {
-                        if (pGift.Ref.Base.Base.WhatAmI() != AbstractType.Building)
+                        // 开往预定目的地
+                        if (pDest.IsNull && pFocus.IsNull)
                         {
-                            CoordStruct des = pDest.IsNull ? location : pDest.Ref.GetCoords();
-                            if (!pFocus.IsNull)
+                            pGift.Ref.Base.Scatter(CoordStruct.Empty, true, false);
+                        }
+                        else
+                        {
+                            if (pGift.Ref.Base.Base.WhatAmI() != AbstractType.Building)
                             {
-                                pGift.Ref.SetFocus(pFocus);
-                                if (pGift.Ref.Base.Base.WhatAmI() == AbstractType.Unit)
+                                CoordStruct des = pDest.IsNull ? location : pDest.Ref.GetCoords();
+                                if (!pFocus.IsNull)
                                 {
-                                    des = pFocus.Ref.GetCoords();
+                                    pGift.Ref.SetFocus(pFocus);
+                                    if (pGift.Ref.Base.Base.WhatAmI() == AbstractType.Unit)
+                                    {
+                                        des = pFocus.Ref.GetCoords();
+                                    }
                                 }
-                            }
-                            if (MapClass.Instance.TryGetCellAt(des, out Pointer<CellClass> pTargetCell))
-                            {
-                                pGift.Ref.SetDestination(pTargetCell, true);
-                                pGift.Convert<MissionClass>().Ref.QueueMission(Mission.Move, false);
+                                if (MapClass.Instance.TryGetCellAt(des, out Pointer<CellClass> pTargetCell))
+                                {
+                                    pGift.Ref.SetDestination(pTargetCell, true);
+                                    pGift.Convert<MissionClass>().Ref.QueueMission(Mission.Move, false);
+                                }
                             }
                         }
                     }

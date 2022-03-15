@@ -1,6 +1,7 @@
 using DynamicPatcher;
 using Extension.Utilities;
 using PatcherYRpp;
+using PatcherYRpp.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,8 +57,8 @@ namespace Extension.Ext
                         max = temp;
                     }
                     // 随机
-                    double r = ExHelper.Random.Next(min, max);
-                    var theta = ExHelper.Random.NextDouble() * 2 * Math.PI;
+                    double r = MathEx.Random.Next(min, max);
+                    var theta = MathEx.Random.NextDouble() * 2 * Math.PI;
                     CoordStruct offset = new CoordStruct((int)(r * Math.Cos(theta)), (int)(r * Math.Sin(theta)), 0);
                     targetPos += offset;
                     pBullet.Ref.TargetCoords = targetPos;

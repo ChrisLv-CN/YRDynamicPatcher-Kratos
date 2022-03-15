@@ -1,6 +1,7 @@
 using DynamicPatcher;
 using Extension.Utilities;
 using PatcherYRpp;
+using PatcherYRpp.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -160,7 +161,7 @@ namespace Extension.Ext
             int count = 0;
             if (null != Decoys && (count = Decoys.Count) > 0)
             {
-                int ans = ExHelper.Random.Next(count);
+                int ans = MathEx.Random.Next(count);
                 DecoyBullet decoy = Decoys[ans == count ? ans - 1 : ans];
                 Decoys.Remove(decoy);
                 return decoy.Bullet;

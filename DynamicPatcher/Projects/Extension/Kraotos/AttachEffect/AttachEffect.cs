@@ -2,8 +2,8 @@ using System.Reflection;
 using System.Collections;
 using DynamicPatcher;
 using Extension.Utilities;
-using Extension.Script;
 using PatcherYRpp;
+using PatcherYRpp.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -43,7 +43,7 @@ namespace Extension.Ext
             this.delayToEnable = false;
             if (type.InitialRandomDelay)
             {
-                initDelay = ExHelper.Random.Next(type.InitialMinDelay, type.InitialMaxDelay);
+                initDelay = MathEx.Random.Next(type.InitialMinDelay, type.InitialMaxDelay);
             }
             if (initDelay > 0)
             {

@@ -17,6 +17,8 @@ namespace Extension.Utilities
 
     public delegate bool FireBulletToTarget(int index, int burst, Pointer<BulletClass> pBullet, Pointer<AbstractClass> pTarget);
 
+    /*
+     * 改用 PatcherYRpp.Utilities.MathEx
     public static class EXMath
     {
         public const double HalfPI = Math.PI / 2;
@@ -33,10 +35,12 @@ namespace Extension.Utilities
             return radians / DEG_TO_RAD;
         }
     }
+    */
 
     public static class ExHelper
     {
-        public static Random Random = new Random(114514);
+        // public static Random Random = new Random(114514);
+        public const double BINARY_ANGLE_MAGIC = -(360.0 / (65535 - 1)) * (Math.PI / 180);
 
         public static CoordStruct ToCoordStruct(this BulletVelocity bulletVelocity)
         {
@@ -814,7 +818,7 @@ namespace Extension.Utilities
         {
             if (pWeapon.Ref.Report.Count > 0)
             {
-                int index = Random.Next(0, pWeapon.Ref.Report.Count - 1);
+                int index = MathEx.Random.Next(0, pWeapon.Ref.Report.Count - 1);
                 int soundIndex = pWeapon.Ref.Report.Get(index);
                 if (soundIndex != -1)
                 {
@@ -976,9 +980,9 @@ namespace Extension.Utilities
 
         public static DirStruct DirNormalized(int index, int facing)
         {
-            double radians = EXMath.Deg2Rad((-360 / facing * index));
+            double radians = MathEx.Deg2Rad((-360 / facing * index));
             DirStruct dir = new DirStruct();
-            dir.SetValue((short)(radians / EXMath.BINARY_ANGLE_MAGIC));
+            dir.SetValue((short)(radians / BINARY_ANGLE_MAGIC));
             return dir;
         }
 
@@ -996,13 +1000,13 @@ namespace Extension.Utilities
             // get angle
             double radians = Math.Atan2(sourcePos.Y - targetPos.Y, targetPos.X - sourcePos.X);
             // Magic form tomsons26
-            radians -= EXMath.Deg2Rad(90);
+            radians -= MathEx.Deg2Rad(90);
             return Radians2Dir(radians);
         }
 
         public static DirStruct Radians2Dir(double radians)
         {
-            short d = (short)(radians / EXMath.BINARY_ANGLE_MAGIC);
+            short d = (short)(radians / BINARY_ANGLE_MAGIC);
             return new DirStruct(d);
         }
     }
