@@ -21,7 +21,7 @@ namespace Extension.Ext
         public bool AffectsOwner;
         public bool AffectsAllies;
         public bool AffectsEnemies;
-
+        public bool AffectsClocked;
 
         public bool Penetration;
         public string PenetrationWarhead;
@@ -37,6 +37,7 @@ namespace Extension.Ext
             this.AffectsOwner = false;
             this.AffectsAllies = false;
             this.AffectsEnemies = true;
+            this.AffectsClocked = true;
 
             this.Penetration = false;
             this.PenetrationWarhead = null;
@@ -221,9 +222,7 @@ namespace Extension.Ext
                     Proximity.pCheckedCell.Pointer = pCell;
                     CoordStruct cellPos = pCell.Ref.Base.GetCoords();
 
-                    // BulletEffectHelper.RedCrosshair(sourcePos, 128, 1, 75);
-                    // BulletEffectHelper.GreenCell(cellPos, 128, 1, 75);
-                    // BulletEffectHelper.BlueLine(sourcePos, cellPos, 1, 135);
+                    BulletEffectHelper.GreenCell(cellPos, 128, 1, 75);
 
                     // 获取这个格子上的所有对象，不包括飞机
                     HashSet<Pointer<TechnoClass>> pTechnoSet = new HashSet<Pointer<TechnoClass>>();
@@ -280,7 +279,7 @@ namespace Extension.Ext
                     foreach (Pointer<TechnoClass> pTarget in pTechnoSet)
                     {
                         CoordStruct targetPos = pTarget.Ref.Base.Base.GetCoords();
-                        // BulletEffectHelper.BlueLineZ(targetPos, 1024, 1, 75);
+                        BulletEffectHelper.BlueLineZ(targetPos, 1024, 1, 75);
 
                         bool hit = false;
 
@@ -335,7 +334,7 @@ namespace Extension.Ext
         private bool IsDeadOrStand(Pointer<TechnoClass> pTarget, Pointer<TechnoClass> pBulletOwner)
         {
             // 检查死亡和发射者
-            if (pTarget.IsNull || pTarget == pBulletOwner || pTarget.IsDeadOrInvisible() || pTarget.Ref.IsImmobilized)
+            if (pTarget.IsNull || pTarget == pBulletOwner || (Proximity.Data.AffectsClocked ? pTarget.IsDeadOrInvisible() : pTarget.IsDeadOrInvisibleOrCloaked()) || pTarget.Ref.IsImmobilized)
             {
                 return true;
             }
@@ -456,7 +455,8 @@ namespace Extension.Ext
         /// Proximity.ZOffset=104
         /// Proximity.AffectsOwner=no
         /// Proximity.AffectsAllies=no
-        /// Proximity.AffectsEnemies=no
+        /// Proximity.AffectsEnemies=yes
+        /// Proximity.AffectsClocked=yes
         /// 
         /// Proximity.Penetration=no
         /// Proximity.PenetrationWarhead=HE
@@ -486,13 +486,13 @@ namespace Extension.Ext
                 ProximityData.ZOffset = z;
             }
 
-            bool affectsOwner = true;
+            bool affectsOwner = false;
             if (reader.ReadNormal(section, "Proximity.AffectsOwner", ref affectsOwner))
             {
                 ProximityData.AffectsOwner = affectsOwner;
             }
 
-            bool affectsAllies = true;
+            bool affectsAllies = false;
             if (reader.ReadNormal(section, "Proximity.AffectsAllies", ref affectsAllies))
             {
                 ProximityData.AffectsAllies = affectsAllies;
@@ -503,6 +503,13 @@ namespace Extension.Ext
             {
                 ProximityData.AffectsEnemies = affectsEnemies;
             }
+
+            bool affectsClocked = true;
+            if (reader.ReadNormal(section, "Proximity.AffectsClocked", ref affectsClocked))
+            {
+                ProximityData.AffectsClocked = affectsClocked;
+            }
+
 
             bool penetration = true;
             if (reader.ReadNormal(section, "Proximity.Penetration", ref penetration))

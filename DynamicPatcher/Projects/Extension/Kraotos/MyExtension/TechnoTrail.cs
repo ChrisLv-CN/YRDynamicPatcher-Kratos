@@ -32,7 +32,7 @@ namespace Extension.Ext
         public unsafe void TechnoClass_Update_Trail()
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
-            if (null == trailManager || pTechno.IsInvisible())
+            if (null == trailManager || pTechno.IsDeadOrInvisibleOrCloaked())
             {
                 return;
             }

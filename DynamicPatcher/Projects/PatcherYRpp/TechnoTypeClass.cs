@@ -102,7 +102,7 @@ namespace PatcherYRpp
         [FieldOffset(3292)] public int weaponStage_first;
         public Pointer<int> WeaponStage => Pointer<int>.AsPointer(ref weaponStage_first);
 
-        [FieldOffset(3292)] public int eliteStage_first;
+        [FieldOffset(3316)] public int eliteStage_first;
         public Pointer<int> EliteStage => Pointer<int>.AsPointer(ref eliteStage_first);
 
         [FieldOffset(3348)] public Bool SelfHealing;

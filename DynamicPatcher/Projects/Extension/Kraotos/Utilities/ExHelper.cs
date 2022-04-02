@@ -84,7 +84,7 @@ namespace Extension.Utilities
 
         public static bool IsInvisible(this Pointer<TechnoClass> pTechno)
         {
-            return pTechno.IsNull || pTechno.Convert<ObjectClass>().IsInvisible() || pTechno.Ref.CloakStates == CloakStates.Cloaked || pTechno.Ref.CloakStates == CloakStates.Cloaking;
+            return pTechno.IsNull || pTechno.Convert<ObjectClass>().IsInvisible();
         }
 
         public static bool IsInvisible(this Pointer<ObjectClass> pObject)
@@ -101,6 +101,11 @@ namespace Extension.Utilities
         {
             Pointer<ObjectClass> pObject = pBullet.Convert<ObjectClass>();
             return pObject.IsDead() || pObject.IsInvisible();
+        }
+
+        public static bool IsDeadOrInvisibleOrCloaked(this Pointer<TechnoClass> pTechno)
+        {
+            return pTechno.IsDeadOrInvisible() || pTechno.Ref.CloakStates == CloakStates.Cloaked || pTechno.Ref.CloakStates == CloakStates.Cloaking;
         }
 
         public static int Category(this LandType landType)
