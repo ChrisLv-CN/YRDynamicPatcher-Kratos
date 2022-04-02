@@ -101,30 +101,19 @@ namespace Extension.Ext
                 else if (!pTechno.Ref.Target.IsNull)
                 {
                     Pointer<AbstractClass> pTarget = pTechno.Ref.Target;
-                    int weaponCount = pTechno.Ref.Type.Ref.WeaponCount;
-                    if (weaponCount == 0)
-                    {
-                        weaponCount = 2;
-                    }
                     bool canFire = false;
-                    for (int i = 0; i < weaponCount; i++)
+                    int weaponIdx = pTechno.Ref.SelectWeapon(pTarget);
+                    FireError fireError = pTechno.Ref.GetFireError(pTarget, weaponIdx, true);
+                    switch (fireError)
                     {
-                        FireError fireError = pTechno.Ref.GetFireError(pTarget, i, true);
-                        switch (fireError)
-                        {
-                            case FireError.ILLEGAL:
-                            case FireError.CANT:
-                            case FireError.MOVING:
-                            case FireError.RANGE:
-                                break;
-                            default:
-                                canFire = pTechno.Ref.IsCloseEnough(pTarget, i);
-                                break;
-                        }
-                        if (canFire)
-                        {
+                        case FireError.ILLEGAL:
+                        case FireError.CANT:
+                        case FireError.MOVING:
+                        case FireError.RANGE:
                             break;
-                        }
+                        default:
+                            canFire = pTechno.Ref.IsCloseEnough(pTarget, weaponIdx);
+                            break;
                     }
                     if (canFire)
                     {
@@ -146,6 +135,11 @@ namespace Extension.Ext
                             JJFacing.Cancel();
                             // Logger.Log("无需转向, 当前朝向{0}, 目标朝向{1}", ExHelper.Dir2FacingIndex(selfDir, facing), ExHelper.Dir2FacingIndex(toDir, facing));
                         }
+                    }
+                    else
+                    {
+                        JJFacing.Cancel();
+                        pTechno.Ref.BaseMission.QueueMission(Mission.Attack, false);
                     }
                 }
             }

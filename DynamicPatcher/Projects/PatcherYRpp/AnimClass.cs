@@ -10,6 +10,11 @@ namespace PatcherYRpp
     [StructLayout(LayoutKind.Explicit, Size = 456)]
     public struct AnimClass
     {
+        public static readonly IntPtr ArrayPointer = new IntPtr(0xA8E9A8);
+
+        public static ref DynamicVectorClass<Pointer<AnimClass>> Array { get => ref DynamicVectorClass<Pointer<AnimClass>>.GetDynamicVector(ArrayPointer); }
+
+
         public unsafe void SetOwnerObject(Pointer<ObjectClass> pOwner)
         {
             var func = (delegate* unmanaged[Thiscall]<ref AnimClass, IntPtr, void>)0x424B50;

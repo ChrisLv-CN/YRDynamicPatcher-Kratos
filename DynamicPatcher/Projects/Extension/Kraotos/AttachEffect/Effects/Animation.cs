@@ -116,20 +116,14 @@ namespace Extension.Ext
         {
             if (!pAnim.IsNull)
             {
-                // Logger.Log("移除持续动画{0}", Type.IdleAnim);
-                pAnim.Ref.SetOwnerObject(IntPtr.Zero);
-                // Logger.Log(" - 已清除动画{0}的附属对象", Type.IdleAnim);
-                if (OnwerIsDead)
+                if (!OnwerIsDead)
                 {
                     pAnim.Ref.TimeToDie = true;
+                    pAnim.Ref.Base.UnInit(); // 包含了SetOwnerObject(0) 0x4255B0
                 }
-                else
-                {
-                    pAnim.Ref.Base.UnInit();
-                }
-                // Logger.Log(" - 已销毁动画{0}实例", Type.IdleAnim);
+                // Logger.Log("{0} - 已销毁动画{1}实例", Game.CurrentFrame, Type.IdleAnim);
                 pAnim.Pointer = IntPtr.Zero;
-                // Logger.Log(" - 成功移除持续动画{0}", Type.IdleAnim);
+                // Logger.Log("{0} - 成功移除持续动画{1}", Game.CurrentFrame, Type.IdleAnim);
             }
         }
 
@@ -146,7 +140,7 @@ namespace Extension.Ext
 
         public override void OnRemove(Pointer<ObjectClass> pObject)
         {
-            // Logger.Log("单位隐藏，移除持续动画{0}", Type.IdleAnim);
+            // Logger.Log("{0} 单位{1}隐藏，移除持续动画{2}", Game.CurrentFrame, pObject, Type.IdleAnim);
             KillAnim();
         }
 
@@ -171,7 +165,8 @@ namespace Extension.Ext
 
         public override void OnDestroy(Pointer<ObjectClass> pOwner)
         {
-            // Logger.Log("单位被炸死，不移除持续动画{0}", Type.IdleAnim);
+            // 单位被杀死时，附着动画会自动remove，0x4A9770
+            // Logger.Log("{0} 单位{1}被炸死，不移除持续动画{2}", Game.CurrentFrame, pOwner, Type.IdleAnim);
             // this.Disable(pOwner.Ref.Location);
             this.OnwerIsDead = true;
         }
