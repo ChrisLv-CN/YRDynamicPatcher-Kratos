@@ -88,7 +88,7 @@ namespace Extension.Ext
                             pTechno.Ref.Base.SetLocation(offsetLocation);
 
                             pTechno.Ref.SetDestination(pCell, true);
-                            pTechno.Convert<MissionClass>().Ref.QueueMission(Mission.Move, true);
+                            // pTechno.Convert<MissionClass>().Ref.QueueMission(Mission.Move, true);
                             // Logger.Log("转向, 目标方向{0}, 本体方向{1}, 偏移向量{2}, 最小向量{3}", JJFacing.ToDir.value32(), pTechno.Ref.GetRealFacing().current().value32(), offset, vector);
                         }
                     }
@@ -139,7 +139,6 @@ namespace Extension.Ext
                     else
                     {
                         JJFacing.Cancel();
-                        pTechno.Ref.BaseMission.QueueMission(Mission.Attack, false);
                     }
                 }
             }

@@ -139,6 +139,8 @@ namespace PatcherYRpp
 
         [FieldOffset(3380)] public Bool CanRecalcApproachTarget;
 
+        [FieldOffset(3385)] public Bool DefaultToGuardArea;
+
         [FieldOffset(3412)] public Bool Spawned;
 
         [FieldOffset(3434)] public Bool BalloonHover;
