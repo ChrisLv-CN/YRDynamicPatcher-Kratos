@@ -101,9 +101,12 @@ namespace PatcherYRpp.Utilities
 
         public static List<Pointer<TechnoClass>> FindAttackTechnos(ref this TechnoClass pThis, int range, bool includeFriends = false)
         {
-            var list = new List<Pointer<TechnoClass>>();
-
             CoordStruct location = pThis.BaseAbstract.GetCoords();
+            return pThis.FindAttackTechnos(location, range, includeFriends);
+        }
+        public static List<Pointer<TechnoClass>> FindAttackTechnos(ref this TechnoClass pThis, CoordStruct location, int range, bool includeFriends = false)
+        {
+            var list = new List<Pointer<TechnoClass>>();
 
             Pointer<HouseClass> pOwner = pThis.Owner;
 

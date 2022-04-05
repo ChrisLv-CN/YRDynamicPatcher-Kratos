@@ -57,6 +57,11 @@ namespace Extension.Ext
             BulletClass_Update_AttachEffect();
         }
 
+        public unsafe void OnRender()
+        {
+            
+        }
+
         public unsafe void OnDetonate(CoordStruct location)
         {
             // 爆炸的位置离目标位置非常近视为命中

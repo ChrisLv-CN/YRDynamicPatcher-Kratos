@@ -31,5 +31,48 @@ namespace ComponentHooks
                 return 0;
             }
         }
+
+        // Kratos moved to ExtensionHook
+        // [Hook(HookType.AresHook, Address = 0x4690B0, Size = 6)]
+        public static unsafe UInt32 BulletClass_Detonate_Components(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BulletClass> pBullet = (IntPtr)R->ECX;
+                var pCoords = R->Stack<Pointer<CoordStruct>>(0x4);
+
+                BulletExt ext = BulletExt.ExtMap.Find(pBullet);
+                ext.AttachedComponent.Foreach(c => (c as IBulletScriptable)?.OnDetonate(pCoords));
+
+                return 0;
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+                return 0;
+            }
+        }
+
+        #region Render
+        [Hook(HookType.AresHook, Address = 0x468090, Size = 6)]
+        public static unsafe UInt32 BulletClass_Render_Components(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BulletClass> pBullet = (IntPtr)R->ECX;
+
+                BulletExt ext = BulletExt.ExtMap.Find(pBullet);
+                ext.OnRender();
+                ext.AttachedComponent.Foreach(c => c.OnRender());
+
+                return 0;
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+                return 0;
+            }
+        }
+        #endregion
     }
 }

@@ -206,7 +206,7 @@ namespace ExtensionHooks
                 BulletExt ext = BulletExt.ExtMap.Find(pBullet);
                 ext?.OnDetonate(pCoordsDetonation.Data);
 
-                ext?.AttachedComponent.Foreach(c => (c as IBulletScriptable)?.OnDetonate(pCoordsDetonation.Data));
+                ext?.AttachedComponent.Foreach(c => (c as IBulletScriptable)?.OnDetonate(pCoordsDetonation));
             }
             catch (Exception e)
             {

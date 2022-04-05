@@ -118,16 +118,14 @@ namespace Extension.Ext
             LastLocation = OwnerObject.Ref.Base.Base.GetCoords();
         }
 
-        public unsafe void OnUnInit()
-        {
-            IsDead = true;
-            // Logger.Log("{0} 注销.", OwnerObject);
-            TechnoClass_UnInit_AttachEffect();
-        }
-
         public unsafe void OnTemporalUpdate(Pointer<TemporalClass> pTemporal)
         {
             // TemporalClass_UpdateA_Stand(pTemporal);
+        }
+
+        public unsafe void OnRender()
+        {
+
         }
 
         public unsafe void OnPut(Pointer<CoordStruct> pCoord, Direction faceDir)
@@ -229,6 +227,12 @@ namespace Extension.Ext
             TechnoClass_Destroy_GiftBox();
         }
 
+        public unsafe void OnUnInit()
+        {
+            IsDead = true;
+            // Logger.Log("{0} 注销.", OwnerObject);
+            TechnoClass_UnInit_AttachEffect();
+        }
 
         public unsafe void CanFire(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon, ref bool ceaseFire)
         {
@@ -332,6 +336,7 @@ namespace Extension.Ext
 
     public partial class TechnoTypeExt
     {
+        public SwizzleablePointer<SuperWeaponTypeClass> FireSuperWeapon = new SwizzleablePointer<SuperWeaponTypeClass>(IntPtr.Zero);
 
         public CoordStruct TurretOffset = new CoordStruct();
 
@@ -354,6 +359,8 @@ namespace Extension.Ext
             {
                 artSection = image;
             }
+
+            reader.ReadSuperWeapon(section, nameof(FireSuperWeapon), ref FireSuperWeapon.Pointer);
 
             ReadAresFlags(reader, section);
 

@@ -28,7 +28,7 @@ namespace Extension.Script
 
     public interface IBulletScriptable : IObjectScriptable
     {
-        public void OnDetonate(CoordStruct location);
+        public void OnDetonate(Pointer<CoordStruct> location);
     }
 
     public interface ITechnoScriptable : IObjectScriptable
@@ -89,7 +89,7 @@ namespace Extension.Script
         public virtual void OnInit() { }
         public virtual void OnUnInit() { }
 
-        public virtual void OnDetonate(CoordStruct location) { }
+        public virtual void OnDetonate(Pointer<CoordStruct> location) { }
 
         public virtual void OnPut(CoordStruct pCoord, Direction faceDir) { }
         public virtual void OnRemove() { }

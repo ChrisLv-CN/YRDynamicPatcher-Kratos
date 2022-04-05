@@ -283,6 +283,10 @@ namespace Extension.Components
         public virtual void OnUpdate()
         {
         }
+        public virtual void OnRender()
+        {
+
+        }
         public virtual void OnDestroy()
         {
         }

@@ -20,24 +20,31 @@ namespace Extension.Utilities
         public static int Parse(byte[] buffer, ref T outValue)
         {
             string str = GetString(buffer);
+            return Parse(str, ref outValue);
+        }
 
+        public static int Parse(byte[] buffer, ref T[] outValue)
+        {
+            string str = GetString(buffer);
+            return Parse(str, ref outValue);
+        }
+
+        public static int Parse(string str, ref T outValue)
+        {
             if (string.IsNullOrEmpty(str))
             {
                 return 0;
             }
 
-            if(TryParse(str, ref outValue))
+            if (TryParse(str, ref outValue))
             {
                 return 1;
             }
 
             return 0;
         }
-
-        public static int Parse(byte[] buffer, ref T[] outValue)
+        public static int Parse(string str, ref T[] outValue)
         {
-            string str = GetString(buffer);
-
             string[] strs = str.Split(',');
             int i;
             for (i = 0; i < strs.Length; i++)
@@ -70,9 +77,33 @@ namespace Extension.Utilities
             {
                 return TryParseInt(str, ref pOutValue.Convert<int>().Ref);
             }
+            else if (type == typeof(uint))
+            {
+                return TryParseUInt(str, ref pOutValue.Convert<uint>().Ref);
+            }
+            else if (type == typeof(sbyte))
+            {
+                return TryParseSByte(str, ref pOutValue.Convert<sbyte>().Ref);
+            }
             else if (type == typeof(byte))
             {
                 return TryParseByte(str, ref pOutValue.Convert<byte>().Ref);
+            }
+            else if (type == typeof(long))
+            {
+                return TryParseLong(str, ref pOutValue.Convert<long>().Ref);
+            }
+            else if (type == typeof(ulong))
+            {
+                return TryParseULong(str, ref pOutValue.Convert<ulong>().Ref);
+            }
+            else if (type == typeof(short))
+            {
+                return TryParseShort(str, ref pOutValue.Convert<short>().Ref);
+            }
+            else if (type == typeof(ushort))
+            {
+                return TryParseUShort(str, ref pOutValue.Convert<ushort>().Ref);
             }
             else if (type == typeof(float))
             {
@@ -128,6 +159,10 @@ namespace Extension.Utilities
             }
         }
 
+        static bool TryParseSByte(string str, ref sbyte outValue)
+        {
+            return sbyte.TryParse(str, out outValue);
+        }
         static bool TryParseByte(string str, ref byte outValue)
         {
             return byte.TryParse(str, out outValue);
@@ -136,6 +171,28 @@ namespace Extension.Utilities
         static bool TryParseInt(string str, ref int outValue)
         {
             return int.TryParse(str, out outValue);
+        }
+        static bool TryParseUInt(string str, ref uint outValue)
+        {
+            return uint.TryParse(str, out outValue);
+        }
+
+        static bool TryParseShort(string str, ref short outValue)
+        {
+            return short.TryParse(str, out outValue);
+        }
+        static bool TryParseUShort(string str, ref ushort outValue)
+        {
+            return ushort.TryParse(str, out outValue);
+        }
+
+        static bool TryParseLong(string str, ref long outValue)
+        {
+            return long.TryParse(str, out outValue);
+        }
+        static bool TryParseULong(string str, ref ulong outValue)
+        {
+            return ulong.TryParse(str, out outValue);
         }
 
         static bool TryParseFloat(string str, ref float outValue)

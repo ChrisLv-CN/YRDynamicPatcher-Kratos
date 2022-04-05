@@ -1,4 +1,4 @@
-using Extension.Script;
+﻿using Extension.Script;
 using PatcherYRpp;
 using System;
 using System.Collections.Generic;
