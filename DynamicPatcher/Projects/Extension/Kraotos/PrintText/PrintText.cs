@@ -89,5 +89,64 @@ namespace Extension.Ext
             this.ImageSize = new Point2D(5, 8);
         }
 
+        public void ReadPrintText(INIReader reader, string section, string title)
+        {
+
+            Point2D offset = default;
+            if (ExHelper.ReadPoint2D(reader, section, title + "Offset", ref offset))
+            {
+                this.Offset = offset;
+            }
+
+            // 文字设置
+            Point2D shadowOffset = default;
+            if (ExHelper.ReadPoint2D(reader, section, title + "ShadowOffset", ref shadowOffset))
+            {
+                this.ShadowOffset = shadowOffset;
+            }
+
+            ColorStruct color = default;
+            if (ExHelper.ReadColorStruct(reader, section, title + "Color", ref color))
+            {
+                this.Color = color;
+            }
+
+            ColorStruct shadowColor = default;
+            if (ExHelper.ReadColorStruct(reader, section, title + "ShadowColor", ref shadowColor))
+            {
+                this.ShadowColor = shadowColor;
+            }
+
+            // SHP设置
+            bool useSHP = false;
+            if (reader.ReadNormal(section, title + "UseSHP", ref useSHP))
+            {
+                this.UseSHP = useSHP;
+            }
+            
+            string fileName = null;
+            if (reader.ReadNormal(section, title + "SHP", ref fileName))
+            {
+                string file = fileName;
+                if (!string.IsNullOrEmpty(fileName) && !(file = fileName.ToLower()).Equals("pips.shp"))
+                {
+                    this.CustomSHP = true;
+                    this.SHPFileName = file;
+                }
+            }
+
+            int idx = 0;
+            if (reader.ReadNormal(section, title + "ZeroFrameIndex", ref idx))
+            {
+                this.ZeroFrameIndex = idx;
+            }
+
+            Point2D imgSize = default;
+            if (ExHelper.ReadPoint2D(reader, section, title + "ImageSize", ref imgSize))
+            {
+                this.ImageSize = imgSize;
+            }
+        }
+
     }
 }

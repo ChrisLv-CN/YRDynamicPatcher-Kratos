@@ -15,24 +15,162 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public class HealthTextControlData
+    public class HealthBarControlData
+    {
+        public bool Hidden;
+
+        public HealthBarData Building;
+        public HealthBarData Infantry;
+        public HealthBarData Unit;
+        public HealthBarData Aircraft;
+
+        public HealthBarControlData()
+        {
+            this.Hidden = false;
+            this.Building = new HealthBarData(AbstractType.Building);
+            this.Infantry = new HealthBarData(AbstractType.Infantry);
+            this.Unit = new HealthBarData(AbstractType.Unit);
+            this.Aircraft = new HealthBarData(AbstractType.Aircraft);
+        }
+
+        public void ReadHealthText(INIReader reader, string section)
+        {
+            bool hidden = false;
+            if (reader.ReadNormal(section, "HealthText.Hidden", ref hidden))
+            {
+                this.Hidden = hidden;
+            }
+
+            Building.ReadHealthBar(reader, section, "HealthText.");
+            Infantry.ReadHealthBar(reader, section, "HealthText.");
+            Unit.ReadHealthBar(reader, section, "HealthText.");
+            Aircraft.ReadHealthBar(reader, section, "HealthText.");
+
+            Building.ReadHealthBar(reader, section, "HealthText.Building.");
+            Infantry.ReadHealthBar(reader, section, "HealthText.Infantry.");
+            Unit.ReadHealthBar(reader, section, "HealthText.Unit.");
+            Aircraft.ReadHealthBar(reader, section, "HealthText.Aircraft.");
+
+
+        }
+
+        public HealthBarControlData Clone()
+        {
+            HealthBarControlData data = new HealthBarControlData();
+            data.Hidden = this.Hidden;
+            data.Building = this.Building.Clone();
+            data.Infantry = this.Infantry.Clone();
+            data.Unit = this.Unit.Clone();
+            data.Aircraft = this.Aircraft.Clone();
+            return data;
+        }
+    }
+
+
+    [Serializable]
+    public class HealthBarData
+    {
+        public bool Hidden;
+
+        public HealthTextData Green;
+        public HealthTextData Yellow;
+        public HealthTextData Red;
+
+        public HealthBarData() { }
+
+        public HealthBarData(AbstractType type)
+        {
+            this.Hidden = false;
+            this.Green = new HealthTextData(HealthState.Green);
+            this.Yellow = new HealthTextData(HealthState.Yellow);
+            this.Red = new HealthTextData(HealthState.Red);
+            switch (type)
+            {
+                case AbstractType.Building:
+                    Green.Style = HealthTextStyle.FULL;
+                    Yellow.Style = HealthTextStyle.FULL;
+                    Red.Style = HealthTextStyle.FULL;
+                    break;
+                case AbstractType.Infantry:
+                    Green.Style = HealthTextStyle.SHORT;
+                    Yellow.Style = HealthTextStyle.SHORT;
+                    Red.Style = HealthTextStyle.SHORT;
+                    break;
+                case AbstractType.Unit:
+                    Green.Style = HealthTextStyle.FULL;
+                    Yellow.Style = HealthTextStyle.FULL;
+                    Red.Style = HealthTextStyle.FULL;
+                    break;
+                case AbstractType.Aircraft:
+                    Green.Style = HealthTextStyle.FULL;
+                    Yellow.Style = HealthTextStyle.FULL;
+                    Red.Style = HealthTextStyle.FULL;
+                    break;
+            }
+        }
+
+        public void ReadHealthBar(INIReader reader, string section, string title)
+        {
+            bool hidden = false;
+            if (reader.ReadNormal(section, title + "Hidden", ref hidden))
+            {
+                this.Hidden = hidden;
+            }
+
+            this.Green.ReadHealthText(reader, section, title);
+            this.Yellow.ReadHealthText(reader, section, title);
+            this.Red.ReadHealthText(reader, section, title);
+
+            this.Green.ReadHealthText(reader, section, title + "Green.");
+            this.Yellow.ReadHealthText(reader, section, title + "Yellow.");
+            this.Red.ReadHealthText(reader, section, title + "Red.");
+
+        }
+
+        public HealthBarData Clone()
+        {
+            HealthBarData data = new HealthBarData();
+            data.Hidden = this.Hidden;
+            data.Green = this.Green.Clone();
+            data.Yellow = this.Yellow.Clone();
+            data.Red = this.Red.Clone();
+            return data;
+        }
+    }
+
+    [Serializable]
+    public class HealthTextData : PrintTextData
     {
         public bool Hidden;
         public bool ShowEnemy;
         public bool ShowHover;
+        public HealthTextStyle Style;
+        public HealthTextStyle HoverStyle;
 
-        public HealthTextData GreenData;
-        public HealthTextData YellowData;
-        public HealthTextData RedData;
-
-        public HealthTextControlData()
+        public HealthTextData(HealthState healthState) : base()
         {
             this.Hidden = false;
             this.ShowEnemy = false;
             this.ShowHover = false;
-            this.GreenData = new HealthTextData(HealthState.Green);
-            this.YellowData = new HealthTextData(HealthState.Yellow);
-            this.RedData = new HealthTextData(HealthState.Red);
+            this.Style = HealthTextStyle.FULL;
+            this.HoverStyle = HealthTextStyle.SHORT;
+            this.SHPFileName = "pips.shp";
+            this.ImageSize = new Point2D(4, 6);
+            switch (healthState)
+            {
+                case HealthState.Green:
+                    this.Color = new ColorStruct(0, 252, 0);
+                    this.ZeroFrameIndex = 24;
+                    break;
+                case HealthState.Yellow:
+                    this.Color = new ColorStruct(252, 212, 0);
+                    this.ZeroFrameIndex = 39;
+                    break;
+                case HealthState.Red:
+                    this.Color = new ColorStruct(252, 0, 0);
+                    this.ZeroFrameIndex = 54;
+                    break;
+            }
         }
 
         private HealthTextStyle ReadStyle(string text, HealthTextStyle defStyle)
@@ -50,476 +188,40 @@ namespace Extension.Ext
             return defStyle;
         }
 
-        public bool IsNotPips(string fileName, out Pointer<SHPStruct> pSHP)
+        public void ReadHealthText(INIReader reader, string section, string title)
         {
-            pSHP = IntPtr.Zero;
-            string temp = fileName;
-            if (!string.IsNullOrEmpty(fileName) && !(temp = fileName.ToLower()).Equals("pips.shp"))
-            {
-                pSHP = FileSystem.LoadSHPFile(temp);
-                Logger.Log("{0} - 尝试载入shp文件{1}，{2}", Game.CurrentFrame, temp, !pSHP.IsNull);
-                return !pSHP.IsNull;
-            }
-            return false;
-        }
+            ReadPrintText(reader, section, title);
 
-        public void ReadHealthText(INIReader reader, string section)
-        {
             bool hidden = false;
-            if (reader.ReadNormal(section, "HealthText.Hidden", ref hidden))
+            if (reader.ReadNormal(section, title + "Hidden", ref hidden))
             {
                 this.Hidden = hidden;
-                this.GreenData.Hidden = hidden;
-                this.YellowData.Hidden = hidden;
-                this.RedData.Hidden = hidden;
-            }
-            hidden = false;
-            if (reader.ReadNormal(section, "HealthText.Green.Hidden", ref hidden))
-            {
-                this.GreenData.Hidden = hidden;
-            }
-            hidden = false;
-            if (reader.ReadNormal(section, "HealthText.Yellow.Hidden", ref hidden))
-            {
-                this.YellowData.Hidden = hidden;
-            }
-            hidden = false;
-            if (reader.ReadNormal(section, "HealthText.Red.Hidden", ref hidden))
-            {
-                this.RedData.Hidden = hidden;
             }
 
-            bool showEnemy = false;
-            if (reader.ReadNormal(section, "HealthText.ShowEnemy", ref showEnemy))
+            bool enemy = false;
+            if (reader.ReadNormal(section, title + "ShowEnemy", ref enemy))
             {
-                this.ShowEnemy = showEnemy;
-            }
-            bool showHover = false;
-            if (reader.ReadNormal(section, "HealthText.ShowHover", ref showHover))
-            {
-                this.ShowHover = showHover;
+                this.ShowEnemy = enemy;
             }
 
-            // 格式
-            string infantry = null;
-            if (reader.ReadNormal(section, "HealthText.InfantryStyle", ref infantry))
+            bool hover = false;
+            if (reader.ReadNormal(section, title + "ShowHover", ref hover))
             {
-                HealthTextStyle style = ReadStyle(infantry, HealthTextStyle.SHORT);
-                this.GreenData.InfantryStyle = style;
-                this.YellowData.InfantryStyle = style;
-                this.RedData.InfantryStyle = style;
-            }
-            infantry = null;
-            if (reader.ReadNormal(section, "HealthText.Green.InfantryStyle", ref infantry))
-            {
-                HealthTextStyle style = ReadStyle(infantry, HealthTextStyle.SHORT);
-                this.GreenData.InfantryStyle = style;
-            }
-            infantry = null;
-            if (reader.ReadNormal(section, "HealthText.Yellow.InfantryStyle", ref infantry))
-            {
-                HealthTextStyle style = ReadStyle(infantry, HealthTextStyle.SHORT);
-                this.YellowData.InfantryStyle = style;
-            }
-            infantry = null;
-            if (reader.ReadNormal(section, "HealthText.Red.InfantryStyle", ref infantry))
-            {
-                HealthTextStyle style = ReadStyle(infantry, HealthTextStyle.SHORT);
-                this.RedData.InfantryStyle = style;
+                this.ShowHover = hover;
             }
 
-            string infantryH = null;
-            if (reader.ReadNormal(section, "HealthText.InfantryHoverStyle", ref infantryH))
+            string s = null;
+            if (reader.ReadNormal(section, title + "Style", ref s))
             {
-                HealthTextStyle style = ReadStyle(infantryH, HealthTextStyle.SHORT);
-                this.GreenData.InfantryHoverStyle = style;
-                this.YellowData.InfantryHoverStyle = style;
-                this.RedData.InfantryHoverStyle = style;
-            }
-            infantryH = null;
-            if (reader.ReadNormal(section, "HealthText.Green.InfantryHoverStyle", ref infantryH))
-            {
-                HealthTextStyle style = ReadStyle(infantryH, HealthTextStyle.SHORT);
-                this.GreenData.InfantryHoverStyle = style;
-            }
-            infantryH = null;
-            if (reader.ReadNormal(section, "HealthText.Yellow.InfantryHoverStyle", ref infantryH))
-            {
-                HealthTextStyle style = ReadStyle(infantryH, HealthTextStyle.SHORT);
-                this.YellowData.InfantryHoverStyle = style;
-            }
-            infantryH = null;
-            if (reader.ReadNormal(section, "HealthText.Red.InfantryHoverStyle", ref infantryH))
-            {
-                HealthTextStyle style = ReadStyle(infantryH, HealthTextStyle.SHORT);
-                this.RedData.InfantryHoverStyle = style;
+                HealthTextStyle style = ReadStyle(s, HealthTextStyle.FULL);
+                this.Style = style;
             }
 
-            string vehicle = null;
-            if (reader.ReadNormal(section, "HealthText.VehicleStyle", ref vehicle))
+            string h = null;
+            if (reader.ReadNormal(section, title + "HoverStyle", ref h))
             {
-                HealthTextStyle style = ReadStyle(vehicle, HealthTextStyle.FULL);
-                this.GreenData.VehicleStyle = style;
-                this.YellowData.VehicleStyle = style;
-                this.RedData.VehicleStyle = style;
-            }
-            vehicle = null;
-            if (reader.ReadNormal(section, "HealthText.Green.VehicleStyle", ref vehicle))
-            {
-                HealthTextStyle style = ReadStyle(vehicle, HealthTextStyle.FULL);
-                this.GreenData.VehicleStyle = style;
-            }
-            vehicle = null;
-            if (reader.ReadNormal(section, "HealthText.Yellow.VehicleStyle", ref vehicle))
-            {
-                HealthTextStyle style = ReadStyle(vehicle, HealthTextStyle.FULL);
-                this.YellowData.VehicleStyle = style;
-            }
-            vehicle = null;
-            if (reader.ReadNormal(section, "HealthText.Red.VehicleStyle", ref vehicle))
-            {
-                HealthTextStyle style = ReadStyle(vehicle, HealthTextStyle.FULL);
-                this.RedData.VehicleStyle = style;
-            }
-
-            string vehicleH = null;
-            if (reader.ReadNormal(section, "HealthText.VehicleHoverStyle", ref vehicleH))
-            {
-                HealthTextStyle style = ReadStyle(vehicleH, HealthTextStyle.SHORT);
-                this.GreenData.VehicleHoverStyle = style;
-                this.YellowData.VehicleHoverStyle = style;
-                this.RedData.VehicleHoverStyle = style;
-            }
-            vehicleH = null;
-            if (reader.ReadNormal(section, "HealthText.Green.VehicleHoverStyle", ref vehicleH))
-            {
-                HealthTextStyle style = ReadStyle(vehicleH, HealthTextStyle.SHORT);
-                this.GreenData.VehicleHoverStyle = style;
-            }
-            vehicleH = null;
-            if (reader.ReadNormal(section, "HealthText.Yellow.VehicleHoverStyle", ref vehicleH))
-            {
-                HealthTextStyle style = ReadStyle(vehicleH, HealthTextStyle.SHORT);
-                this.YellowData.VehicleHoverStyle = style;
-            }
-            vehicleH = null;
-            if (reader.ReadNormal(section, "HealthText.Red.VehicleHoverStyle", ref vehicleH))
-            {
-                HealthTextStyle style = ReadStyle(vehicleH, HealthTextStyle.SHORT);
-                this.RedData.VehicleHoverStyle = style;
-            }
-
-            string building = null;
-            if (reader.ReadNormal(section, "HealthText.BuildingStyle", ref building))
-            {
-                HealthTextStyle style = ReadStyle(building, HealthTextStyle.FULL);
-                this.GreenData.BuildingStyle = style;
-                this.YellowData.BuildingStyle = style;
-                this.RedData.BuildingStyle = style;
-            }
-            building = null;
-            if (reader.ReadNormal(section, "HealthText.Green.BuildingStyle", ref building))
-            {
-                HealthTextStyle style = ReadStyle(building, HealthTextStyle.FULL);
-                this.GreenData.BuildingStyle = style;
-            }
-            building = null;
-            if (reader.ReadNormal(section, "HealthText.Yellow.BuildingStyle", ref building))
-            {
-                HealthTextStyle style = ReadStyle(building, HealthTextStyle.FULL);
-                this.YellowData.BuildingStyle = style;
-            }
-            building = null;
-            if (reader.ReadNormal(section, "HealthText.Red.BuildingStyle", ref building))
-            {
-                HealthTextStyle style = ReadStyle(building, HealthTextStyle.FULL);
-                this.RedData.BuildingStyle = style;
-            }
-
-            string buildingH = null;
-            if (reader.ReadNormal(section, "HealthText.BuildingHoverStyle", ref buildingH))
-            {
-                HealthTextStyle style = ReadStyle(buildingH, HealthTextStyle.SHORT);
-                this.GreenData.BuildingHoverStyle = style;
-                this.YellowData.BuildingHoverStyle = style;
-                this.RedData.BuildingHoverStyle = style;
-            }
-            buildingH = null;
-            if (reader.ReadNormal(section, "HealthText.Green.BuildingHoverStyle", ref buildingH))
-            {
-                HealthTextStyle style = ReadStyle(buildingH, HealthTextStyle.SHORT);
-                this.GreenData.BuildingHoverStyle = style;
-            }
-            buildingH = null;
-            if (reader.ReadNormal(section, "HealthText.Yellow.BuildingHoverStyle", ref buildingH))
-            {
-                HealthTextStyle style = ReadStyle(buildingH, HealthTextStyle.SHORT);
-                this.YellowData.BuildingHoverStyle = style;
-            }
-            buildingH = null;
-            if (reader.ReadNormal(section, "HealthText.Red.BuildingHoverStyle", ref buildingH))
-            {
-                HealthTextStyle style = ReadStyle(buildingH, HealthTextStyle.SHORT);
-                this.RedData.BuildingHoverStyle = style;
-            }
-
-            Point2D offset = default;
-            if (ExHelper.ReadPoint2D(reader, section, "HealthText.Offset", ref offset))
-            {
-                this.GreenData.Offset = offset;
-                this.YellowData.Offset = offset;
-                this.RedData.Offset = offset;
-            }
-            offset = default;
-            if (ExHelper.ReadPoint2D(reader, section, "HealthText.Green.Offset", ref offset))
-            {
-                this.GreenData.Offset = offset;
-            }
-            offset = default;
-            if (ExHelper.ReadPoint2D(reader, section, "HealthText.Yellow.Offset", ref offset))
-            {
-                this.YellowData.Offset = offset;
-            }
-            offset = default;
-            if (ExHelper.ReadPoint2D(reader, section, "HealthText.Red.Offset", ref offset))
-            {
-                this.RedData.Offset = offset;
-            }
-
-            // 文字设置
-            Point2D shadowOffset = default;
-            if (ExHelper.ReadPoint2D(reader, section, "HealthText.ShadowOffset", ref shadowOffset))
-            {
-                this.GreenData.ShadowOffset = shadowOffset;
-                this.YellowData.ShadowOffset = shadowOffset;
-                this.RedData.ShadowOffset = shadowOffset;
-            }
-            shadowOffset = default;
-            if (ExHelper.ReadPoint2D(reader, section, "HealthText.Green.ShadowOffset", ref shadowOffset))
-            {
-                this.GreenData.ShadowOffset = shadowOffset;
-            }
-            shadowOffset = default;
-            if (ExHelper.ReadPoint2D(reader, section, "HealthText.Yellow.ShadowOffset", ref shadowOffset))
-            {
-                this.YellowData.ShadowOffset = shadowOffset;
-            }
-            shadowOffset = default;
-            if (ExHelper.ReadPoint2D(reader, section, "HealthText.Red.ShadowOffset", ref shadowOffset))
-            {
-                this.RedData.ShadowOffset = shadowOffset;
-            }
-
-            ColorStruct color = default;
-            if (ExHelper.ReadColorStruct(reader, section, "HealthText.Color", ref color))
-            {
-                this.GreenData.Color = color;
-                this.YellowData.Color = color;
-                this.RedData.Color = color;
-            }
-            color = default;
-            if (ExHelper.ReadColorStruct(reader, section, "HealthText.Green.Color", ref color))
-            {
-                this.GreenData.Color = color;
-            }
-            color = default;
-            if (ExHelper.ReadColorStruct(reader, section, "HealthText.Yellow.Color", ref color))
-            {
-                this.YellowData.Color = color;
-            }
-            color = default;
-            if (ExHelper.ReadColorStruct(reader, section, "HealthText.Red.Color", ref color))
-            {
-                this.RedData.Color = color;
-            }
-
-            ColorStruct shadowColor = default;
-            if (ExHelper.ReadColorStruct(reader, section, "HealthText.ShadowColor", ref shadowColor))
-            {
-                this.GreenData.ShadowColor = shadowColor;
-                this.YellowData.ShadowColor = shadowColor;
-                this.RedData.ShadowColor = shadowColor;
-            }
-            shadowColor = default;
-            if (ExHelper.ReadColorStruct(reader, section, "HealthText.Green.ShadowColor", ref shadowColor))
-            {
-                this.GreenData.ShadowColor = shadowColor;
-            }
-            shadowColor = default;
-            if (ExHelper.ReadColorStruct(reader, section, "HealthText.Yellow.ShadowColor", ref shadowColor))
-            {
-                this.YellowData.ShadowColor = shadowColor;
-            }
-            shadowColor = default;
-            if (ExHelper.ReadColorStruct(reader, section, "HealthText.Red.ShadowColor", ref shadowColor))
-            {
-                this.RedData.ShadowColor = shadowColor;
-            }
-
-            // SHP设置
-            bool useSHP = false;
-            if (reader.ReadNormal(section, "HealthText.UseSHP", ref useSHP))
-            {
-                this.GreenData.UseSHP = useSHP;
-                this.YellowData.UseSHP = useSHP;
-                this.RedData.UseSHP = useSHP;
-            }
-            useSHP = false;
-            if (reader.ReadNormal(section, "HealthText.Green.UseSHP", ref useSHP))
-            {
-                this.GreenData.UseSHP = useSHP;
-            }
-            useSHP = false;
-            if (reader.ReadNormal(section, "HealthText.Yellow.UseSHP", ref useSHP))
-            {
-                this.YellowData.UseSHP = useSHP;
-            }
-            useSHP = false;
-            if (reader.ReadNormal(section, "HealthText.Red.UseSHP", ref useSHP))
-            {
-                this.RedData.UseSHP = useSHP;
-            }
-
-            string fileName = null;
-            if (reader.ReadNormal(section, "HealthText.SHP", ref fileName))
-            {
-                string file = fileName;
-                if (!string.IsNullOrEmpty(fileName) && !(file = fileName.ToLower()).Equals("pips.shp"))
-                {
-                    this.GreenData.CustomSHP = true;
-                    this.GreenData.SHPFileName = file;
-                    this.YellowData.CustomSHP = true;
-                    this.YellowData.SHPFileName = file;
-                    this.RedData.CustomSHP = true;
-                    this.RedData.SHPFileName = file;
-                }
-            }
-            fileName = null;
-            if (reader.ReadNormal(section, "HealthText.Green.SHP", ref fileName))
-            {
-                string file = fileName;
-                if (!string.IsNullOrEmpty(fileName) && !(file = fileName.ToLower()).Equals("pips.shp"))
-                {
-                    this.GreenData.CustomSHP = true;
-                    this.GreenData.SHPFileName = file;
-                }
-            }
-            fileName = null;
-            if (reader.ReadNormal(section, "HealthText.Yellow.SHP", ref fileName))
-            {
-                string file = fileName;
-                if (!string.IsNullOrEmpty(fileName) && !(file = fileName.ToLower()).Equals("pips.shp"))
-                {
-                    this.YellowData.CustomSHP = true;
-                    this.YellowData.SHPFileName = file;
-                }
-            }
-            fileName = null;
-            if (reader.ReadNormal(section, "HealthText.Red.SHP", ref fileName))
-            {
-                string file = fileName;
-                if (!string.IsNullOrEmpty(fileName) && !(file = fileName.ToLower()).Equals("pips.shp"))
-                {
-                    this.RedData.CustomSHP = true;
-                    this.RedData.SHPFileName = file;
-                }
-            }
-
-            int idx = 0;
-            if (reader.ReadNormal(section, "HealthText.ZeroFrameIndex", ref idx))
-            {
-                this.GreenData.ZeroFrameIndex = idx;
-                this.YellowData.ZeroFrameIndex = idx;
-                this.RedData.ZeroFrameIndex = idx;
-            }
-            idx = 0;
-            if (reader.ReadNormal(section, "HealthText.Green.ZeroFrameIndex", ref idx))
-            {
-                this.GreenData.ZeroFrameIndex = idx;
-            }
-            idx = 0;
-            if (reader.ReadNormal(section, "HealthText.Yellow.ZeroFrameIndex", ref idx))
-            {
-                this.YellowData.ZeroFrameIndex = idx;
-            }
-            idx = 0;
-            if (reader.ReadNormal(section, "HealthText.Red.ZeroFrameIndex", ref idx))
-            {
-                this.RedData.ZeroFrameIndex = idx;
-            }
-
-            Point2D imgSize = default;
-            if (ExHelper.ReadPoint2D(reader, section, "HealthText.ImageSize", ref imgSize))
-            {
-                this.GreenData.ImageSize = imgSize;
-                this.YellowData.ImageSize = imgSize;
-                this.RedData.ImageSize = imgSize;
-            }
-            imgSize = default;
-            if (ExHelper.ReadPoint2D(reader, section, "HealthText.Green.ImageSize", ref imgSize))
-            {
-                this.GreenData.ImageSize = imgSize;
-            }
-            imgSize = default;
-            if (ExHelper.ReadPoint2D(reader, section, "HealthText.Yellow.ImageSize", ref imgSize))
-            {
-                this.YellowData.ImageSize = imgSize;
-            }
-            imgSize = default;
-            if (ExHelper.ReadPoint2D(reader, section, "HealthText.Red.ImageSize", ref imgSize))
-            {
-                this.RedData.ImageSize = imgSize;
-            }
-        }
-
-        public HealthTextControlData Clone()
-        {
-            HealthTextControlData data = new HealthTextControlData();
-            data.GreenData = this.GreenData.Clone();
-            data.YellowData = this.YellowData.Clone();
-            data.RedData = this.RedData.Clone();
-            return data;
-        }
-    }
-
-    [Serializable]
-    public class HealthTextData : PrintTextData
-    {
-        public bool Hidden;
-        public HealthTextStyle InfantryStyle;
-        public HealthTextStyle InfantryHoverStyle;
-        public HealthTextStyle VehicleStyle;
-        public HealthTextStyle VehicleHoverStyle;
-        public HealthTextStyle BuildingStyle;
-        public HealthTextStyle BuildingHoverStyle;
-
-        public HealthTextData() : this(HealthState.Green) { }
-
-        public HealthTextData(HealthState healthState) : base()
-        {
-            this.Hidden = false;
-            this.InfantryStyle = HealthTextStyle.SHORT;
-            this.InfantryHoverStyle = HealthTextStyle.SHORT;
-            this.VehicleStyle = HealthTextStyle.FULL;
-            this.VehicleHoverStyle = HealthTextStyle.SHORT;
-            this.BuildingStyle = HealthTextStyle.FULL;
-            this.BuildingHoverStyle = HealthTextStyle.SHORT;
-            this.SHPFileName = "pips.shp";
-            this.ImageSize = new Point2D(4, 6);
-            switch (healthState)
-            {
-                case HealthState.Green:
-                    this.Color = new ColorStruct(0, 252, 0);
-                    this.ZeroFrameIndex = 24;
-                    break;
-                case HealthState.Yellow:
-                    this.Color = new ColorStruct(252, 212, 0);
-                    this.ZeroFrameIndex = 39;
-                    break;
-                case HealthState.Red:
-                    this.Color = new ColorStruct(252, 0, 0);
-                    this.ZeroFrameIndex = 54;
-                    break;
+                HealthTextStyle style = ReadStyle(h, HealthTextStyle.SHORT);
+                this.HoverStyle = style;
             }
         }
 
@@ -541,52 +243,72 @@ namespace Extension.Ext
     {
         public unsafe void TechnoClass_DrawHealthBar_Building_Text(int length, Pointer<Point2D> pLocation, Pointer<RectangleStruct> pBound)
         {
-            Pointer<TechnoClass> pTechno = OwnerObject;
-            bool isSelected = pTechno.Ref.Base.IsSelected;
-            if (!Type.HealthTextControlData.Hidden && (Type.HealthTextControlData.ShowEnemy || pTechno.Ref.Owner.Ref.PlayerControl) && (isSelected || Type.HealthTextControlData.ShowHover))
+            if (!Type.HealthTextControlData.Hidden)
             {
-                PrintHealthText(length, pLocation, pBound, true, isSelected);
+                PrintHealthText(length, pLocation, pBound);
             }
         }
 
         public unsafe void TechnoClass_DrawHealthBar_Other_Text(int length, Pointer<Point2D> pLocation, Pointer<RectangleStruct> pBound)
         {
-            Pointer<TechnoClass> pTechno = OwnerObject;
-            bool isSelected = pTechno.Ref.Base.IsSelected;
-            if (!Type.HealthTextControlData.Hidden && (Type.HealthTextControlData.ShowEnemy || pTechno.Ref.Owner.Ref.PlayerControl) && (isSelected || Type.HealthTextControlData.ShowHover))
+            if (!Type.HealthTextControlData.Hidden)
             {
-                PrintHealthText(length, pLocation, pBound, false, isSelected);
+                PrintHealthText(length, pLocation, pBound);
             }
         }
 
-        private void PrintHealthText(int length, Pointer<Point2D> pLocation, Pointer<RectangleStruct> pBound, bool isBuilding, bool isSelected)
+        private void PrintHealthText(int length, Pointer<Point2D> pLocation, Pointer<RectangleStruct> pBound)
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
+            bool isBuilding = false;
+            bool isSelected = pTechno.Ref.Base.IsSelected;
+            HealthBarData barData = null;
+            switch (pTechno.Ref.Base.Base.WhatAmI())
+            {
+                case AbstractType.Building:
+                    isBuilding = true;
+                    barData = Type.HealthTextControlData.Building;
+                    break;
+                case AbstractType.Infantry:
+                    barData = Type.HealthTextControlData.Infantry;
+                    break;
+                case AbstractType.Unit:
+                    barData = Type.HealthTextControlData.Unit;
+                    break;
+                case AbstractType.Aircraft:
+                    barData = Type.HealthTextControlData.Aircraft;
+                    break;
+                default:
+                    return;
+            }
+            if (barData.Hidden)
+            {
+                return;
+            }
             // 根据血量状态获取设置
-            HealthTextData data = Type.HealthTextControlData.GreenData;
+            HealthTextData data = barData.Green;
             HealthState healthState = pTechno.Ref.Base.GetHealthStatus();
             switch (healthState)
             {
                 case HealthState.Yellow:
-                    data = Type.HealthTextControlData.YellowData;
+                    data = barData.Yellow;
                     break;
                 case HealthState.Red:
-                    data = Type.HealthTextControlData.RedData;
+                    data = barData.Red;
                     break;
             }
-            if (data.Hidden)
+            // Logger.Log($"{Game.CurrentFrame} - Hidden = {data.Hidden}, ShowEnemy = {(!pTechno.Ref.Owner.Ref.PlayerControl && !data.ShowEnemy)}, ShowHover = {(!isSelected && !data.ShowHover)}");
+            if (data.Hidden || (!pTechno.Ref.Owner.Ref.PlayerControl && !data.ShowEnemy) || (!isSelected && !data.ShowHover))
             {
                 return;
             }
-
             // 调整锚点
             Point2D pos = pLocation.Data;
             int xOffset = data.Offset.X; // 锚点向右的偏移值
             int yOffset = data.Offset.Y; // 锚点向下的偏移值
 
             // Point2D fountSize = data.FontSize; // 使用shp则按照shp图案大小来偏移锚点
-
-            HealthTextStyle style = HealthTextStyle.FULL; // 数值的格式
+            HealthTextStyle style = isSelected ? data.Style : data.HoverStyle; ; // 数值的格式
             if (isBuilding)
             {
                 // 算出建筑血条最左边格子的偏移
@@ -598,7 +320,7 @@ namespace Extension.Ext
                 pos.X = pos.X + 4 + xOffset;
                 pos.Y = pos.Y - 2 + yOffset;
                 // 数值格式
-                style = isSelected ? data.BuildingStyle : data.BuildingHoverStyle;
+                style = isSelected ? data.Style : data.HoverStyle;
             }
             else
             {
@@ -608,8 +330,6 @@ namespace Extension.Ext
                     // 步兵血条
                     pos.X = pos.X - 7 + xOffset;
                     pos.Y = pos.Y - 28 + yOffset;
-                    // 数值格式
-                    style = isSelected ? data.InfantryStyle : data.InfantryHoverStyle;
                 }
                 else
                 {
@@ -617,7 +337,7 @@ namespace Extension.Ext
                     pos.X = pos.X - 17 + xOffset;
                     pos.Y = pos.Y - 29 + yOffset;
                     // 数值格式
-                    style = isSelected ? data.VehicleStyle : data.VehicleHoverStyle;
+                    style = isSelected ? data.Style : data.HoverStyle;
                 }
             }
             // 获得血量数据
@@ -664,34 +384,40 @@ namespace Extension.Ext
 
     public partial class TechnoTypeExt
     {
-        public HealthTextControlData HealthTextControlData;
+        public HealthBarControlData HealthTextControlData;
 
         /// <summary>
         /// [AudioVisual]
         /// [TechnoType] ;覆盖全局设置
         /// HealthText.Hidden=no ;停用该功能
-        /// HealthText.ShowEnemy=no ;显示给敌方
-        /// HealthText.ShowHover=no ;鼠标悬停时是否显示
-        /// ; X表示三种颜色状态，分别是Green\Yellow\Red，不写则是全局设置，如HealthText.Hidden=yes，不论何种状态全部隐藏，HealthText.Green.Hidden=yes，则只在绿血时隐藏。
-        /// HealthText.X.Hidden=no ;隐藏显示
-        /// HealthText.X.Offset=0,0 ;锚点向右和向下的偏移位置
-        /// HealthText.Green.Color=0,252,0 ;绿血时字体颜色
-        /// HealthText.Yellow.Color=252,212,0 ;黄血时字体颜色
-        /// HealthText.Red.Color=252,0,0 ;红血时字体颜色
+        /// ; X表示四种单位类型，分别是Building\Infantry\Unit\Aircraft，不写则是全局设置，如HealthText.Hidden=yes，不论何种状态全部隐藏，HealthText.Infantry.Hidden=yes，步兵则隐藏。
+        /// ; Y表示三种颜色状态，分别是Green\Yellow\Red，不写则是全局设置，如HealthText.Infantry.Hidden=yes，步兵不论何种状态全部隐藏，HealthText.Infantry.Green.Hidden=yes，则步兵在绿血时隐藏。
+        /// HealthText.X.Y.Hidden=no ;隐藏显示
+        /// HealthText.X.Y.ShowEnemy=no ;显示给敌方
+        /// HealthText.X.Y.ShowHover=no ;鼠标悬停时是否显示
+        /// HealthText.X.Y.Offset=0,0 ;锚点向右和向下的偏移位置
         /// ; 数字格式
-        /// HealthText.X.InfantryStyle=SHORT ;数显的类型，FULL\SHORT\PERCENT
-        /// HealthText.X.InfantryHoverStyle=SHORT ;鼠标悬停时数显的类型，FULL\SHORT\PERCENT
-        /// HealthText.X.VehicleStyle=FULL ;数显的类型，FULL\SHORT\PERCENT
-        /// HealthText.X.VehicleHoverStyle=SHORT ;鼠标悬停时数显的类型，FULL\SHORT\PERCENT
-        /// HealthText.X.BuildingStyle=FULL ;数显的类型，FULL\SHORT\PERCENT
-        /// HealthText.X.BuildingHoverStyle=SHORT ;鼠标悬停时数显的类型，FULL\SHORT\PERCENT
+        /// HealthText.Building.Y.Style=FULL ;数显的类型，FULL\SHORT\PERCENT
+        /// HealthText.Building.Y.HoverStyle=SHORT ;鼠标悬停时数显的类型，FULL\SHORT\PERCENT
+        /// HealthText.Infantry.Y.Style=SHORT ;数显的类型，FULL\SHORT\PERCENT
+        /// HealthText.Infantry.Y.HoverStyle=SHORT ;鼠标悬停时数显的类型，FULL\SHORT\PERCENT
+        /// HealthText.Unit.Y.Style=FULL ;数显的类型，FULL\SHORT\PERCENT
+        /// HealthText.Unit.Y.HoverStyle=SHORT ;鼠标悬停时数显的类型，FULL\SHORT\PERCENT
+        /// HealthText.Aircraft.Y.Style=FULL ;数显的类型，FULL\SHORT\PERCENT
+        /// HealthText.Aircraft.Y.HoverStyle=SHORT ;鼠标悬停时数显的类型，FULL\SHORT\PERCENT
+        /// ; 字体设置
+        /// HealthText.X.Green.Color=0,252,0 ;绿血时字体颜色
+        /// HealthText.X.Yellow.Color=252,212,0 ;黄血时字体颜色
+        /// HealthText.X.Red.Color=252,0,0 ;红血时字体颜色
+        /// HealthText.X.Y.ShadowOffset=1,1 ;阴影的偏移量
+        /// HealthText.X.Y.ShadowColor=82,85,82 ;阴影的颜色
         /// ; 使用shp而不是font显示血量数字
-        /// HealthText.X.UseSHP=no ;使用shp而不是文字，默认使用pips.shp，每个颜色15帧，每字一帧，顺序“0123456789+-*/%”，图像中心即锚点在字体的左上角
-        /// HealthText.X.SHP=pips.shp ;绿色血量的shp文件
-        /// HealthText.X.ImageSize=4,6 ;绿色血量的图案宽度和高度
-        /// HealthText.Green.ZeroFrameIndex=24 ;绿色血量的0帧所在序号
-        /// HealthText.Yellow.ZeroFrameIndex=39 ;黄色血量的0帧所在序号
-        /// HealthText.Red.ZeroFrameIndex=54 ;红色血量的0帧所在序号
+        /// HealthText.X.Y.UseSHP=no ;使用shp而不是文字，默认使用pips.shp，每个颜色15帧，每字一帧，顺序“0123456789+-*/%”，图像中心即锚点
+        /// HealthText.X.Y.SHP=pips.shp ;血量的shp文件
+        /// HealthText.X.Y.ImageSize=4,6 ;血量的图案宽度和高度
+        /// HealthText.X.Green.ZeroFrameIndex=24 ;绿色血量的"0"帧所在序号
+        /// HealthText.X.Yellow.ZeroFrameIndex=39 ;黄色血量的"0"帧所在序号
+        /// HealthText.X.Red.ZeroFrameIndex=54 ;红色血量的"0"帧所在序号
         /// 
         /// </summary>
         /// <param name="reader"></param>
@@ -709,7 +435,7 @@ namespace Extension.Ext
 
     public partial class RulesExt
     {
-        public HealthTextControlData GeneralHealthTextControlData = new HealthTextControlData();
+        public HealthBarControlData GeneralHealthTextControlData = new HealthBarControlData();
 
         private void ReadHealthText(INIReader reader)
         {
