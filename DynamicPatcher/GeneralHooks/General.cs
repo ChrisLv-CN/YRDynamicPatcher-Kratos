@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Extension.Ext;
 
 namespace GeneralHooks
 {
@@ -23,6 +24,7 @@ namespace GeneralHooks
         {
             // ensure network synchronization
             MathEx.SetRandomSeed(0);
+            Kratos.NewGame();
 
             //Logger.Log("set random seed!");
 

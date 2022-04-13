@@ -183,7 +183,7 @@ namespace PatcherYRpp
         Airstrike = 71,
         SlaveManager = 72,
         DiskLaser = 73
-    };
+    }
 
     public enum Action
     {
@@ -260,7 +260,8 @@ namespace PatcherYRpp
         NoForceShield = 70,
         Airstrike = 71,
         PsychicReveal = 72
-    };
+    }
+
     public enum Ability
     {
         Faster = 0,
@@ -281,14 +282,44 @@ namespace PatcherYRpp
         TiberiumHeal = 15,
         GuardArea = 16,
         Crusher = 17
-    };
+    }
+
+    [Flags]
+    public enum TextPrintType
+    {
+        LASTPOINT = 0, //*
+        LASTSHADOW = 0, //*
+        Point6 = 0x1, //*
+        Point8 = 0x2,
+        Point3 = 0x3, //*
+        Led = 0x4, //*
+        Vcr = 0x5, //*
+        Point6Grad = 0x6,
+        Map = 0x7, //*
+        Metal12 = 0x8,
+        Efnt = 0x9, //*
+        Type = 0xA, //*
+        Score = 0xB, //*
+        Fonts = 0xF, //*
+        NoShadow = 0x10,
+        DropShadow = 0x20,
+        FullShadow = 0x40,
+        LightShadow = 0x80,
+        Center = 0x100,
+        Right = 0x200,
+        MediumColor = 0x1000,
+        BrightColor = 0x2000,
+        UseGradPal = 0x4000,
+        UnknownColor = 0x8000,
+        GradAll = 0xF000,
+    }
 
     public enum DamageAreaResult
     {
         Hit = 0,
         Missed = 1,
         Nullified = 2
-    };
+    }
 
     public enum DamageState
     {
@@ -318,7 +349,7 @@ namespace PatcherYRpp
         West = 0x6,
         NW = 0x7,
         NorthWest = 0x7,
-    };
+    }
 
     public enum FireError
     {
@@ -390,7 +421,7 @@ namespace PatcherYRpp
         Railroad = 9,
         Tunnel = 10,
         Weeds = 11
-    };
+    }
 
     /*
      *
@@ -424,7 +455,7 @@ namespace PatcherYRpp
         Ground = 2,
         Air = 3,
         Top = 4
-    };
+    }
 
     public enum PlacementType
     {
@@ -440,7 +471,7 @@ namespace PatcherYRpp
         Charging = 0,
         Ready = 1,
         Draining = 2
-    };
+    }
 
     public enum SuperWeaponType
     {
@@ -457,7 +488,7 @@ namespace PatcherYRpp
         GeneticMutator = 9,
         ForceShield = 10,
         PsychicReveal = 11
-    };
+    }
 
     public enum RadBeamType
     {
@@ -609,8 +640,9 @@ namespace PatcherYRpp
         QueryNeedRepair = 34, // Do you need service depot work?
         QueryOnBuilding = 35, // Are you located on top of me?
         QueryCanTote = 36, // Want ride
-    };
+    }
 
+    [Flags]
     public enum BlitterFlags
     {
         None = 0x0,
@@ -634,7 +666,7 @@ namespace PatcherYRpp
         bf_8000 = 0x8000,
         Zero = 0x10000,
         Nonzero = 0x20000
-    };
+    }
 
     public enum Move
     {
@@ -646,7 +678,7 @@ namespace PatcherYRpp
         Destroyable = 5,
         Temp = 6,
         No = 7
-    };
+    }
 
 
     public enum ZGradient
@@ -656,7 +688,7 @@ namespace PatcherYRpp
         Deg45 = 1,
         Deg90 = 2,
         Deg135 = 3
-    };
+    }
 
     public enum ParasiteState
     {
@@ -665,7 +697,7 @@ namespace PatcherYRpp
         PushLeft = 2, // push the victim, variant A
         PushRight = 3, // push the victim, variant B
         Damage = 4 // wait until rocking stops; deliver damage
-    };
+    }
 
     // 步兵播放动画的类型
     public enum SequenceAnimType
@@ -756,5 +788,6 @@ namespace PatcherYRpp
         South = 2,
         West = 3,
         Air = 4
-    };
+    }
+
 }

@@ -21,6 +21,8 @@ namespace Extension.Ext
 
             ReadAircraftPut(reader);
             ReadChaosAnim(reader);
+            ReadDamageText(reader);
+            ReadHealthText(reader);
         }
 
     }

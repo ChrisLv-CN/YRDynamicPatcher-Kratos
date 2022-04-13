@@ -161,6 +161,11 @@ namespace Extension.Ext
 
         }
 
+        public unsafe void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState)
+        {
+            TechnoClass_ReceiveDamage2_DamageText(pRealDamage, pWH, damageState);
+        }
+
         public unsafe bool AffectMe(Pointer<ObjectClass> pAttacker, Pointer<WarheadTypeClass> pWH, Pointer<HouseClass> pHouse, out WarheadTypeExt warheadTypeExt)
         {
             warheadTypeExt = WarheadTypeExt.ExtMap.Find(pWH);
@@ -294,16 +299,18 @@ namespace Extension.Ext
 
         public unsafe void DrawHealthBar_Building(int length, Pointer<Point2D> pLocation, Pointer<RectangleStruct> pBound)
         {
+            TechnoClass_DrawHealthBar_Building_Text(length, pLocation, pBound);
 
         }
 
         public unsafe void DrawHealthBar_Other(int length, Pointer<Point2D> pLocation, Pointer<RectangleStruct> pBound)
         {
-            // Logger.Log("Point2D = {0}, RectangleStruct = {1}", pLocation.Ref, pBound.Ref);
             // Point2D pos = new Point2D(0, 30);
             // pos += pLocation.Ref;
             // RectangleStruct bound = new RectangleStruct(0, 0, 1112, 688);
             // DSurface.Temp.Ref.DrawSHP(FileSystem.MOUSE_PAL, FileSystem.POWEROFF_SHP, 1, pos, bound, (BlitterFlags)0xE00);
+            TechnoClass_DrawHealthBar_Other_Text(length, pLocation, pBound);
+
         }
 
         public unsafe void DrawSHP_Colour(REGISTERS* R)
@@ -418,12 +425,14 @@ namespace Extension.Ext
             ReadAttackBeacon(reader, section);
             ReadAutoFireAreaWeapon(reader, section);
             ReadCrawlingFLH(reader, section, artReader, artSection);
+            ReadDamageText(reader, section);
             ReadDecoyMissile(reader, section);
             ReadDestroyAnims(reader, section);
             ReadDestroySelf(reader, section);
             ReadExtraFireWeapon(reader, section, artReader, artSection);
             ReadFireSuperWeapon(reader, section);
             ReadGiftBox(reader, section);
+            ReadHelthText(reader, section);
             ReadJumpjetFacingToTarget(reader, section);
             ReadOverrideWeapon(reader, section);
             ReadPassengers(reader, section);

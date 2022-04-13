@@ -43,7 +43,7 @@ namespace PatcherYRpp
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((ColorStruct) obj);
+            return Equals((ColorStruct)obj);
         }
 
         public override int GetHashCode()
@@ -128,12 +128,12 @@ namespace PatcherYRpp
 
         }
 
-        public  double DistanceFrom(CoordStruct other)
+        public double DistanceFrom(CoordStruct other)
         {
             return (other - this).Magnitude();
         }
 
-        
+
         public bool Equals(CoordStruct other)
         {
             if (ReferenceEquals(null, other)) return false;
@@ -155,7 +155,7 @@ namespace PatcherYRpp
             if (obj.GetType() != this.GetType()) return false;
             return Equals((CoordStruct)obj);
         }
-        
+
         public override int GetHashCode() => base.GetHashCode();
 
         public override string ToString()
@@ -174,7 +174,7 @@ namespace PatcherYRpp
     {
         public static BulletVelocity Empty = default;
 
-    public BulletVelocity(double x, double y, double z)
+        public BulletVelocity(double x, double y, double z)
         {
             X = x;
             Y = y;
@@ -230,7 +230,8 @@ namespace PatcherYRpp
             return (other - this).Magnitude();
         }
 
-        public bool Equals(BulletVelocity other) {
+        public bool Equals(BulletVelocity other)
+        {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return this.X == other.X && this.Y == other.Y && this.Z == other.Z;
@@ -249,7 +250,7 @@ namespace PatcherYRpp
             if (obj.GetType() != this.GetType()) return false;
             return Equals((BulletVelocity)obj);
         }
-        
+
         public override int GetHashCode() => base.GetHashCode();
 
         public override string ToString()
@@ -339,7 +340,7 @@ namespace PatcherYRpp
             if (obj.GetType() != this.GetType()) return false;
             return Equals((CellStruct)obj);
         }
-        
+
         public override int GetHashCode() => base.GetHashCode();
 
         public override string ToString()
@@ -535,9 +536,9 @@ namespace PatcherYRpp
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((CellStruct)obj);
+            return Equals((Point2D)obj);
         }
-        
+
         public override int GetHashCode() => base.GetHashCode();
 
         public override string ToString()

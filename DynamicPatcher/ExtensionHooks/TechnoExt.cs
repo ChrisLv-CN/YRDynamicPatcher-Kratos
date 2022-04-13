@@ -186,6 +186,20 @@ namespace ExtensionHooks
             return 0;
         }
 
+        [Hook(HookType.AresHook, Address = 0x701DFF, Size = 7)]
+        public static unsafe UInt32 TechnoClass_ReceiveDamage2(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            Pointer<int> pRealDamage = (IntPtr)R->EBX;
+            Pointer<WarheadTypeClass> pWH = (IntPtr)R->EBP;
+            DamageState damageState = (DamageState)R->EDI;
+
+            TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+            ext?.OnReceiveDamage2(pRealDamage, pWH, damageState);
+
+            return 0;
+        }
+
 
         [Hook(HookType.AresHook, Address = 0x702050, Size = 6)]
         public static unsafe UInt32 TechnoClass_Destroy(REGISTERS* R)
@@ -348,8 +362,8 @@ namespace ExtensionHooks
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
 
                 int length = (int)R->EBX;
-                Pointer<Point2D> pLocation = (IntPtr)R->Stack<IntPtr>(0x4C - (-0x4));
-                Pointer<RectangleStruct> pBound = (IntPtr)R->Stack<IntPtr>(0x4C - (0x8));
+                Pointer<Point2D> pLocation = R->Stack<IntPtr>(0x4C - (-0x4));
+                Pointer<RectangleStruct> pBound = R->Stack<IntPtr>(0x4C - (-0x8));
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext?.DrawHealthBar_Building(length, pLocation, pBound);
@@ -369,8 +383,8 @@ namespace ExtensionHooks
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
 
                 int length = pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Infantry ? 8 : 17;
-                Pointer<Point2D> pLocation = (IntPtr)R->Stack<IntPtr>(0x4C - (-0x4));
-                Pointer<RectangleStruct> pBound = (IntPtr)R->Stack<IntPtr>(0x4C - (0x8));
+                Pointer<Point2D> pLocation = R->Stack<IntPtr>(0x4C - (-0x4));
+                Pointer<RectangleStruct> pBound = R->Stack<IntPtr>(0x4C - (-0x8));
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext?.DrawHealthBar_Other(length, pLocation, pBound);

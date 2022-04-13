@@ -1,12 +1,14 @@
 using System.Drawing;
 using System.Threading;
 using PatcherYRpp;
+using PatcherYRpp.FileFormats;
 using PatcherYRpp.Utilities;
 using Extension;
 using Extension.Utilities;
 using DynamicPatcher;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Extension.Ext;
 
 namespace Extension.Utilities
@@ -92,6 +94,11 @@ namespace Extension.Utilities
             return pObject.IsNull || pObject.Ref.InLimbo; // || !pObject.Ref.IsVisible;
         }
 
+        public static bool IsCloaked(this Pointer<TechnoClass> pTechno, bool includeCloaking = true)
+        {
+            return pTechno.IsNull || pTechno.Ref.CloakStates == CloakStates.Cloaked || !includeCloaking || pTechno.Ref.CloakStates == CloakStates.Cloaking;
+        }
+
         public static bool IsDeadOrInvisible(this Pointer<TechnoClass> pTarget)
         {
             return pTarget.IsDead() || pTarget.IsInvisible();
@@ -105,7 +112,63 @@ namespace Extension.Utilities
 
         public static bool IsDeadOrInvisibleOrCloaked(this Pointer<TechnoClass> pTechno)
         {
-            return pTechno.IsDeadOrInvisible() || pTechno.Ref.CloakStates == CloakStates.Cloaked || pTechno.Ref.CloakStates == CloakStates.Cloaking;
+            return pTechno.IsDeadOrInvisible() || pTechno.IsCloaked();
+        }
+
+        public static TChild AutoCopy<TParent, TChild>(TParent parent) where TChild : TParent, new()
+        {
+            TChild child = new TChild();
+            ReflectClone(parent, child);
+            return child;
+        }
+
+        public static void ReflectClone(object from, object to)
+        {
+            if (null == from || null == to)
+            {
+                Logger.LogError("克隆失败，{0} {1}", null == from ? "From is null": null, null == to ? "To is null" : null);
+                return;
+            }
+
+            var fromType = from.GetType();
+            var toType = to.GetType();
+            //拷贝属性
+            var properties = fromType.GetProperties();
+            foreach (PropertyInfo prop in properties)
+            {
+                var toProp = toType.GetProperty(prop.Name);
+                if (null != toProp)
+                {
+                    var val = prop.GetValue(from);
+                    if (prop.PropertyType == toProp.PropertyType)
+                    {
+                        toProp.SetValue(to, val, null);
+                    }
+                    else if (prop.PropertyType.ToString().IndexOf("List") >= 0 || prop.PropertyType.ToString().IndexOf("Hashtable") >= 0)
+                    {
+                        Logger.LogError("克隆错误，属性 {0} 是List，来源 {1}", prop.Name, fromType.Name);
+                    }
+                }
+            }
+
+            //拷贝字段
+            var fields = fromType.GetFields();
+            foreach (FieldInfo field in fields)
+            {
+                var toField = toType.GetField(field.Name);
+                if (null != toField)
+                {
+                    var val = field.GetValue(from);
+                    if (field.FieldType == toField.FieldType)
+                    {
+                        toField.SetValue(to, val);
+                    }
+                    else if (field.FieldType.ToString().IndexOf("List") >= 0 || field.FieldType.ToString().IndexOf("Hashtable") >= 0)
+                    {
+                        Logger.LogError("克隆错误，字段 {0} 是List，来源 {1}", field.Name, fromType.Name);
+                    }
+                }
+            }
         }
 
         public static int Category(this LandType landType)
@@ -400,6 +463,33 @@ namespace Extension.Utilities
             return false;
         }
 
+        public static bool ReadPoint2D(INIReader reader, string section, string key, ref Point2D xy)
+        {
+            string sXY = default;
+            if (reader.ReadNormal(section, key, ref sXY))
+            {
+                string[] pos = sXY.Split(',');
+                if (null != pos && pos.Length > 0)
+                {
+                    for (int i = 0; i < pos.Length; i++)
+                    {
+                        int value = Convert.ToInt16(pos[i].Trim());
+                        switch (i)
+                        {
+                            case 0:
+                                xy.X = value;
+                                break;
+                            case 1:
+                                xy.Y = value;
+                                break;
+                        }
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public static bool ReadList(INIReader reader, string section, string key, ref List<string> list)
         {
             string text = default;
@@ -440,6 +530,7 @@ namespace Extension.Utilities
             }
             return false;
         }
+
 
         public static void FindBulletTargetHouse(Pointer<TechnoClass> pTechno, FoundBullet func, bool allied = true)
         {

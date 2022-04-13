@@ -15,6 +15,14 @@ namespace PatcherYRpp
 
         public static Pointer<TacticalClass> Instance { get => ((Pointer<Pointer<TacticalClass>>)ppInstance).Data; set => ((Pointer<Pointer<TacticalClass>>)ppInstance).Ref = value; }
 
+        public unsafe Point2D CoordsToScreen(CoordStruct coords)
+        {
+            Point2D ret = default;
+            var func = (delegate* unmanaged[Thiscall]<ref TacticalClass, ref Point2D, ref CoordStruct, IntPtr>)0x6D1F10;
+            func(ref this, ref ret, ref coords);
+            return ret;
+        }
+
         public unsafe Point2D CoordsToClient(CoordStruct coords)
         {
             Point2D ret = default;
@@ -30,6 +38,7 @@ namespace PatcherYRpp
             func(ref this, ref ret, ref client);
             return ret;
         }
+
         public unsafe Point2D AdjustForZShapeMove(Point2D client)
         {
             Point2D ret = default;

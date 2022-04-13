@@ -27,5 +27,6 @@
   "emit_pdb": true,
   "force_compile": false,
   "pack_assembly": true,
+  "copy_logs": false,
   "optimization_level": "debug"
 }
