@@ -425,7 +425,6 @@ namespace Extension.Ext
             ReadAttackBeacon(reader, section);
             ReadAutoFireAreaWeapon(reader, section);
             ReadCrawlingFLH(reader, section, artReader, artSection);
-            ReadDamageText(reader, section);
             ReadDecoyMissile(reader, section);
             ReadDestroyAnims(reader, section);
             ReadDestroySelf(reader, section);

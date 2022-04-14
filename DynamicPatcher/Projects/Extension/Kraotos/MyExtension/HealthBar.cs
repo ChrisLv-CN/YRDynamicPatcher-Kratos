@@ -15,22 +15,22 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public class HealthBarControlData
+    public class HealthTextTypeControlData
     {
         public bool Hidden;
 
-        public HealthBarData Building;
-        public HealthBarData Infantry;
-        public HealthBarData Unit;
-        public HealthBarData Aircraft;
+        public HealthTextTypeData Building;
+        public HealthTextTypeData Infantry;
+        public HealthTextTypeData Unit;
+        public HealthTextTypeData Aircraft;
 
-        public HealthBarControlData()
+        public HealthTextTypeControlData()
         {
             this.Hidden = false;
-            this.Building = new HealthBarData(AbstractType.Building);
-            this.Infantry = new HealthBarData(AbstractType.Infantry);
-            this.Unit = new HealthBarData(AbstractType.Unit);
-            this.Aircraft = new HealthBarData(AbstractType.Aircraft);
+            this.Building = new HealthTextTypeData(AbstractType.Building);
+            this.Infantry = new HealthTextTypeData(AbstractType.Infantry);
+            this.Unit = new HealthTextTypeData(AbstractType.Unit);
+            this.Aircraft = new HealthTextTypeData(AbstractType.Aircraft);
         }
 
         public void ReadHealthText(INIReader reader, string section)
@@ -41,22 +41,22 @@ namespace Extension.Ext
                 this.Hidden = hidden;
             }
 
-            Building.ReadHealthBar(reader, section, "HealthText.");
-            Infantry.ReadHealthBar(reader, section, "HealthText.");
-            Unit.ReadHealthBar(reader, section, "HealthText.");
-            Aircraft.ReadHealthBar(reader, section, "HealthText.");
+            Building.ReadHealthTextType(reader, section, "HealthText.");
+            Infantry.ReadHealthTextType(reader, section, "HealthText.");
+            Unit.ReadHealthTextType(reader, section, "HealthText.");
+            Aircraft.ReadHealthTextType(reader, section, "HealthText.");
 
-            Building.ReadHealthBar(reader, section, "HealthText.Building.");
-            Infantry.ReadHealthBar(reader, section, "HealthText.Infantry.");
-            Unit.ReadHealthBar(reader, section, "HealthText.Unit.");
-            Aircraft.ReadHealthBar(reader, section, "HealthText.Aircraft.");
+            Building.ReadHealthTextType(reader, section, "HealthText.Building.");
+            Infantry.ReadHealthTextType(reader, section, "HealthText.Infantry.");
+            Unit.ReadHealthTextType(reader, section, "HealthText.Unit.");
+            Aircraft.ReadHealthTextType(reader, section, "HealthText.Aircraft.");
 
 
         }
 
-        public HealthBarControlData Clone()
+        public HealthTextTypeControlData Clone()
         {
-            HealthBarControlData data = new HealthBarControlData();
+            HealthTextTypeControlData data = new HealthTextTypeControlData();
             data.Hidden = this.Hidden;
             data.Building = this.Building.Clone();
             data.Infantry = this.Infantry.Clone();
@@ -68,7 +68,7 @@ namespace Extension.Ext
 
 
     [Serializable]
-    public class HealthBarData
+    public class HealthTextTypeData
     {
         public bool Hidden;
 
@@ -76,9 +76,9 @@ namespace Extension.Ext
         public HealthTextData Yellow;
         public HealthTextData Red;
 
-        public HealthBarData() { }
+        public HealthTextTypeData() { }
 
-        public HealthBarData(AbstractType type)
+        public HealthTextTypeData(AbstractType type)
         {
             this.Hidden = false;
             this.Green = new HealthTextData(HealthState.Green);
@@ -109,7 +109,7 @@ namespace Extension.Ext
             }
         }
 
-        public void ReadHealthBar(INIReader reader, string section, string title)
+        public void ReadHealthTextType(INIReader reader, string section, string title)
         {
             bool hidden = false;
             if (reader.ReadNormal(section, title + "Hidden", ref hidden))
@@ -127,9 +127,9 @@ namespace Extension.Ext
 
         }
 
-        public HealthBarData Clone()
+        public HealthTextTypeData Clone()
         {
-            HealthBarData data = new HealthBarData();
+            HealthTextTypeData data = new HealthTextTypeData();
             data.Hidden = this.Hidden;
             data.Green = this.Green.Clone();
             data.Yellow = this.Yellow.Clone();
@@ -154,6 +154,7 @@ namespace Extension.Ext
             this.ShowHover = false;
             this.Style = HealthTextStyle.FULL;
             this.HoverStyle = HealthTextStyle.SHORT;
+
             this.SHPFileName = "pips.shp";
             this.ImageSize = new Point2D(4, 6);
             switch (healthState)
@@ -262,39 +263,39 @@ namespace Extension.Ext
             Pointer<TechnoClass> pTechno = OwnerObject;
             bool isBuilding = false;
             bool isSelected = pTechno.Ref.Base.IsSelected;
-            HealthBarData barData = null;
+            HealthTextTypeData typeData = null;
             switch (pTechno.Ref.Base.Base.WhatAmI())
             {
                 case AbstractType.Building:
                     isBuilding = true;
-                    barData = Type.HealthTextControlData.Building;
+                    typeData = Type.HealthTextControlData.Building;
                     break;
                 case AbstractType.Infantry:
-                    barData = Type.HealthTextControlData.Infantry;
+                    typeData = Type.HealthTextControlData.Infantry;
                     break;
                 case AbstractType.Unit:
-                    barData = Type.HealthTextControlData.Unit;
+                    typeData = Type.HealthTextControlData.Unit;
                     break;
                 case AbstractType.Aircraft:
-                    barData = Type.HealthTextControlData.Aircraft;
+                    typeData = Type.HealthTextControlData.Aircraft;
                     break;
                 default:
                     return;
             }
-            if (barData.Hidden)
+            if (typeData.Hidden)
             {
                 return;
             }
             // 根据血量状态获取设置
-            HealthTextData data = barData.Green;
+            HealthTextData data = typeData.Green;
             HealthState healthState = pTechno.Ref.Base.GetHealthStatus();
             switch (healthState)
             {
                 case HealthState.Yellow:
-                    data = barData.Yellow;
+                    data = typeData.Yellow;
                     break;
                 case HealthState.Red:
-                    data = barData.Red;
+                    data = typeData.Red;
                     break;
             }
             // Logger.Log($"{Game.CurrentFrame} - Hidden = {data.Hidden}, ShowEnemy = {(!pTechno.Ref.Owner.Ref.PlayerControl && !data.ShowEnemy)}, ShowHover = {(!isSelected && !data.ShowHover)}");
@@ -384,7 +385,7 @@ namespace Extension.Ext
 
     public partial class TechnoTypeExt
     {
-        public HealthBarControlData HealthTextControlData;
+        public HealthTextTypeControlData HealthTextControlData;
 
         /// <summary>
         /// [AudioVisual]
@@ -424,9 +425,9 @@ namespace Extension.Ext
         /// <param name="section"></param>
         private void ReadHelthText(INIReader reader, string section)
         {
-            if (null == HealthTextControlData && null != RulesExt.Instance.GeneralHealthTextControlData)
+            if (null == HealthTextControlData && null != RulesExt.Instance.GeneralHealthTextTypeControlData)
             {
-                HealthTextControlData = RulesExt.Instance.GeneralHealthTextControlData.Clone();
+                HealthTextControlData = RulesExt.Instance.GeneralHealthTextTypeControlData.Clone();
             }
 
             HealthTextControlData.ReadHealthText(reader, section);
@@ -435,11 +436,11 @@ namespace Extension.Ext
 
     public partial class RulesExt
     {
-        public HealthBarControlData GeneralHealthTextControlData = new HealthBarControlData();
+        public HealthTextTypeControlData GeneralHealthTextTypeControlData = new HealthTextTypeControlData();
 
         private void ReadHealthText(INIReader reader)
         {
-            GeneralHealthTextControlData.ReadHealthText(reader, SectionAV);
+            GeneralHealthTextTypeControlData.ReadHealthText(reader, SectionAV);
         }
     }
 
