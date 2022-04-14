@@ -110,6 +110,7 @@ namespace Extension.Ext
                 TechnoClass_Update_SpawnSupport();
 
                 TechnoClass_Update_CustomWeapon();
+                TechnoClass_Update_Fighter_Area_Guard();
             }
             // 死亡还会执行的，坠落，沉没等
             TechnoClass_Update_AttachEffect();
@@ -439,6 +440,7 @@ namespace Extension.Ext
             ReadSpawnSupport(reader, section, artReader, artSection);
             ReadTrail(reader, section, artReader, artSection);
             ReadVirtualUnit(reader, section);
+            ReadFighterGuardData(reader, section);
         }
 
         [LoadAction]
