@@ -24,8 +24,8 @@ Put the folder `DynamicPatcher`, files `DynamicPatcher.dll` and `PatcherLoader.d
 3. 在`ini`中添加对应的内容。  
 Edit `ini` file
 
-4. 为`gamemd.exe`与`syringe.exe`添加管理员权限。  
-Add administrator privileges to `gamemd.exe` and `syringe.exe`.
+4. 为`gamemd.exe`与`syringe.exe`添加管理员权限。（Build7起升级为DP2.0，不再需要设置管理员权限）  
+Add administrator privileges to `gamemd.exe` and `syringe.exe`. (Build7 and later versions do not need this because update to DP2.0)
 
 5. 运行`RunAres.bat`启动游戏。  
 Run `RunAres.bat` to start the game.
@@ -41,9 +41,10 @@ Run `RunAres.bat` to start the game.
 
 鸣谢 (Credits)
 ------------
-* DynamicPatcher ALL developers
+* [DynamicPatcher](https://github.com/Xkein/YRDynamicPatcher) ALL developers
 * Ares ALL developers
-* Phobos ALL developers
+* [Phobos](https://github.com/Phobos-developers/Phobos) ALL developers
+* [hejiajun107](https://github.com/hejiajun107) - 提供战机区域警戒功能
 
 要饭 (Funding)
 ------------
