@@ -222,7 +222,7 @@ namespace Extension.Ext
                     Proximity.pCheckedCell.Pointer = pCell;
                     CoordStruct cellPos = pCell.Ref.Base.GetCoords();
 
-                    BulletEffectHelper.GreenCell(cellPos, 128, 1, 75);
+                    // BulletEffectHelper.GreenCell(cellPos, 128, 1, 75);
 
                     // 获取这个格子上的所有对象，不包括飞机
                     HashSet<Pointer<TechnoClass>> pTechnoSet = new HashSet<Pointer<TechnoClass>>();
@@ -279,7 +279,7 @@ namespace Extension.Ext
                     foreach (Pointer<TechnoClass> pTarget in pTechnoSet)
                     {
                         CoordStruct targetPos = pTarget.Ref.Base.Base.GetCoords();
-                        BulletEffectHelper.BlueLineZ(targetPos, 1024, 1, 75);
+                        // BulletEffectHelper.BlueLineZ(targetPos, 1024, 1, 75);
 
                         bool hit = false;
 
