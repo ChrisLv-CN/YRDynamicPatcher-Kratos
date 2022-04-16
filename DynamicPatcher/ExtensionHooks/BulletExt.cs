@@ -21,6 +21,18 @@ namespace ExtensionHooks
         [Hook(HookType.AresHook, Address = 0x4665E9, Size = 0xA)]
         public static unsafe UInt32 BulletClass_DTOR(REGISTERS* R)
         {
+            try
+            {
+                Pointer<BulletClass> pBullet = (IntPtr)R->ESI;
+                BulletExt ext = BulletExt.ExtMap.Find(pBullet);
+                ext?.OnUnInit();
+
+                ext?.AttachedComponent.Foreach(c => (c as IBulletScriptable)?.OnUnInit());
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
             return BulletExt.BulletClass_DTOR(R);
         }
 
