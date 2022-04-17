@@ -53,11 +53,11 @@ namespace PatcherYRpp
         }
 
         public unsafe void Draw_A_VXL(Pointer<VoxelStruct> VXL, int HVAFrameIndex, int flags, Pointer<SomeVoxelCache> cache, Pointer<RectangleStruct> rectangle,
-            Pointer<Point2D> centerPoint, Pointer<Matrix3DStruct> matrix, int dwUnk8, int drawFlags, int dwUnk10)
+            Pointer<Point2D> centerPoint, Pointer<Matrix3DStruct> matrix, int bright, int tint, int dwUnk10)
         {
             var func = (delegate* unmanaged[Thiscall]<ref FootClass, IntPtr, int, int, IntPtr, IntPtr,
                 IntPtr, IntPtr, int, int, int, void>)this.GetVirtualFunctionPointer(324);
-            func(ref this, VXL, HVAFrameIndex, flags, cache, rectangle, centerPoint, matrix, dwUnk8, drawFlags, dwUnk10);
+            func(ref this, VXL, HVAFrameIndex, flags, cache, rectangle, centerPoint, matrix, bright, tint, dwUnk10);
         }
 
         public unsafe void Panic()

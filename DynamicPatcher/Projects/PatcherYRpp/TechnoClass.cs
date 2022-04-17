@@ -271,6 +271,29 @@ namespace PatcherYRpp
             func(ref this, pCell);
         }
 
+        /*
+        *  //bright = 0~2000. Final color = saturate(OriginalColor * Brightness / 1000.0f)
+        *  v3 = TechnoClass::Apply_Invulnerability_Color(this, color);
+        *  return TechnoClass::Apply_Airstrike_Color(this, v3);
+        */
+        public unsafe int ApplyEffectBright(int bright)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, int, int>)0x70E360;
+            return func(ref this, bright);
+        }
+
+        public unsafe int Apply_Invulnerability_Bright(int bright)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, int, int>)0x70E380;
+            return func(ref this, bright);
+        }
+
+        public unsafe int Apply_Airstrike_Bright(int bright)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, int, int>)0x70E4B0;
+            return func(ref this, bright);
+        }
+
         [FieldOffset(0)] public RadioClass BaseRadio;
         [FieldOffset(0)] public MissionClass BaseMission;
         [FieldOffset(0)] public ObjectClass Base;
@@ -322,6 +345,7 @@ namespace PatcherYRpp
         [FieldOffset(448)] public int AirstrikeTintStage;
 
         [FieldOffset(452)] public int ForceShielded; //0 or 1, NOT a bool - is this under ForceShield as opposed to IC?
+        public bool IsForceShilded { get => ForceShielded != 0; }
 
         [FieldOffset(456)] public Bool Deactivated; //Robot Tanks without power for instance
 

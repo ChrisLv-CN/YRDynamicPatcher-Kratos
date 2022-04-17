@@ -46,7 +46,7 @@ namespace Extension.Ext
                 if (null != OwnerExt)
                 {
                     Color = Type.IsHouseColor ? pHouse.Ref.LaserColor : Type.Color;
-                    OwnerExt.PaintballState.Enable(Color, AttachEffectType.Duration);
+                    OwnerExt.PaintballState.Enable(Color, Type.BrightMultiplier, AttachEffectType.Duration);
                 }
             }
         }
@@ -60,7 +60,7 @@ namespace Extension.Ext
         {
             if (null != OwnerExt)
             {
-                OwnerExt.PaintballState.Enable(Color, AttachEffectType.Duration);
+                OwnerExt.PaintballState.Enable(Color, Type.BrightMultiplier, AttachEffectType.Duration);
             }
         }
 

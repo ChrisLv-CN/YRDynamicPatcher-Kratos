@@ -35,11 +35,13 @@ namespace Extension.Ext
     {
         public ColorStruct Color; // 颜色
         public bool IsHouseColor; // 使用所属色
+        public float BrightMultiplier; // 亮度系数
 
         public PaintballType()
         {
             this.Color = default;
             this.IsHouseColor = false;
+            this.BrightMultiplier = 1.0f;
         }
 
         public Paintball CreateObject(AttachEffectType attachEffectType)
@@ -65,6 +67,24 @@ namespace Extension.Ext
                 {
                     paintballType.IsHouseColor = isHouseColor;
                 }
+            }
+
+            float bright = 1;
+            if (reader.ReadNormal(section, "Paintball.BrightMultiplier", ref bright))
+            {
+                if (null == paintballType)
+                {
+                    paintballType = new PaintballType();
+                }
+                if (bright < 0.0f)
+                {
+                    bright = 0.0f;
+                }
+                else if (bright > 2.0f)
+                {
+                    bright = 2.0f;
+                }
+                paintballType.BrightMultiplier = bright;
             }
 
             return null != paintballType;

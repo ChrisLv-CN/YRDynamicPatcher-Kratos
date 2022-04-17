@@ -87,6 +87,9 @@ namespace Extension.Ext
                         else
                         {
                             ext.MyMaster.Pointer = pObject;
+                            // 同步染色器
+                            TechnoExt masterExt = TechnoExt.ExtMap.Find(pObject.Convert<TechnoClass>());
+                            ext.PaintballState = masterExt.PaintballState;
                         }
                         ext.StandType = Type;
                     }
@@ -337,7 +340,7 @@ namespace Extension.Ext
                 //     case AbstractType.Infantry:
                 //         Pointer<InfantryClass> pInf = pStand.Pointer.Convert<InfantryClass>();
                 //         // pInf.Convert<FootClass>().Ref.Inf_PlayAnim(SequenceAnimType.FIRE_WEAPON);
-                        
+
                 //         pInf.Ref.SequenceAnim = SequenceAnimType.FIRE_WEAPON;
                 //         break;
                 //     case AbstractType.Unit:

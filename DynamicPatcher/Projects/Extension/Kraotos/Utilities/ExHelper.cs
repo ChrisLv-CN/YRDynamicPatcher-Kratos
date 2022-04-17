@@ -115,6 +115,44 @@ namespace Extension.Utilities
             return pTechno.IsDeadOrInvisible() || pTechno.IsCloaked();
         }
 
+        public static void SetAnimOwner(this Pointer<AnimClass> pAnim, Pointer<ObjectClass> pObject)
+        {
+            switch (pObject.Ref.Base.WhatAmI())
+            {
+                case AbstractType.Building:
+                case AbstractType.Infantry:
+                case AbstractType.Unit:
+                case AbstractType.Aircraft:
+                    pAnim.SetAnimOwner(pObject.Convert<TechnoClass>());
+                    break;
+                case AbstractType.Bullet:
+                    pAnim.SetAnimOwner(pObject.Convert<BulletClass>());
+                    break;
+            }
+        }
+
+        public static void SetAnimOwner(this Pointer<AnimClass> pAnim, Pointer<TechnoClass> pTechno)
+        {
+            pAnim.Ref.Owner = pTechno.Ref.Owner;
+        }
+
+        public static void SetAnimOwner(this Pointer<AnimClass> pAnim, Pointer<BulletClass> pBullet)
+        {
+            Pointer<TechnoClass> pBulletOwner = pBullet.Ref.Owner;
+            BulletExt ext = BulletExt.ExtMap.Find(pBullet);
+            if (null != ext && !ext.pSourceHouse.IsNull)
+            {
+                pAnim.Ref.Owner = ext.pSourceHouse;
+            }
+            else
+            {
+                if (!pBulletOwner.IsNull && !pBulletOwner.Ref.Owner.IsNull)
+                {
+                    pAnim.Ref.Owner = pBulletOwner.Ref.Owner;
+                }
+            }
+        }
+
         public static TChild AutoCopy<TParent, TChild>(TParent parent) where TChild : TParent, new()
         {
             TChild child = new TChild();
@@ -126,7 +164,7 @@ namespace Extension.Utilities
         {
             if (null == from || null == to)
             {
-                Logger.LogError("克隆失败，{0} {1}", null == from ? "From is null": null, null == to ? "To is null" : null);
+                Logger.LogError("克隆失败，{0} {1}", null == from ? "From is null" : null, null == to ? "To is null" : null);
                 return;
             }
 

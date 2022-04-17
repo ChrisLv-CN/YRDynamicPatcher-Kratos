@@ -17,6 +17,8 @@ namespace Extension.Ext
     {
         public static Container<AnimTypeExt, AnimTypeClass> ExtMap = new Container<AnimTypeExt, AnimTypeClass>("AnimTypeClass");
 
+        public List<Script.Script> Scripts;
+
         public AnimTypeExt(Pointer<AnimTypeClass> OwnerObject) : base(OwnerObject)
         {
 
@@ -27,6 +29,17 @@ namespace Extension.Ext
             INIReader reader = new INIReader(pINI);
             string section = OwnerObject.Ref.Base.Base.ID;
 
+            reader.ReadScripts(section, "Scripts", ref Scripts);
+        }
+
+        public override void SaveToStream(IStream stream)
+        {
+            base.SaveToStream(stream);
+        }
+
+        public override void LoadFromStream(IStream stream)
+        {
+            base.LoadFromStream(stream);
         }
 
         //[Hook(HookType.AresHook, Address = 0x42784B, Size = 5)]

@@ -1,5 +1,6 @@
 using DynamicPatcher;
 using Extension.Ext;
+using Extension.Utilities;
 using Extension.Script;
 using PatcherYRpp;
 using System;
@@ -219,6 +220,25 @@ namespace ExtensionHooks
                 ext?.OnDetonate(pCoordsDetonation.Data);
 
                 ext?.AttachedComponent.Foreach(c => (c as IBulletScriptable)?.OnDetonate(pCoordsDetonation));
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x469D06, Size = 6)]
+        public static unsafe UInt32 BulletClass_Detonate_WHAnim_Remap(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BulletClass> pBullet = (IntPtr)R->ESI;
+                Pointer<AnimClass> pAnim = (IntPtr)R->EAX;
+                if (!pAnim.IsNull)
+                {
+                    pAnim.SetAnimOwner(pBullet);
+                }
             }
             catch (Exception e)
             {

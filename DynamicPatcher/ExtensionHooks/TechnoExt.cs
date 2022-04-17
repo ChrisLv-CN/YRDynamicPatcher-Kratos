@@ -185,7 +185,7 @@ namespace ExtensionHooks
             ext?.AttachedComponent.Foreach(c => (c as ITechnoScriptable)?.OnReceiveDamage(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse));
             return 0;
         }
-
+        // after TakeDamage
         [Hook(HookType.AresHook, Address = 0x701DFF, Size = 7)]
         public static unsafe UInt32 TechnoClass_ReceiveDamage2(REGISTERS* R)
         {
@@ -405,18 +405,10 @@ namespace ExtensionHooks
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext?.DrawSHP_Colour(R);
-                /*
-                if (!pTechno.IsNull && pTechno.Convert<ObjectClass>().Ref.IsSelected)
-                {
-                    var x = R->EAX;
-                    Logger.Log("Unit[{0}] EAX = {1}", pTechno.Ref.Type.Ref.Base.Base.ID, x);
-
-                    ColorStruct color = new ColorStruct(0, 255, 128);
-                    ColorStruct colorAdd = ExHelper.Color2ColorAdd(color);
-                    Logger.Log("RGB888 = {0}, RGB565 = {1}, RGB565 = {2}", color, colorAdd, ExHelper.ColorAdd2RGB565(colorAdd));
-                    R->EAX = ExHelper.ColorAdd2RGB565(colorAdd);
-                }
-                */
+                // if (!pTechno.IsNull && pTechno.Convert<ObjectClass>().Ref.IsSelected)
+                // {
+                //     Logger.Log($"{Game.CurrentFrame} - {pTechno.Ref.Type.Ref.Base.Base.ID} tint = {R->EAX}, bright = {R->EBP}");
+                // }
             }
             catch (Exception e)
             {
@@ -425,29 +417,44 @@ namespace ExtensionHooks
             return 0;
         }
 
-
-        // change berzerk color
-        [Hook(HookType.AresHook, Address = 0x73C15F, Size = 7)]
+        [Hook(HookType.AresHook, Address = 0x706640, Size = 5)]
         public static unsafe UInt32 TechnoClass_DrawVXL_Colour(REGISTERS* R)
         {
             try
             {
-                Pointer<UnitClass> pUnit = (IntPtr)R->EBP;
-                TechnoExt ext = TechnoExt.ExtMap.Find(pUnit.Convert<TechnoClass>());
-                ext?.DrawVXL_Colour(R);
-                /*
-                if (!pUnit.IsNull && pUnit.Convert<ObjectClass>().Ref.IsSelected)
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
+                // uint bright = R->Stack<uint>(0x20);
+                // uint tint = R->Stack<uint>(0x24);
+                // R->Stack<uint>(0x20, 500);
+                // R->Stack<uint>(0x24, ExHelper.ColorAdd2RGB565(new ColorStruct(255, 0, 0)));
+                // Logger.Log($"{Game.CurrentFrame} - Techno {pTechno.Ref.Type.Ref.Base.Base.ID} vxl draw. Bright = {bright}, Tint = {tint}");
+                // Only for Building's turret
+                if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Building)
                 {
-                    Pointer<TechnoClass> pTechno = pUnit.Convert<TechnoClass>();
-                    var x = R->ESI;
-                    Logger.Log("Unit[{0}] ESI = {1}", pUnit.Ref.Base.Base.Type.Ref.Base.Base.ID, x);
-
-                    ColorStruct color = new ColorStruct(0, 255, 128);
-                    ColorStruct colorAdd = ExHelper.Color2ColorAdd(color);
-                    Logger.Log("RGB888 = {0}, RGB565 = {1}, RGB565 = {2}", color, colorAdd, ExHelper.ColorAdd2RGB565(colorAdd));
-                    R->ESI = ExHelper.ColorAdd2RGB565(colorAdd);
+                    TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                    ext?.DrawVXL_Colour(R, true);
                 }
-                */
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+        // after Techno_DrawVXL change berzerk color
+        [Hook(HookType.AresHook, Address = 0x73C15F, Size = 7)]
+        public static unsafe UInt32 UnitClass_DrawVXL_Colour(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<UnitClass> pUnit = (IntPtr)R->EBP;
+                // uint bright = R->Stack<uint>(0x1E0);
+                // uint tint = R->ESI;
+                // Logger.Log($"{Game.CurrentFrame} - Unit {pUnit.Ref.Type.Ref.Base.Base.Base.ID} vxl draw. Bright = {bright}, Tint = {tint}");
+
+                TechnoExt ext = TechnoExt.ExtMap.Find(pUnit.Convert<TechnoClass>());
+                ext?.DrawVXL_Colour(R, false);
             }
             catch (Exception e)
             {

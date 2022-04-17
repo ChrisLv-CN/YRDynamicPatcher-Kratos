@@ -53,10 +53,7 @@ namespace Extension.Ext
                 {
                     Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, pObject.Ref.Base.GetCoords());
                     pAnim.Ref.SetOwnerObject(pObject);
-                    if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno) && !pTechno.Ref.Owner.IsNull)
-                    {
-                        pAnim.Ref.Owner = pTechno.Ref.Owner;
-                    }
+                    pAnim.SetAnimOwner(pObject);
                 }
             }
             // 持续动画
@@ -84,11 +81,7 @@ namespace Extension.Ext
                     // Logger.Log(" - 将动画{0}赋予对象", Type.IdleAnim);
                     pAnim.Ref.RemainingIterations = 0xFF;
                     // Logger.Log(" - 设置动画{0}的剩余迭代次数为{1}", Type.IdleAnim, 0xFF);
-                    if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno) && !pTechno.Ref.Owner.IsNull)
-                    {
-                        pAnim.Ref.Owner = pTechno.Ref.Owner;
-                        // Logger.Log(" - 成功设置动画{0}的所属阵营", Type.IdleAnim);
-                    }
+                    pAnim.SetAnimOwner(pObject);
                     this.pAnim.Pointer = pAnim;
                     // Logger.Log(" - 缓存动画{0}的实例对象指针", Type.IdleAnim);
                 }

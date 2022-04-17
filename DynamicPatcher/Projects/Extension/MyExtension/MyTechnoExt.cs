@@ -105,6 +105,7 @@ namespace Extension.Ext
                 TechnoClass_Update_FixGattlingStage();
                 TechnoClass_Update_GiftBox();
                 TechnoClass_Update_JumpjetFacingToTarget();
+                TechnoClass_Update_Paintball();
                 TechnoClass_Update_Passengers();
                 TechnoClass_Update_SpawnFireOnce();
                 TechnoClass_Update_SpawnSupport();
@@ -320,9 +321,9 @@ namespace Extension.Ext
             TechnoClass_DrawSHP_Colour(R);
         }
 
-        public unsafe void DrawVXL_Colour(REGISTERS* R)
+        public unsafe void DrawVXL_Colour(REGISTERS* R, bool isBuilding)
         {
-            TechnoClass_DrawVXL_Paintball(R);
+            TechnoClass_DrawVXL_Paintball(R, isBuilding);
         }
 
         public unsafe void OnDestroy_UnitClass()

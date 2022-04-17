@@ -36,27 +36,27 @@ namespace Extension.Ext
             }
         }
 
-        public static Queue<RollingText> RollingTextQueue = new Queue<RollingText>();
+        private static Queue<RollingText> rollingTextQueue = new Queue<RollingText>();
 
         public static void RollingText(string text, CoordStruct location, Point2D offset, int rollSpeed, int duration, PrintTextData data)
         {
             RollingText rollingText = new RollingText(text, location, offset, rollSpeed, duration, data);
-            PrintTextManager.RollingTextQueue.Enqueue(rollingText);
+            PrintTextManager.rollingTextQueue.Enqueue(rollingText);
         }
 
         public static void PrintText()
         {
             // 打印滚动文字
-            for (int i = 0; i < RollingTextQueue.Count; i++)
+            for (int i = 0; i < rollingTextQueue.Count; i++)
             {
-                RollingText rollingText = RollingTextQueue.Dequeue();
+                RollingText rollingText = rollingTextQueue.Dequeue();
                 // 检查存活然后渲染
                 if (rollingText.CanPrint(out Point2D offset, out Point2D pos, out RectangleStruct bound))
                 {
                     // 获得锚点位置
                     Point2D pos2 = pos + offset;
                     Print(rollingText.Text, rollingText.Data, pos2, Pointer<RectangleStruct>.AsPointer(ref bound), Surface.Current, false);
-                    RollingTextQueue.Enqueue(rollingText);
+                    rollingTextQueue.Enqueue(rollingText);
                 }
             }
         }

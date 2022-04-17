@@ -89,7 +89,7 @@ namespace Extension.Ext
             this.ImageSize = new Point2D(5, 8);
         }
 
-        public void ReadPrintText(INIReader reader, string section, string title)
+        protected void ReadPrintText(INIReader reader, string section, string title)
         {
 
             Point2D offset = default;

@@ -252,6 +252,22 @@ namespace PatcherYRpp
 
         [FieldOffset(493)] public Bool PlayerControl;
 
+        [FieldOffset(501)] public Bool Defeated;
+
+        [FieldOffset(502)] public Bool IsGameOver;
+
+        [FieldOffset(503)] public Bool IsWinner;
+
+        [FieldOffset(504)] public Bool IsLoser;
+
+        [FieldOffset(505)] public Bool CiviliansEvacuated;
+
+        [FieldOffset(506)] public Bool FirestormActive;
+
+        [FieldOffset(507)] public Bool HasThreatNode;
+
+        [FieldOffset(508)] public Bool RecheckTechTree;
+
         [FieldOffset(596)] public DynamicVectorClass<Pointer<SuperClass>> Supers;
 
         [FieldOffset(724)] public int AirportDocks;
