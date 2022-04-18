@@ -48,7 +48,21 @@ namespace Extension.Ext
 
     public partial class BulletExt
     {
+        public bool SubjectToGround;
         private StraightBullet straightBullet;
+
+        public unsafe void BulletClass_Init_StraightTrajectory()
+        {
+            Pointer<BulletClass> pBullet = OwnerObject;
+            if (default == Type.SubjectToGround)
+            {
+                SubjectToGround = pBullet.Ref.Type.Ref.ROT != 1 && !Type.StraightBulletData.IsStraight();
+            }
+            else
+            {
+                SubjectToGround = Type.SubjectToGround >= 0;
+            }
+        }
 
         public unsafe void BulletClass_Put_StraightTrajectory(Pointer<CoordStruct> pCoord)
         {
@@ -125,12 +139,15 @@ namespace Extension.Ext
     {
 
         public StraightBulletData StraightBulletData;
+        public int SubjectToGround; // 0=auto， 1=true, -1=false
 
         /// <summary>
         /// [ProjectileType]
         /// ROT=1
         /// Straight=yes
         /// AbsolutelyStraight=no
+        /// SubjectToGround=yes
+        /// 
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="section"></param>
@@ -141,7 +158,7 @@ namespace Extension.Ext
             if (reader.ReadNormal(section, "Straight", ref straight))
             {
                 StraightBulletData = new StraightBulletData(straight);
-
+                SubjectToGround = -1;
             }
 
             bool absolutely = false;
@@ -152,6 +169,13 @@ namespace Extension.Ext
                     StraightBulletData = new StraightBulletData(true);
                 }
                 StraightBulletData.AbsolutelyStraight = absolutely;
+                SubjectToGround = -1;
+            }
+
+            bool subjectToGround = true;
+            if (reader.ReadNormal(section, "SubjectToGround", ref subjectToGround))
+            {
+                SubjectToGround = subjectToGround ? 1 : -1;
             }
         }
     }

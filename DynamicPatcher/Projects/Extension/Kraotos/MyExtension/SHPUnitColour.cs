@@ -26,7 +26,7 @@ namespace Extension.Ext
                 // Berzerk
                 if (pTechno.Ref.Berzerk)
                 {
-                    R->EAX = ExHelper.ColorAdd2RGB565(RulesClass.BerserkColor);
+                    R->EAX = RulesClass.BerserkColor.Add2RGB565();
                     // R->EAX = Drawing.Color16bit(color);
                     // R->EBP = 200;
                     // R->EAX = 0x42945536;

@@ -19,7 +19,7 @@ namespace Extension.Ext
 
         public unsafe void OnInit()
         {
-
+            BulletClass_Init_StraightTrajectory();
         }
 
         public unsafe void OnPut(Pointer<CoordStruct> pCoord)

@@ -105,7 +105,7 @@ namespace Extension.Ext
                         fireFLH = Type.EliteFireFLH;
                         targetFLH = Type.EliteTargetFLH;
                     }
-                    rofMult = ExHelper.GetROFMult(pReceiverOwner);
+                    rofMult = pReceiverOwner.GetROFMult(); // ExHelper.GetROFMult(pReceiverOwner);
                     break;
                 case AbstractType.Bullet:
                     isOnBullet = true;

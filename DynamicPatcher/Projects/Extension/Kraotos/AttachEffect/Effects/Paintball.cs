@@ -32,10 +32,14 @@ namespace Extension.Ext
         public PaintballType Type;
         private TechnoExt OwnerExt;
         private ColorStruct Color;
+        private string token;
+        private int duration;
 
         public Paintball(PaintballType type, AttachEffectType attachEffectType) : base(attachEffectType)
         {
             this.Type = type;
+            this.token = new Guid().ToString();
+            this.duration = attachEffectType.Duration;
         }
 
         public override void Enable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
@@ -46,21 +50,21 @@ namespace Extension.Ext
                 if (null != OwnerExt)
                 {
                     Color = Type.IsHouseColor ? pHouse.Ref.LaserColor : Type.Color;
-                    OwnerExt.PaintballState.Enable(Color, Type.BrightMultiplier, AttachEffectType.Duration);
+                    OwnerExt.PaintballState.Enable(duration, token, Color, Type.BrightMultiplier);
                 }
             }
         }
 
-        // public override void Disable(CoordStruct location)
-        // {
-        //     OwnerExt?.PaintballState.Disable();
-        // }
+        public override void Disable(CoordStruct location)
+        {
+            OwnerExt?.PaintballState.Disable(token);
+        }
 
         public override void ResetDuration()
         {
             if (null != OwnerExt)
             {
-                OwnerExt.PaintballState.Enable(Color, Type.BrightMultiplier, AttachEffectType.Duration);
+                OwnerExt.PaintballState.Enable(duration, token, Color, Type.BrightMultiplier);
             }
         }
 

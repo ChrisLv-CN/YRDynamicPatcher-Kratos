@@ -16,7 +16,7 @@ namespace Extension.Ext
     {
 
         // AE附加在抛射体上，Master是抛射体的持有者
-        public SwizzleablePointer<ObjectClass> MyMaster = new SwizzleablePointer<ObjectClass>(IntPtr.Zero);
+        public SwizzleablePointer<TechnoClass> MyMaster = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
         public StandType StandType;
 
         public unsafe bool TechnoClass_CanFire_StandUnit(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon)
@@ -25,9 +25,9 @@ namespace Extension.Ext
             {
                 return false;
             }
-            if (!MyMaster.IsNull && MyMaster.Pointer.CastToTechno(out Pointer<TechnoClass> pTechno))
+            if (!MyMaster.IsNull)
             {
-                if (pTechno.Ref.Base.Base.WhatAmI() != AbstractType.Building)
+                if (MyMaster.Ref.Base.Base.WhatAmI() != AbstractType.Building)
                 {
                     // 检查JOJO是否处于移动状态
 
@@ -43,7 +43,7 @@ namespace Extension.Ext
                 Pointer<TechnoClass> pTechno = OwnerObject;
                 // Logger.Log("{0} 被 {1} 杀死了，价值 {2}，杀手{3}，等级{4}", pTechno.Ref.Type.Ref.Base.Base.ID, pKiller.Ref.Type.Ref.Base.Base.ID, cost, pKiller.Ref.Type.Ref.Trainable ? "可以升级" : "不可训练", pKiller.Ref.Veterancy.Veterancy);
                 TechnoExt ext = TechnoExt.ExtMap.Find(pKiller);
-                if (!ext.MyMaster.IsNull && ext.MyMaster.Pointer.CastToTechno(out Pointer<TechnoClass> pMaster) && pMaster.Ref.Type.Ref.Trainable)
+                if (!ext.MyMaster.IsNull && ext.MyMaster.Ref.Type.Ref.Trainable)
                 {
                     int transExp = 0;
                     if (pKiller.Ref.Type.Ref.Trainable)
@@ -57,7 +57,7 @@ namespace Extension.Ext
                             exp = 0;
                             // Logger.Log("替身{0}已经满级，全部经验{1}转给使者{2}", pKiller.Ref.Type.Ref.Base.Base.ID, transExp, pMaster.Ref.Type.Ref.Base.Base.ID);
                         }
-                        if (!pMaster.Ref.Veterancy.IsElite())
+                        if (!ext.MyMaster.Ref.Veterancy.IsElite())
                         {
                             // 使者还能获得经验，转移部分给使者
                             transExp = (int)(cost * ext.StandType.ExperienceToMaster);
@@ -80,8 +80,8 @@ namespace Extension.Ext
                     }
                     if (transExp != 0)
                     {
-                        int technoCost = pMaster.Ref.Type.Ref.Base.GetActualCost(pMaster.Ref.Owner);
-                        pMaster.Ref.Veterancy.Add(technoCost, transExp);
+                        int technoCost = ext.MyMaster.Ref.Type.Ref.Base.GetActualCost(ext.MyMaster.Ref.Owner);
+                        ext.MyMaster.Ref.Veterancy.Add(technoCost, transExp);
                         // Logger.Log("使者{0}享用分享经验{1}", pMaster.Ref.Type.Ref.Base.Base.ID, transExp);
                     }
 

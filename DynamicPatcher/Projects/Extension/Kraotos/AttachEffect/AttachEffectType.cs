@@ -322,6 +322,7 @@ namespace Extension.Ext
             ReadPaintballType(reader, section);
             ReadStandType(reader, section);
             ReadTransformType(reader, section);
+            ReadWeaponType(reader, section);
 
             base.LoadFromINI(pINI);
         }

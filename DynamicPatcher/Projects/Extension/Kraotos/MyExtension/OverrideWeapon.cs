@@ -1,88 +1,68 @@
+using System.Net.NetworkInformation;
 using System.Threading;
 using System.IO;
 using DynamicPatcher;
 using Extension.Utilities;
 using PatcherYRpp;
+using PatcherYRpp.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Extension.Ext
 {
     [Serializable]
-    public class OverrideWeapon
+    public class OverrideWeaponState : AttachEffectState
     {
-        public bool Enable;
         public OverrideWeaponData Data;
-        public bool Locked;
-        public SwizzleablePointer<WeaponTypeClass> pOverrideWeapon;
-        public int weaponIndex;
 
-        public OverrideWeapon(OverrideWeaponData data)
+        public OverrideWeaponState() : base()
         {
-            this.Enable = data.Enable;
+            this.Data = null;
+            this.active = false;
+            this.infinite = false;
+            this.timer = new TimerStruct(0);
+        }
+
+        public void Enable(int duration, string token, OverrideWeaponData data)
+        {
+            Enable(duration, token);
             this.Data = data;
-            this.Locked = false;
-            this.pOverrideWeapon = new SwizzleablePointer<WeaponTypeClass>(IntPtr.Zero);
-            this.weaponIndex = -1;
         }
 
-        public bool OverrideThisWeapon()
+        public bool TryGetOverrideWeapon(int index, bool isElite, out Pointer<WeaponTypeClass> pOverrideWeapon)
         {
-            return weaponIndex == Data.WeaponIndex;
-        }
-    }
-
-    [Serializable]
-    public class OverrideWeaponData
-    {
-        public bool Enable;
-        public int WeaponIndex;
-
-        public OverrideWeaponData(int weaponIndex)
-        {
-            this.Enable = weaponIndex > -1;
-            this.WeaponIndex = weaponIndex;
-        }
-    }
-
-    public partial class TechnoExt
-    {
-        public OverrideWeapon overrideWeapon;
-
-        public void TechnoClass_Init_OverrideWeapon()
-        {
-            if (null != Type.OverrideWeaponData && Type.OverrideWeaponData.Enable && null == overrideWeapon)
+            pOverrideWeapon = IntPtr.Zero;
+            if (IsActive() && CanOverride(index, isElite, out string weaponType))
             {
-                overrideWeapon = new OverrideWeapon(Type.OverrideWeaponData);
+                pOverrideWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find(weaponType);
+                return !pOverrideWeapon.IsNull;
             }
+            return false;
         }
 
-        public void TechnoClass_OnFire_OverrideWeapon(Pointer<AbstractClass> pTarget, int weaponIndex)
+        private bool CanOverride(int index, bool isElite, out string weaponType)
         {
-            if (null != overrideWeapon)
+            weaponType = null;
+            if (null != Data)
             {
-                // Logger.Log("{0}记录下发射武器序号{1}", OwnerObject.Ref.Type.Convert<AbstractTypeClass>().Ref.ID, weaponIndex);
-                overrideWeapon.weaponIndex = weaponIndex;
-            }
-        }
-
-        public bool TechnoClass_RegisterDestruction_OverrideWeapon(Pointer<TechnoClass> pKiller, int cost)
-        {
-            // override killer's weapon
-            Pointer<TechnoClass> pTechno = OwnerObject;
-            // Logger.Log("被{0}杀死了", pKill.Ref.Type.Convert<AbstractTypeClass>().Ref.ID);
-            TechnoExt ext = TechnoExt.ExtMap.Find(pKiller);
-            if (null != ext && null != ext.overrideWeapon && !ext.overrideWeapon.Locked)
-            {
-                Pointer<WeaponStruct> pWeapon = pTechno.Ref.GetWeapon(0);
-                if (!pWeapon.IsNull && !pWeapon.Ref.WeaponType.IsNull)
+                weaponType = Data.Type;
+                int overrideIndex = Data.Index;
+                double chance = Data.Chance;
+                if (isElite)
                 {
-                    // Logger.Log("被{0}杀死了，转移武器{1}给{0}", pKill.Ref.Type.Convert<AbstractTypeClass>().Ref.ID, pWeapon.Ref.WeaponType.Ref.Base.ID);
-                    ext.overrideWeapon.pOverrideWeapon.Pointer = pWeapon.Ref.WeaponType;
+                    weaponType = Data.EliteType;
+                    overrideIndex = Data.EliteIndex;
+                    chance = Data.EliteChance;
+                }
+                if (!string.IsNullOrEmpty(weaponType) && (overrideIndex < 0 || overrideIndex == index))
+                {
+                    // 算概率
+                    return chance >= 1 || chance >= MathEx.Random.NextDouble();
                 }
             }
             return false;
@@ -90,27 +70,97 @@ namespace Extension.Ext
 
     }
 
-    public partial class TechnoTypeExt
+    /// <summary>
+    /// 覆盖武器
+    /// </summary>
+    [Serializable]
+    public class OverrideWeaponData
     {
+        public bool Enable;
+        public string Type; // 替换武器
+        public string EliteType; // 精英替换武器
+        public int Index; // 替换武器序号
+        public int EliteIndex; // 精英替换武器序号
+        public double Chance; // 概率
+        public double EliteChance; // 精英概率
 
-        public OverrideWeaponData OverrideWeaponData;
-
-        /// <summary>
-        /// [TechnoType]
-        /// OverrideWeapon=0
-        /// </summary>
-        /// <param name="reader"></param>
-        /// <param name="section"></param>
-        private void ReadOverrideWeapon(INIReader reader, string section)
+        public OverrideWeaponData()
         {
-            // Override weapon
-            int weaponIndex = -1;
-            if (reader.ReadNormal(section, "OverrideWeapon", ref weaponIndex))
+            this.Enable = false;
+            this.Type = null;
+            this.EliteType = null;
+            this.Index = -1;
+            this.EliteIndex = -1;
+            this.Chance = 1;
+            this.EliteChance = 1;
+        }
+
+        public void ReadOverrideWeapon(INIReader reader, string section)
+        {
+
+            string type = null;
+            if (reader.ReadNormal(section, "OverrideWeapon.Type", ref type))
             {
-                OverrideWeaponData = new OverrideWeaponData(weaponIndex);
+                if (!string.IsNullOrEmpty(type) && !"none".Equals(type.ToLower()))
+                {
+                    this.Enable = true;
+                    this.Type = type;
+                    this.EliteType = type;
+                }
             }
 
+            int index = -1;
+            if (reader.ReadNormal(section, "OverrideWeapon.Index", ref index))
+            {
+                this.Index = index;
+                this.EliteIndex = index;
+            }
+
+            double chance = 1;
+            if (reader.ReadPercent(section, "OverrideWeapon.Chance", ref chance))
+            {
+                this.Chance = chance;
+                this.EliteChance = chance;
+            }
+
+            string eliteType = null;
+            if (reader.ReadNormal(section, "OverrideWeapon.EliteType", ref eliteType))
+            {
+                if (!string.IsNullOrEmpty(eliteType))
+                {
+                    if (!"none".Equals(eliteType.ToLower()))
+                    {
+                        this.Enable = true;
+                        this.EliteType = eliteType;
+                    }
+                    else
+                    {
+                        this.EliteType = null;
+                    }
+                }
+
+            }
+
+            int eliteIndex = -1;
+            if (reader.ReadNormal(section, "OverrideWeapon.EliteIndex", ref eliteIndex))
+            {
+                this.EliteIndex = eliteIndex;
+            }
+
+            double eliteChance = 1;
+            if (reader.ReadPercent(section, "OverrideWeapon.EliteChance", ref eliteChance))
+            {
+                this.EliteChance = eliteChance;
+            }
         }
+
     }
+
+    public partial class TechnoExt
+    {
+        public OverrideWeaponState OverrideWeaponState = new OverrideWeaponState();
+
+    }
+
 
 }

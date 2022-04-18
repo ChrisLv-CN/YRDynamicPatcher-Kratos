@@ -64,6 +64,7 @@ namespace Extension.Ext
             InitPaintball();
             InitStand();
             InitTransform();
+            InitWeapon();
         }
 
         public void SetupLifeTimer()
@@ -108,6 +109,8 @@ namespace Extension.Ext
             Stand?.Enable(pObject, pHouse, pAttacker);
             // 激活变形
             Transform?.Enable(pObject, pHouse, pAttacker);
+            // 激活武器
+            Weapon?.Enable(pObject, pHouse, pAttacker);
         }
 
         /// <summary>
@@ -128,6 +131,7 @@ namespace Extension.Ext
             Paintball?.Disable(location);
             Stand?.Disable(location);
             Transform?.Disable(location);
+            Weapon?.Disable(location);
         }
 
         public bool IsActive()
@@ -149,7 +153,8 @@ namespace Extension.Ext
                 && (null == DestroySelf || DestroySelf.IsAlive())
                 && (null == Paintball || Paintball.IsAlive())
                 && (null == Stand || Stand.IsAlive())
-                && (null == Transform || Transform.IsAlive());
+                && (null == Transform || Transform.IsAlive())
+                && (null == Weapon || Weapon.IsAlive());
         }
 
         private bool IsDeath()
@@ -231,6 +236,7 @@ namespace Extension.Ext
             Paintball?.ResetDuration();
             Stand?.ResetDuration();
             Transform?.ResetDuration();
+            Weapon?.ResetDuration();
         }
 
         public void OnUpdate(Pointer<ObjectClass> pObject, bool isDead, AttachEffectManager manager)
@@ -251,6 +257,7 @@ namespace Extension.Ext
             Paintball?.OnUpdate(pObject, isDead, manager);
             Stand?.OnUpdate(pObject, isDead, manager);
             Transform?.OnUpdate(pObject, isDead, manager);
+            Weapon?.OnUpdate(pObject, isDead, manager);
         }
 
         public void OnTemporalUpdate(TechnoExt ext, Pointer<TemporalClass> pTemporal)
@@ -267,6 +274,7 @@ namespace Extension.Ext
             Paintball?.OnTemporalUpdate(ext, pTemporal);
             Stand?.OnTemporalUpdate(ext, pTemporal);
             Transform?.OnTemporalUpdate(ext, pTemporal);
+            Weapon?.OnTemporalUpdate(ext, pTemporal);
         }
 
         public void OnPut(Pointer<ObjectClass> pObject, Pointer<CoordStruct> pCoord, Direction faceDir)
@@ -283,6 +291,7 @@ namespace Extension.Ext
             Paintball?.OnPut(pObject, pCoord, faceDir);
             Stand?.OnPut(pObject, pCoord, faceDir);
             Transform?.OnPut(pObject, pCoord, faceDir);
+            Weapon?.OnPut(pObject, pCoord, faceDir);
         }
 
         public void OnRemove(Pointer<ObjectClass> pObject)
@@ -299,6 +308,7 @@ namespace Extension.Ext
             Paintball?.OnRemove(pObject);
             Stand?.OnRemove(pObject);
             Transform?.OnRemove(pObject);
+            Weapon?.OnRemove(pObject);
         }
 
         public void OnReceiveDamage(Pointer<ObjectClass> pObject, Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
@@ -316,6 +326,7 @@ namespace Extension.Ext
             Paintball?.OnReceiveDamage(pObject, pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
             Stand?.OnReceiveDamage(pObject, pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
             Transform?.OnReceiveDamage(pObject, pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
+            Weapon?.OnReceiveDamage(pObject, pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
         }
 
         public void OnDestroy(Pointer<ObjectClass> pObject)
@@ -332,6 +343,7 @@ namespace Extension.Ext
             Paintball?.OnDestroy(pObject);
             Stand?.OnDestroy(pObject);
             Transform?.OnDestroy(pObject);
+            Weapon?.OnDestroy(pObject);
         }
 
         public void OnGuardCommand()
@@ -348,6 +360,7 @@ namespace Extension.Ext
             Paintball?.OnGuardCommand();
             Stand?.OnGuardCommand();
             Transform?.OnGuardCommand();
+            Weapon?.OnGuardCommand();
         }
 
         public void OnStopCommand()
@@ -364,6 +377,7 @@ namespace Extension.Ext
             Paintball?.OnStopCommand();
             Stand?.OnStopCommand();
             Transform?.OnStopCommand();
+            Weapon?.OnStopCommand();
         }
 
     }

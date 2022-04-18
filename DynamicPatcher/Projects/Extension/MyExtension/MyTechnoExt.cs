@@ -44,7 +44,6 @@ namespace Extension.Ext
             TechnoClass_Init_ConvertType();
             TechnoClass_Init_DecoyMissile();
             TechnoClass_Init_GiftBox();
-            TechnoClass_Init_OverrideWeapon();
             TechnoClass_Init_Trail();
             TechnoClass_Init_VirtualUnit();
         }
@@ -243,6 +242,10 @@ namespace Extension.Ext
 
         public unsafe void CanFire(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon, ref bool ceaseFire)
         {
+            if (ceaseFire = TechnoClass_CanFire_Disable(pTarget, pWeapon))
+            {
+                return;
+            }
             if (ceaseFire = TechnoClass_CanFire_AttackBeacon(pTarget, pWeapon))
             {
                 return;
@@ -263,7 +266,6 @@ namespace Extension.Ext
             TechnoClass_OnFire_AircraftDive(pTarget, weaponIndex);
             TechnoClass_OnFire_AttackBeacon(pTarget, weaponIndex);
             TechnoClass_OnFire_ExtraFireWeapon(pTarget, weaponIndex);
-            TechnoClass_OnFire_OverrideWeapon(pTarget, weaponIndex);
             TechnoClass_OnFire_RockerPitch(pTarget, weaponIndex);
             TechnoClass_OnFire_SpawnSupport(pTarget, weaponIndex);
             TechnoClass_OnFire_SuperWeapon(pTarget, weaponIndex);
@@ -271,10 +273,6 @@ namespace Extension.Ext
 
         public unsafe void OnRegisterDestruction(Pointer<TechnoClass> pKiller, int cost, ref bool skip)
         {
-            if (skip = TechnoClass_RegisterDestruction_OverrideWeapon(pKiller, cost))
-            {
-                return;
-            }
             if (skip = TechnoClass_RegisterDestruction_StandUnit(pKiller, cost))
             {
                 return;
@@ -435,7 +433,6 @@ namespace Extension.Ext
             ReadGiftBox(reader, section);
             ReadHelthText(reader, section);
             ReadJumpjetFacingToTarget(reader, section);
-            ReadOverrideWeapon(reader, section);
             ReadPassengers(reader, section);
             ReadSpawnFireOnce(reader, section);
             ReadSpawnSupport(reader, section, artReader, artSection);

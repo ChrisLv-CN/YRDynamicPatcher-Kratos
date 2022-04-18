@@ -247,5 +247,28 @@ namespace ExtensionHooks
             return (uint)0;
         }
 
+        // 导弹类抛射体当高度低于地面高度时强制引爆
+        [Hook(HookType.AresHook, Address = 0x466E18, Size = 6)]
+        public static unsafe UInt32 BulletClass_CheckHight_UnderGround(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BulletClass> pBullet = (IntPtr)R->ECX;
+                BulletExt ext = BulletExt.ExtMap.Find(pBullet);
+                if (!ext.SubjectToGround)
+                {
+                    R->Stack<Bool>(0x18, false);
+                    R->Stack<uint>(0x20, 0);
+                    // Logger.Log($"{Game.CurrentFrame} - ooxx v135={R->Stack<Bool>(0x18)} pos={R->Stack<uint>(0x20)}.");
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
+
+
     }
 }

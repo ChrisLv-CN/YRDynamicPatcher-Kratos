@@ -78,18 +78,29 @@ namespace Extension.Ext
                         {
                             ext.VirtualUnit = this.Type.VirtualUnit;
                         }
-                        Pointer<TechnoClass> pBulletOwner = IntPtr.Zero;
-                        if (pObject.Ref.Base.WhatAmI() == AbstractType.Bullet && !(pBulletOwner = pObject.Convert<BulletClass>().Ref.Owner).IsNull)
+
+                        switch (pObject.Ref.Base.WhatAmI())
                         {
-                            // 附加在抛射体上的，取抛射体的所有者
-                            ext.MyMaster.Pointer = pBulletOwner.Convert<ObjectClass>();
-                        }
-                        else
-                        {
-                            ext.MyMaster.Pointer = pObject;
-                            // 同步染色器
-                            TechnoExt masterExt = TechnoExt.ExtMap.Find(pObject.Convert<TechnoClass>());
-                            ext.PaintballState = masterExt.PaintballState;
+                            case AbstractType.Bullet:
+                                Pointer<BulletClass> pBullet = pObject.Convert<BulletClass>();
+                                // 附加在抛射体上的，取抛射体的所有者
+                                ext.MyMaster.Pointer = pBullet.Ref.Owner;
+                                break;
+                            default:
+                                Pointer<TechnoClass> pTechno = pObject.Convert<TechnoClass>();
+                                ext.MyMaster.Pointer = pTechno;
+                                // 同步AE状态机
+                                if (!pTechno.Ref.Owner.IsNull && pHouse == pTechno.Ref.Owner)
+                                {
+                                    TechnoExt masterExt = TechnoExt.ExtMap.Find(pObject.Convert<TechnoClass>());
+                                    // 染色
+                                    ext.PaintballState = masterExt.PaintballState;
+                                    // 禁武
+                                    ext.DisableWeaponState = masterExt.DisableWeaponState;
+                                    // 替武
+                                    ext.OverrideWeaponState = masterExt.OverrideWeaponState;
+                                }
+                                break;
                         }
                         ext.StandType = Type;
                     }

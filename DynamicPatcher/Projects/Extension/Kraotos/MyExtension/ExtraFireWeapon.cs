@@ -177,7 +177,7 @@ namespace Extension.Ext
                     // }
                     // double rofMult = !rofAbility ? 1.0 : RulesClass.Global().VeteranROF * ((OwnerObject.Ref.Owner.IsNull || OwnerObject.Ref.Owner.Ref.Type.IsNull) ? 1.0 : OwnerObject.Ref.Owner.Ref.Type.Ref.ROFMult);
 
-                    double rofMult = ExHelper.GetROFMult(OwnerObject);
+                    double rofMult = OwnerObject.GetROFMult(); // ExHelper.GetROFMult(OwnerObject);
 
                     CoordStruct flh = OwnerObject.Ref.GetWeapon(weaponIndex).Ref.FLH;
                     if (customFLH != default)

@@ -229,8 +229,10 @@ namespace ExtensionHooks
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 bool ceaseFire = false;
                 ext?.CanFire(pTarget, pWeapon, ref ceaseFire);
-
-                ext?.AttachedComponent.Foreach(c => (c as ITechnoScriptable)?.CanFire(pTarget, pWeapon, ref ceaseFire));
+                if (!ceaseFire)
+                {
+                    ext?.AttachedComponent.Foreach(c => (c as ITechnoScriptable)?.CanFire(pTarget, pWeapon, ref ceaseFire));
+                }
                 if (ceaseFire)
                 {
                     return (uint)0x6FCB7E;
@@ -250,12 +252,12 @@ namespace ExtensionHooks
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
                 var pTarget = R->Stack<Pointer<AbstractClass>>(0x4);
-                var nWeaponIndex = R->Stack<int>(0x8);
+                var weaponIndex = R->Stack<int>(0x8);
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                ext?.OnFire(pTarget, nWeaponIndex);
+                ext?.OnFire(pTarget, weaponIndex);
 
-                ext?.AttachedComponent.Foreach(c => (c as ITechnoScriptable)?.OnFire(pTarget, nWeaponIndex));
+                ext?.AttachedComponent.Foreach(c => (c as ITechnoScriptable)?.OnFire(pTarget, weaponIndex));
             }
             catch (Exception e)
             {
@@ -265,36 +267,23 @@ namespace ExtensionHooks
         }
 
 
-        // [Hook(HookType.AresHook, Address = 0x6FDD71, Size = 6)]
+        [Hook(HookType.AresHook, Address = 0x6FDD71, Size = 6)]
         public static unsafe UInt32 TechnoClass_Fire_OverrideWeapon(REGISTERS* R)
         {
             try
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                var pTarget = R->Stack<Pointer<AbstractClass>>(0x4);
+                var weaponIndex = R->Stack<int>(0x8);
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                // Logger.Log("ESI = {0} Fire, mark weaponIndex = {1}", pTechno.IsNull ? "Is Null" : pTechno.Ref.Type.Convert<AbstractTypeClass>().Ref.ID, null != ext.overrideWeapon ? ext.overrideWeapon.weaponIndex : "no mark");
-                if (null != ext.overrideWeapon && ext.overrideWeapon.OverrideThisWeapon())
+                if (null != ext.OverrideWeaponState && ext.OverrideWeaponState.TryGetOverrideWeapon(weaponIndex, pTechno.Ref.Veterancy.IsElite(), out Pointer<WeaponTypeClass> pWeapon))
                 {
-                    Pointer<WeaponTypeClass> pWeapon = ext.overrideWeapon.pOverrideWeapon;
                     if (!pWeapon.IsNull)
                     {
                         // Logger.Log("Override weapon {0}", pWeapon.Ref.Base.ID);
                         R->EBX = (uint)pWeapon;
                     }
                 }
-                /*
-                Pointer<WeaponTypeClass> pWeapon = (IntPtr)R->EBX;
-                if (pWeapon.IsNull)
-                {
-                    Logger.Log("EBX is null");
-                    // Check OverridWeapon
-                    pWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find("RadBeamWeapon");
-                    if (!pWeapon.IsNull)
-                    {
-                        R->EBX = (uint)pWeapon;
-                    }
-                }
-                */
             }
             catch (Exception e)
             {

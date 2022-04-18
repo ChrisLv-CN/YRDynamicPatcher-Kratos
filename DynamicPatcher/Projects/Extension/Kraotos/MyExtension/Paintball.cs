@@ -15,51 +15,23 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public class PaintballState
+    public class PaintballState : AttachEffectState
     {
         public ColorStruct Color;
         public float BrightMultiplier;
-        public int Duration;
-        public bool Shining;
 
-        private bool paint;
-        private bool infinite;
-        private TimerStruct timer;
-
-        private int step;
-
-        public PaintballState()
+        public PaintballState() : base()
         {
             this.Color = default;
             this.BrightMultiplier = 1.0f;
-            this.Duration = 0;
-            this.Shining = false;
-            this.paint = false;
-            this.infinite = false;
-            this.timer = new TimerStruct(0);
-            this.step = 0;
         }
 
-        public void Enable(ColorStruct color, int duration)
+        public void Enable(int duration, string token, ColorStruct color, float brightMultiplier = 1.0f)
         {
+            Enable(duration, token);
+
             this.Color = color;
-            this.Duration = duration;
-            this.paint = duration != 0;
-            if (duration < 0)
-            {
-                infinite = true;
-                timer.Start(0);
-            }
-            else
-            {
-                infinite = false;
-                timer.Start(duration + 1); // 颜色多持续一帧
-            }
-        }
 
-        public void Enable(ColorStruct color, float brightMultiplier, int duration)
-        {
-            Enable(color, duration);
             if (brightMultiplier < 0.0f)
             {
                 brightMultiplier = 0.0f;
@@ -71,22 +43,11 @@ namespace Extension.Ext
             this.BrightMultiplier = brightMultiplier;
         }
 
-        public bool NeedPaint()
-        {
-            return NeedPaint(out bool changeColor, out bool changeBright);
-        }
-
         public bool NeedPaint(out bool changeColor, out bool changeBright)
         {
             changeColor = default != Color;
             changeBright = 1.0f != BrightMultiplier;
-            return paint && NotDone();
-        }
-
-        private bool NotDone()
-        {
-            paint = infinite || timer.InProgress();
-            return paint;
+            return IsActive();
         }
 
         public uint GetBright(uint bright)
@@ -113,7 +74,7 @@ namespace Extension.Ext
         {
             if (OwnerObject.Convert<AbstractClass>().Ref.WhatAmI() == AbstractType.Building)
             {
-                if (PaintballState.NeedPaint())
+                if (PaintballState.IsActive())
                 {
                     // Logger.Log($"{Game.CurrentFrame} - {OwnerObject.Ref.Type.Ref.Base.Base.ID} change color {PaintballState.Color} {changeColor}, change bright {changeBright}, ForceShilded {OwnerObject.Ref.IsForceShilded}");
                     OwnerObject.Ref.Base.Mark(MarkType.CHANGE);
@@ -136,9 +97,9 @@ namespace Extension.Ext
             // Logger.Log($"{Game.CurrentFrame} - {OwnerObject} {OwnerObject.Ref.Type.Ref.Base.Base.ID} change color {PaintballState.Color} {changeColor}, change bright {changeBright}");
             if (changeColor)
             {
-                ColorStruct colorAdd = ExHelper.Color2ColorAdd(PaintballState.Color);
+                ColorStruct colorAdd = PaintballState.Color.ToColorAdd();
                 // Logger.Log("RGB888 = {0}, RGB565 = {1}, RGB565 = {2}", Paintball.Color, colorAdd, ExHelper.ColorAdd2RGB565(colorAdd));
-                R->EAX = ExHelper.ColorAdd2RGB565(colorAdd);
+                R->EAX = colorAdd.Add2RGB565();
             }
             if (changeBright)
             {
@@ -157,8 +118,8 @@ namespace Extension.Ext
             // Logger.Log($"{Game.CurrentFrame} - {OwnerObject} {OwnerObject.Ref.Type.Ref.Base.Base.ID} change color {PaintballState.Color} {changeColor}, change bright {changeBright}");
             if (changeColor)
             {
-                ColorStruct colorAdd = ExHelper.Color2ColorAdd(PaintballState.Color);
-                R->EBP = ExHelper.ColorAdd2RGB565(colorAdd);
+                ColorStruct colorAdd = PaintballState.Color.ToColorAdd();
+                R->EBP = colorAdd.Add2RGB565();
             }
             if (changeBright)
             {
@@ -176,16 +137,16 @@ namespace Extension.Ext
             }
             if (changeColor)
             {
-                ColorStruct colorAdd = ExHelper.Color2ColorAdd(PaintballState.Color);
+                ColorStruct colorAdd = PaintballState.Color.ToColorAdd();
                 // Logger.Log("RGB888 = {0}, RGB565 = {1}, RGB565 = {2}", Paintball.Color, colorAdd, ExHelper.ColorAdd2RGB565(colorAdd));
                 if (isBuilding)
                 {
                     // vxl turret
-                    R->Stack<uint>(0x24, ExHelper.ColorAdd2RGB565(colorAdd));
+                    R->Stack<uint>(0x24, colorAdd.Add2RGB565());
                 }
                 else
                 {
-                    R->ESI = ExHelper.ColorAdd2RGB565(colorAdd);
+                    R->ESI = colorAdd.Add2RGB565();
                 }
             }
             if (changeBright)
