@@ -56,7 +56,7 @@ namespace Extension.Ext
             Pointer<BulletClass> pBullet = OwnerObject;
             if (default == Type.SubjectToGround)
             {
-                SubjectToGround = pBullet.Ref.Type.Ref.ROT != 1 && !Type.StraightBulletData.IsStraight();
+                SubjectToGround = pBullet.Ref.Type.Ref.ROT != 1 && (null == Type.StraightBulletData || !Type.StraightBulletData.IsStraight());
             }
             else
             {

@@ -26,7 +26,9 @@ namespace Extension.Utilities
             return bulletV.ToBulletVelocity();
         }
 
-        public static unsafe void FireWeaponTo(Pointer<TechnoClass> pShooter, Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon, CoordStruct flh, FireBulletToTarget callback = null, CoordStruct bulletSourcePos = default, bool radialFire = false, int splitAngle = 180)
+        public static unsafe void FireWeaponTo(Pointer<TechnoClass> pShooter, Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget,
+            Pointer<WeaponTypeClass> pWeapon, CoordStruct flh,
+            FireBulletToTarget callback = null, CoordStruct bulletSourcePos = default, bool radialFire = false, int splitAngle = 180)
         {
             if (pTarget.IsNull)
             {
@@ -59,7 +61,7 @@ namespace Extension.Utilities
                 {
                     bulletVelocity = GetBulletVelocity(sourcePos, targetPos);
                 }
-                Pointer<BulletClass> pBullet = FireBulletTo(pAttacker, pTarget, pWeapon, sourcePos, targetPos, bulletVelocity);
+                Pointer<BulletClass> pBullet = FireBulletTo(pShooter, pAttacker, pTarget, pWeapon, sourcePos, targetPos, bulletVelocity);
 
                 // Logger.Log("发射{0}，抛射体{1}，回调{2}", pWeapon.Ref.Base.ID, pBullet.IsNull ? " is null" : pBullet.Ref.Type.Ref.Base.Base.ID, null == callback);
                 if (null != callback && !pBullet.IsNull)
@@ -69,7 +71,10 @@ namespace Extension.Utilities
             }
         }
 
-        public static unsafe Pointer<BulletClass> FireBulletTo(Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon, CoordStruct sourcePos, CoordStruct targetPos, BulletVelocity bulletVelocity)
+        public static unsafe Pointer<BulletClass> FireBulletTo(Pointer<TechnoClass> pShooter, Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget,
+            Pointer<WeaponTypeClass> pWeapon,
+            CoordStruct sourcePos, CoordStruct targetPos,
+            BulletVelocity bulletVelocity)
         {
             if (pTarget.IsNull || (pTarget.CastToTechno(out Pointer<TechnoClass> pTechno) && !pTechno.Ref.Base.IsAlive))
             {
@@ -84,11 +89,14 @@ namespace Extension.Utilities
             // Play report sound
             PlayReportSound(pWeapon, sourcePos);
             // Draw weapon anim
-            DrawWeaponAnim(pWeapon, sourcePos, targetPos);
+            DrawWeaponAnim(pShooter, pWeapon, sourcePos, targetPos);
             return pBullet;
         }
 
-        private static unsafe Pointer<BulletClass> FireBullet(Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon, CoordStruct sourcePos, CoordStruct targetPos, BulletVelocity bulletVelocity)
+        private static unsafe Pointer<BulletClass> FireBullet(Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget,
+            Pointer<WeaponTypeClass> pWeapon,
+            CoordStruct sourcePos, CoordStruct targetPos,
+            BulletVelocity bulletVelocity)
         {
             double fireMult = 1;
             if (!pAttacker.IsNull && pAttacker.Ref.Base.IsAlive)
@@ -219,7 +227,7 @@ namespace Extension.Utilities
             }
         }
 
-        private static unsafe void DrawWeaponAnim(Pointer<WeaponTypeClass> pWeapon, CoordStruct sourcePos, CoordStruct targetPos)
+        private static unsafe void DrawWeaponAnim(Pointer<TechnoClass> pShooter, Pointer<WeaponTypeClass> pWeapon, CoordStruct sourcePos, CoordStruct targetPos)
         {
             // Anim
             if (pWeapon.Ref.Anim.Count > 0)
@@ -240,6 +248,7 @@ namespace Extension.Utilities
                 if (!pAnimType.IsNull)
                 {
                     Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, sourcePos);
+                    pAnim.Ref.SetOwnerObject(pShooter.Convert<ObjectClass>());
                 }
             }
         }

@@ -138,7 +138,7 @@ namespace Extension.Ext
                 // get bullet velocity
                 BulletVelocity bulletVelocity = ExHelper.GetBulletVelocity(sourcePos, targetPos);
                 // fire weapon
-                ExHelper.FireBulletTo(pSpawnOwner, OwnerObject.Convert<AbstractClass>(), pWeapon, sourcePos, targetPos, bulletVelocity);
+                ExHelper.FireBulletTo(pSpawnOwner, pSpawnOwner, OwnerObject.Convert<AbstractClass>(), pWeapon, sourcePos, targetPos, bulletVelocity);
                 if (useROF)
                 {
                     supportFireROF.Start(pWeapon.Ref.ROF);

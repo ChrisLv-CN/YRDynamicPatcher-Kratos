@@ -262,7 +262,7 @@ namespace Extension.Ext
                 bulletVelocity = ExHelper.GetBulletVelocity(sourcePos, targetPos);
             }
             // 发射武器
-            Pointer<BulletClass> pBullet = ExHelper.FireBulletTo(pAttacker, pTarget, pWeapon, sourcePos, targetPos, bulletVelocity);
+            Pointer<BulletClass> pBullet = ExHelper.FireBulletTo(pShooter, pAttacker, pTarget, pWeapon, sourcePos, targetPos, bulletVelocity);
             if (null != burst.Callback)
             {
                 burst.Callback(burst.Index, burst.Burst, pBullet, pTarget);
