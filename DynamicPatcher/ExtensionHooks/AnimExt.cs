@@ -59,7 +59,7 @@ namespace ExtensionHooks
         {
             return AnimExt.AnimClass_Save_Suffix(R);
         }
-        
+
 
         [Hook(HookType.AresHook, Address = 0x423AC0, Size = 6)]
         public static unsafe UInt32 AnimClass_Update(REGISTERS* R)
@@ -78,7 +78,60 @@ namespace ExtensionHooks
             }
             return 0;
         }
-        
+
+        [Hook(HookType.AresHook, Address = 0x424785, Size = 6)]
+        public static unsafe UInt32 AnimClass_Loop(REGISTERS* R)
+        {
+            Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
+            try
+            {
+                AnimExt ext = AnimExt.ExtMap.Find(pAnim);
+                ext?.OnLoop();
+                // Logger.Log($"{Game.CurrentFrame} - {pAnim.Ref.Type.Ref.Base.Base.ID}循环完毕，剩余{pAnim.Ref.Loops}");
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x4247F3, Size = 6)]
+        [Hook(HookType.AresHook, Address = 0x424298, Size = 6)] // Meteor hit ground or water
+        public static unsafe UInt32 AnimClass_Done(REGISTERS* R)
+        {
+            Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
+            try
+            {
+                AnimExt ext = AnimExt.ExtMap.Find(pAnim);
+                ext?.OnDone();
+                // Logger.Log($"{Game.CurrentFrame} - {pAnim} {pAnim.Ref.Type.Ref.Base.Base.ID}播放完毕");
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x424807, Size = 6)]
+        public static unsafe UInt32 AnimClass_Next(REGISTERS* R)
+        {
+            Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
+            Pointer<AnimTypeClass> pNextAnimType = (IntPtr)R->ECX;
+            try
+            {
+                AnimExt ext = AnimExt.ExtMap.Find(pAnim);
+                ext?.OnNext();
+                // Logger.Log($"{Game.CurrentFrame} - {pAnim} {pAnim.Ref.Type.Ref.Base.Base.ID}播放结束，Next动画[{pNextAnimType.Ref.Base.Base.ID}]");
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
 
         [Hook(HookType.AresHook, Address = 0x422CA0, Size = 5)]
         public static unsafe UInt32 AnimClass_Render(REGISTERS* R)
@@ -152,6 +205,72 @@ namespace ExtensionHooks
                 // Logger.Log(" - Anim[{0}] ECX={1}, EDX={2}", pAnim.Ref.Type.Convert<AbstractTypeClass>().Ref.ID, ecx, edx);
             }
             return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x423E75, Size = 6)]
+        public static unsafe UInt32 AnimClass_Extras_Remap(REGISTERS* R)
+        {
+            Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
+            Pointer<AnimClass> pNewAnim = (IntPtr)R->EAX;
+            pNewAnim.Ref.Owner = pAnim.Ref.Owner;
+            // Logger.Log($"{Game.CurrentFrame} - {pAnim} {pAnim.Ref.Type.Ref.Base.Base.ID} Extras {R->EDI} {R->EAX} ");
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x423CEA, Size = 5)]
+        public static unsafe UInt32 AnimClass_Extras_HitWater_Meteor(REGISTERS* R)
+        {
+            Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
+            AnimExt ext = AnimExt.ExtMap.Find(pAnim);
+            if (ext.OverrideExpireAnimOnWater())
+            {
+                // Logger.Log($"{Game.CurrentFrame} - {pAnim} {pAnim.Ref.Type.Ref.Base.Base.ID} Extras {R->EDI} {R->EAX} ");
+                R->EAX = 0;
+                return 0x423CEF;
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x423D46, Size = 5)]
+        public static unsafe UInt32 AnimClass_Extras_HitWater_Other(REGISTERS* R)
+        {
+            Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
+            AnimExt ext = AnimExt.ExtMap.Find(pAnim);
+            if (ext.OverrideExpireAnimOnWater())
+            {
+                // Logger.Log($"{Game.CurrentFrame} - {pAnim} {pAnim.Ref.Type.Ref.Base.Base.ID} Extras {R->EDI} {R->EAX} ");
+                R->EAX = 0;
+                return 0x423D9B;
+            }
+            return 0;
+        }
+
+        // Take over to Create Spawn Anim
+        [Hook(HookType.AresHook, Address = 0x423F8C, Size = 5)]
+        public static unsafe UInt32 AnimClass_Spawn_Remap(REGISTERS* R)
+        {
+            Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
+            // Pointer<AnimClass> pNewAnim = (IntPtr)R->EAX;
+            if (!pAnim.Ref.Type.IsNull && !pAnim.Ref.Type.Ref.Spawns.IsNull)
+            {
+                Pointer<AnimClass> pNewAnim = YRMemory.Create<AnimClass>(pAnim.Ref.Type.Ref.Spawns, pAnim.Ref.Base.Base.GetCoords());
+                pNewAnim.Ref.Owner = pAnim.Ref.Owner;
+            }
+            // Logger.Log($"{Game.CurrentFrame} - {pAnim} {pAnim.Ref.Type.Ref.Base.Base.ID} Spawns {pAnim.Ref.Type.Ref.Spawns.Ref.Base.Base.ID} owner {pAnim.Ref.Owner} ");
+            return 0x423FC3;
+        }
+
+        // Take over to Create Trailer Anim
+        [Hook(HookType.AresHook, Address = 0x4242E1, Size = 5)]
+        public static unsafe UInt32 AnimClass_Trailer_Remap(REGISTERS* R)
+        {
+            Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
+            if (!pAnim.Ref.Type.IsNull && !pAnim.Ref.Type.Ref.TrailerAnim.IsNull)
+            {
+                Pointer<AnimClass> pNewAnim = YRMemory.Create<AnimClass>(pAnim.Ref.Type.Ref.TrailerAnim, pAnim.Ref.Base.Base.GetCoords());
+                pNewAnim.Ref.Owner = pAnim.Ref.Owner;
+            }
+            return 0x424322;
         }
 
     }

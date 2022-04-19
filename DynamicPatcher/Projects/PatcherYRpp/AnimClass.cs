@@ -79,9 +79,9 @@ namespace PatcherYRpp
         [FieldOffset(392)] public double Damage; // defaults to 1.0 , added to Type->Damage in some cases
         [FieldOffset(400)] public BlitterFlags AnimFlags; // argument that's 0x600 most of the time
         [FieldOffset(404)] public Bool HasExtras; // enables IsMeteor and Bouncer special behavior (AnimExtras)
-        [FieldOffset(405)] public int RemainingIterations; // defaulted to deleteAfterIterations, when reaches zero, UnInit() is called
+        [FieldOffset(405)] public int Loops; // defaulted to deleteAfterIterations, when reaches zero, UnInit() is called
         [FieldOffset(406)] public byte unknown_196;
-        [FieldOffset(407)] public byte unknown_197;
+        [FieldOffset(407)] public Bool ToDelete;
         [FieldOffset(408)] public Bool IsPlaying;
         [FieldOffset(409)] public Bool IsFogged;
         [FieldOffset(410)] public Bool FlamingGuyExpire; // finish animation and remove

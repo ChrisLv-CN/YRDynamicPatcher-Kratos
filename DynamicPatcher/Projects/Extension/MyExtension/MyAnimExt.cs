@@ -25,6 +25,21 @@ namespace Extension.Ext
             AnimClass_Update_SuperWeapon();
         }
 
+        public unsafe void OnLoop()
+        {
+            AnimClass_Loop_SuperWeapon();
+        }
+
+        public unsafe void OnDone()
+        {
+            AnimClass_Done_SuperWeapon();
+        }
+
+        public unsafe void OnNext()
+        {
+
+        }
+
         public unsafe void OnRender()
         {
             
@@ -40,6 +55,7 @@ namespace Extension.Ext
     public partial class AnimTypeExt
     {
 
+
         [INILoadAction]
         public void LoadINI(Pointer<CCINIClass> pINI)
         {
@@ -47,6 +63,7 @@ namespace Extension.Ext
             INIReader reader = new INIReader(pINI);
             string section = OwnerObject.Ref.Base.Base.ID;
 
+            ReadExpireAnimOnWater(reader, section);
             ReadFireSuperWeapon(reader, section);
         }
 

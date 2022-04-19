@@ -21,11 +21,22 @@ namespace Extension.Ext
         private Queue<FireSuperWeapon> fireSuperWeaponQueue = new Queue<FireSuperWeapon>();
 
 
-        public void Launch(Pointer<HouseClass> pHouse, CoordStruct location, FireSuperWeaponsData data)
+        public void Order(Pointer<HouseClass> pHouse, CoordStruct location, FireSuperWeaponsData data)
         {
             CellStruct cellStruct = MapClass.Coord2Cell(location);
             FireSuperWeapon fireSuperWeapon = new FireSuperWeapon(pHouse, cellStruct, data);
             fireSuperWeaponQueue.Enqueue(fireSuperWeapon);
+        }
+
+        public void Launch(Pointer<HouseClass> pHouse, CoordStruct location, FireSuperWeaponsData data)
+        {
+            CellStruct cellStruct = MapClass.Coord2Cell(location);
+            LaunchSuperWeapons(pHouse, cellStruct, data);
+        }
+
+        public void Reset()
+        {
+            fireSuperWeaponQueue.Clear();
         }
 
         public void Update()

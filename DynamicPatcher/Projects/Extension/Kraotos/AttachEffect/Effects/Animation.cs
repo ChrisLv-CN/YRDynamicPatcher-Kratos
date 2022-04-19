@@ -79,7 +79,7 @@ namespace Extension.Ext
                     // Logger.Log(" - 成功创建动画{0}实例", Type.IdleAnim);
                     pAnim.Ref.SetOwnerObject(pObject);
                     // Logger.Log(" - 将动画{0}赋予对象", Type.IdleAnim);
-                    pAnim.Ref.RemainingIterations = 0xFF;
+                    pAnim.Ref.Loops = 0xFF;
                     // Logger.Log(" - 设置动画{0}的剩余迭代次数为{1}", Type.IdleAnim, 0xFF);
                     pAnim.SetAnimOwner(pObject);
                     this.pAnim.Pointer = pAnim;

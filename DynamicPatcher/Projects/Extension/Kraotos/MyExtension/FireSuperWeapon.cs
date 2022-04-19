@@ -10,17 +10,42 @@ using System.Threading.Tasks;
 
 namespace Extension.Ext
 {
+    public enum PlaySuperWeaponMode
+    {
+        CUSTOM = 0, DONE = 1, LOOP = 2
+    }
+
     [Serializable]
     public class PlaySuperWeaponData : FireSuperWeaponsData
     {
+        public PlaySuperWeaponMode LaunchMode;
+
         public PlaySuperWeaponData() : base()
         {
-
+            this.LaunchMode = PlaySuperWeaponMode.DONE;
         }
 
         public void ReadPlaySuperWeapon(INIReader reader, string section)
         {
             ReadSuperWeapons(reader, section);
+
+            string mode = null;
+            if (reader.ReadNormal(section, "FireSuperWeapon.LaunchMode", ref mode))
+            {
+                string t = mode.Substring(0, 1).ToUpper();
+                switch (t)
+                {
+                    case "D":
+                        this.LaunchMode = PlaySuperWeaponMode.DONE;
+                        break;
+                    case "L":
+                        this.LaunchMode = PlaySuperWeaponMode.LOOP;
+                        break;
+                    case "C":
+                        this.LaunchMode = PlaySuperWeaponMode.CUSTOM;
+                        break;
+                }
+            }
         }
     }
 
@@ -160,15 +185,44 @@ namespace Extension.Ext
             if (!playSuperWeaponFlag)
             {
                 playSuperWeaponFlag = true;
-                Pointer<AnimClass> pAnim = OwnerObject;
-                CoordStruct targetPos = pAnim.Ref.Base.Base.GetCoords();
-                if (null != Type.PlaySuperWeaponData && Type.PlaySuperWeaponData.Enable)
+                PlaySuperWeaponData data = Type.PlaySuperWeaponData;
+                if (null != data && data.Enable && data.LaunchMode == PlaySuperWeaponMode.CUSTOM)
                 {
-                    FireSuperWeaponManager.Launch(pAnim.Ref.Owner, targetPos, Type.PlaySuperWeaponData);
+                    CoordStruct targetPos = OwnerObject.Ref.Base.Base.GetCoords();
+                    FireSuperWeaponManager.Order(OwnerObject.Ref.Owner, targetPos, data);
                 }
             }
 
             FireSuperWeaponManager.Update();
+        }
+
+        public unsafe void AnimClass_Loop_SuperWeapon()
+        {
+            PlaySuperWeaponData data = Type.PlaySuperWeaponData;
+            if (null != data && data.Enable && data.LaunchMode == PlaySuperWeaponMode.LOOP)
+            {
+                CoordStruct targetPos = OwnerObject.Ref.Base.Base.GetCoords();
+                FireSuperWeaponManager.Launch(OwnerObject.Ref.Owner, targetPos, data);
+            }
+        }
+
+        public unsafe void AnimClass_Done_SuperWeapon()
+        {
+            FireSuperWeaponManager.Reset();
+            playSuperWeaponFlag = false;
+
+            PlaySuperWeaponData data = Type.PlaySuperWeaponData;
+            if (null != data && data.Enable && data.LaunchMode == PlaySuperWeaponMode.DONE)
+            {
+                switch (data.LaunchMode)
+                {
+                    case PlaySuperWeaponMode.LOOP:
+                    case PlaySuperWeaponMode.DONE:
+                        CoordStruct targetPos = OwnerObject.Ref.Base.Base.GetCoords();
+                        FireSuperWeaponManager.Launch(OwnerObject.Ref.Owner, targetPos, data);
+                        break;
+                }
+            }
         }
 
     }
@@ -179,6 +233,7 @@ namespace Extension.Ext
 
         /// <summary>
         /// [AnimType]
+        /// FireSuperWeapon.LaunchMode=DONE ;发射超武的模式，DONE\LOOP\CUSTOM，DONE=动画播放结束时释放，LOOP=动画每次Loop结束时释放，CUSTOM=按照下方的控制项目来执行释放和循环
         /// FireSuperWeapon.Types=NukeSpecial,IronCurtainSpecial
         /// FireSuperWeapon.InitDelay=0 ;延迟发射超武
         /// FireSuperWeapon.RandomInitDelay=0,15 ;随机延迟发射超武

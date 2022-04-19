@@ -247,6 +247,25 @@ namespace ExtensionHooks
             return (uint)0;
         }
 
+        [Hook(HookType.AresHook, Address = 0x469EB4, Size = 6)]
+        public static unsafe UInt32 BulletClass_Detonate_WHDebris_Remap(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BulletClass> pBullet = (IntPtr)R->ESI;
+                Pointer<AnimClass> pAnim = (IntPtr)R->EDI;
+                if (!pAnim.IsNull)
+                {
+                    pAnim.SetAnimOwner(pBullet);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
+
         // 导弹类抛射体当高度低于地面高度时强制引爆
         [Hook(HookType.AresHook, Address = 0x466E18, Size = 6)]
         public static unsafe UInt32 BulletClass_CheckHight_UnderGround(REGISTERS* R)

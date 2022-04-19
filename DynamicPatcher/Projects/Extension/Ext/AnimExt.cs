@@ -20,13 +20,17 @@ namespace Extension.Ext
     {
         public static Container<AnimExt, AnimClass> ExtMap = new Container<AnimExt, AnimClass>("AnimClass");
 
+        private SwizzleablePointer<AnimTypeClass> pLastType;
+
         ExtensionReference<AnimTypeExt> type;
         public AnimTypeExt Type
         {
             get
             {
-                if (type.TryGet(out AnimTypeExt ext) == false)
+                if (type.TryGet(out AnimTypeExt ext) == false
+                    || (!OwnerObject.Ref.Type.IsNull && OwnerObject.Ref.Type != pLastType))
                 {
+                    pLastType.Pointer = OwnerObject.Ref.Type;
                     type.Set(OwnerObject.Ref.Type);
                     ext = type.Get();
                 }
@@ -46,6 +50,7 @@ namespace Extension.Ext
             _decoratorComponent = new DecoratorComponent();
             _extComponent.OnAwake += () => ScriptManager.CreateScriptableTo(_extComponent, Type.Scripts, this);
             _extComponent.OnAwake += () => _decoratorComponent.AttachToComponent(_extComponent);
+            pLastType = new SwizzleablePointer<AnimTypeClass>(OwnerObject.Ref.Type);
         }
 
         public override void SaveToStream(IStream stream)
