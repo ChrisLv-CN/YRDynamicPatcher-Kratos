@@ -103,6 +103,23 @@ namespace ExtensionHooks
             {
                 Pointer<BulletClass> pBullet = (IntPtr)R->EBP;
                 BulletExt ext = BulletExt.ExtMap.Find(pBullet);
+                // if (pBullet.Ref.Type.Ref.Base.Base.ID == "HelixRocketP")
+                // {
+                //     CoordStruct sourcePos = pBullet.Ref.SourceCoords;
+                //     BulletEffectHelper.BlueCell(sourcePos, 256);
+                //     CoordStruct targetPos = pBullet.Ref.TargetCoords;
+                //     BulletEffectHelper.RedCrosshair(targetPos, 1024);
+
+                //     CoordStruct sourcePosNow = pBullet.Ref.Base.Base.GetCoords();
+                //     Pointer<AbstractClass> pTarget = pBullet.Ref.Target;
+                //     BulletEffectHelper.BlueCrosshair(sourcePosNow, 1024);
+
+                //     CoordStruct targetPosNow = pTarget.Ref.GetCoords();
+                //     BulletEffectHelper.RedCrosshair(targetPosNow, 1024);
+
+                //     BulletEffectHelper.GreenLine(sourcePosNow, targetPos);
+                //     BulletEffectHelper.RedLine(sourcePosNow, targetPosNow);
+                // }
                 ext?.OnUpdate();
 
                 ext?.AttachedComponent.Foreach(c => c.OnUpdate());
@@ -274,7 +291,8 @@ namespace ExtensionHooks
             {
                 Pointer<BulletClass> pBullet = (IntPtr)R->ECX;
                 BulletExt ext = BulletExt.ExtMap.Find(pBullet);
-                if (!ext.SubjectToGround)
+
+                if (pBullet.Ref.Base.GetHeight() <= 0 && !ext.SubjectToGround)
                 {
                     R->Stack<Bool>(0x18, false);
                     R->Stack<uint>(0x20, 0);
