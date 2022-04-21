@@ -191,7 +191,7 @@ namespace Extension.Ext
         public unsafe void BulletClass_Update_ProximityRange()
         {
             Pointer<BulletClass> pBullet = OwnerObject;
-            CoordStruct sourcePos = pBullet.Ref.Base.Location;
+            CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
             BulletVelocity velocity = pBullet.Ref.Velocity;
             // 加上提前量才是当前帧所在位置
             sourcePos += new CoordStruct((int)velocity.X, (int)velocity.Y, (int)velocity.Z);

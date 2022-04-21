@@ -127,7 +127,7 @@ namespace Extension.Ext
 
         public unsafe void TechnoClass_UnInit_AttachEffect()
         {
-            AttachEffectManager.UnInitAll(LastLocation);
+            AttachEffectManager.UnInitAll(lastLocation);
         }
 
         public unsafe void TechnoClass_StopCommand_AttachEffect()

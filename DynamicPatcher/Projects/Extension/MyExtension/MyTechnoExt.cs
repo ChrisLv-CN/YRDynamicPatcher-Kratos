@@ -26,11 +26,11 @@ namespace Extension.Ext
         // public const byte YES = 1;
         // public const byte NO = 0;
 
-        public CoordStruct LastLocation;
         public bool IsDead;
-
-        public Mission LastMission;
         public DrivingState DrivingState;
+        private Mission lastMission;
+        private CoordStruct lastLocation;
+
 
         public void OnInit()
         {
@@ -68,7 +68,7 @@ namespace Extension.Ext
                     case Mission.Move:
                     case Mission.AttackMove:
                         // 上一次任务不是这两个说明是起步
-                        if (Mission.Move != LastMission && Mission.AttackMove != LastMission)
+                        if (Mission.Move != lastMission && Mission.AttackMove != lastMission)
                         {
                             DrivingState = DrivingState.Start;
                         }
@@ -79,7 +79,7 @@ namespace Extension.Ext
                         break;
                     default:
                         // 上一次任务如果是Move或者AttackMove说明是刹车
-                        if (Mission.Move == LastMission || Mission.AttackMove == LastMission)
+                        if (Mission.Move == lastMission || Mission.AttackMove == lastMission)
                         {
                             DrivingState = DrivingState.Stop;
                         }
@@ -89,7 +89,7 @@ namespace Extension.Ext
                         }
                         break;
                 }
-                LastMission = mission;
+                lastMission = mission;
 
                 TechnoClass_Update_AircraftDive();
                 TechnoClass_Update_AircraftPut();
@@ -115,7 +115,7 @@ namespace Extension.Ext
             TechnoClass_Update_AttachEffect();
             TechnoClass_Update_Trail();
 
-            LastLocation = OwnerObject.Ref.Base.Base.GetCoords();
+            lastLocation = OwnerObject.Ref.Base.Base.GetCoords();
         }
 
         public unsafe void OnTemporalUpdate(Pointer<TemporalClass> pTemporal)
