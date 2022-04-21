@@ -208,12 +208,63 @@ namespace ExtensionHooks
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                // Logger.Log($"{Game.CurrentFrame} - 单位 {pTechno} {pTechno.Ref.Type.Ref.Base.Base.ID} 受伤害死亡, 所属 {pTechno.Ref.Owner}");
                 ext?.OnDestroy();
             }
             catch (Exception e)
             {
                 Logger.PrintException(e);
             }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x70256C, Size = 6)]
+        public static unsafe UInt32 TechnoClass_Destroy_Debris_Remap(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            Pointer<AnimClass> pAnim = (IntPtr)R->EDI;
+            // Logger.Log($"{Game.CurrentFrame} - 单位 {pTechno} [{pTechno.Ref.Type.Ref.Base.Base.ID}] 所属 {pTechno.Ref.Owner} 死亡动画 ECX = {R->ECX} EDI = {R->EDI}");
+            pAnim.Ref.Owner = pTechno.Ref.Owner;
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x7024B0, Size = 6)]
+        public static unsafe UInt32 TechnoClass_Destroy_Debris_Remap2(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            Pointer<AnimClass> pAnim = (IntPtr)R->EBX;
+            // Logger.Log($"{Game.CurrentFrame} - 单位 {pTechno} [{pTechno.Ref.Type.Ref.Base.Base.ID}] 所属 {pTechno.Ref.Owner} 死亡动画2 ECX = {R->ECX} EBX = {R->EBX}");
+            pAnim.Ref.Owner = pTechno.Ref.Owner;
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x441A26, Size = 6)]
+        public static unsafe UInt32 BuildingClass_Destroy_Explosion_Remap(REGISTERS* R)
+        {
+            Pointer<BuildingClass> pBuilding = (IntPtr)R->ESI;
+            Pointer<AnimClass> pAnim = (IntPtr)R->EBP;
+            // Logger.Log($"{Game.CurrentFrame} - 建筑 {pBuilding} [{pBuilding.Ref.Type.Ref.Base.Base.Base.ID}] owner = {pBuilding.Ref.Base.Owner} 死亡动画 {R->ESI} ECX = {R->ECX} EBP = {R->EBP}");
+            pAnim.Ref.Owner = pBuilding.Ref.Base.Owner;
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x441B22, Size = 6)]
+        public static unsafe UInt32 BuildingClass_Destroy_Exploding_Remap2(REGISTERS* R)
+        {
+            Pointer<BuildingClass> pBuilding = (IntPtr)R->ESI;
+            Pointer<AnimClass> pAnim = (IntPtr)R->EBP;
+            // Logger.Log($"{Game.CurrentFrame} - 建筑 {pBuilding} [{pBuilding.Ref.Type.Ref.Base.Base.Base.ID}] owner = {pBuilding.Ref.Base.Owner} 死亡动画2 ECX = {R->ECX} EBP = {R->EBP}");
+            pAnim.Ref.Owner = pBuilding.Ref.Base.Owner;
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x441D25, Size = 0xA)]
+        public static unsafe UInt32 BuildingClass_Destroy_DestroyAnim_Remap(REGISTERS* R)
+        {
+            Pointer<BuildingClass> pBuilding = (IntPtr)R->ESI;
+            Pointer<AnimClass> pAnim = (IntPtr)R->EBP;
+            // Logger.Log($"{Game.CurrentFrame} - 建筑 {pBuilding} [{pBuilding.Ref.Type.Ref.Base.Base.Base.ID}] owner = {pBuilding.Ref.Base.Owner} 摧毁动画 ECX = {R->ECX} EBP = {R->EBP}");
+            pAnim.Ref.Owner = pBuilding.Ref.Base.Owner;
             return 0;
         }
 

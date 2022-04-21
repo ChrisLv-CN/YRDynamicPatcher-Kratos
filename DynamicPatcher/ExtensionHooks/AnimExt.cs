@@ -105,7 +105,12 @@ namespace ExtensionHooks
             {
                 AnimExt ext = AnimExt.ExtMap.Find(pAnim);
                 ext?.OnDone();
-                // Logger.Log($"{Game.CurrentFrame} - {pAnim} {pAnim.Ref.Type.Ref.Base.Base.ID}播放完毕");
+
+                // string animID = pAnim.Ref.Type.Ref.Base.Base.ID;
+                // if (!animID.StartsWith("FIRE") && animID.IndexOf("SMOKE") < 0 && pAnim.Ref.Owner.IsNull)
+                // {
+                //     Logger.Log($"{Game.CurrentFrame} - {pAnim} {pAnim.Ref.Type.Ref.Base.Base.ID}播放完毕, 所属 {pAnim.Ref.Owner}");
+                // }
             }
             catch (Exception e)
             {
@@ -211,12 +216,13 @@ namespace ExtensionHooks
         public static unsafe UInt32 AnimClass_Extras_Remap(REGISTERS* R)
         {
             Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
-            Pointer<AnimClass> pNewAnim = (IntPtr)R->EAX;
+            Pointer<AnimClass> pNewAnim = (IntPtr)R->EDI;
             pNewAnim.Ref.Owner = pAnim.Ref.Owner;
-            // Logger.Log($"{Game.CurrentFrame} - {pAnim} {pAnim.Ref.Type.Ref.Base.Base.ID} Extras {R->EDI} {R->EAX} ");
+            // Logger.Log($"{Game.CurrentFrame} - {pAnim} [{pAnim.Ref.Type.Ref.Base.Base.ID}] Extras ECX = {R->ECX} EDI = {R->EDI} 所属 {pAnim.Ref.Owner}");
             return 0;
         }
 
+        // Take over to create Extras Anim when Meteor hit the water
         [Hook(HookType.AresHook, Address = 0x423CEA, Size = 5)]
         public static unsafe UInt32 AnimClass_Extras_HitWater_Meteor(REGISTERS* R)
         {
@@ -231,6 +237,7 @@ namespace ExtensionHooks
             return 0;
         }
 
+        // Take over to create Extras Anim when Debris hit the water
         [Hook(HookType.AresHook, Address = 0x423D46, Size = 5)]
         public static unsafe UInt32 AnimClass_Extras_HitWater_Other(REGISTERS* R)
         {
