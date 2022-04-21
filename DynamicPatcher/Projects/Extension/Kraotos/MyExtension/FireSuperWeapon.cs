@@ -44,7 +44,7 @@ namespace Extension.Ext
                     // 检查平民
                     if (!FireSuperState.Data.DeactiveWhenCivilian || !pHouse.IsCivilian())
                     {
-                        Logger.Log($"{Game.CurrentFrame} - 发射超武 检查平民 = {FireSuperState.Data.DeactiveWhenCivilian}, 我是 {pHouse.Ref.Type.Ref.Base.ID} 平民 = {pHouse.IsCivilian()}");
+                        // Logger.Log($"{Game.CurrentFrame} - 发射超武 检查平民 = {FireSuperState.Data.DeactiveWhenCivilian}, 我是 {pHouse.Ref.Type.Ref.Base.ID} 平民 = {pHouse.IsCivilian()}");
                         CoordStruct targetPos = data.ToTarget ? pTarget.Ref.GetCoords() : pTechno.Ref.Base.Base.GetCoords();
                         FireSuperWeaponManager.Launch(pHouse, targetPos, data);
                     }
