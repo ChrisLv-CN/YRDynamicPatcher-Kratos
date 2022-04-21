@@ -21,6 +21,7 @@ namespace Extension.Ext
             if (null != Type.AttachStatusType)
             {
                 this.AttachStatus = Type.AttachStatusType.CreateObject(Type);
+                RegisterAction(AttachStatus);
             }
         }
     }
