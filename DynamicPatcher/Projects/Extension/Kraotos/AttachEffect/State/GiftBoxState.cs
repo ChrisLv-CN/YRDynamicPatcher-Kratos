@@ -69,10 +69,44 @@ namespace Extension.Ext
                             times += num;
                         }
                     }
+                    int weightCount = null != Data.RandomWeights ? Data.RandomWeights.Count : 0;
+                    Dictionary<Point2D, int> targetPad = new Dictionary<Point2D, int>();
+                    int flag = 0;
+                    // 将所有的概率加起来，获得上游指标
+                    for (int index = 0; index < giftCount; index++)
+                    {
+                        Point2D target = new Point2D();
+                        target.X = flag;
+                        int weight = 1;
+                        if (weightCount > 0 && index < weightCount)
+                        {
+                            int w = Data.RandomWeights[index];
+                            if (w > 0)
+                            {
+                                weight = w;
+                            }
+                        }
+                        flag += weight;
+                        target.Y = flag;
+                        targetPad.Add(target, index);
+                    }
+                    // 算出随机值，确认位置，取得序号，选出单位
                     for (int i = 0; i < times; i++)
                     {
                         // 选出类型的序号
-                        int index = MathEx.Random.Next(0, giftCount);
+                        int index = 0;
+                        // 产生标靶
+                        int p = MathEx.Random.Next(0, flag);
+                        // 检查命中
+                        foreach (var target in targetPad)
+                        {
+                            Point2D tKey = target.Key;
+                            if (p >= tKey.X && p < tKey.Y)
+                            {
+                                // 中
+                                index = target.Value;
+                            }
+                        }
                         // 计算概率
                         if (Data.Chances.Bingo(index))
                         {

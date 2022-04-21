@@ -44,6 +44,7 @@ namespace Extension.Ext
         public int RandomRange;
         public bool EmptyCell;
         public bool RandomType;
+        public List<int> RandomWeights;
         public bool OpenWhenDestoryed;
 
         public GiftBoxType()
@@ -58,6 +59,7 @@ namespace Extension.Ext
             this.RandomRange = 0;
             this.EmptyCell = false;
             this.RandomType = false;
+            this.RandomWeights = null;
             this.OpenWhenDestoryed = false;
 
             this.AffectWho = AffectWho.MASTER;
@@ -86,6 +88,7 @@ namespace Extension.Ext
                 {
                     this.Chances = giftChances;
                 }
+
 
                 bool giftBoxRemove = false;
                 if (reader.ReadNormal(section, "GiftBox.Remove", ref giftBoxRemove))
@@ -133,6 +136,12 @@ namespace Extension.Ext
                 if (reader.ReadNormal(section, "GiftBox.RandomType", ref randomType))
                 {
                     this.RandomType = randomType;
+                }
+
+                List<int> randomWeights = null;
+                if (reader.ReadIntList(section, "GiftBox.RandomWeights", ref randomWeights))
+                {
+                    this.RandomWeights = randomWeights;
                 }
 
                 bool openWhenDestoryed = false;
