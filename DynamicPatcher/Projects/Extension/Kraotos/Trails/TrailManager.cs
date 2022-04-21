@@ -123,7 +123,7 @@ namespace Extension.Ext
                     }
 
                     List<string> onLands = null;
-                    if (ExHelper.ReadList(reader, section, "Trail" + i + ".OnLands", ref onLands))
+                    if (reader.ReadStringList(section, "Trail" + i + ".OnLands", ref onLands))
                     {
                         List<LandType> landTypes = null;
                         foreach(string tile in onLands)
@@ -144,7 +144,7 @@ namespace Extension.Ext
                     }
 
                     List<string> onTiles = null;
-                    if (ExHelper.ReadList(reader, section, "Trail" + i + ".OnTiles", ref onTiles))
+                    if (reader.ReadStringList(section, "Trail" + i + ".OnTiles", ref onTiles))
                     {
                         List<TileType> tileTypes = null;
                         foreach(string tile in onTiles)

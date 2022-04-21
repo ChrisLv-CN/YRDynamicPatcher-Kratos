@@ -19,9 +19,10 @@ namespace Extension.Ext
 
         private void ReadPaintballType(INIReader reader, string section)
         {
-            if (PaintballType.ReadPaintballType(reader, section, out PaintballType paintballType))
+            PaintballType type = new PaintballType();
+            if (type.TryReadType(reader, section))
             {
-                this.PaintballType = paintballType;
+                this.PaintballType = type;
             }
         }
 
@@ -31,7 +32,7 @@ namespace Extension.Ext
     /// 染色弹
     /// </summary>
     [Serializable]
-    public class PaintballType : IEffectType<Paintball>
+    public class PaintballType : EffectType<Paintball>, IAEStateData
     {
         public ColorStruct Color; // 颜色
         public bool IsHouseColor; // 使用所属色
@@ -44,38 +45,28 @@ namespace Extension.Ext
             this.BrightMultiplier = 1.0f;
         }
 
-        public Paintball CreateObject(AttachEffectType attachEffectType)
+        public override bool TryReadType(INIReader reader, string section)
         {
-            return new Paintball(this, attachEffectType);
-        }
 
-        public static bool ReadPaintballType(INIReader reader, string section, out PaintballType paintballType)
-        {
-            paintballType = null;
+            ReadCommonType(reader, section, "Paintball.");
 
             ColorStruct color = default;
             if (ExHelper.ReadColorStruct(reader, section, "Paintball.Color", ref color))
             {
-                if (null == paintballType)
-                {
-                    paintballType = new PaintballType();
-                }
-                paintballType.Color = color;
+                this.Enable = true;
+                this.Color = color;
 
                 bool isHouseColor = false;
                 if (reader.ReadNormal(section, "Paintball.IsHouseColor", ref isHouseColor))
                 {
-                    paintballType.IsHouseColor = isHouseColor;
+                    this.IsHouseColor = isHouseColor;
                 }
             }
 
             float bright = 1;
             if (reader.ReadNormal(section, "Paintball.BrightMultiplier", ref bright))
             {
-                if (null == paintballType)
-                {
-                    paintballType = new PaintballType();
-                }
+                this.Enable = true;
                 if (bright < 0.0f)
                 {
                     bright = 0.0f;
@@ -84,11 +75,12 @@ namespace Extension.Ext
                 {
                     bright = 2.0f;
                 }
-                paintballType.BrightMultiplier = bright;
+                this.BrightMultiplier = bright;
             }
 
-            return null != paintballType;
+            return this.Enable;
         }
+
 
     }
 

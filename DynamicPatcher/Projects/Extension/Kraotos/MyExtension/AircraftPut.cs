@@ -202,7 +202,7 @@ namespace Extension.Ext
         private void ReadAircraftPut(INIReader reader)
         {
             List<string> types = null;
-            if (ExHelper.ReadList(reader, SectionGeneral, "PadAircraft", ref types))
+            if (reader.ReadStringList(SectionGeneral, "PadAircraft", ref types))
             {
                 PadAircraftTypes = types;
             }

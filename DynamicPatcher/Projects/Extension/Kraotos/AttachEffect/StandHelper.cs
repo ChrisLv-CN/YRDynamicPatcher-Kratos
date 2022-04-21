@@ -14,70 +14,9 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public class AttachEffectHelper
+    public class StandHelper
     {
 
-        public static int FindInsertIndex(AttachEffectManager manager, AttachEffect ae)
-        {
-            if (null != ae.Stand && ae.Stand.Type.IsTrain)
-            {
-                StandType type = ae.Stand.Type;
-                int index = -1;
-                // 插入头还是尾
-                if (type.CabinHead)
-                {
-                    // 插入队列末位
-                    // 检查是否有分组
-                    if (type.CabinGroup > -1)
-                    {
-                        // 倒着找自己的分组
-                        for (int j = manager.Count() - 1; j >= 0; j--)
-                        {
-                            AttachEffect temp = manager.AttachEffects[j];
-                            Stand tempStand = null;
-                            if (null != (tempStand = temp.Stand))
-                            {
-                                if (type.CabinGroup == tempStand.Type.CabinGroup)
-                                {
-                                    // 找到组员
-                                    index = j;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    // 插入队列首位
-                    index = 0;
-                    // 检查是否有分组
-                    if (type.CabinGroup > -1)
-                    {
-                        // 顺着找自己的分组
-                        for (int j = 0; j < manager.Count(); j++)
-                        {
-                            AttachEffect temp = manager.AttachEffects[j];
-                            Stand tempStand = null;
-                            if (null != (tempStand = temp.Stand))
-                            {
-                                if (type.CabinGroup == tempStand.Type.CabinGroup)
-                                {
-                                    // 找到组员
-                                    index = j;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                if (index > -1)
-                {
-                    return index;
-                }
-            }
-            return 0;
-        }
 
         public static void UpdateStandLocation(AttachEffectManager manager, Pointer<ObjectClass> pObject, Stand stand, ref int markIndex)
         {

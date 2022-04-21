@@ -18,9 +18,10 @@ namespace Extension.Ext
 
         private void ReadStandType(INIReader reader, string section)
         {
-            if (StandType.ReadStandType(reader, section, out StandType standType))
+            StandType type = new StandType();
+            if (type.TryReadType(reader, section))
             {
-                this.StandType = standType;
+                this.StandType = type;
             }
         }
 
@@ -30,7 +31,7 @@ namespace Extension.Ext
     /// 替身类型
     /// </summary>
     [Serializable]
-    public class StandType : IEffectType<Stand>
+    public class StandType : EffectType<Stand>
     {
         public string Type; // 替身类型
         public CoordStruct Offset; // 替身相对位置
@@ -86,58 +87,51 @@ namespace Extension.Ext
             this.CabinGroup = -1;
         }
 
-        public Stand CreateObject(AttachEffectType attachEffectType)
+        public override bool TryReadType(INIReader reader, string section)
         {
-            return new Stand(this, attachEffectType);
-        }
-
-        public static bool ReadStandType(INIReader reader, string section, out StandType standType)
-        {
-            standType = null;
             // Logger.Log("替身类型 {0} 读取INI配置", section);
             string type = null;
             if (reader.ReadNormal(section, "Stand.Type", ref type) && !string.IsNullOrEmpty(type))
             {
-                standType = new StandType();
-
-                standType.Type = type.Trim();
+                this.Enable = true;
+                this.Type = type.Trim();
                 // Logger.Log("替身类型 {0} 名为 {1}", section, type);
 
                 CoordStruct offset = default;
                 if (ExHelper.ReadCoordStruct(reader, section, "Stand.Offset", ref offset))
                 {
-                    standType.Offset = offset;
+                    this.Offset = offset;
                 }
 
                 string dir = "N";
                 if (reader.ReadNormal(section, "Stand.Direction", ref dir))
                 {
                     Direction direction = (Direction)Enum.Parse(typeof(Direction), dir);
-                    standType.Direction = (int)direction * 2;
+                    this.Direction = (int)direction * 2;
                 }
 
                 int dirNum = 0;
                 if (reader.ReadNormal(section, "Stand.Direction", ref dirNum))
                 {
-                    standType.Direction = dirNum;
+                    this.Direction = dirNum;
                 }
 
                 bool lockDirection = true;
                 if (reader.ReadNormal(section, "Stand.LockDirection", ref lockDirection))
                 {
-                    standType.LockDirection = lockDirection;
+                    this.LockDirection = lockDirection;
                 }
 
                 bool isOnTurret = true;
                 if (reader.ReadNormal(section, "Stand.IsOnTurret", ref isOnTurret))
                 {
-                    standType.IsOnTurret = isOnTurret;
+                    this.IsOnTurret = isOnTurret;
                 }
 
                 bool isOnWorld = true;
                 if (reader.ReadNormal(section, "Stand.IsOnWorld", ref isOnWorld))
                 {
-                    standType.IsOnWorld = isOnWorld;
+                    this.IsOnWorld = isOnWorld;
                 }
 
                 string layerStr = "None";
@@ -145,7 +139,7 @@ namespace Extension.Ext
                 {
                     Layer layer = Layer.None;
                     string t = layerStr.Substring(0, 1).ToUpper();
-                    switch(t)
+                    switch (t)
                     {
                         case "U":
                             layer = Layer.Underground;
@@ -163,73 +157,73 @@ namespace Extension.Ext
                             layer = Layer.Top;
                             break;
                     }
-                    standType.DrawLayer = layer;
+                    this.DrawLayer = layer;
                 }
 
                 int zOffset = 12;
                 if (reader.ReadNormal(section, "Stand.ZOffset", ref zOffset))
                 {
-                    standType.ZOffset = zOffset;
+                    this.ZOffset = zOffset;
                 }
 
                 bool sameHouse = true;
                 if (reader.ReadNormal(section, "Stand.SameHouse", ref sameHouse))
                 {
-                    standType.SameHouse = sameHouse;
+                    this.SameHouse = sameHouse;
                 }
 
                 bool sameTarget = true;
                 if (reader.ReadNormal(section, "Stand.SameTarget", ref sameTarget))
                 {
-                    standType.SameTarget = sameTarget;
+                    this.SameTarget = sameTarget;
                 }
 
                 bool sameLoseTarget = true;
                 if (reader.ReadNormal(section, "Stand.SameLoseTarget", ref sameLoseTarget))
                 {
-                    standType.SameLoseTarget = sameLoseTarget;
+                    this.SameLoseTarget = sameLoseTarget;
                 }
 
                 bool forceAttackMaster = false;
                 if (reader.ReadNormal(section, "Stand.ForceAttackMaster", ref forceAttackMaster))
                 {
-                    standType.ForceAttackMaster = forceAttackMaster;
+                    this.ForceAttackMaster = forceAttackMaster;
                 }
 
                 bool mobileFire = true;
                 if (reader.ReadNormal(section, "Stand.MobileFire", ref mobileFire))
                 {
-                    standType.MobileFire = mobileFire;
+                    this.MobileFire = mobileFire;
                 }
 
                 bool powered = true;
                 if (reader.ReadNormal(section, "Stand.Powered", ref powered))
                 {
-                    standType.Powered = powered;
+                    this.Powered = powered;
                 }
 
                 bool explodes = false;
                 if (reader.ReadNormal(section, "Stand.Explodes", ref explodes))
                 {
-                    standType.Explodes = explodes;
+                    this.Explodes = explodes;
                 }
 
                 bool explodesWithMaster = false;
                 if (reader.ReadNormal(section, "Stand.ExplodesWithMaster", ref explodesWithMaster))
                 {
-                    standType.ExplodesWithMaster = explodesWithMaster;
+                    this.ExplodesWithMaster = explodesWithMaster;
                 }
 
                 bool removeAtSinking = false;
                 if (reader.ReadNormal(section, "Stand.RemoveAtSinking", ref removeAtSinking))
                 {
-                    standType.RemoveAtSinking = removeAtSinking;
+                    this.RemoveAtSinking = removeAtSinking;
                 }
 
                 bool promoteFormMaster = false;
                 if (reader.ReadNormal(section, "Stand.PromoteFormMaster", ref promoteFormMaster))
                 {
-                    standType.PromoteFormMaster = promoteFormMaster;
+                    this.PromoteFormMaster = promoteFormMaster;
                 }
 
                 double experienceToMaster = 0.0;
@@ -243,43 +237,41 @@ namespace Extension.Ext
                     {
                         experienceToMaster = 0.0;
                     }
-                    standType.ExperienceToMaster = experienceToMaster;
+                    this.ExperienceToMaster = experienceToMaster;
                 }
 
                 bool virtualUnit = false;
                 if (reader.ReadNormal(section, "Stand.VirtualUnit", ref virtualUnit))
                 {
-                    standType.VirtualUnit = virtualUnit;
+                    this.VirtualUnit = virtualUnit;
                 }
 
                 bool sameTilter = false;
                 if (reader.ReadNormal(section, "Stand.SameTilter", ref sameTilter))
                 {
-                    standType.SameTilter = sameTilter;
+                    this.SameTilter = sameTilter;
                 }
 
                 bool isTrain = false;
                 if (reader.ReadNormal(section, "Stand.IsTrain", ref isTrain))
                 {
-                    standType.IsTrain = isTrain;
+                    this.IsTrain = isTrain;
                 }
 
                 bool cabinHead = false;
                 if (reader.ReadNormal(section, "Stand.IsCabinHead", ref cabinHead))
                 {
-                    standType.CabinHead = cabinHead;
+                    this.CabinHead = cabinHead;
                 }
 
                 int cabinGroup = -1;
                 if (reader.ReadNormal(section, "Stand.CabinGroup", ref cabinGroup))
                 {
-                    standType.CabinGroup = cabinGroup;
+                    this.CabinGroup = cabinGroup;
                 }
             }
-            return null != standType;
+            return this.Enable;
         }
-
-
     }
 
 }

@@ -19,9 +19,10 @@ namespace Extension.Ext
 
         private void ReadTransformType(INIReader reader, string section)
         {
-            if (TransformType.ReadTransformType(reader, section, out TransformType transformType))
+            TransformType type = new TransformType();
+            if (type.TryReadType(reader, section))
             {
-                this.TransformType = transformType;
+                this.TransformType = type;
             }
         }
 
@@ -31,7 +32,7 @@ namespace Extension.Ext
     /// 变身类型
     /// </summary>
     [Serializable]
-    public class TransformType : IEffectType<Transform>
+    public class TransformType : EffectType<Transform>
     {
 
         public string ToType;
@@ -41,29 +42,20 @@ namespace Extension.Ext
             this.ToType = null;
         }
 
-        public Transform CreateObject(AttachEffectType attachEffectType)
+        public override bool TryReadType(INIReader reader, string section)
         {
-            return new Transform(this, attachEffectType);
-        }
-
-        public static bool ReadTransformType(INIReader reader, string section, out TransformType transformType)
-        {
-            transformType = null;
 
             string type = null;
             if (reader.ReadNormal(section, "Transform.Type", ref type))
             {
                 if (!string.IsNullOrEmpty(type) && !"none".Equals(type.Trim().ToLower()))
                 {
-                    if (null == transformType)
-                    {
-                        transformType = new TransformType();
-                    }
-                    transformType.ToType = type;
+                    this.Enable = true;
+                    this.ToType = type;
                 }
             }
 
-            return null != transformType;
+            return this.Enable;
         }
 
     }

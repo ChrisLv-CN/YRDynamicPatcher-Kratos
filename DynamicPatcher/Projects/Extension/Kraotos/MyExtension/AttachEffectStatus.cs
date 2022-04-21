@@ -11,34 +11,34 @@ using System.Threading.Tasks;
 namespace Extension.Ext
 {
 
-    // 从箱子中获取的加成
-    [Serializable]
-    public class CrateMultiplier
-    {
-        public double FirepowerMultiplier;
-        public double ArmorMultiplier;
-        public double SpeedMultiplier;
-        public double ROFMultiplier;
-        public bool Cloakable;
-        public bool ForceDecloak;
+    // // 从箱子中获取的加成
+    // [Serializable]
+    // public class CrateMultiplier
+    // {
+    //     public double FirepowerMultiplier;
+    //     public double ArmorMultiplier;
+    //     public double SpeedMultiplier;
+    //     public double ROFMultiplier;
+    //     public bool Cloakable;
+    //     public bool ForceDecloak;
 
-        public CrateMultiplier()
-        {
-            this.FirepowerMultiplier = 1.0;
-            this.ArmorMultiplier = 1.0;
-            this.SpeedMultiplier = 1.0;
-            this.ROFMultiplier = 1.0;
-            this.Cloakable = false;
-            this.ForceDecloak = false;
-        }
+    //     public CrateMultiplier()
+    //     {
+    //         this.FirepowerMultiplier = 1.0;
+    //         this.ArmorMultiplier = 1.0;
+    //         this.SpeedMultiplier = 1.0;
+    //         this.ROFMultiplier = 1.0;
+    //         this.Cloakable = false;
+    //         this.ForceDecloak = false;
+    //     }
 
-        public override string ToString()
-        {
-            return string.Format("{{\"FirepowerMultiplier\":{0}, \"ArmorMultiplier\":{1}, \"SpeedMultiplier\":{2}, \"ROFMultiplier\":{3}, \"Cloakable\":{4}, \"ForceDeclock\":{5}}}",
-                FirepowerMultiplier, ArmorMultiplier, SpeedMultiplier, ROFMultiplier, Cloakable, ForceDecloak
-            );
-        }
-    }
+    //     public override string ToString()
+    //     {
+    //         return string.Format("{{\"FirepowerMultiplier\":{0}, \"ArmorMultiplier\":{1}, \"SpeedMultiplier\":{2}, \"ROFMultiplier\":{3}, \"Cloakable\":{4}, \"ForceDeclock\":{5}}}",
+    //             FirepowerMultiplier, ArmorMultiplier, SpeedMultiplier, ROFMultiplier, Cloakable, ForceDecloak
+    //         );
+    //     }
+    // }
 
     [Serializable]
     public class RecordBulletStatus
@@ -66,7 +66,7 @@ namespace Extension.Ext
     public partial class TechnoExt
     {
         // 记录从箱子中获取的加成
-        public CrateMultiplier CrateMultiplier = new CrateMultiplier();
+        public AttachStatusType CrateStatus = new AttachStatusType();
 
         public unsafe void RecalculateStatus()
         {
@@ -75,13 +75,13 @@ namespace Extension.Ext
                 return;
             }
             // 获取箱子加成
-            double firepowerMult = CrateMultiplier.FirepowerMultiplier;
-            double armorMult = CrateMultiplier.ArmorMultiplier;
-            double speedMult = CrateMultiplier.SpeedMultiplier;
-            double rofMult = CrateMultiplier.ROFMultiplier;
-            bool cloakable = CanICloakByDefault() || CrateMultiplier.Cloakable;
+            double firepowerMult = CrateStatus.FirepowerMultiplier;
+            double armorMult = CrateStatus.ArmorMultiplier;
+            double speedMult = CrateStatus.SpeedMultiplier;
+            double rofMult = CrateStatus.ROFMultiplier;
+            bool cloakable = CanICloakByDefault() || CrateStatus.Cloakable;
             // 算上AE加成
-            CrateMultiplier aeMultiplier = AttachEffectManager.CountAttachStatusMultiplier();
+            AttachStatusType aeMultiplier = AttachEffectManager.CountAttachStatusMultiplier();
             // 赋予单位
             OwnerObject.Ref.FirepowerMultiplier = firepowerMult * aeMultiplier.FirepowerMultiplier;
             OwnerObject.Ref.ArmorMultiplier = armorMult * aeMultiplier.ArmorMultiplier;
@@ -113,7 +113,7 @@ namespace Extension.Ext
                 RecordBulletStatus = new RecordBulletStatus(OwnerObject.Ref.Base.Health, OwnerObject.Ref.Speed, OwnerObject.Ref.Velocity, OwnerObject.Ref.CourseLocked);
             }
             // 计算AE伤害加成
-            CrateMultiplier aeMultiplier = AttachEffectManager.CountAttachStatusMultiplier();
+            AttachStatusType aeMultiplier = AttachEffectManager.CountAttachStatusMultiplier();
             int newHealth = RecordBulletStatus.Health;
             if (aeMultiplier.FirepowerMultiplier != 1)
             {

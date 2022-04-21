@@ -26,8 +26,6 @@ namespace Extension.Ext
         // public const byte YES = 1;
         // public const byte NO = 0;
 
-        public string MyExtensionTest = nameof(MyExtensionTest);
-
         public CoordStruct LastLocation;
         public bool IsDead;
 
@@ -43,6 +41,7 @@ namespace Extension.Ext
             TechnoClass_Init_AutoFireAreaWeapon();
             TechnoClass_Init_ConvertType();
             TechnoClass_Init_DecoyMissile();
+            TechnoClass_Init_SuperWeapon();
             TechnoClass_Init_GiftBox();
             TechnoClass_Init_Trail();
             TechnoClass_Init_VirtualUnit();

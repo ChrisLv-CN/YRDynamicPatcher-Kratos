@@ -30,7 +30,7 @@ namespace Extension.Ext
         // 重置计时器
         void ResetDuration();
         // 更新
-        void OnUpdate(Pointer<ObjectClass> pOwner, bool isDead, AttachEffectManager manager);
+        void OnUpdate(Pointer<ObjectClass> pOwner, bool isDead);
         // 被超时空冻结更新
         void OnTemporalUpdate(TechnoExt ext, Pointer<TemporalClass> pTemporal);
         // 挂载AE的单位出现在地图上
@@ -50,13 +50,6 @@ namespace Extension.Ext
     [Serializable]
     public class AttachEffectBehaviour : IAttachEffectBehaviour
     {
-        public AttachEffectType AttachEffectType;
-
-        public AttachEffectBehaviour(AttachEffectType attachEffectType)
-        {
-            this.AttachEffectType = attachEffectType;
-        }
-
         // 返回AE是否还存活
         public virtual bool IsAlive() { return true; }
         // AE激活，开始生效
@@ -66,7 +59,7 @@ namespace Extension.Ext
         // 重置计时器
         public virtual void ResetDuration() { }
         // 更新
-        public virtual void OnUpdate(Pointer<ObjectClass> pOwner, bool isDead, AttachEffectManager manager) { }
+        public virtual void OnUpdate(Pointer<ObjectClass> pOwner, bool isDead) { }
         // 被超时空冻结更新
         public virtual void OnTemporalUpdate(TechnoExt ext, Pointer<TemporalClass> pTemporal) { }
         // 挂载AE的单位出现在地图上

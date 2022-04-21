@@ -19,9 +19,10 @@ namespace Extension.Ext
 
         private void ReadDestroySelfType(INIReader reader, string section)
         {
-            if (DestroySelfType.ReadDestroySelfType(reader, section, out DestroySelfType destroySelfType))
+            DestroySelfType type = new DestroySelfType();
+            if (type.TryReadType(reader, section))
             {
-                this.DestroySelfType = destroySelfType;
+                this.DestroySelfType = type;
             }
         }
 
@@ -31,86 +32,59 @@ namespace Extension.Ext
     /// 自毁类型
     /// </summary>
     [Serializable]
-    public class DestroySelfType : IEffectType<DestroySelf>
+    public class DestroySelfType : EffectType<DestroySelf>, IAEStateData
     {
-        public bool Enable;
         public int Delay;
         public bool Peaceful;
 
         public DestroySelfType()
         {
-            this.Enable = true;
+            this.Enable = false;
             this.Delay = 0;
             this.Peaceful = false;
         }
 
-        public DestroySelf CreateObject(AttachEffectType attachEffectType)
+        public override bool TryReadType(INIReader reader, string section)
         {
-            return new DestroySelf(this, attachEffectType);
-        }
-
-        public static bool ReadDestroySelfType(INIReader reader, string section, out DestroySelfType destroySelfType)
-        {
-            destroySelfType = null;
 
             bool enable = false;
             if (reader.ReadNormal(section, "DestroySelf", ref enable))
             {
-                if (null == destroySelfType)
-                {
-                    destroySelfType = new DestroySelfType();
-                }
-                destroySelfType.Delay = 0;
-                destroySelfType.Enable = enable;
+                this.Enable = enable;
+                this.Delay = 0;
             }
 
             int life = 0;
             if (reader.ReadNormal(section, "DestroySelf", ref life))
             {
-                if (null == destroySelfType)
-                {
-                    destroySelfType = new DestroySelfType();
-                }
-                destroySelfType.Delay = life;
-                destroySelfType.Enable = true;
+                this.Enable = true;
+                this.Delay = life;
             }
 
             enable = false;
             if (reader.ReadNormal(section, "DestroySelf.Delay", ref enable))
             {
-                if (null == destroySelfType)
-                {
-                    destroySelfType = new DestroySelfType();
-                }
-                destroySelfType.Delay = 0;
-                destroySelfType.Enable = enable;
+                this.Enable = enable;
+                this.Delay = 0;
             }
 
             life = 0;
             if (reader.ReadNormal(section, "DestroySelf.Delay", ref life))
             {
-                if (null == destroySelfType)
-                {
-                    destroySelfType = new DestroySelfType();
-                }
-                destroySelfType.Delay = life;
-                destroySelfType.Enable = true;
+                this.Enable = true;
+                this.Delay = life;
             }
 
-            if (null != destroySelfType && destroySelfType.Enable)
+            if (this.Enable)
             {
                 bool peaceful = false;
                 if (reader.ReadNormal(section, "DestroySelf.Peaceful", ref peaceful))
                 {
-                    destroySelfType.Peaceful = peaceful;
+                    this.Peaceful = peaceful;
                 }
             }
-            else
-            {
-                destroySelfType = null;
-            }
 
-            return null != destroySelfType;
+            return this.Enable;
         }
 
     }

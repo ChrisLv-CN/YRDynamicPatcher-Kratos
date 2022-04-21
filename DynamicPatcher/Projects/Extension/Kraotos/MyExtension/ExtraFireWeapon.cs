@@ -300,7 +300,7 @@ namespace Extension.Ext
 
             // read attach weapons
             List<string> primary = null;
-            if (ExHelper.ReadList(reader, section, "ExtraFire.Primary", ref primary))
+            if (reader.ReadStringList(section, "ExtraFire.Primary", ref primary))
             {
                 if (null == ExtraFireData)
                 {
@@ -310,7 +310,7 @@ namespace Extension.Ext
             }
 
             List<string> secondary = null;
-            if (ExHelper.ReadList(reader, section, "ExtraFire.Secondary", ref secondary))
+            if (reader.ReadStringList(section, "ExtraFire.Secondary", ref secondary))
             {
                 if (null == ExtraFireData)
                 {
@@ -320,7 +320,7 @@ namespace Extension.Ext
             }
 
             List<string> elitePrimary = null;
-            if (ExHelper.ReadList(reader, section, "ExtraFire.ElitePrimary", ref elitePrimary))
+            if (reader.ReadStringList(section, "ExtraFire.ElitePrimary", ref elitePrimary))
             {
                 if (null == ExtraFireData)
                 {
@@ -330,7 +330,7 @@ namespace Extension.Ext
             }
 
             List<string> eliteSecondary = null;
-            if (ExHelper.ReadList(reader, section, "ExtraFire.EliteSecondary", ref eliteSecondary))
+            if (reader.ReadStringList(section, "ExtraFire.EliteSecondary", ref eliteSecondary))
             {
                 if (null == ExtraFireData)
                 {
@@ -344,7 +344,7 @@ namespace Extension.Ext
             for (int i = 0; i < 127; i++)
             {
                 List<string> weapons = null;
-                if (ExHelper.ReadList(reader, section, "ExtraFire.Weapon" + (i + 1), ref weapons))
+                if (reader.ReadStringList(section, "ExtraFire.Weapon" + (i + 1), ref weapons))
                 {
                     if (null == ExtraFireData)
                     {
@@ -358,7 +358,7 @@ namespace Extension.Ext
                 }
 
                 weapons = null;
-                if (ExHelper.ReadList(reader, section, "ExtraFire.EliteWeapon" + (i + 1), ref weapons))
+                if (reader.ReadStringList(section, "ExtraFire.EliteWeapon" + (i + 1), ref weapons))
                 {
                     if (null == ExtraFireData)
                     {

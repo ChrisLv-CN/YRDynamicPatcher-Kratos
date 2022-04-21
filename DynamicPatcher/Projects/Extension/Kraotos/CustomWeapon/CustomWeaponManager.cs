@@ -44,7 +44,7 @@ namespace Extension.Ext
             this.FlipY = flipY;
             this.flag = flipY;
             this.Index = 0;
-            this.timer = new TimerStruct(fireData.SimulateBurstDelay);
+            this.timer.Start(fireData.SimulateBurstDelay);
         }
 
         public SimulateBurst Clone()

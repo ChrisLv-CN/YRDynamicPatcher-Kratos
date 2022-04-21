@@ -22,30 +22,29 @@ namespace Extension.Ext
             if (null != Type.AutoWeaponType)
             {
                 this.AutoWeapon = Type.AutoWeaponType.CreateObject(Type);
+                RegisterAction(AutoWeapon);
             }
         }
     }
 
 
     [Serializable]
-    public class AutoWeapon : AttachEffectBehaviour
+    public class AutoWeapon : Effect<AutoWeaponType>
     {
-        public AutoWeaponType Type;
         public SwizzleablePointer<TechnoClass> pAttacker; // AE来源
 
         private Dictionary<string, TimerStruct> weaponsROF;
 
         private bool Active;
 
-        public AutoWeapon(AutoWeaponType type, AttachEffectType attachEffectType) : base(attachEffectType)
+        public AutoWeapon()
         {
-            this.Type = type;
             this.pAttacker = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
             this.weaponsROF = new Dictionary<string, TimerStruct>();
             this.Active = false;
         }
 
-        public override void Enable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public override void OnEnable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
         {
             this.pAttacker.Pointer = pAttacker;
             this.Active = true;
@@ -61,7 +60,7 @@ namespace Extension.Ext
             return this.Active;
         }
 
-        public override void OnUpdate(Pointer<ObjectClass> pObject, bool isDead, AttachEffectManager manager)
+        public override void OnUpdate(Pointer<ObjectClass> pObject, bool isDead)
         {
             if (!Active)
             {
@@ -136,6 +135,12 @@ namespace Extension.Ext
             if (Type.IsAttackerMark ? (isOnBullet || attackerInvisible) : !Type.ReceiverAttack)
             {
                 Disable(default);
+                return;
+            }
+
+            // 检查平民
+            if (Type.DeactiveWhenCivilian && pReceiverHouse.IsCivilian())
+            {
                 return;
             }
 

@@ -27,15 +27,13 @@ namespace Extension.Ext
 
 
     [Serializable]
-    public class AttachStatus : AttachEffectBehaviour
+    public class AttachStatus : Effect<AttachStatusType>
     {
-        public AttachStatusType Type;
         public bool Active;
         public TechnoExt technoExt;
 
-        public AttachStatus(AttachStatusType type, AttachEffectType attachEffectType) : base(attachEffectType)
+        public AttachStatus()
         {
-            this.Type = type;
             this.Active = false;
         }
 
@@ -44,7 +42,7 @@ namespace Extension.Ext
             return this.Active;
         }
 
-        public override void Enable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public override void OnEnable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
         {
             this.Active = true;
             if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))

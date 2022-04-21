@@ -19,9 +19,10 @@ namespace Extension.Ext
 
         private void ReadAutoWeaponType(INIReader reader, string section)
         {
-            if (AutoWeaponType.ReadAutoWeaponType(reader, section, out AutoWeaponType autoWeaponType))
+            AutoWeaponType type = new AutoWeaponType();
+            if (type.TryReadType(reader, section))
             {
-                this.AutoWeaponType = autoWeaponType;
+                this.AutoWeaponType = type;
             }
         }
     }
@@ -30,7 +31,7 @@ namespace Extension.Ext
     /// 自动武器类型
     /// </summary>
     [Serializable]
-    public class AutoWeaponType : IEffectType<AutoWeapon>
+    public class AutoWeaponType : EffectType<AutoWeapon>
     {
         public int WeaponIndex; // 使用单位自身的武器
         public int EliteWeaponIndex; // 精英时使用单位自身的武器
@@ -78,30 +79,20 @@ namespace Extension.Ext
             this.ReceiverOwnBullet = true;
         }
 
-        public AutoWeapon CreateObject(AttachEffectType attachEffectType)
-        {
-            if (WeaponIndex > -1 || EliteWeaponIndex > -1 || null != WeaponTypes || null != EliteWeaponTypes)
-            {
-                return new AutoWeapon(this, attachEffectType);
-            }
-            return null;
-        }
 
-        public static bool ReadAutoWeaponType(INIReader reader, string section, out AutoWeaponType autoWeaponType)
+        public override bool TryReadType(INIReader reader, string section)
         {
-            autoWeaponType = null;
+
+            ReadCommonType(reader, section, "AutoWeapon.");
 
             int weaponIdx = -1;
             if (reader.ReadNormal(section, "AutoWeapon.WeaponIndex", ref weaponIdx))
             {
                 if (weaponIdx > -1)
                 {
-                    if (null == autoWeaponType)
-                    {
-                        autoWeaponType = new AutoWeaponType();
-                    }
-                    autoWeaponType.WeaponIndex = weaponIdx;
-                    autoWeaponType.EliteWeaponIndex = weaponIdx;
+                    this.Enable = true;
+                    this.WeaponIndex = weaponIdx;
+                    this.EliteWeaponIndex = weaponIdx;
                 }
             }
 
@@ -110,52 +101,43 @@ namespace Extension.Ext
             {
                 if (eliteWeaponIdx > -1)
                 {
-                    if (null == autoWeaponType)
-                    {
-                        autoWeaponType = new AutoWeaponType();
-                    }
-                    autoWeaponType.EliteWeaponIndex = eliteWeaponIdx;
+                    this.Enable = true;
+                    this.EliteWeaponIndex = eliteWeaponIdx;
                 }
             }
 
             List<string> weaponTypes = null;
-            if (ExHelper.ReadList(reader, section, "AutoWeapon.Types", ref weaponTypes))
+            if (reader.ReadStringList(section, "AutoWeapon.Types", ref weaponTypes))
             {
                 // 排除掉none
                 if (weaponTypes.Count > 0 && !weaponTypes[0].ToLower().Equals("none"))
                 {
-                    if (null == autoWeaponType)
-                    {
-                        autoWeaponType = new AutoWeaponType();
-                    }
-                    autoWeaponType.WeaponTypes = weaponTypes;
-                    autoWeaponType.EliteWeaponTypes = weaponTypes;
+                    this.Enable = true;
+                    this.WeaponTypes = weaponTypes;
+                    this.EliteWeaponTypes = weaponTypes;
                 }
             }
 
             List<string> eliteTypes = null;
-            if (ExHelper.ReadList(reader, section, "AutoWeapon.EliteTypes", ref eliteTypes))
+            if (reader.ReadStringList(section, "AutoWeapon.EliteTypes", ref eliteTypes))
             {
                 // 排除掉none
                 if (weaponTypes.Count > 0 && !weaponTypes[0].ToLower().Equals("none"))
                 {
-                    if (null == autoWeaponType)
-                    {
-                        autoWeaponType = new AutoWeaponType();
-                    }
-                    autoWeaponType.EliteWeaponTypes = eliteTypes;
+                    this.Enable = true;
+                    this.EliteWeaponTypes = eliteTypes;
                 }
             }
 
-            if (null != autoWeaponType)
+            if (this.Enable)
             {
                 int randomTypesNum = 0;
                 if (reader.ReadNormal(section, "AutoWeapon.RandomTypesNum", ref randomTypesNum))
                 {
                     if (randomTypesNum > 0)
                     {
-                        autoWeaponType.RandomTypesNum = randomTypesNum;
-                        autoWeaponType.EliteRandomTypesNum = randomTypesNum;
+                        this.RandomTypesNum = randomTypesNum;
+                        this.EliteRandomTypesNum = randomTypesNum;
                     }
                 }
 
@@ -164,102 +146,100 @@ namespace Extension.Ext
                 {
                     if (eliteRandomTypesNum > 0)
                     {
-                        autoWeaponType.EliteRandomTypesNum = eliteRandomTypesNum;
+                        this.EliteRandomTypesNum = eliteRandomTypesNum;
                     }
                 }
 
                 bool fireOnce = false;
                 if (reader.ReadNormal(section, "AutoWeapon.FireOnce", ref fireOnce))
                 {
-                    autoWeaponType.FireOnce = fireOnce;
+                    this.FireOnce = fireOnce;
                 }
 
                 CoordStruct fireFLH = default;
                 if (ExHelper.ReadCoordStruct(reader, section, "AutoWeapon.FireFLH", ref fireFLH))
                 {
-                    autoWeaponType.FireFLH = fireFLH;
-                    autoWeaponType.EliteFireFLH = fireFLH;
+                    this.FireFLH = fireFLH;
+                    this.EliteFireFLH = fireFLH;
                 }
 
                 CoordStruct eliteFireFLH = default;
                 if (ExHelper.ReadCoordStruct(reader, section, "AutoWeapon.EliteFireFLH", ref eliteFireFLH))
                 {
-                    autoWeaponType.EliteFireFLH = eliteFireFLH;
+                    this.EliteFireFLH = eliteFireFLH;
                 }
 
                 CoordStruct targetFLH = default;
                 if (ExHelper.ReadCoordStruct(reader, section, "AutoWeapon.TargetFLH", ref targetFLH))
                 {
-                    autoWeaponType.TargetFLH = targetFLH;
-                    autoWeaponType.EliteTargetFLH = targetFLH;
+                    this.TargetFLH = targetFLH;
+                    this.EliteTargetFLH = targetFLH;
                 }
 
                 CoordStruct eliteTargetFLH = default;
                 if (ExHelper.ReadCoordStruct(reader, section, "AutoWeapon.EliteTargetFLH", ref eliteTargetFLH))
                 {
-                    autoWeaponType.EliteTargetFLH = eliteTargetFLH;
+                    this.EliteTargetFLH = eliteTargetFLH;
                 }
 
                 CoordStruct moveTo = default;
                 if (ExHelper.ReadCoordStruct(reader, section, "AutoWeapon.MoveTo", ref moveTo))
                 {
-                    autoWeaponType.MoveTo = moveTo;
-                    autoWeaponType.EliteMoveTo = moveTo;
-                    autoWeaponType.TargetFLH = autoWeaponType.FireFLH + moveTo;
-                    autoWeaponType.EliteTargetFLH = autoWeaponType.EliteFireFLH + moveTo;
+                    this.MoveTo = moveTo;
+                    this.EliteMoveTo = moveTo;
+                    this.TargetFLH = this.FireFLH + moveTo;
+                    this.EliteTargetFLH = this.EliteFireFLH + moveTo;
                 }
 
                 CoordStruct eliteMoveTo = default;
                 if (ExHelper.ReadCoordStruct(reader, section, "AutoWeapon.EliteMoveTo", ref eliteMoveTo))
                 {
-                    autoWeaponType.EliteMoveTo = eliteMoveTo;
-                    autoWeaponType.EliteTargetFLH = autoWeaponType.EliteFireFLH + eliteMoveTo;
+                    this.EliteMoveTo = eliteMoveTo;
+                    this.EliteTargetFLH = this.EliteFireFLH + eliteMoveTo;
                 }
 
                 bool fireToTarget = false;
                 if (reader.ReadNormal(section, "AutoWeapon.FireToTarget", ref fireToTarget))
                 {
-                    autoWeaponType.FireToTarget = fireToTarget;
+                    this.FireToTarget = fireToTarget;
                 }
 
                 bool isOnTurret = true;
                 if (reader.ReadNormal(section, "AutoWeapon.IsOnTurret", ref isOnTurret))
                 {
-                    autoWeaponType.IsOnTurret = isOnTurret;
+                    this.IsOnTurret = isOnTurret;
                 }
 
                 bool isOnWorld = true;
                 if (reader.ReadNormal(section, "AutoWeapon.IsOnWorld", ref isOnWorld))
                 {
-                    autoWeaponType.IsOnWorld = isOnWorld;
+                    this.IsOnWorld = isOnWorld;
                 }
 
                 // 攻击者标记
                 bool isAttackerMark = false;
                 if (reader.ReadNormal(section, "AutoWeapon.IsAttackerMark", ref isAttackerMark))
                 {
-                    autoWeaponType.IsAttackerMark = isAttackerMark;
+                    this.IsAttackerMark = isAttackerMark;
                 }
 
                 bool receiverAttack = false;
                 if (reader.ReadNormal(section, "AutoWeapon.ReceiverAttack", ref receiverAttack))
                 {
-                    autoWeaponType.ReceiverAttack = receiverAttack;
+                    this.ReceiverAttack = receiverAttack;
                     if (!receiverAttack)
                     {
-                        autoWeaponType.ReceiverOwnBullet = false;
+                        this.ReceiverOwnBullet = false;
                     }
                 }
 
                 bool receiverOwnBullet = false;
                 if (reader.ReadNormal(section, "AutoWeapon.ReceiverOwnBullet", ref receiverOwnBullet))
                 {
-                    autoWeaponType.ReceiverOwnBullet = receiverOwnBullet;
+                    this.ReceiverOwnBullet = receiverOwnBullet;
                 }
-
             }
-
-            return null != autoWeaponType;
+            return this.Enable;
         }
 
     }

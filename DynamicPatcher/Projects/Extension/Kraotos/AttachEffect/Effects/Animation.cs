@@ -21,28 +21,26 @@ namespace Extension.Ext
             if (null != Type.AnimationType)
             {
                 this.Animation = Type.AnimationType.CreateObject(Type);
+                RegisterAction(Animation);
             }
         }
     }
 
 
     [Serializable]
-    public class Animation : AttachEffectBehaviour
+    public class Animation : Effect<AnimationType>
     {
-        public AnimationType Type;
         private SwizzleablePointer<AnimClass> pAnim;
 
         private bool OnwerIsDead;
 
-        public Animation(AnimationType type, AttachEffectType attachEffectType) : base(attachEffectType)
+        public Animation()
         {
-            this.Type = type;
-            // SetActive(!string.IsNullOrEmpty(type.WeaponType) || !string.IsNullOrEmpty(type.EliteWeaponType));
             this.pAnim = new SwizzleablePointer<AnimClass>(IntPtr.Zero);
             this.OnwerIsDead = false;
         }
 
-        public override void Enable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public override void OnEnable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
         {
             // 激活动画
             // Logger.Log("效果激活，播放激活动画{0}", Type.ActiveAnim);
@@ -126,7 +124,7 @@ namespace Extension.Ext
             CreateAnim(pObject);
         }
 
-        public override void OnUpdate(Pointer<ObjectClass> pOwner, bool isDead, AttachEffectManager manager)
+        public override void OnUpdate(Pointer<ObjectClass> pOwner, bool isDead)
         {
             this.OnwerIsDead = isDead;
         }

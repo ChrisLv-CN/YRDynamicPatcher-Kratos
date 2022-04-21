@@ -663,11 +663,11 @@ namespace ExtensionHooks
             TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
             if (null != ext && !ext.MyMaster.IsNull && null != ext.StandType && !ext.StandType.IsTrain && ext.StandType.ZOffset != 0)
             {
-                // Logger.Log("{0} - {1}{2} StandType.DrawLayer = {3}, StandType.ZOffset = {4}", Game.CurrentFrame, pTechno.Ref.Type.Ref.Base.Base.ID, pTechno, ext.StandType.DrawLayer, ext.StandType.ZOffset);
+                // Logger.Log($"{Game.CurrentFrame} - {pTechno} [{pTechno.Ref.Type.Ref.Base.Base.ID}] StandType.DrawLayer = {ext.StandType.DrawLayer}, StandType.ZOffset = {ext.StandType.ZOffset}");
                 Layer layer = ext.StandType.DrawLayer;
                 if (layer == Layer.None)
                 {
-                    // Logger.Log(" - ooxx {0}, EAX = {1}, ECX = {2}", pTechno.Ref.Type.Ref.Base.Base.ID, R->EAX, R->ECX);
+                    // Logger.Log($" - {Game.CurrentFrame} - {pTechno} [{pTechno.Ref.Type.Ref.Base.Base.ID}] EAX = {(Layer)R->EAX} InAir = {pTechno.Ref.Base.Base.IsInAir()}");
                     R->EAX = pTechno.Ref.Base.Base.IsInAir() ? (uint)Layer.Top : (uint)Layer.Air;
                 }
                 else

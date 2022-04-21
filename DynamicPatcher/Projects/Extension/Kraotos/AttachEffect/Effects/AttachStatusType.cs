@@ -19,9 +19,10 @@ namespace Extension.Ext
 
         private void ReadAttachStatusType(INIReader reader, string section)
         {
-            if (AttachStatusType.ReadAttachStatusType(reader, section, out AttachStatusType attachStatusType))
+            AttachStatusType type = new AttachStatusType();
+            if (type.TryReadType(reader, section))
             {
-                this.AttachStatusType = attachStatusType;
+                this.AttachStatusType = type;
             }
         }
 
@@ -31,79 +32,74 @@ namespace Extension.Ext
     /// AE属性
     /// </summary>
     [Serializable]
-    public class AttachStatusType : CrateMultiplier, IEffectType<AttachStatus>
+    public class AttachStatusType : EffectType<AttachStatus>
     {
 
-        public AttachStatus CreateObject(AttachEffectType attachEffectType)
+        public double FirepowerMultiplier;
+        public double ArmorMultiplier;
+        public double SpeedMultiplier;
+        public double ROFMultiplier;
+        public bool Cloakable;
+        public bool ForceDecloak;
+
+        public AttachStatusType()
         {
-            return new AttachStatus(this, attachEffectType);
+            this.Enable = false;
+
+            this.FirepowerMultiplier = 1.0;
+            this.ArmorMultiplier = 1.0;
+            this.SpeedMultiplier = 1.0;
+            this.ROFMultiplier = 1.0;
+            this.Cloakable = false;
+            this.ForceDecloak = false;
         }
 
-        public static bool ReadAttachStatusType(INIReader reader, string section, out AttachStatusType attachStatusType)
+        public override bool TryReadType(INIReader reader, string section)
         {
-            attachStatusType = null;
 
             double firepowerMultiplier = 1.0;
             if (reader.ReadNormal(section, "Status.FirepowerMultiplier", ref firepowerMultiplier))
             {
-                if (null == attachStatusType)
-                {
-                    attachStatusType = new AttachStatusType();
-                }
-                attachStatusType.FirepowerMultiplier = firepowerMultiplier;
+                this.Enable = true;
+                this.FirepowerMultiplier = firepowerMultiplier;
             }
 
             double armorMultiplier = 1.0;
             if (reader.ReadNormal(section, "Status.ArmorMultiplier", ref armorMultiplier))
             {
-                if (null == attachStatusType)
-                {
-                    attachStatusType = new AttachStatusType();
-                }
-                attachStatusType.ArmorMultiplier = armorMultiplier;
+                this.Enable = true;
+                this.ArmorMultiplier = armorMultiplier;
             }
 
             double speedMultiplier = 1.0;
             if (reader.ReadNormal(section, "Status.SpeedMultiplier", ref speedMultiplier))
             {
-                if (null == attachStatusType)
-                {
-                    attachStatusType = new AttachStatusType();
-                }
-                attachStatusType.SpeedMultiplier = speedMultiplier;
+                this.Enable = true;
+                this.SpeedMultiplier = speedMultiplier;
             }
 
             double rofMultiplier = 1.0;
             if (reader.ReadNormal(section, "Status.ROFMultiplier", ref rofMultiplier))
             {
-                if (null == attachStatusType)
-                {
-                    attachStatusType = new AttachStatusType();
-                }
-                attachStatusType.ROFMultiplier = rofMultiplier;
+                this.Enable = true;
+                this.ROFMultiplier = rofMultiplier;
             }
 
             bool cloakable = false;
             if (reader.ReadNormal(section, "Status.Cloakable", ref cloakable))
             {
-                if (null == attachStatusType)
-                {
-                    attachStatusType = new AttachStatusType();
-                }
-                attachStatusType.Cloakable = cloakable;
+                this.Enable = true;
+                this.Cloakable = cloakable;
             }
 
             bool forceDecloak = false;
             if (reader.ReadNormal(section, "Status.ForceDecloak", ref forceDecloak))
             {
-                if (null == attachStatusType)
-                {
-                    attachStatusType = new AttachStatusType();
-                }
-                attachStatusType.ForceDecloak = forceDecloak;
+                this.Enable = true;
+                this.ForceDecloak = forceDecloak;
             }
 
-            return null != attachStatusType;
+            return this.Enable;
         }
 
     }

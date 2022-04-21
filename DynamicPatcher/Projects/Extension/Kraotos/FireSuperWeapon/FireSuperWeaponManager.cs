@@ -21,14 +21,14 @@ namespace Extension.Ext
         private Queue<FireSuperWeapon> fireSuperWeaponQueue = new Queue<FireSuperWeapon>();
 
 
-        public void Order(Pointer<HouseClass> pHouse, CoordStruct location, FireSuperWeaponsData data)
+        public void Order(Pointer<HouseClass> pHouse, CoordStruct location, FireSuperData data)
         {
             CellStruct cellStruct = MapClass.Coord2Cell(location);
             FireSuperWeapon fireSuperWeapon = new FireSuperWeapon(pHouse, cellStruct, data);
             fireSuperWeaponQueue.Enqueue(fireSuperWeapon);
         }
 
-        public void Launch(Pointer<HouseClass> pHouse, CoordStruct location, FireSuperWeaponsData data)
+        public void Launch(Pointer<HouseClass> pHouse, CoordStruct location, FireSuperData data)
         {
             CellStruct cellStruct = MapClass.Coord2Cell(location);
             LaunchSuperWeapons(pHouse, cellStruct, data);
@@ -56,37 +56,45 @@ namespace Extension.Ext
             }
         }
 
-        private void LaunchSuperWeapons(Pointer<HouseClass> pHouse, CellStruct targetPos, FireSuperWeaponsData data)
+        private void LaunchSuperWeapons(Pointer<HouseClass> pHouse, CellStruct targetPos, FireSuperData data)
         {
-            if (null != data && data.Enable)
+            if (null != data)
             {
                 // Check House alive
                 if (pHouse.IsNull || pHouse.Ref.Defeated)
                 {
                     // find civilian
-                    pHouse = HouseClass.FindBySideName("Civilian");
+                    pHouse = HouseClass.FindCivilianSide();
                     if (pHouse.IsNull)
                     {
-                        Logger.LogWarning("Want to fire a super weapon {0}, but house is null.", data.SuperWeapons.ToArray());
+                        Logger.LogWarning("Want to fire a super weapon {0}, but house is null.", data.Supers.ToArray());
                         return;
                     }
                 }
-                // Get the TargetCell location
-                foreach (string superWeaponId in data.SuperWeapons)
+                int superCount = data.Supers.Count;
+                int chanceCount = null != data.Chances ? data.Chances.Count : 0;
+                for (int index = 0; index < superCount; index++)
                 {
-                    Pointer<SuperWeaponTypeClass> pType = SuperWeaponTypeClass.ABSTRACTTYPE_ARRAY.Find(superWeaponId);
-                    if (!pType.IsNull)
+                    // 检查概率
+                    if (data.Chances.Bingo(index))
                     {
-                        Pointer<SuperClass> pSuper = pHouse.Ref.FindSuperWeapon(pType);
-                        if (pSuper.Ref.IsCharged || !data.RealLaunch)
+                        string superID = data.Supers[index];
+                        Pointer<SuperWeaponTypeClass> pType = SuperWeaponTypeClass.ABSTRACTTYPE_ARRAY.Find(superID);
+                        if (!pType.IsNull)
                         {
-                            pSuper.Ref.IsCharged = true;
-                            pSuper.Ref.Launch(targetPos, true);
-                            pSuper.Ref.IsCharged = false;
-                            pSuper.Ref.Reset();
+                            Pointer<SuperClass> pSuper = pHouse.Ref.FindSuperWeapon(pType);
+                            if (pSuper.Ref.IsCharged || !data.RealLaunch)
+                            {
+                                pSuper.Ref.IsCharged = true;
+                                pSuper.Ref.Launch(targetPos, true);
+                                pSuper.Ref.IsCharged = false;
+                                pSuper.Ref.Reset();
+                            }
                         }
                     }
+
                 }
+
             }
         }
 

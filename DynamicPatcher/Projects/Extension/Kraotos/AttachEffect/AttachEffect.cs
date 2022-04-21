@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reflection;
 using System.Collections;
 using DynamicPatcher;
@@ -21,6 +22,7 @@ namespace Extension.Ext
     [Serializable]
     public partial class AttachEffect : IAttachEffectBehaviour
     {
+
         public string Name;
         public AttachEffectType Type;
 
@@ -32,6 +34,32 @@ namespace Extension.Ext
         private TimerStruct lifeTimer;
         private TimerStruct initialDelayTimer;
         private bool delayToEnable; // 延迟激活中
+
+        private List<IAttachEffectBehaviour> effects = new List<IAttachEffectBehaviour>();
+
+        // AE激活，开始生效
+        private event System.Action<Pointer<ObjectClass>, Pointer<HouseClass>, Pointer<TechnoClass>> EnableAction;
+        // AE关闭，销毁相关资源
+        private event System.Action<CoordStruct> DisableAction;
+        // 重置计时器
+        private event System.Action ResetDurationAction;
+        // 更新
+        private event System.Action<Pointer<ObjectClass>, bool> OnUpdateAction;
+        // 被超时空冻结更新
+        private event System.Action<TechnoExt, Pointer<TemporalClass>> OnTemporalUpdateAction;
+        // 挂载AE的单位出现在地图上
+        private event System.Action<Pointer<ObjectClass>, Pointer<CoordStruct>, Direction> OnPutAction;
+        // 挂载AE的单位从地图隐藏
+        private event System.Action<Pointer<ObjectClass>> OnRemoveAction;
+        // 收到伤害
+        private event System.Action<Pointer<ObjectClass>, Pointer<int>, int, Pointer<WarheadTypeClass>, Pointer<ObjectClass>, bool, bool, Pointer<HouseClass>> OnReceiveDamageAction;
+        // 收到伤害导致死亡
+        private event System.Action<Pointer<ObjectClass>> OnDestroyAction;
+        // 按下G键
+        private event System.Action OnGuardCommandAction;
+        // 按下S键
+        private event System.Action OnStopCommandAction;
+
 
         public AttachEffect(AttachEffectType type)
         {
@@ -47,7 +75,7 @@ namespace Extension.Ext
             }
             if (initDelay > 0)
             {
-                this.initialDelayTimer = new TimerStruct(initDelay);
+                this.initialDelayTimer.Start(initDelay);
                 this.delayToEnable = true;
             }
             this.duration = type.Duration;
@@ -56,15 +84,31 @@ namespace Extension.Ext
             // {
             //     this.lifeTimer.Start(this.duration);
             // }
+
+            // Stopwatch stopwatch = new Stopwatch();
+            // stopwatch.Start();
+            // foreach(MethodInfo m in InitMethods)
+            // {
+            //     m.Invoke(this, null);
+            // }
+
+
+            InitStand(); // 替身需要第一个初始化
+
             InitAnimation();
             InitAttachStatus();
             InitAutoWeapon();
             InitBlackHole();
             InitDestroySelf();
+            InitFireSuper(); // AffectWho
+            InitGiftBox(); // AffectWho
             InitPaintball();
-            InitStand();
             InitTransform();
-            InitWeapon();
+            InitDisableWeapon(); // AffectWho
+            InitOverrideWeapon(); // AffectWho
+
+            // stopwatch.Stop();
+            // Logger.Log($"{Game.CurrentFrame} 初始化 {Name} 耗时 {stopwatch.Elapsed}");
         }
 
         public void SetupLifeTimer()
@@ -73,6 +117,34 @@ namespace Extension.Ext
             {
                 this.lifeTimer.Start(this.duration);
             }
+        }
+
+        private void RegisterAction(IAttachEffectBehaviour behaviour)
+        {
+            // Logger.Log($"{Game.CurrentFrame}, 注册AE系统 {Type.Name}, 模块 {behaviour.GetType().Name}");
+            effects.Add(behaviour);
+            // AE激活，开始生效
+            this.EnableAction += behaviour.Enable;
+            // AE关闭，销毁相关资源
+            this.DisableAction += behaviour.Disable;
+            // 重置计时器
+            this.ResetDurationAction += behaviour.ResetDuration;
+            // 更新
+            this.OnUpdateAction += behaviour.OnUpdate;
+            // 被超时空冻结更新
+            this.OnTemporalUpdateAction += behaviour.OnTemporalUpdate;
+            // 挂载AE的单位出现在地图上
+            this.OnPutAction += behaviour.OnPut;
+            // 挂载AE的单位从地图隐藏
+            this.OnRemoveAction += behaviour.OnRemove;
+            // 收到伤害
+            this.OnReceiveDamageAction += behaviour.OnReceiveDamage;
+            // 收到伤害导致死亡
+            this.OnDestroyAction += behaviour.OnDestroy;
+            // 按下G键
+            this.OnGuardCommandAction += behaviour.OnGuardCommand;
+            // 按下S键
+            this.OnStopCommandAction += behaviour.OnStopCommand;
         }
 
         /// <summary>
@@ -85,6 +157,7 @@ namespace Extension.Ext
             this.pAttacker.Pointer = pAttacker;
             if (!delayToEnable || initialDelayTimer.Expired())
             {
+
                 EnableEffects(pObject, pHouse, pAttacker);
             }
         }
@@ -93,24 +166,7 @@ namespace Extension.Ext
         {
             delayToEnable = false;
             SetupLifeTimer();
-            // 激活动画
-            Animation?.Enable(pObject, pHouse, pAttacker);
-            // 激活属性加成
-            AttachStatus?.Enable(pObject, pHouse, pAttacker);
-            // 激活自动武器
-            AutoWeapon?.Enable(pObject, pHouse, pAttacker);
-            // 激活黑洞
-            BlackHole?.Enable(pObject, pHouse, pAttacker);
-            // 激活自毁
-            DestroySelf?.Enable(pObject, pHouse, pAttacker);
-            // 激活彩弹
-            Paintball?.Enable(pObject, pHouse, pAttacker);
-            // 激活替身
-            Stand?.Enable(pObject, pHouse, pAttacker);
-            // 激活变形
-            Transform?.Enable(pObject, pHouse, pAttacker);
-            // 激活武器
-            Weapon?.Enable(pObject, pHouse, pAttacker);
+            EnableAction?.Invoke(pObject, pHouse, pAttacker);
         }
 
         /// <summary>
@@ -123,15 +179,7 @@ namespace Extension.Ext
             {
                 return;
             }
-            Animation?.Disable(location);
-            AttachStatus?.Disable(location);
-            AutoWeapon?.Disable(location);
-            BlackHole?.Disable(location);
-            DestroySelf?.Disable(location);
-            Paintball?.Disable(location);
-            Stand?.Disable(location);
-            Transform?.Disable(location);
-            Weapon?.Disable(location);
+            DisableAction?.Invoke(location);
         }
 
         public bool IsActive()
@@ -146,15 +194,25 @@ namespace Extension.Ext
 
         public bool IsAlive()
         {
-            return (null == Animation || Animation.IsAlive())
-                && (null == AttachStatus || AttachStatus.IsAlive())
-                && (null == AutoWeapon || AutoWeapon.IsAlive())
-                && (null == BlackHole || BlackHole.IsAlive())
-                && (null == DestroySelf || DestroySelf.IsAlive())
-                && (null == Paintball || Paintball.IsAlive())
-                && (null == Stand || Stand.IsAlive())
-                && (null == Transform || Transform.IsAlive())
-                && (null == Weapon || Weapon.IsAlive());
+            bool dead = false;
+            foreach (IAttachEffectBehaviour effect in effects)
+            {
+                if (dead || (dead = !effect.IsAlive()))
+                {
+                    // Logger.Log($"{Game.CurrentFrame} - AE {Name} 模块 {effect.GetType().Name} 狗带了");
+                    break;
+                }
+            }
+            return !dead;
+            // return (null == Animation || Animation.IsAlive())
+            //     && (null == AttachStatus || AttachStatus.IsAlive())
+            //     && (null == AutoWeapon || AutoWeapon.IsAlive())
+            //     && (null == BlackHole || BlackHole.IsAlive())
+            //     && (null == DestroySelf || DestroySelf.IsAlive())
+            //     && (null == Paintball || Paintball.IsAlive())
+            //     && (null == Stand || Stand.IsAlive())
+            //     && (null == Transform || Transform.IsAlive())
+            //     && (null == Weapon || Weapon.IsAlive());
         }
 
         private bool IsDeath()
@@ -228,18 +286,10 @@ namespace Extension.Ext
         public void ResetDuration()
         {
             SetupLifeTimer();
-            Animation?.ResetDuration();
-            AttachStatus?.ResetDuration();
-            AutoWeapon?.ResetDuration();
-            BlackHole?.ResetDuration();
-            DestroySelf?.ResetDuration();
-            Paintball?.ResetDuration();
-            Stand?.ResetDuration();
-            Transform?.ResetDuration();
-            Weapon?.ResetDuration();
+            ResetDurationAction?.Invoke();
         }
 
-        public void OnUpdate(Pointer<ObjectClass> pObject, bool isDead, AttachEffectManager manager)
+        public void OnUpdate(Pointer<ObjectClass> pObject, bool isDead)
         {
             if (delayToEnable)
             {
@@ -249,15 +299,7 @@ namespace Extension.Ext
                 }
                 EnableEffects(pObject, pHouse, pAttacker);
             }
-            Animation?.OnUpdate(pObject, isDead, manager);
-            AttachStatus?.OnUpdate(pObject, isDead, manager);
-            AutoWeapon?.OnUpdate(pObject, isDead, manager);
-            BlackHole?.OnUpdate(pObject, isDead, manager);
-            DestroySelf?.OnUpdate(pObject, isDead, manager);
-            Paintball?.OnUpdate(pObject, isDead, manager);
-            Stand?.OnUpdate(pObject, isDead, manager);
-            Transform?.OnUpdate(pObject, isDead, manager);
-            Weapon?.OnUpdate(pObject, isDead, manager);
+            OnUpdateAction?.Invoke(pObject, isDead);
         }
 
         public void OnTemporalUpdate(TechnoExt ext, Pointer<TemporalClass> pTemporal)
@@ -266,15 +308,7 @@ namespace Extension.Ext
             {
                 return;
             }
-            Animation?.OnTemporalUpdate(ext, pTemporal);
-            AttachStatus?.OnTemporalUpdate(ext, pTemporal);
-            AutoWeapon?.OnTemporalUpdate(ext, pTemporal);
-            BlackHole?.OnTemporalUpdate(ext, pTemporal);
-            DestroySelf?.OnTemporalUpdate(ext, pTemporal);
-            Paintball?.OnTemporalUpdate(ext, pTemporal);
-            Stand?.OnTemporalUpdate(ext, pTemporal);
-            Transform?.OnTemporalUpdate(ext, pTemporal);
-            Weapon?.OnTemporalUpdate(ext, pTemporal);
+            OnTemporalUpdateAction?.Invoke(ext, pTemporal);
         }
 
         public void OnPut(Pointer<ObjectClass> pObject, Pointer<CoordStruct> pCoord, Direction faceDir)
@@ -283,15 +317,7 @@ namespace Extension.Ext
             {
                 return;
             }
-            Animation?.OnPut(pObject, pCoord, faceDir);
-            AttachStatus?.OnPut(pObject, pCoord, faceDir);
-            AutoWeapon?.OnPut(pObject, pCoord, faceDir);
-            BlackHole?.OnPut(pObject, pCoord, faceDir);
-            DestroySelf?.OnPut(pObject, pCoord, faceDir);
-            Paintball?.OnPut(pObject, pCoord, faceDir);
-            Stand?.OnPut(pObject, pCoord, faceDir);
-            Transform?.OnPut(pObject, pCoord, faceDir);
-            Weapon?.OnPut(pObject, pCoord, faceDir);
+            OnPutAction?.Invoke(pObject, pCoord, faceDir);
         }
 
         public void OnRemove(Pointer<ObjectClass> pObject)
@@ -300,15 +326,7 @@ namespace Extension.Ext
             {
                 return;
             }
-            Animation?.OnRemove(pObject);
-            AttachStatus?.OnRemove(pObject);
-            AutoWeapon?.OnRemove(pObject);
-            BlackHole?.OnRemove(pObject);
-            DestroySelf?.OnRemove(pObject);
-            Paintball?.OnRemove(pObject);
-            Stand?.OnRemove(pObject);
-            Transform?.OnRemove(pObject);
-            Weapon?.OnRemove(pObject);
+            OnRemoveAction?.Invoke(pObject);
         }
 
         public void OnReceiveDamage(Pointer<ObjectClass> pObject, Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
@@ -318,15 +336,7 @@ namespace Extension.Ext
             {
                 return;
             }
-            Animation?.OnReceiveDamage(pObject, pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
-            AttachStatus?.OnReceiveDamage(pObject, pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
-            AutoWeapon?.OnReceiveDamage(pObject, pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
-            BlackHole?.OnReceiveDamage(pObject, pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
-            DestroySelf?.OnReceiveDamage(pObject, pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
-            Paintball?.OnReceiveDamage(pObject, pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
-            Stand?.OnReceiveDamage(pObject, pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
-            Transform?.OnReceiveDamage(pObject, pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
-            Weapon?.OnReceiveDamage(pObject, pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
+            OnReceiveDamageAction?.Invoke(pObject, pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
         }
 
         public void OnDestroy(Pointer<ObjectClass> pObject)
@@ -335,15 +345,7 @@ namespace Extension.Ext
             {
                 return;
             }
-            Animation?.OnDestroy(pObject);
-            AttachStatus?.OnDestroy(pObject);
-            AutoWeapon?.OnDestroy(pObject);
-            BlackHole?.OnDestroy(pObject);
-            DestroySelf?.OnDestroy(pObject);
-            Paintball?.OnDestroy(pObject);
-            Stand?.OnDestroy(pObject);
-            Transform?.OnDestroy(pObject);
-            Weapon?.OnDestroy(pObject);
+            OnDestroyAction?.Invoke(pObject);
         }
 
         public void OnGuardCommand()
@@ -352,15 +354,7 @@ namespace Extension.Ext
             {
                 return;
             }
-            Animation?.OnGuardCommand();
-            AttachStatus?.OnGuardCommand();
-            AutoWeapon?.OnGuardCommand();
-            BlackHole?.OnGuardCommand();
-            DestroySelf?.OnGuardCommand();
-            Paintball?.OnGuardCommand();
-            Stand?.OnGuardCommand();
-            Transform?.OnGuardCommand();
-            Weapon?.OnGuardCommand();
+            OnGuardCommandAction?.Invoke();
         }
 
         public void OnStopCommand()
@@ -369,15 +363,7 @@ namespace Extension.Ext
             {
                 return;
             }
-            Animation?.OnStopCommand();
-            AttachStatus?.OnStopCommand();
-            AutoWeapon?.OnStopCommand();
-            BlackHole?.OnStopCommand();
-            DestroySelf?.OnStopCommand();
-            Paintball?.OnStopCommand();
-            Stand?.OnStopCommand();
-            Transform?.OnStopCommand();
-            Weapon?.OnStopCommand();
+            OnStopCommandAction?.Invoke();
         }
 
     }

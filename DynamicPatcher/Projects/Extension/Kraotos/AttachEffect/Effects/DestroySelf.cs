@@ -21,24 +21,20 @@ namespace Extension.Ext
             if (null != Type.DestroySelfType)
             {
                 this.DestroySelf = Type.DestroySelfType.CreateObject(Type);
+                RegisterAction(DestroySelf);
             }
         }
     }
 
 
     [Serializable]
-    public class DestroySelf : AttachEffectBehaviour
+    public class DestroySelf : Effect<DestroySelfType>
     {
-        public DestroySelfType Type;
-        private bool Active;
 
-        public DestroySelf(DestroySelfType type, AttachEffectType attachEffectType) : base(attachEffectType)
-        {
-            this.Type = type;
-            this.Active = false;
-        }
+        public TechnoExt OwnerExt;
+        public BulletExt BulletExt;
 
-        public override void Enable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public override void OnEnable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
         {
             switch (pObject.Ref.Base.WhatAmI())
             {
@@ -46,29 +42,27 @@ namespace Extension.Ext
                 case AbstractType.Aircraft:
                 case AbstractType.Building:
                 case AbstractType.Infantry:
-                    TechnoExt OwnerExt = TechnoExt.ExtMap.Find(pObject.Convert<TechnoClass>());
-                    if (null != OwnerExt && null == OwnerExt.DestroySelfStatus)
+                    OwnerExt = TechnoExt.ExtMap.Find(pObject.Convert<TechnoClass>());
+                    if (null != OwnerExt)
                     {
-                        DestroySelfData data = new DestroySelfData(Type.Delay);
-                        data.Peaceful = Type.Peaceful;
-                        OwnerExt.DestroySelfStatus = new DestroySelfStatus(data);
-                        this.Active = true;
-                        // Logger.Log("AE附加单位[{0}]{1}启动自毁程序{2}", pObject.Ref.Type.Ref.Base.ID, pObject ,data);
+                        OwnerExt.DestroySelfState.Enable(AEType.GetDuration(), token, Type);
                     }
                     break;
                 case AbstractType.Bullet:
-                    BulletExt bulletExt = BulletExt.ExtMap.Find(pObject.Convert<BulletClass>());
-                    if (null != bulletExt && null == bulletExt.DestroySelfStatus)
+                    BulletExt = BulletExt.ExtMap.Find(pObject.Convert<BulletClass>());
+                    if (null != BulletExt)
                     {
-                        DestroySelfData data = new DestroySelfData(Type.Delay);
-                        data.Peaceful = Type.Peaceful;
-                        bulletExt.DestroySelfStatus = new DestroySelfStatus(data);
-                        this.Active = true;
-                        // Logger.Log("AE附加抛射体[{0}]{1}启动自毁程序{2}", pObject.Ref.Type.Ref.Base.ID, pObject ,data);
+                        BulletExt.DestroySelfState.Enable(AEType.GetDuration(), token, Type);
                     }
                     break;
 
             }
+        }
+
+        public override void Disable(CoordStruct location)
+        {
+            OwnerExt?.DestroySelfState.Disable(token);
+            BulletExt?.DestroySelfState.Disable(token);
         }
 
     }

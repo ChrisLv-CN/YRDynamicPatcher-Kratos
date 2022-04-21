@@ -19,9 +19,10 @@ namespace Extension.Ext
 
         private void ReadAnimationType(INIReader reader, string section)
         {
-            if (AnimationType.ReadAnimationType(reader, section, out AnimationType animType))
+            AnimationType type = new AnimationType();
+            if (type.TryReadType(reader, section))
             {
-                this.AnimationType = animType;
+                this.AnimationType = type;
             }
         }
     }
@@ -30,7 +31,7 @@ namespace Extension.Ext
     /// AE动画
     /// </summary>
     [Serializable]
-    public class AnimationType : IEffectType<Animation>
+    public class AnimationType : EffectType<Animation>
     {
         public string IdleAnim; // 持续动画
         public string ActiveAnim; // 激活时播放的动画
@@ -45,56 +46,37 @@ namespace Extension.Ext
             this.DoneAnim = null;
         }
 
-        public Animation CreateObject(AttachEffectType attachEffectType)
+        public override bool TryReadType(INIReader reader, string section)
         {
-            return new Animation(this, attachEffectType);
-        }
-
-        public static bool ReadAnimationType(INIReader reader, string section, out AnimationType animType)
-        {
-            animType = null;
-
             string type = null;
             if (reader.ReadNormal(section, "Animation", ref type))
             {
-                if (null == animType)
-                {
-                    animType = new AnimationType();
-                }
-                animType.IdleAnim = type;
+                this.Enable = true;
+                this.IdleAnim = type;
             }
 
             string act = null;
             if (reader.ReadNormal(section, "ActiveAnim", ref act))
             {
-                if (null == animType)
-                {
-                    animType = new AnimationType();
-                }
-                animType.ActiveAnim = act;
+                this.Enable = true;
+                this.ActiveAnim = act;
             }
 
             string hit = null;
             if (reader.ReadNormal(section, "HitAnim", ref hit))
             {
-                if (null == animType)
-                {
-                    animType = new AnimationType();
-                }
-                animType.HitAnim = hit;
+                this.Enable = true;
+                this.HitAnim = hit;
             }
 
             string done = null;
             if (reader.ReadNormal(section, "DoneAnim", ref done))
             {
-                if (null == animType)
-                {
-                    animType = new AnimationType();
-                }
-                animType.DoneAnim = done;
+                this.Enable = true;
+                this.DoneAnim = done;
             }
 
-            return null != animType;
+            return this.Enable;
         }
 
     }

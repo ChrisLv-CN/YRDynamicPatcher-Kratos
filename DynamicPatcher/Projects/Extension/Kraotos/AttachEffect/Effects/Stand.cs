@@ -21,15 +21,15 @@ namespace Extension.Ext
             if (null != Type.StandType)
             {
                 this.Stand = Type.StandType.CreateObject(Type);
+                RegisterAction(Stand);
             }
         }
 
     }
 
     [Serializable]
-    public class Stand : AttachEffectBehaviour
+    public class Stand : Effect<StandType>
     {
-        public StandType Type;
 
         public SwizzleablePointer<TechnoClass> pStand;
 
@@ -37,9 +37,8 @@ namespace Extension.Ext
         private bool onStopCommand = false;
         private bool notBeHuman = false;
 
-        public Stand(StandType type, AttachEffectType attachEffectType) : base(attachEffectType)
+        public Stand()
         {
-            this.Type = type;
             this.pStand = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
         }
 
@@ -54,7 +53,7 @@ namespace Extension.Ext
         }
 
         // 激活
-        public override void Enable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public override void OnEnable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
         {
             CreateAndPutStand(pObject, pHouse);
         }
@@ -94,11 +93,7 @@ namespace Extension.Ext
                                 {
                                     TechnoExt masterExt = TechnoExt.ExtMap.Find(pObject.Convert<TechnoClass>());
                                     // 染色
-                                    ext.PaintballState = masterExt.PaintballState;
-                                    // 禁武
-                                    ext.DisableWeaponState = masterExt.DisableWeaponState;
-                                    // 替武
-                                    ext.OverrideWeaponState = masterExt.OverrideWeaponState;
+                                    ext.AttachEffectManager.PaintballState = masterExt.AttachEffectManager.PaintballState;
                                 }
                                 break;
                         }
@@ -133,7 +128,7 @@ namespace Extension.Ext
                     }
 
                     // 放置到指定位置
-                    LocationMark locationMark = AttachEffectHelper.GetLocation(pObject, Type);
+                    LocationMark locationMark = StandHelper.GetLocation(pObject, Type);
                     if (default != locationMark.Location)
                     {
                         SetLocation(locationMark.Location);
@@ -208,7 +203,7 @@ namespace Extension.Ext
             pStand.Pointer = IntPtr.Zero;
         }
 
-        public override void OnUpdate(Pointer<ObjectClass> pObject, bool isDead, AttachEffectManager manager)
+        public override void OnUpdate(Pointer<ObjectClass> pObject, bool isDead)
         {
             CoordStruct sourcePos = pObject.Ref.Base.GetCoords();
 

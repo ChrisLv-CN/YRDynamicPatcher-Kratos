@@ -10,24 +10,102 @@ using System.Threading.Tasks;
 
 namespace Extension.Ext
 {
+    public partial class TechnoExt
+    {
+        public FireSuperWeaponManager FireSuperWeaponManager = new FireSuperWeaponManager();
+        public AEState<FireSuperType> FireSuperState => AttachEffectManager.FireSuperState;
+
+        public unsafe void TechnoClass_Init_SuperWeapon()
+        {
+            if (null != Type.FireSuperData && Type.FireSuperData.Enable)
+            {
+                FireSuperState.Enable(Type.FireSuperData);
+            }
+        }
+
+        public unsafe void TechnoClass_Update_SuperWeapon()
+        {
+            FireSuperWeaponManager.Update();
+        }
+
+        public unsafe void TechnoClass_OnFire_SuperWeapon(Pointer<AbstractClass> pTarget, int weaponIndex)
+        {
+            Pointer<TechnoClass> pTechno = OwnerObject;
+            if (FireSuperState.IsActive() && null != FireSuperState.Data)
+            {
+                FireSuperData data = FireSuperState.Data.Data;
+                if (pTechno.Ref.Veterancy.IsElite())
+                {
+                    data = FireSuperState.Data.EliteData;
+                }
+                if (null != data && (data.WeaponIndex < 0 || data.WeaponIndex == weaponIndex))
+                {
+                    Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
+                    // 检查平民
+                    if (!FireSuperState.Data.DeactiveWhenCivilian || !pHouse.IsCivilian())
+                    {
+                        Logger.Log($"{Game.CurrentFrame} - 发射超武 检查平民 = {FireSuperState.Data.DeactiveWhenCivilian}, 我是 {pHouse.Ref.Type.Ref.Base.ID} 平民 = {pHouse.IsCivilian()}");
+                        CoordStruct targetPos = data.ToTarget ? pTarget.Ref.GetCoords() : pTechno.Ref.Base.Base.GetCoords();
+                        FireSuperWeaponManager.Launch(pHouse, targetPos, data);
+                    }
+                }
+            }
+        }
+
+
+    }
+
+    public partial class TechnoTypeExt
+    {
+        public FireSuperType FireSuperData;
+
+        /// <summary>
+        /// [TechnoType]
+        /// FireSuperWeapon.Types=NukeSpecial,IronCurtainSpecial
+        /// FireSuperWeapon.InitDelay=0 ;延迟发射超武
+        /// FireSuperWeapon.RandomInitDelay=0,15 ;随机延迟发射超武
+        /// FireSuperWeapon.Delay=0 ;多次发射之间的延迟
+        /// FireSuperWeapon.RandomDelay=0,15 ;多次发射之间的随机延迟
+        /// FireSuperWeapon.LaunchCount=1 ;发射几次
+        /// FireSuperWeapon.RealLaunch=no ;发射后超级武器进入冷却
+        /// FireSuperWeapon.Weapon=0 ;哪个武器发射时发射超级武器，0主武，1副武
+        /// FireSuperWeapon.AnyWeapon=no ;任意武器发射时发射超级武器
+        /// FireSuperWeapon.ToTarget=yes ;朝目标位置发射超级武器
+        /// 
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <param name="section"></param>
+        private void ReadFireSuperWeapon(INIReader reader, string section)
+        {
+
+            FireSuperType temp = new FireSuperType();
+            if (temp.TryReadType(reader, section))
+            {
+                FireSuperData = temp;
+            }
+
+        }
+    }
+
+
     public enum PlaySuperWeaponMode
     {
         CUSTOM = 0, DONE = 1, LOOP = 2
     }
 
     [Serializable]
-    public class PlaySuperWeaponData : FireSuperWeaponsData
+    public class PlaySuperData : FireSuperData
     {
         public PlaySuperWeaponMode LaunchMode;
 
-        public PlaySuperWeaponData() : base()
+        public PlaySuperData()
         {
             this.LaunchMode = PlaySuperWeaponMode.DONE;
         }
 
         public void ReadPlaySuperWeapon(INIReader reader, string section)
         {
-            ReadSuperWeapons(reader, section);
+            TryReadType(reader, section);
 
             string mode = null;
             if (reader.ReadNormal(section, "FireSuperWeapon.LaunchMode", ref mode))
@@ -49,131 +127,6 @@ namespace Extension.Ext
         }
     }
 
-    [Serializable]
-    public class WeaponSuperWeaponData : FireSuperWeaponsData
-    {
-        public bool AnyWeapon;
-        public int WeaponIndex;
-        public bool ToTarget;
-
-        public WeaponSuperWeaponData() : base()
-        {
-            this.AnyWeapon = true;
-            this.WeaponIndex = 0;
-            this.ToTarget = false;
-        }
-
-        public void ReadFireSuperWeapon(INIReader reader, string section)
-        {
-            ReadSuperWeapons(reader, section);
-
-            bool anyWeapon = false;
-            if (reader.ReadNormal(section, "FireSuperWeapon.AnyWeapon", ref anyWeapon))
-            {
-                this.AnyWeapon = anyWeapon;
-            }
-
-            int weaponIndex = 0;
-            if (reader.ReadNormal(section, "FireSuperWeapon.Weapon", ref weaponIndex))
-            {
-                this.WeaponIndex = weaponIndex;
-            }
-
-            bool toTarget = false;
-            if (reader.ReadNormal(section, "FireSuperWeapon.ToTarget", ref toTarget))
-            {
-                this.ToTarget = toTarget;
-            }
-
-        }
-    }
-
-    public partial class TechnoExt
-    {
-        public FireSuperWeaponManager FireSuperWeaponManager = new FireSuperWeaponManager();
-
-        public unsafe void TechnoClass_Update_SuperWeapon()
-        {
-            FireSuperWeaponManager.Update();
-        }
-
-        public unsafe void TechnoClass_OnFire_SuperWeapon(Pointer<AbstractClass> pTarget, int weaponIndex)
-        {
-            Pointer<TechnoClass> pTechno = OwnerObject;
-            if (null != Type.FireSuperWeaponData && Type.FireSuperWeaponData.Enable && (Type.FireSuperWeaponData.AnyWeapon || Type.FireSuperWeaponData.WeaponIndex == weaponIndex))
-            {
-                Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
-                CoordStruct targetPos = Type.FireSuperWeaponData.ToTarget ? pTarget.Ref.GetCoords() : pTechno.Ref.Base.Base.GetCoords();
-
-                FireSuperWeaponManager.Launch(pHouse, targetPos, Type.FireSuperWeaponData);
-
-                // foreach (string superWeaponId in Type.FireSuperWeaponData.SuperWeapons)
-                // {
-                //     Pointer<SuperWeaponTypeClass> pType = SuperWeaponTypeClass.ABSTRACTTYPE_ARRAY.Find(superWeaponId);
-                //     if (!pType.IsNull)
-                //     {
-                //         Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
-                //         if (pHouse.IsNull || pHouse.Ref.Defeated)
-                //         {
-                //             // find civilian
-                //             pHouse = HouseClass.FindBySideName("Civilian");
-                //             if (pHouse.IsNull)
-                //             {
-                //                 Logger.LogWarning("Anim [{0}] want to fire a super weapon [{1}], but house is null.", pTechno.Ref.Type.Ref.Base.Base.ID, superWeaponId);
-                //                 return;
-                //             }
-                //         }
-                //         Pointer<SuperClass> pSuper = pHouse.Ref.FindSuperWeapon(pType);
-                //         if (pSuper.Ref.IsCharged || !Type.FireSuperWeaponData.RealLaunch)
-                //         {
-                //             CoordStruct targetPos = Type.FireSuperWeaponData.ToTarget ? pTarget.Ref.GetCoords() : pTechno.Ref.Base.Base.GetCoords();
-                //             CellStruct cell = MapClass.Coord2Cell(targetPos);
-                //             pSuper.Ref.IsCharged = true;
-                //             pSuper.Ref.Launch(cell, true);
-                //             pSuper.Ref.IsCharged = false;
-                //             pSuper.Ref.Reset();
-                //         }
-                //     }
-                // }
-            }
-        }
-
-
-    }
-
-    public partial class TechnoTypeExt
-    {
-        public WeaponSuperWeaponData FireSuperWeaponData;
-
-        /// <summary>
-        /// [TechnoType]
-        /// FireSuperWeapon.Types=NukeSpecial,IronCurtainSpecial
-        /// FireSuperWeapon.InitDelay=0 ;延迟发射超武
-        /// FireSuperWeapon.RandomInitDelay=0,15 ;随机延迟发射超武
-        /// FireSuperWeapon.Delay=0 ;多次发射之间的延迟
-        /// FireSuperWeapon.RandomDelay=0,15 ;多次发射之间的随机延迟
-        /// FireSuperWeapon.LaunchCount=1 ;发射几次
-        /// FireSuperWeapon.RealLaunch=no ;发射后超级武器进入冷却
-        /// FireSuperWeapon.Weapon=0 ;哪个武器发射时发射超级武器，0主武，1副武
-        /// FireSuperWeapon.AnyWeapon=no ;任意武器发射时发射超级武器
-        /// FireSuperWeapon.ToTarget=yes ;朝目标位置发射超级武器
-        /// 
-        /// </summary>
-        /// <param name="reader"></param>
-        /// <param name="section"></param>
-        private void ReadFireSuperWeapon(INIReader reader, string section)
-        {
-
-            string fireSuperWeapon = null;
-            if (reader.ReadNormal(section, "FireSuperWeapon.Types", ref fireSuperWeapon))
-            {
-                this.FireSuperWeaponData = new WeaponSuperWeaponData();
-                this.FireSuperWeaponData.ReadFireSuperWeapon(reader, section);
-            }
-
-        }
-    }
-
     public partial class AnimExt
     {
 
@@ -185,7 +138,7 @@ namespace Extension.Ext
             if (!playSuperWeaponFlag)
             {
                 playSuperWeaponFlag = true;
-                PlaySuperWeaponData data = Type.PlaySuperWeaponData;
+                PlaySuperData data = Type.PlaySuperData;
                 if (null != data && data.Enable && data.LaunchMode == PlaySuperWeaponMode.CUSTOM)
                 {
                     CoordStruct targetPos = OwnerObject.Ref.Base.Base.GetCoords();
@@ -198,7 +151,7 @@ namespace Extension.Ext
 
         public unsafe void AnimClass_Loop_SuperWeapon()
         {
-            PlaySuperWeaponData data = Type.PlaySuperWeaponData;
+            PlaySuperData data = Type.PlaySuperData;
             if (null != data && data.Enable && data.LaunchMode == PlaySuperWeaponMode.LOOP)
             {
                 CoordStruct targetPos = OwnerObject.Ref.Base.Base.GetCoords();
@@ -211,7 +164,7 @@ namespace Extension.Ext
             FireSuperWeaponManager.Reset();
             playSuperWeaponFlag = false;
 
-            PlaySuperWeaponData data = Type.PlaySuperWeaponData;
+            PlaySuperData data = Type.PlaySuperData;
             if (null != data && data.Enable && data.LaunchMode == PlaySuperWeaponMode.DONE)
             {
                 switch (data.LaunchMode)
@@ -229,12 +182,13 @@ namespace Extension.Ext
 
     public partial class AnimTypeExt
     {
-        public PlaySuperWeaponData PlaySuperWeaponData;
+        public PlaySuperData PlaySuperData;
 
         /// <summary>
         /// [AnimType]
         /// FireSuperWeapon.LaunchMode=DONE ;发射超武的模式，DONE\LOOP\CUSTOM，DONE=动画播放结束时释放，LOOP=动画每次Loop结束时释放，CUSTOM=按照下方的控制项目来执行释放和循环
         /// FireSuperWeapon.Types=NukeSpecial,IronCurtainSpecial
+        /// FireSuperWeapon.Chances=1.0,1.0 ;发射该超武的概率
         /// FireSuperWeapon.InitDelay=0 ;延迟发射超武
         /// FireSuperWeapon.RandomInitDelay=0,15 ;随机延迟发射超武
         /// FireSuperWeapon.Delay=0 ;多次发射之间的延迟
@@ -247,11 +201,11 @@ namespace Extension.Ext
         /// <param name="section"></param>
         private void ReadFireSuperWeapon(INIReader reader, string section)
         {
-            string fireSuperWeapon = null;
-            if (reader.ReadNormal(section, "FireSuperWeapon.Types", ref fireSuperWeapon))
+            PlaySuperData temp = new PlaySuperData();
+            temp.ReadPlaySuperWeapon(reader, section);
+            if (temp.Enable)
             {
-                this.PlaySuperWeaponData = new PlaySuperWeaponData();
-                this.PlaySuperWeaponData.ReadPlaySuperWeapon(reader, section);
+                this.PlaySuperData = temp;
             }
 
         }

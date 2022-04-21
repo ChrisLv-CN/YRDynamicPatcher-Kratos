@@ -19,9 +19,10 @@ namespace Extension.Ext
 
         private void ReadBlackHoleType(INIReader reader, string section)
         {
-            if (BlackHoleType.ReadBlackHoleType(reader, section, out BlackHoleType blackHoleType))
+            BlackHoleType type = new BlackHoleType();
+            if (type.TryReadType(reader, section))
             {
-                this.BlackHoleType = blackHoleType;
+                this.BlackHoleType = type;
             }
         }
 
@@ -31,10 +32,9 @@ namespace Extension.Ext
     /// 黑洞类型
     /// </summary>
     [Serializable]
-    public class BlackHoleType : IEffectType<BlackHole>
+    public class BlackHoleType : EffectType<BlackHole>
     {
         // 基础设置
-        public bool Enable;
         public int Range;
         public int EliteRange;
         public int Rate;
@@ -74,23 +74,19 @@ namespace Extension.Ext
             this.AffectsEnemies = true;
         }
 
-        public BlackHole CreateObject(AttachEffectType attachEffectType)
+        public override bool TryReadType(INIReader reader, string section)
         {
-            return new BlackHole(this, attachEffectType);
-        }
 
-        public static bool ReadBlackHoleType(INIReader reader, string section, out BlackHoleType blackHoleType)
-        {
-            blackHoleType = null;
+            ReadCommonType(reader, section, "BlackHole.");
 
             int range = 0;
             if (reader.ReadNormal(section, "BlackHole.Range", ref range))
             {
                 if (range > 0)
                 {
-                    blackHoleType = new BlackHoleType();
-                    blackHoleType.Range = range;
-                    blackHoleType.EliteRange = range;
+                    this.Enable = true;
+                    this.Range = range;
+                    this.EliteRange = range;
                 }
             }
 
@@ -99,33 +95,30 @@ namespace Extension.Ext
             {
                 if (eliteRange > 0)
                 {
-                    if (null == blackHoleType)
-                    {
-                        blackHoleType = new BlackHoleType();
-                    }
-                    blackHoleType.EliteRange = eliteRange;
+                    this.Enable = true;
+                    this.EliteRange = eliteRange;
                 }
             }
 
-            if (null != blackHoleType)
+            if (this.Enable)
             {
 
                 int rate = 0;
                 if (reader.ReadNormal(section, "BlackHole.Rate", ref rate))
                 {
-                    blackHoleType.Rate = rate;
-                    blackHoleType.EliteRate = rate;
+                    this.Rate = rate;
+                    this.EliteRate = rate;
                 }
 
                 int eliteRate = 0;
                 if (reader.ReadNormal(section, "BlackHole.EliteRate", ref eliteRate))
                 {
-                    blackHoleType.EliteRate = eliteRate;
+                    this.EliteRate = eliteRate;
                 }
 
                 // 过滤器
                 List<string> affectTypes = null;
-                if (ExHelper.ReadList(reader, section, "BlackHole.AffectTypes", ref affectTypes))
+                if (reader.ReadStringList(section, "BlackHole.AffectTypes", ref affectTypes))
                 {
                     List<string> types = null;
                     foreach (string typeName in affectTypes)
@@ -141,12 +134,12 @@ namespace Extension.Ext
                     }
                     if (null != types)
                     {
-                        blackHoleType.AffectTypes = types;
+                        this.AffectTypes = types;
                     }
                 }
 
                 List<string> notAffectTypes = null;
-                if (ExHelper.ReadList(reader, section, "BlackHole.NotAffectTypes", ref notAffectTypes))
+                if (reader.ReadStringList(section, "BlackHole.NotAffectTypes", ref notAffectTypes))
                 {
                     List<string> types = null;
                     foreach (string typeName in notAffectTypes)
@@ -162,63 +155,62 @@ namespace Extension.Ext
                     }
                     if (null != types)
                     {
-                        blackHoleType.NotAffectTypes = types;
+                        this.NotAffectTypes = types;
                     }
                 }
 
                 bool affectTechno = false;
                 if (reader.ReadNormal(section, "BlackHole.AffectTechno", ref affectTechno))
                 {
-                    blackHoleType.AffectTechno = affectTechno;
+                    this.AffectTechno = affectTechno;
                 }
 
                 bool onlyAffectTechno = false;
                 if (reader.ReadNormal(section, "BlackHole.OnlyAffectTechno", ref onlyAffectTechno))
                 {
-                    blackHoleType.OnlyAffectTechno = onlyAffectTechno;
+                    this.OnlyAffectTechno = onlyAffectTechno;
                 }
 
                 bool affectMissile = false;
                 if (reader.ReadNormal(section, "BlackHole.AffectMissile", ref affectMissile))
                 {
-                    blackHoleType.AffectMissile = affectMissile;
+                    this.AffectMissile = affectMissile;
                 }
 
                 bool affectTorpedo = false;
                 if (reader.ReadNormal(section, "BlackHole.AffectTorpedo", ref affectTorpedo))
                 {
-                    blackHoleType.AffectTorpedo = affectTorpedo;
+                    this.AffectTorpedo = affectTorpedo;
                 }
 
                 bool affectCannon = false;
                 if (reader.ReadNormal(section, "BlackHole.AffectCannon", ref affectCannon))
                 {
-                    blackHoleType.AffectCannon = affectCannon;
+                    this.AffectCannon = affectCannon;
                 }
 
                 // 敌我识别
                 bool affectsOwner = false;
                 if (reader.ReadNormal(section, "BlackHole.AffectsOwner", ref affectsOwner))
                 {
-                    blackHoleType.AffectsOwner = affectsOwner;
+                    this.AffectsOwner = affectsOwner;
                 }
 
                 bool affectsAllies = false;
                 if (reader.ReadNormal(section, "BlackHole.AffectsAllies", ref affectsAllies))
                 {
-                    blackHoleType.AffectsAllies = affectsAllies;
+                    this.AffectsAllies = affectsAllies;
                 }
 
                 bool affectsEnemies = false;
                 if (reader.ReadNormal(section, "BlackHole.AffectsEnemies", ref affectsEnemies))
                 {
-                    blackHoleType.AffectsEnemies = affectsEnemies;
+                    this.AffectsEnemies = affectsEnemies;
                 }
             }
 
-            return null != blackHoleType;
+            return this.Enable;
         }
-
     }
 
 }

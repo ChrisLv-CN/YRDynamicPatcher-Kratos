@@ -45,7 +45,7 @@ namespace Extension.Ext
             if (Delay > 0)
             {
                 this.canFire = false;
-                reloadTimer = new TimerStruct(Delay);
+                reloadTimer.Start(Delay);
             }
             else
             {

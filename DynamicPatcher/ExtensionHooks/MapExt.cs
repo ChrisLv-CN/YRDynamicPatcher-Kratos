@@ -55,7 +55,7 @@ namespace ExtensionHooks
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 if (null != ext)
                 {
-                    if (ext.CrateMultiplier.FirepowerMultiplier == 1.0)
+                    if (ext.CrateStatus.FirepowerMultiplier == 1.0)
                     {
                         return 0x481D52;
                     }
@@ -81,7 +81,7 @@ namespace ExtensionHooks
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 if (null != ext)
                 {
-                    if (ext.CrateMultiplier.ArmorMultiplier == 1.0)
+                    if (ext.CrateStatus.ArmorMultiplier == 1.0)
                     {
                         return 0x481D52;
                     }
@@ -107,7 +107,7 @@ namespace ExtensionHooks
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 if (null != ext)
                 {
-                    if (ext.CrateMultiplier.SpeedMultiplier == 1.0)
+                    if (ext.CrateStatus.SpeedMultiplier == 1.0)
                     {
                         return 0x481D52;
                     }
@@ -153,7 +153,7 @@ namespace ExtensionHooks
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 if (null != ext)
                 {
-                    if (ext.CanICloakByDefault() || ext.CrateMultiplier.Cloakable)
+                    if (ext.CanICloakByDefault() || ext.CrateStatus.Cloakable)
                     {
                         return 0x481C86;
                     }
@@ -181,9 +181,9 @@ namespace ExtensionHooks
                 double pow_FirepowerMultiplier = R->Stack<double>(0x20);
                 // Logger.Log("{0}踩箱子获得火力加成{1}", pTechno.Ref.Type.Ref.Base.Base.ID, pow_FirepowerMultiplier);
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                if (null != ext && ext.CrateMultiplier.FirepowerMultiplier == 1.0)
+                if (null != ext && ext.CrateStatus.FirepowerMultiplier == 1.0)
                 {
-                    ext.CrateMultiplier.FirepowerMultiplier = pow_FirepowerMultiplier;
+                    ext.CrateStatus.FirepowerMultiplier = pow_FirepowerMultiplier;
                     ext.RecalculateStatus();
                     // R->AL = Convert.ToByte(pTechno.Ref.Owner.Ref.PlayerControl);
                     R->AL = pTechno.Ref.Owner.Ref.PlayerControl;
@@ -206,9 +206,9 @@ namespace ExtensionHooks
                 double pow_ArmorMultiplier = R->Stack<double>(0x20);
                 // Logger.Log("{0}踩箱子获得装甲加成{1}", pTechno.Ref.Type.Ref.Base.Base.ID, pow_ArmorMultiplier);
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                if (null != ext && ext.CrateMultiplier.ArmorMultiplier == 1.0)
+                if (null != ext && ext.CrateStatus.ArmorMultiplier == 1.0)
                 {
-                    ext.CrateMultiplier.ArmorMultiplier = pow_ArmorMultiplier;
+                    ext.CrateStatus.ArmorMultiplier = pow_ArmorMultiplier;
                     ext.RecalculateStatus();
                     // R->AL = Convert.ToByte(pTechno.Ref.Owner.Ref.PlayerControl);
                     R->AL = pTechno.Ref.Owner.Ref.PlayerControl;
@@ -231,9 +231,9 @@ namespace ExtensionHooks
                 double pow_SpeedMultiplier = R->Stack<double>(0x20);
                 // Logger.Log("{0}踩箱子获得速度加成{1}", pTechno.Ref.Type.Ref.Base.Base.ID, pow_SpeedMultiplier);
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                if (null != ext && ext.CrateMultiplier.SpeedMultiplier == 1.0)
+                if (null != ext && ext.CrateStatus.SpeedMultiplier == 1.0)
                 {
-                    ext.CrateMultiplier.SpeedMultiplier = pow_SpeedMultiplier;
+                    ext.CrateStatus.SpeedMultiplier = pow_SpeedMultiplier;
                     ext.RecalculateStatus();
                     // R->CL = Convert.ToByte(pTechno.Ref.Owner.Ref.PlayerControl);
                     R->CL = pTechno.Ref.Owner.Ref.PlayerControl;
@@ -265,7 +265,7 @@ namespace ExtensionHooks
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 if (null != ext)
                 {
-                    ext.CrateMultiplier.Cloakable = true;
+                    ext.CrateStatus.Cloakable = true;
                     ext.RecalculateStatus();
                     return 0x482956;
                 }

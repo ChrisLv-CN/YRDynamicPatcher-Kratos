@@ -77,7 +77,7 @@ namespace Extension.Ext
         private void ReadDestroyAnims(INIReader reader, string section)
         {
             List<string> destroyAnims = null;
-            if (ExHelper.ReadList(reader, section, "DestroyAnims", ref destroyAnims))
+            if (reader.ReadStringList(section, "DestroyAnims", ref destroyAnims))
             {
                 DestroyAnims = destroyAnims;
                 bool random = false;

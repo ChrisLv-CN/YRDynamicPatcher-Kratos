@@ -12,6 +12,11 @@ namespace PatcherYRpp
     [StructLayout(LayoutKind.Explicit, Size = 90296)]
     public struct HouseClass
     {
+
+        public const string CIVILIAN = "Civilian";
+        public const string NEUTRAL = "Neutral";
+        public const string SPECIAL = "Special";
+
         private static IntPtr arrayPoint = new IntPtr(0xA80228);
         public static ref DynamicVectorClass<Pointer<HouseClass>> Array { get => ref DynamicVectorClass<Pointer<HouseClass>>.GetDynamicVector(arrayPoint); }
 
@@ -89,13 +94,13 @@ namespace PatcherYRpp
         // gets the first house of a type with name Neutral
         public static Pointer<HouseClass> FindNeutral()
         {
-            return FindByCountryName("Neutral");
+            return FindByCountryName(NEUTRAL);
         }
 
         // gets the first house of a type with name Special
         public static Pointer<HouseClass> FindSpecial()
         {
-            return FindByCountryName("Special");
+            return FindByCountryName(SPECIAL);
         }
 
         // gets the first house of a side with this name
@@ -121,7 +126,7 @@ namespace PatcherYRpp
         // gets the first house of a type from the Civilian side
         public static Pointer<HouseClass> FindCivilianSide()
         {
-            return FindBySideName("Civilian");
+            return FindBySideName(CIVILIAN);
         }
 
         public unsafe bool ControlledByHuman()

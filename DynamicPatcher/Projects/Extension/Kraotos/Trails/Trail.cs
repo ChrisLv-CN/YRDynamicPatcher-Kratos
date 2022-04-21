@@ -67,7 +67,7 @@ namespace Extension.Ext
             {
                 if (initialDelay > 0)
                 {
-                    delayTimer = new TimerStruct(initialDelay);
+                    delayTimer.Start(initialDelay);
                     initialDelay = 0;
                 }
                 canDraw = delayTimer.Expired();

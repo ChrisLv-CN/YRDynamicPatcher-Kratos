@@ -21,23 +21,23 @@ namespace Extension.Ext
             if (null != Type.TransformType)
             {
                 this.Transform = Type.TransformType.CreateObject(Type);
+                RegisterAction(Transform);
             }
         }
     }
 
 
     [Serializable]
-    public class Transform : AttachEffectBehaviour
+    public class Transform : Effect<TransformType>
     {
-        public TransformType Type;
         private TechnoExt OwnerExt;
 
-        public Transform(TransformType type, AttachEffectType attachEffectType) : base(attachEffectType)
+        public Transform()
         {
-            this.Type = type;
+
         }
 
-        public override void Enable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public override void OnEnable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
         {
             if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
             {

@@ -1,68 +1,78 @@
-using System.Reflection;
-using System.Collections;
-using DynamicPatcher;
+﻿using DynamicPatcher;
+using Extension.Script;
 using Extension.Utilities;
 using PatcherYRpp;
-using PatcherYRpp.Utilities;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Extension.Ext
 {
-    [Serializable]
-    public class AttachEffectState
+
+    public partial class AttachEffectManager
     {
-        public string Token;
+        // 强制替身同步
+        // 染色
+        public PaintballState PaintballState = new PaintballState();
 
-        protected bool active;
-        protected bool infinite;
-        protected TimerStruct timer;
+        // 可分离替身与JOJO
+        // 自毁
+        public DestroySelfState DestroySelfState = new DestroySelfState();
+        // 礼盒
+        public GiftBoxState GiftBoxState = new GiftBoxState();
+        // 禁武
+        public AEState<DisableWeaponType> DisableWeaponState = new AEState<DisableWeaponType>();
+        // 替武
+        public OverrideWeaponState OverrideWeaponState = new OverrideWeaponState();
+        // 发射超武
+        public AEState<FireSuperType> FireSuperState = new AEState<FireSuperType>();
 
-        public AttachEffectState()
+        public void EnableAEStatsToStand(int duration, string token, IAEStateData data)
         {
-            this.active = false;
-            this.infinite = false;
-            this.timer = new TimerStruct(0);
-        }
-
-        public void Enable(int duration, string token)
-        {
-            this.Token = token;
-            this.active = duration != 0;
-            if (duration < 0)
+            foreach (AttachEffect ae in AttachEffects)
             {
-                infinite = true;
-                timer.Start(0);
+                Stand stand = ae.Stand;
+                if (null != stand && ae.IsActive())
+                {
+                    Pointer<TechnoClass> pStand = stand.pStand;
+                    TechnoExt ext = TechnoExt.ExtMap.Find(pStand);
+                    if (null != ext)
+                    {
+                        // Logger.Log($"{Game.CurrentFrame} - 同步开启AE {ae.Name} 的替身状态 {data.GetType().Name} token {token}");
+                        if (data is DestroySelfType)
+                        {
+                            // 自毁
+                            ext.AttachEffectManager.DestroySelfState.Enable(duration, token, data);
+                        }
+                        else if (data is GiftBoxType)
+                        {
+                            // 同步礼盒
+                            ext.AttachEffectManager.GiftBoxState.Enable(duration, token, data);
+                        }
+                        else if (data is DisableWeaponType)
+                        {
+                            // 同步禁武
+                            ext.AttachEffectManager.DisableWeaponState.Enable(duration, token, data);
+                        }
+                        else if (data is OverrideWeaponType)
+                        {
+                            // 同步替武
+                            ext.AttachEffectManager.OverrideWeaponState.Enable(duration, token, data);
+                        }
+                        else if (data is FireSuperType)
+                        {
+                            // 同步发射超武
+                            ext.AttachEffectManager.FireSuperState.Enable(duration, token, data);
+                        }
+                    }
+                }
             }
-            else
-            {
-                infinite = false;
-                timer.Start(duration);
-            }
-        }
-
-        public void Disable(string token)
-        {
-            if (this.Token != null && this.Token.Equals(token))
-            {
-                this.active = false;
-                this.infinite = false;
-                this.timer.Start(0);
-            }
-        }
-
-        public bool IsActive()
-        {
-            return infinite || timer.InProgress();
         }
 
     }
+
 }

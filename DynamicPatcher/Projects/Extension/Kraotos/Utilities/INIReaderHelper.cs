@@ -39,27 +39,7 @@ namespace Extension.Utilities
                     }
                     else
                     {
-                        if (percentFloat.IsMatch(chanceStr))
-                        {
-                            // 小数格式
-                            percent = Convert.ToDouble(chanceStr);
-                        }
-                        else if (chanceStr.IndexOf("%") > 0)
-                        {
-                            // 百分数格式
-                            string temp = chanceStr.Substring(0, chanceStr.IndexOf("%"));
-                            percent = Convert.ToDouble(temp) / 100;
-                        }
-                        else if (percentNumber.IsMatch(chanceStr))
-                        {
-                            // 数字格式
-                            percent = Convert.ToDouble(chanceStr) / 100;
-                        }
-                        else
-                        {
-                            // 未知格式
-                            return false;
-                        }
+                        percent = PercentStrToDouble(chanceStr);
                         if (percent > 1)
                         {
                             percent = 1;
@@ -69,6 +49,29 @@ namespace Extension.Utilities
                 }
             }
             return false;
+        }
+
+        public static double PercentStrToDouble(string chanceStr, double defVal = 1)
+        {
+            double result = defVal;
+
+            if (percentFloat.IsMatch(chanceStr))
+            {
+                // 小数格式
+                result = Convert.ToDouble(chanceStr);
+            }
+            else if (chanceStr.IndexOf("%") > 0)
+            {
+                // 百分数格式
+                string temp = chanceStr.Substring(0, chanceStr.IndexOf("%"));
+                result = Convert.ToDouble(temp) / 100;
+            }
+            else if (percentNumber.IsMatch(chanceStr))
+            {
+                // 数字格式
+                result = Convert.ToDouble(chanceStr) / 100;
+            }
+            return result;
         }
 
         public static bool ReadBulletVelocity(this INIReader reader, string section, string key, ref BulletVelocity velocity)
@@ -167,7 +170,7 @@ namespace Extension.Utilities
             return false;
         }
 
-        public static bool ReadList(this INIReader reader, string section, string key, ref List<string> list)
+        public static bool ReadStringList(this INIReader reader, string section, string key, ref List<string> list)
         {
             string text = default;
             if (reader.ReadNormal(section, key, ref text))
@@ -192,8 +195,8 @@ namespace Extension.Utilities
 
         public static bool ReadIntList(this INIReader reader, string section, string key, ref List<int> list)
         {
-            List<string> values = default;
-            if (ReadList(reader, section, key, ref values))
+            List<string> values = null;
+            if (ReadStringList(reader, section, key, ref values))
             {
                 if (null == list)
                 {
@@ -208,6 +211,23 @@ namespace Extension.Utilities
             return false;
         }
 
+        public static bool ReadChanceList(this INIReader reader, string section, string key, ref List<double> list)
+        {
+            List<string> values = null;
+            if (ReadStringList(reader, section, key, ref values))
+            {
+                if (null == list)
+                {
+                    list = new List<double>();
+                }
+                foreach (string v in values)
+                {
+                    list.Add(PercentStrToDouble(v));
+                }
+                return true;
+            }
+            return false;
+        }
 
     }
 

@@ -17,7 +17,24 @@ namespace Extension.Utilities
 
     public static partial class ExHelper
     {
-        
+
+        public static bool IsCivilian(this Pointer<HouseClass> pHouse)
+        {
+            return pHouse.IsNull || pHouse.Ref.Defeated || pHouse.Ref.Type.IsNull
+                || HouseClass.CIVILIAN == pHouse.Ref.Type.Ref.Base.ID
+                || HouseClass.SPECIAL == pHouse.Ref.Type.Ref.Base.ID; // 被狙掉驾驶员的阵营是Special
+        }
+
+        public static bool CastToBullet(this Pointer<ObjectClass> pObject, out Pointer<BulletClass> pBullet)
+        {
+            return pObject.CastIf(AbstractType.Bullet, out pBullet);
+        }
+
+        public static bool CastToBuilding(this Pointer<ObjectClass> pObject, out Pointer<BuildingClass> pBuilding)
+        {
+            return pObject.CastIf(AbstractType.Building, out pBuilding);
+        }
+
         public static CoordStruct ToCoordStruct(this BulletVelocity bulletVelocity)
         {
             return new CoordStruct(bulletVelocity.X, bulletVelocity.Y, bulletVelocity.Z);
@@ -63,6 +80,22 @@ namespace Extension.Utilities
             string B2 = Convert.ToString(colorAdd.B, 2).PadLeft(5, '0');
             string c2 = R2 + G2 + B2;
             return Convert.ToUInt32(c2, 2);
+        }
+
+        public static int GetRandomValue(this Point2D point, int defVal)
+        {
+            int min = point.X;
+            int max = point.Y;
+            if (min > max)
+            {
+                min = max;
+                max = point.X;
+            }
+            if (max > 0)
+            {
+                return MathEx.Random.Next(min, max);
+            }
+            return defVal;
         }
 
         public static bool IsDead(this Pointer<TechnoClass> pTechno)

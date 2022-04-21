@@ -41,6 +41,25 @@ namespace Extension.Utilities
         // public static Random Random = new Random(114514);
         public const double BINARY_ANGLE_MAGIC = -(360.0 / (65535 - 1)) * (Math.PI / 180);
 
+        public static bool Bingo(this List<double> chances, int index)
+        {
+            if (null == chances || chances.Count < index + 1)
+            {
+                return true;
+            }
+            double chance = chances[index];
+            return chance.Bingo();
+        }
+
+        public static bool Bingo(this double chance)
+        {
+            if (chance <= 0)
+            {
+                return false;
+            }
+            return chance >= 1 || chance >= MathEx.Random.NextDouble();
+        }
+
         public static TChild AutoCopy<TParent, TChild>(TParent parent) where TChild : TParent, new()
         {
             TChild child = new TChild();

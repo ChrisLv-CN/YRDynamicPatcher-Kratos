@@ -13,8 +13,6 @@ namespace Extension.Ext
     public partial class BulletExt
     {
 
-        public string MyExtensionTest = nameof(MyExtensionTest);
-
         public SwizzleablePointer<HouseClass> pSourceHouse = new SwizzleablePointer<HouseClass>(IntPtr.Zero);
 
         public unsafe void OnInit()

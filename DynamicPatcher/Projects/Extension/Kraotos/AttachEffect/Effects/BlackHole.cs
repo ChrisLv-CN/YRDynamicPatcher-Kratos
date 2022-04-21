@@ -21,26 +21,25 @@ namespace Extension.Ext
             if (null != Type.BlackHoleType)
             {
                 this.BlackHole = Type.BlackHoleType.CreateObject(Type);
+                RegisterAction(BlackHole);
             }
         }
     }
 
 
     [Serializable]
-    public class BlackHole : AttachEffectBehaviour
+    public class BlackHole : Effect<BlackHoleType>
     {
-        public BlackHoleType Type;
         private bool Active;
         private TimerStruct DelayTimer;
 
-        public BlackHole(BlackHoleType type, AttachEffectType attachEffectType) : base(attachEffectType)
+        public BlackHole()
         {
-            this.Type = type;
             this.Active = false;
-            this.DelayTimer = new TimerStruct(0);
+            DelayTimer.Start(0);
         }
 
-        public override void Enable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public override void OnEnable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
         {
             this.Active = true;
         }
@@ -55,7 +54,7 @@ namespace Extension.Ext
             return this.Active;
         }
 
-        public override void OnUpdate(Pointer<ObjectClass> pOwner, bool isDead, AttachEffectManager manager)
+        public override void OnUpdate(Pointer<ObjectClass> pOwner, bool isDead)
         {
             if (!Active)
             {
@@ -73,44 +72,42 @@ namespace Extension.Ext
             int rate = Type.Rate;
 
             bool isOnBullet = false;
-            switch (pOwner.Ref.Base.WhatAmI())
+
+            if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
             {
-                case AbstractType.Unit:
-                case AbstractType.Aircraft:
-                case AbstractType.Building:
-                case AbstractType.Infantry:
-                    // 以单位获得参考，取目标的位点
-                    Pointer<TechnoClass> pTechno = pOwner.Convert<TechnoClass>();
-                    pReceiverHouse = pTechno.Ref.Owner;
-                    if (pTechno.Ref.Veterancy.IsElite())
+                // 以单位获得参考，取目标的位点
+                pReceiverHouse = pTechno.Ref.Owner;
+                if (pTechno.Ref.Veterancy.IsElite())
+                {
+                    range = Type.EliteRange;
+                    rate = Type.EliteRate;
+                }
+            }
+            else if (pOwner.CastToBullet(out Pointer<BulletClass> pBullet))
+            {
+                isOnBullet = true;
+                // 以抛射体作为参考
+                Pointer<TechnoClass> pReceiverOwner = pBullet.Ref.Owner;
+                if (!pReceiverOwner.IsNull)
+                {
+                    pReceiverHouse = pReceiverOwner.Ref.Owner;
+                }
+                else
+                {
+                    BulletExt bulletExt = BulletExt.ExtMap.Find(pBullet);
+                    if (null != bulletExt)
                     {
-                        range = Type.EliteRange;
-                        rate = Type.EliteRate;
+                        pReceiverHouse = bulletExt.pSourceHouse;
                     }
-                    break;
-                case AbstractType.Bullet:
-                    isOnBullet = true;
-                    // 以抛射体作为参考
-                    Pointer<BulletClass> pBullet = pOwner.Convert<BulletClass>();
-                    Pointer<TechnoClass> pReceiverOwner = pBullet.Ref.Owner;
-                    if (!pReceiverOwner.IsNull)
-                    {
-                        pReceiverHouse = pReceiverOwner.Ref.Owner;
-                    }
-                    else
-                    {
-                        BulletExt bulletExt = BulletExt.ExtMap.Find(pBullet);
-                        if (null != bulletExt)
-                        {
-                            pReceiverHouse = bulletExt.pSourceHouse;
-                        }
-                    }
-                    // 增加抛射体偏移值取下一帧所在实际位置
-                    sourcePos += pBullet.Ref.Velocity.ToCoordStruct();
-                    break;
-                default:
-                    Disable(default);
-                    return;
+                }
+                // 增加抛射体偏移值取下一帧所在实际位置
+                sourcePos += pBullet.Ref.Velocity.ToCoordStruct();
+            }
+
+            // 检查平民
+            if (Type.DeactiveWhenCivilian && pReceiverHouse.IsCivilian())
+            {
+                return;
             }
 
             // 冷却中，跳过

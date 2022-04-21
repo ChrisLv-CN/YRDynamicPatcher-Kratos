@@ -30,7 +30,7 @@ namespace Extension.Ext
             this.pWeapon = new SwizzleablePointer<WeaponTypeClass>(IntPtr.Zero);
             this.pTarget = new SwizzleablePointer<AbstractClass>(pTarget);
             this.delay = delay;
-            this.timer = new TimerStruct(delay);
+            this.timer.Start(delay);
             this.count = count;
         }
 
@@ -41,7 +41,7 @@ namespace Extension.Ext
             this.pWeapon = new SwizzleablePointer<WeaponTypeClass>(pWeapon);
             this.pTarget = new SwizzleablePointer<AbstractClass>(pTarget);
             this.delay = delay;
-            this.timer = new TimerStruct(delay);
+            this.timer.Start(delay);
             this.count = count;
         }
 

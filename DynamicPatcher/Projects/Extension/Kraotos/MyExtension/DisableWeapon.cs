@@ -15,7 +15,7 @@ namespace Extension.Ext
 
     public partial class TechnoExt
     {
-        public AttachEffectState DisableWeaponState = new AttachEffectState();
+        public AEState<DisableWeaponType> DisableWeaponState => AttachEffectManager.DisableWeaponState;
 
         public unsafe bool TechnoClass_CanFire_Disable(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon)
         {

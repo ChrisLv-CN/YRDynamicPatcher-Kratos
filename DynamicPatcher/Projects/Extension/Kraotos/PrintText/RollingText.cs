@@ -26,7 +26,7 @@ namespace Extension.Ext
             this.Offset = offset;
             this.RollSpeed = rollSpeed;
             this.Duration = duration;
-            this.LifeTimer = new TimerStruct(duration);
+            this.LifeTimer.Start(duration);
             this.Data = data;
         }
 

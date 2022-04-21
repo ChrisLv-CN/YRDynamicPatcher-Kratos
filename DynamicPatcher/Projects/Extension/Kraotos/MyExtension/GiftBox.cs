@@ -14,129 +14,17 @@ using System.Threading.Tasks;
 namespace Extension.Ext
 {
 
-    [Serializable]
-    public class GiftBox
-    {
-        public bool Enable;
-        public GiftBoxData Data;
-        public bool IsOpen;
-        public int Delay;
-
-        private TimerStruct delayTimer;
-
-        public GiftBox(GiftBoxData data)
-        {
-            this.Enable = data.Enable;
-            this.Data = data;
-            Reset();
-        }
-
-        public bool CanOpen()
-        {
-            return Enable && !IsOpen && Timeup();
-        }
-
-        private bool Timeup()
-        {
-            if (this.Delay <= 0 || delayTimer.Expired())
-            {
-                this.IsOpen = true;
-                return true;
-            }
-            return false;
-        }
-
-        public void Reset()
-        {
-            this.IsOpen = false;
-            this.Delay = Data.DelayMax == 0 ? Data.Delay : MathEx.Random.Next(Data.DelayMin, Data.DelayMax);
-            if (this.Delay > 0)
-            {
-                delayTimer = new TimerStruct(this.Delay);
-            }
-        }
-    }
-
-    [Serializable]
-    public class GiftBoxData
-    {
-        public bool Enable;
-        public List<string> Gifts;
-        public List<int> Nums;
-        public bool Remove;
-        public bool Destroy;
-        public int Delay;
-        public int DelayMin;
-        public int DelayMax;
-        public int RandomRange;
-        public bool EmptyCell;
-        public bool RandomType;
-        public bool OpenWhenDestoryed;
-
-        public GiftBoxData(List<string> gifts)
-        {
-            this.Enable = gifts.Count > 0;
-            this.Gifts = gifts;
-            this.Nums = new List<int>();
-            this.Remove = true;
-            this.Destroy = false;
-            this.Delay = 0;
-            this.DelayMin = 0;
-            this.DelayMax = 0;
-            this.RandomRange = 0;
-            this.EmptyCell = false;
-            this.RandomType = false;
-            this.OpenWhenDestoryed = false;
-        }
-
-        public List<string> GetGiftList()
-        {
-            List<string> gifts = new List<string>();
-
-            if (RandomType)
-            {
-                List<string> result = new List<string>();
-                int nums = Nums.Count < 1 ? 1 : 0;
-                foreach (int num in Nums)
-                {
-                    nums += num;
-                }
-                for (int i = 0; i < nums; i++)
-                {
-                    gifts.Add(Gifts[MathEx.Random.Next(0, Gifts.Count)]);
-                }
-            }
-            else
-            {
-                foreach (string id in Gifts)
-                {
-                    for (int i = 0; i < GetGiftNum(id); i++)
-                    {
-                        gifts.Add(id);
-                    }
-                }
-            }
-            return gifts;
-        }
-
-        private int GetGiftNum(string gift)
-        {
-            int index = Gifts.FindIndex((giftName) => { return giftName == gift; });
-            return index < Nums.Count ? Nums[index] : 1;
-        }
-    }
-
     public partial class TechnoExt
     {
 
-        private GiftBox giftBox;
+        public GiftBoxState GiftBoxState => AttachEffectManager.GiftBoxState;
 
         public unsafe void TechnoClass_Init_GiftBox()
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
-            if (null != Type.GiftBoxData && Type.GiftBoxData.Enable && null == giftBox)
+            if (null != Type.GiftBoxType && Type.GiftBoxType.Enable)
             {
-                giftBox = new GiftBox(Type.GiftBoxData);
+                GiftBoxState.Enable(Type.GiftBoxType);
             }
 
         }
@@ -144,15 +32,21 @@ namespace Extension.Ext
         public unsafe void TechnoClass_Update_GiftBox()
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
-            if (null != giftBox && !giftBox.Data.OpenWhenDestoryed && giftBox.CanOpen())
+            if (GiftBoxState.IsActive() && !GiftBoxState.Data.OpenWhenDestoryed && GiftBoxState.CanOpen())
             {
+                // 开盒
+                GiftBoxState.IsOpen = true;
                 // 释放礼物
-                ReleseGift(giftBox.Data);
+                List<string> gifts = GiftBoxState.GetGiftList();
+                if (null != gifts && gifts.Count > 0)
+                {
+                    ReleseGift(gifts, GiftBoxState.Data);
+                }
                 // 销毁或重置盒子
-                if (giftBox.Data.Remove)
+                if (GiftBoxState.Data.Remove)
                 {
                     pTechno.Ref.Base.Remove();
-                    if (giftBox.Data.Destroy)
+                    if (GiftBoxState.Data.Destroy)
                     {
                         pTechno.Ref.Base.TakeDamage(pTechno.Ref.Base.Health + 1, pTechno.Ref.Type.Ref.Crewed);
                         // pTechno.Ref.Base.Destroy();
@@ -165,21 +59,27 @@ namespace Extension.Ext
                 else
                 {
                     // 重置
-                    giftBox.Reset();
+                    GiftBoxState.Reset();
                 }
             }
         }
 
         public unsafe void TechnoClass_Destroy_GiftBox()
         {
-            if (null != giftBox && giftBox.Data.OpenWhenDestoryed && !giftBox.IsOpen)
+            if (GiftBoxState.IsActive() && GiftBoxState.Data.OpenWhenDestoryed && !GiftBoxState.IsOpen)
             {
-                ReleseGift(giftBox.Data);
-                giftBox.IsOpen = true;
+                // 开盒
+                GiftBoxState.IsOpen = true;
+                // 释放礼物
+                List<string> gifts = GiftBoxState.GetGiftList();
+                if (null != gifts && gifts.Count > 0)
+                {
+                    ReleseGift(gifts, GiftBoxState.Data);
+                }
             }
         }
 
-        private void ReleseGift(GiftBoxData giftBoxData)
+        private void ReleseGift(List<string> gifts, GiftBoxType data)
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
             Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
@@ -198,14 +98,14 @@ namespace Extension.Ext
                     pFocus = pTechno.Ref.Focus;
                 }
                 // 开始投送单位，每生成一个单位就选择一次位置
-                foreach (string id in giftBoxData.GetGiftList())
+                foreach (string id in gifts)
                 {
                     // 随机选择周边的格子
-                    if (giftBoxData.RandomRange > 0)
+                    if (data.RandomRange > 0)
                     {
                         int landTypeCategory = pCell.Ref.LandType.Category();
                         CellStruct cell = MapClass.Coord2Cell(location);
-                        CellStruct[] cellOffset = new CellSpreadEnumerator((uint)giftBoxData.RandomRange).ToArray();
+                        CellStruct[] cellOffset = new CellSpreadEnumerator((uint)data.RandomRange).ToArray();
                         int max = cellOffset.Count();
                         for (int i = 0; i < max; i++)
                         {
@@ -219,7 +119,7 @@ namespace Extension.Ext
                             if (MapClass.Instance.TryGetCellAt(cell + offset, out Pointer<CellClass> pTargetCell))
                             {
                                 if (pTargetCell.Ref.LandType.Category() != landTypeCategory
-                                    || (giftBoxData.EmptyCell && !pTargetCell.Ref.GetContent().IsNull))
+                                    || (data.EmptyCell && !pTargetCell.Ref.GetContent().IsNull))
                                 {
                                     // Logger.Log("获取到的格子被占用, 建筑{0}, 步兵{1}, 载具{2}", !pCell.Ref.GetBuilding().IsNull, !pCell.Ref.GetUnit(false).IsNull, !pCell.Ref.GetInfantry(false).IsNull);
                                     continue;
@@ -274,12 +174,13 @@ namespace Extension.Ext
 
     public partial class TechnoTypeExt
     {
-        public GiftBoxData GiftBoxData;
+        public GiftBoxType GiftBoxType;
 
         /// <summary>
         /// [TechnoType]
         /// GiftBox.Types=HTNK
         /// GiftBox.Nums=1
+        /// GiftBox.Chance=1.0
         /// GiftBox.Remove=yes
         /// GiftBox.Destroy=no
         /// GiftBox.Delay=0
@@ -294,68 +195,10 @@ namespace Extension.Ext
         private void ReadGiftBox(INIReader reader, string section)
         {
             // GiftBox
-            List<string> giftTypes = default;
-            if (ExHelper.ReadList(reader, section, "GiftBox.Types", ref giftTypes))
+            GiftBoxType temp = new GiftBoxType();
+            if (temp.TryReadType(reader, section))
             {
-                GiftBoxData = new GiftBoxData(giftTypes);
-
-                List<int> giftNums = default;
-                if (ExHelper.ReadIntList(reader, section, "GiftBox.Nums", ref giftNums))
-                {
-                    GiftBoxData.Nums = giftNums;
-                }
-
-                bool giftBoxRemove = false;
-                if (reader.ReadNormal(section, "GiftBox.Remove", ref giftBoxRemove))
-                {
-                    GiftBoxData.Remove = giftBoxRemove;
-                }
-
-                bool giftBoxDestroy = false;
-                if (reader.ReadNormal(section, "GiftBox.Explodes", ref giftBoxDestroy))
-                {
-                    GiftBoxData.Destroy = giftBoxDestroy;
-                }
-
-                int giftBoxDelay = 0;
-                if (reader.ReadNormal(section, "GiftBox.Delay", ref giftBoxDelay))
-                {
-                    GiftBoxData.Delay = giftBoxDelay;
-                }
-
-                List<int> randomDelay = default;
-                if (ExHelper.ReadIntList(reader, section, "GiftBox.RandomDelay", ref randomDelay))
-                {
-                    if (null != randomDelay && randomDelay.Count > 1)
-                    {
-                        GiftBoxData.DelayMin = randomDelay[0];
-                        GiftBoxData.DelayMax = randomDelay[1];
-                    }
-                }
-
-                int randomRange = 0;
-                if (reader.ReadNormal(section, "GiftBox.RandomRange", ref randomRange))
-                {
-                    GiftBoxData.RandomRange = randomRange;
-                }
-
-                bool emptyCell = false;
-                if (reader.ReadNormal(section, "GiftBox.RandomToEmptyCell", ref emptyCell))
-                {
-                    GiftBoxData.EmptyCell = emptyCell;
-                }
-
-                bool randomType = false;
-                if (reader.ReadNormal(section, "GiftBox.RandomType", ref randomType))
-                {
-                    GiftBoxData.RandomType = randomType;
-                }
-
-                bool openWhenDestoryed = false;
-                if (reader.ReadNormal(section, "GiftBox.OpenWhenDestoryed", ref openWhenDestoryed))
-                {
-                    GiftBoxData.OpenWhenDestoryed = openWhenDestoryed;
-                }
+                this.GiftBoxType = temp;
             }
 
         }

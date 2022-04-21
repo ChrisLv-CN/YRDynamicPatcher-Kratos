@@ -21,51 +21,29 @@ namespace Extension.Ext
             if (null != Type.PaintballType)
             {
                 this.Paintball = Type.PaintballType.CreateObject(Type);
+                RegisterAction(Paintball);
             }
         }
     }
 
 
     [Serializable]
-    public class Paintball : AttachEffectBehaviour
+    public class Paintball : StateEffect<Paintball, PaintballType>
     {
-        public PaintballType Type;
-        private TechnoExt OwnerExt;
-        private ColorStruct Color;
-        private string token;
-        private int duration;
+        private PaintballType data;
 
-        public Paintball(PaintballType type, AttachEffectType attachEffectType) : base(attachEffectType)
+        public override IAEState GetState(Pointer<ObjectClass> pOwner, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
         {
-            this.Type = type;
-            this.token = new Guid().ToString();
-            this.duration = attachEffectType.Duration;
+            ColorStruct color = Type.IsHouseColor ? pHouse.Ref.LaserColor : Type.Color;
+            data = new PaintballType();
+            data.Color = color;
+            data.BrightMultiplier = Type.BrightMultiplier;
+            return OwnerAEM.PaintballState;
         }
 
-        public override void Enable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public override IAEStateData GetData()
         {
-            if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
-            {
-                OwnerExt = TechnoExt.ExtMap.Find(pTechno);
-                if (null != OwnerExt)
-                {
-                    Color = Type.IsHouseColor ? pHouse.Ref.LaserColor : Type.Color;
-                    OwnerExt.PaintballState.Enable(duration, token, Color, Type.BrightMultiplier);
-                }
-            }
-        }
-
-        public override void Disable(CoordStruct location)
-        {
-            OwnerExt?.PaintballState.Disable(token);
-        }
-
-        public override void ResetDuration()
-        {
-            if (null != OwnerExt)
-            {
-                OwnerExt.PaintballState.Enable(duration, token, Color, Type.BrightMultiplier);
-            }
+            return data;
         }
 
     }

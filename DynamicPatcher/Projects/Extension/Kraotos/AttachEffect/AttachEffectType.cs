@@ -4,6 +4,7 @@ using Extension.Utilities;
 using PatcherYRpp;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -18,8 +19,15 @@ namespace Extension.Ext
     }
 
     [Serializable]
+    public enum AttachOwnerType
+    {
+        TECHONO = 0, BULLET = 1
+    }
+
+    [Serializable]
     public partial class AttachEffectType : Enumerable<AttachEffectType>, INewType<AttachEffect>
     {
+
         public List<string> AffectTypes; // 可影响的单位
         public List<string> NotAffectTypes; // 不可影响的单位
         public int Duration; // 持续时间
@@ -89,13 +97,18 @@ namespace Extension.Ext
             return new AttachEffect(this);
         }
 
+        public int GetDuration()
+        {
+            return this.HoldDuration ? -1 : this.Duration;
+        }
+
         public override void LoadFromINI(Pointer<CCINIClass> pINI)
         {
             INIReader reader = new INIReader(pINI);
             string section = Name;
 
             List<string> affectTypes = null;
-            if (ExHelper.ReadList(reader, section, "AffectTypes", ref affectTypes))
+            if (reader.ReadStringList(section, "AffectTypes", ref affectTypes))
             {
                 List<string> types = null;
                 foreach (string typeName in affectTypes)
@@ -116,7 +129,7 @@ namespace Extension.Ext
             }
 
             List<string> notAffectTypes = null;
-            if (ExHelper.ReadList(reader, section, "NotAffectTypes", ref notAffectTypes))
+            if (reader.ReadStringList(section, "NotAffectTypes", ref notAffectTypes))
             {
                 List<string> types = null;
                 foreach (string typeName in notAffectTypes)
@@ -319,10 +332,13 @@ namespace Extension.Ext
             ReadAutoWeaponType(reader, section);
             ReadBlackHoleType(reader, section);
             ReadDestroySelfType(reader, section);
+            ReadFireSuperType(reader, section);
+            ReadGiftBoxType(reader, section);
             ReadPaintballType(reader, section);
             ReadStandType(reader, section);
             ReadTransformType(reader, section);
-            ReadWeaponType(reader, section);
+            ReadDisableWeaponType(reader, section);
+            ReadOverrideWeaponType(reader, section);
 
             base.LoadFromINI(pINI);
         }

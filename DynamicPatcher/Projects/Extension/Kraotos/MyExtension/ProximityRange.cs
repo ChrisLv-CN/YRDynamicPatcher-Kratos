@@ -68,7 +68,7 @@ namespace Extension.Ext
             this.pCheckedCell = new SwizzleablePointer<CellClass>(IntPtr.Zero);
             this.BuildingMarks = new List<SwizzleablePointer<BuildingClass>>();
             this.safe = safeDelay > 0;
-            this.safeTimer = new TimerStruct(safeDelay);
+            this.safeTimer.Start(safeDelay);
             this.count = data.PenetrationTimes > 0;
             this.times = data.PenetrationTimes;
         }

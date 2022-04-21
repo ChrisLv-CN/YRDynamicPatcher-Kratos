@@ -29,7 +29,7 @@ namespace Extension.Ext
             this.Location = location;
             this.Offset = offset;
             this.Duration = duration;
-            this.LifeTimer = new TimerStruct(duration);
+            this.LifeTimer.Start(duration);
             this.Data = data;
         }
 

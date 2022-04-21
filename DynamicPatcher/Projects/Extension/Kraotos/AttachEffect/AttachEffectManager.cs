@@ -33,7 +33,7 @@ namespace Extension.Ext
     }
 
     [Serializable]
-    public class AttachEffectManager
+    public partial class AttachEffectManager
     {
         public List<AttachEffect> AttachEffects; // 所有有效的AE
         public Dictionary<string, TimerStruct> DisableDelayTimers; // 同名AE失效后再赋予的计时器
@@ -218,12 +218,74 @@ namespace Extension.Ext
             {
                 AttachEffect ae = aeType.CreateObject();
                 // 入队
-                int index = AttachEffectHelper.FindInsertIndex(this, ae);
+                int index = FindInsertIndex(ae);
                 // Logger.Log("添加AE类型{0}进入队列，插入位置{1}", aeType.Name, index);
                 AttachEffects.Insert(index, ae);
                 // 激活
                 ae.Enable(pOwner, pHouse, pAttacker);
             }
+        }
+
+        public int FindInsertIndex(AttachEffect ae)
+        {
+            if (null != ae.Stand && ae.Stand.Type.IsTrain)
+            {
+                StandType type = ae.Stand.Type;
+                int index = -1;
+                // 插入头还是尾
+                if (type.CabinHead)
+                {
+                    // 插入队列末位
+                    // 检查是否有分组
+                    if (type.CabinGroup > -1)
+                    {
+                        // 倒着找自己的分组
+                        for (int j = Count() - 1; j >= 0; j--)
+                        {
+                            AttachEffect temp = AttachEffects[j];
+                            Stand tempStand = null;
+                            if (null != (tempStand = temp.Stand))
+                            {
+                                if (type.CabinGroup == tempStand.Type.CabinGroup)
+                                {
+                                    // 找到组员
+                                    index = j;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // 插入队列首位
+                    index = 0;
+                    // 检查是否有分组
+                    if (type.CabinGroup > -1)
+                    {
+                        // 顺着找自己的分组
+                        for (int j = 0; j < Count(); j++)
+                        {
+                            AttachEffect temp = AttachEffects[j];
+                            Stand tempStand = null;
+                            if (null != (tempStand = temp.Stand))
+                            {
+                                if (type.CabinGroup == tempStand.Type.CabinGroup)
+                                {
+                                    // 找到组员
+                                    index = j;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (index > -1)
+                {
+                    return index;
+                }
+            }
+            return 0;
         }
 
         private CoordStruct MarkLocation(Pointer<ObjectClass> pOwner)
@@ -239,7 +301,7 @@ namespace Extension.Ext
                 lastLocation = location;
                 double tempMileage = totleMileage + mileage;
                 // 记录下当前的位置信息
-                LocationMark locationMark = AttachEffectHelper.GetLocation(pOwner, new StandType());
+                LocationMark locationMark = StandHelper.GetLocation(pOwner, new StandType());
 
                 // 入队
                 LocationMarks.Insert(0, locationMark);
@@ -274,9 +336,9 @@ namespace Extension.Ext
             return false;
         }
 
-        public CrateMultiplier CountAttachStatusMultiplier()
+        public AttachStatusType CountAttachStatusMultiplier()
         {
-            CrateMultiplier multiplier = new CrateMultiplier();
+            AttachStatusType multiplier = new AttachStatusType();
             foreach (AttachEffect ae in AttachEffects)
             {
                 if (null != ae.AttachStatus && ae.AttachStatus.Active)
@@ -335,11 +397,11 @@ namespace Extension.Ext
                 if (ae.IsActive())
                 {
                     // Logger.Log("{0}更新AE类型{1}", pOwner, ae.Type.Name);
-                    ae.OnUpdate(pOwner, isDead, this);
+                    ae.OnUpdate(pOwner, isDead);
                     // 如果是替身，额外执行替身的定位操作
                     if (null != ae.Stand && ae.Stand.IsAlive())
                     {
-                        AttachEffectHelper.UpdateStandLocation(this, pOwner, ae.Stand, ref markIndex);
+                        StandHelper.UpdateStandLocation(this, pOwner, ae.Stand, ref markIndex);
                     }
                 }
                 else
@@ -432,7 +494,7 @@ namespace Extension.Ext
             attachEffectData = null;
 
             List<string> aeTypes = null;
-            if (ExHelper.ReadList(reader, section, "AttachEffectTypes", ref aeTypes))
+            if (reader.ReadStringList(section, "AttachEffectTypes", ref aeTypes))
             {
                 if (null == attachEffectData)
                 {
