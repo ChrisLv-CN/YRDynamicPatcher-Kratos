@@ -23,6 +23,9 @@ namespace Extension.Ext
     {
         public bool IsOpen;
 
+        public bool IsSelected;
+        public DirStruct BodyDir;
+
         private int delay;
         private TimerStruct delayTimer;
 

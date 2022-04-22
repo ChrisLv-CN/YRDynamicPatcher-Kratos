@@ -31,7 +31,14 @@ namespace Extension.Ext
 
         public unsafe void TechnoClass_Update_GiftBox()
         {
+
             Pointer<TechnoClass> pTechno = OwnerObject;
+
+            // CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
+            // Surface.Primary.Ref.DrawText(lastMission.ToString(), TacticalClass.Instance.Ref.CoordsToClient(location), new ColorStruct(255, 255, 255));
+
+            GiftBoxState.IsSelected = pTechno.Ref.Base.IsSelected;
+            GiftBoxState.BodyDir = pTechno.Ref.Facing.current();
             if (GiftBoxState.IsActive())
             {
                 if (!GiftBoxState.Data.OpenWhenDestoryed && !GiftBoxState.Data.OpenWhenHealthPercent && GiftBoxState.CanOpen())
@@ -114,7 +121,6 @@ namespace Extension.Ext
             Pointer<TechnoClass> pTechno = OwnerObject;
             Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
             CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
-            bool isSelected = pTechno.Ref.Base.IsSelected;
 
             // 获取投送单位的位置
             if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
@@ -131,16 +137,15 @@ namespace Extension.Ext
                 // 获取盒子的一些状态
                 double healthPercent = pTechno.Ref.Base.GetHealthPercentage();
                 healthPercent = healthPercent <= 0 ? 1 : healthPercent; // 盒子死了，继承的血量就是满的
-                bool changeHealth = data.InheritHealth;
-                if (!changeHealth && data.HealthPercent < 1)
+                bool changeHealth = data.IsTransform || data.InheritHealth; // Transform强制继承
+                if (data.HealthPercent > 0)
                 {
-                    // 不继承，并且设置了百分比
+                    // 强设比例
                     healthPercent = data.HealthPercent;
                     changeHealth = true;
                 }
                 Pointer<AbstractClass> pTarget = pTechno.Ref.Target;
                 Mission mission = pTechno.Convert<MissionClass>().Ref.CurrentMission;
-                DirStruct dir = pTechno.Ref.Facing.current();
                 // 开始投送单位，每生成一个单位就选择一次位置
                 foreach (string id in gifts)
                 {
@@ -182,21 +187,22 @@ namespace Extension.Ext
                         if (data.IsTransform)
                         {
                             // 同步朝向
-                            pGift.Ref.Facing.set(dir);
+                            pGift.Ref.Facing.set(GiftBoxState.BodyDir);
                             // 同步小队
                         }
 
                         // 同步选中
-                        if (isSelected)
+                        if (GiftBoxState.IsSelected)
                         {
                             pGift.Ref.Base.Select();
                         }
 
-                        // 同步血量
-                        if (changeHealth || data.IsTransform)
+                        // 修改血量
+                        if (changeHealth)
                         {
                             int strength = pGift.Ref.Type.Ref.Base.Strength;
                             int health = (int)(strength * healthPercent);
+                            // Logger.Log($"{Game.CurrentFrame} - 设置礼物 {pGift} [{pGift.Ref.Type.Ref.Base.Base.ID}] 的血量 {health} / {strength} {healthPercent}");
                             if (health <= 0)
                             {
                                 health = 1;
@@ -218,6 +224,7 @@ namespace Extension.Ext
                             {
                                 // 同步目标
                                 pGift.Ref.SetTarget(pTarget);
+                                pGift.Convert<MissionClass>().Ref.QueueMission(lastMission, false);
                             }
                             else
                             {

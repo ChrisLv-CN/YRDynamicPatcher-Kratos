@@ -73,7 +73,7 @@ namespace Extension.Ext
             this.OpenHealthPercent = 0;
 
             this.IsTransform = false;
-            this.InheritHealth = true;
+            this.InheritHealth = false;
             this.HealthPercent = 1;
             this.InheritTarget = true;
             this.ForceMission = Mission.None;
@@ -176,18 +176,32 @@ namespace Extension.Ext
                     }
                 }
 
+                bool isTransform = false;
+                if (reader.ReadNormal(section, "GiftBox.IsTransform", ref isTransform))
+                {
+                    this.IsTransform = isTransform;
+                    if (IsTransform)
+                    {
+                        this.Remove = true; // 释放后移除
+                        this.Destroy = false; // 静默
+                        this.InheritHealth = true; // 继承血量
+                    }
+                }
+
                 double healthPercent = 1;
                 if (reader.ReadPercent(section, "GiftBox.HealthPercent", ref healthPercent))
                 {
                     if (healthPercent <= 0)
                     {
+                        // 设置了0，自动，当IsTransform时，按照礼盒的比例
                         this.HealthPercent = 1;
-                        this.InheritHealth = false;
+                        this.InheritHealth = true;
                     }
                     else
                     {
+                        // 固定比例
                         this.HealthPercent = healthPercent > 1 ? 1 : healthPercent;
-                        this.InheritHealth = true;
+                        this.InheritHealth = false;
                     }
                 }
 
@@ -218,17 +232,6 @@ namespace Extension.Ext
                         default:
                             this.ForceMission = Mission.None;
                             break;
-                    }
-                }
-
-                bool isTransform = false;
-                if (reader.ReadNormal(section, "GiftBox.IsTransform", ref isTransform))
-                {
-                    this.IsTransform = isTransform;
-                    if (IsTransform)
-                    {
-                        this.Remove = true; // 释放后移除
-                        this.Destroy = false; // 静默
                     }
                 }
 

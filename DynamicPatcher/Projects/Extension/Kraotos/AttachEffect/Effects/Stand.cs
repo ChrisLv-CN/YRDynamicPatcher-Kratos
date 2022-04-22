@@ -467,30 +467,16 @@ namespace Extension.Ext
             Pointer<AbstractClass> pStandTarget;
             if (!(pStandTarget = pStand.Ref.Target).IsNull)
             {
-                int weaponCount = pStand.Ref.Type.Ref.WeaponCount;
-                if (weaponCount == 0)
+                int i = pStand.Ref.SelectWeapon(pStandTarget);
+                FireError fireError = pStand.Ref.GetFireError(pStandTarget, i, true);
+                switch (fireError)
                 {
-                    weaponCount = 2;
-                }
-                bool canFire = false;
-                for (int i = 0; i < weaponCount; i++)
-                {
-                    FireError fireError = pStand.Ref.GetFireError(pStandTarget, i, true);
-                    switch (fireError)
-                    {
-                        case FireError.ILLEGAL:
-                        case FireError.CANT:
-                        case FireError.MOVING:
-                        case FireError.RANGE:
-                            break;
-                        default:
-                            canFire = true;
-                            break;
-                    }
-                }
-                if (!canFire)
-                {
-                    pStand.Ref.SetTarget(Pointer<AbstractClass>.Zero);
+                    case FireError.ILLEGAL:
+                    case FireError.CANT:
+                    case FireError.MOVING:
+                    case FireError.RANGE:
+                        pStand.Ref.SetTarget(Pointer<AbstractClass>.Zero);
+                        break;
                 }
             }
         }

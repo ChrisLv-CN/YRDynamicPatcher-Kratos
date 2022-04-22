@@ -28,6 +28,8 @@ namespace Extension.Ext
 
         public bool IsDead;
         public DrivingState DrivingState;
+
+
         private Mission lastMission;
         private CoordStruct lastLocation;
 
