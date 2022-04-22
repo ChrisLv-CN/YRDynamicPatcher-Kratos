@@ -46,6 +46,14 @@ namespace Extension.Ext
         public bool RandomType;
         public List<int> RandomWeights;
         public bool OpenWhenDestoryed;
+        public bool OpenWhenHealthPercent;
+        public double OpenHealthPercent;
+
+        public bool IsTransform;
+        public bool InheritHealth;
+        public double HealthPercent;
+        public bool InheritTarget;
+        public Mission ForceMission;
 
         public GiftBoxType()
         {
@@ -61,6 +69,14 @@ namespace Extension.Ext
             this.RandomType = false;
             this.RandomWeights = null;
             this.OpenWhenDestoryed = false;
+            this.OpenWhenHealthPercent = false;
+            this.OpenHealthPercent = 0;
+
+            this.IsTransform = false;
+            this.InheritHealth = true;
+            this.HealthPercent = 1;
+            this.InheritTarget = true;
+            this.ForceMission = Mission.None;
 
             this.AffectWho = AffectWho.MASTER;
         }
@@ -149,6 +165,73 @@ namespace Extension.Ext
                 {
                     this.OpenWhenDestoryed = openWhenDestoryed;
                 }
+
+                double openWhenHealthPercent = 0;
+                if (reader.ReadPercent(section, "GiftBox.OpenWhenHealthPercent", ref openWhenHealthPercent))
+                {
+                    if (openWhenHealthPercent > 0 && openWhenHealthPercent < 1)
+                    {
+                        this.OpenWhenHealthPercent = true;
+                        this.OpenHealthPercent = openWhenHealthPercent;
+                    }
+                }
+
+                double healthPercent = 1;
+                if (reader.ReadPercent(section, "GiftBox.HealthPercent", ref healthPercent))
+                {
+                    if (healthPercent <= 0)
+                    {
+                        this.HealthPercent = 1;
+                        this.InheritHealth = false;
+                    }
+                    else
+                    {
+                        this.HealthPercent = healthPercent > 1 ? 1 : healthPercent;
+                        this.InheritHealth = true;
+                    }
+                }
+
+                bool inheritTarget = true;
+                if (reader.ReadNormal(section, "GiftBox.InheritTarget", ref inheritTarget))
+                {
+                    this.InheritTarget = inheritTarget;
+                }
+
+                string forceMission = null;
+                if (reader.ReadNormal(section, "GiftBox.ForceMission", ref forceMission))
+                {
+                    string t = forceMission.Substring(0, 1).ToUpper();
+                    switch (t)
+                    {
+                        case "G":
+                            this.ForceMission = Mission.Guard;
+                            break;
+                        case "A":
+                            this.ForceMission = Mission.Area_Guard;
+                            break;
+                        case "H":
+                            this.ForceMission = Mission.Hunt;
+                            break;
+                        case "S":
+                            this.ForceMission = Mission.Sleep;
+                            break;
+                        default:
+                            this.ForceMission = Mission.None;
+                            break;
+                    }
+                }
+
+                bool isTransform = false;
+                if (reader.ReadNormal(section, "GiftBox.IsTransform", ref isTransform))
+                {
+                    this.IsTransform = isTransform;
+                    if (IsTransform)
+                    {
+                        this.Remove = true; // 释放后移除
+                        this.Destroy = false; // 静默
+                    }
+                }
+
             }
 
             return this.Enable;

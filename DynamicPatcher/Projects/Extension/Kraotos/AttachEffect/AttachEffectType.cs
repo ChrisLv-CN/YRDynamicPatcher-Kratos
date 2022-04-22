@@ -338,6 +338,7 @@ namespace Extension.Ext
             ReadStandType(reader, section);
             ReadTransformType(reader, section);
             ReadDisableWeaponType(reader, section);
+            ReadDeselectType(reader, section);
             ReadOverrideWeaponType(reader, section);
 
             base.LoadFromINI(pINI);

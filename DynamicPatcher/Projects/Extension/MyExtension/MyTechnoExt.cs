@@ -41,6 +41,7 @@ namespace Extension.Ext
             TechnoClass_Init_AutoFireAreaWeapon();
             TechnoClass_Init_ConvertType();
             TechnoClass_Init_DecoyMissile();
+            TechnoClass_Init_Deselect();
             TechnoClass_Init_SuperWeapon();
             TechnoClass_Init_GiftBox();
             TechnoClass_Init_Trail();
@@ -100,6 +101,7 @@ namespace Extension.Ext
                 TechnoClass_Update_ConvertType();
                 TechnoClass_Update_CrawlingFLH();
                 TechnoClass_Update_DecoyMissile();
+                TechnoClass_Update_Deselect();
                 TechnoClass_Update_FixGattlingStage();
                 TechnoClass_Update_GiftBox();
                 TechnoClass_Update_JumpjetFacingToTarget();
@@ -164,6 +166,7 @@ namespace Extension.Ext
         public unsafe void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState)
         {
             TechnoClass_ReceiveDamage2_DamageText(pRealDamage, pWH, damageState);
+            TechnoClass_ReceiveDamage2_GiftBox(pRealDamage, pWH, damageState);
         }
 
         public unsafe bool AffectMe(Pointer<ObjectClass> pAttacker, Pointer<WarheadTypeClass> pWH, Pointer<HouseClass> pHouse, out WarheadTypeExt warheadTypeExt)
@@ -281,6 +284,10 @@ namespace Extension.Ext
         public unsafe void OnSelect(ref bool selectable)
         {
             if (!(selectable = TechnoClass_Select_VirtualUnit()))
+            {
+                return;
+            }
+            if (!(selectable = TechnoClass_Select_Deselect()))
             {
                 return;
             }
@@ -425,6 +432,7 @@ namespace Extension.Ext
             ReadAutoFireAreaWeapon(reader, section);
             ReadCrawlingFLH(reader, section, artReader, artSection);
             ReadDecoyMissile(reader, section);
+            ReadDeselect(reader, section);
             ReadDestroyAnims(reader, section);
             ReadDestroySelf(reader, section);
             ReadExtraFireWeapon(reader, section, artReader, artSection);

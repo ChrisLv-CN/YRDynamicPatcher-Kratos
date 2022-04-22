@@ -30,6 +30,8 @@ namespace Extension.Ext
         public OverrideWeaponState OverrideWeaponState = new OverrideWeaponState();
         // 发射超武
         public AEState<FireSuperType> FireSuperState = new AEState<FireSuperType>();
+        // 不可选择
+        public AEState<DeselectType> DeselectState = new AEState<DeselectType>();
 
         public void EnableAEStatsToStand(int duration, string token, IAEStateData data)
         {
@@ -67,6 +69,11 @@ namespace Extension.Ext
                         {
                             // 同步发射超武
                             ext.AttachEffectManager.FireSuperState.Enable(duration, token, data);
+                        }
+                        else if (data is DeselectType)
+                        {
+                            // 同步禁止选择
+                            ext.AttachEffectManager.DeselectState.Enable(duration, token, data);
                         }
                     }
                 }

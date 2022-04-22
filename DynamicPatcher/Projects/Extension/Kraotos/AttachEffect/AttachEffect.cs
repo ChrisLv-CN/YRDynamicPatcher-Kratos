@@ -105,6 +105,7 @@ namespace Extension.Ext
             InitPaintball();
             InitTransform();
             InitDisableWeapon(); // AffectWho
+            InitDeselect(); // AffectWho
             InitOverrideWeapon(); // AffectWho
 
             // stopwatch.Stop();

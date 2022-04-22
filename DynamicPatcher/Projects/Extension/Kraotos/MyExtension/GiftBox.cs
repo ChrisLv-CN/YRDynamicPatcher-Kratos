@@ -22,9 +22,9 @@ namespace Extension.Ext
         public unsafe void TechnoClass_Init_GiftBox()
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
-            if (null != Type.GiftBoxType && Type.GiftBoxType.Enable)
+            if (null != Type.GiftBoxData && Type.GiftBoxData.Enable)
             {
-                GiftBoxState.Enable(Type.GiftBoxType);
+                GiftBoxState.Enable(Type.GiftBoxData);
             }
 
         }
@@ -32,36 +32,66 @@ namespace Extension.Ext
         public unsafe void TechnoClass_Update_GiftBox()
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
-            if (GiftBoxState.IsActive() && !GiftBoxState.Data.OpenWhenDestoryed && GiftBoxState.CanOpen())
+            if (GiftBoxState.IsActive())
             {
-                // 开盒
-                GiftBoxState.IsOpen = true;
-                // 释放礼物
-                List<string> gifts = GiftBoxState.GetGiftList();
-                if (null != gifts && gifts.Count > 0)
+                if (!GiftBoxState.Data.OpenWhenDestoryed && !GiftBoxState.Data.OpenWhenHealthPercent && GiftBoxState.CanOpen())
                 {
-                    ReleseGift(gifts, GiftBoxState.Data);
-                }
-                // 销毁或重置盒子
-                if (GiftBoxState.Data.Remove)
-                {
-                    pTechno.Ref.Base.Remove();
-                    if (GiftBoxState.Data.Destroy)
+                    // 开盒
+                    GiftBoxState.IsOpen = true;
+                    // 释放礼物
+                    List<string> gifts = GiftBoxState.GetGiftList();
+                    if (null != gifts && gifts.Count > 0)
                     {
-                        pTechno.Ref.Base.TakeDamage(pTechno.Ref.Base.Health + 1, pTechno.Ref.Type.Ref.Crewed);
-                        // pTechno.Ref.Base.Destroy();
+                        ReleseGift(gifts, GiftBoxState.Data);
+                    }
+                }
+
+                if (GiftBoxState.IsOpen)
+                {
+                    // 销毁或重置盒子
+                    if (GiftBoxState.Data.Remove)
+                    {
+                        pTechno.Ref.Base.Remove();
+                        if (GiftBoxState.Data.Destroy)
+                        {
+                            pTechno.Ref.Base.TakeDamage(pTechno.Ref.Base.Health + 1, pTechno.Ref.Type.Ref.Crewed);
+                            // pTechno.Ref.Base.Destroy();
+                        }
+                        else
+                        {
+                            pTechno.Ref.Base.UnInit();
+                        }
                     }
                     else
                     {
-                        pTechno.Ref.Base.UnInit();
+                        // 重置
+                        GiftBoxState.Reset();
                     }
                 }
-                else
-                {
-                    // 重置
-                    GiftBoxState.Reset();
-                }
             }
+        }
+
+        public unsafe void TechnoClass_ReceiveDamage2_GiftBox(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState)
+        {
+            Pointer<TechnoClass> pTechno = OwnerObject;
+            if (damageState != DamageState.NowDead && GiftBoxState.IsActive() && GiftBoxState.Data.OpenWhenHealthPercent)
+            {
+                // 计算血量百分比是否达到开启条件
+                double healthPercent = pTechno.Ref.Base.GetHealthPercentage();
+                if (healthPercent <= GiftBoxState.Data.OpenHealthPercent)
+                {
+                    // 开盒
+                    GiftBoxState.IsOpen = true;
+                    // 释放礼物
+                    List<string> gifts = GiftBoxState.GetGiftList();
+                    if (null != gifts && gifts.Count > 0)
+                    {
+                        ReleseGift(gifts, GiftBoxState.Data);
+                    }
+                }
+
+            }
+
         }
 
         public unsafe void TechnoClass_Destroy_GiftBox()
@@ -84,6 +114,7 @@ namespace Extension.Ext
             Pointer<TechnoClass> pTechno = OwnerObject;
             Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
             CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
+            bool isSelected = pTechno.Ref.Base.IsSelected;
 
             // 获取投送单位的位置
             if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
@@ -97,6 +128,19 @@ namespace Extension.Ext
                     pDest = pTechno.Convert<FootClass>().Ref.Destination;
                     pFocus = pTechno.Ref.Focus;
                 }
+                // 获取盒子的一些状态
+                double healthPercent = pTechno.Ref.Base.GetHealthPercentage();
+                healthPercent = healthPercent <= 0 ? 1 : healthPercent; // 盒子死了，继承的血量就是满的
+                bool changeHealth = data.InheritHealth;
+                if (!changeHealth && data.HealthPercent < 1)
+                {
+                    // 不继承，并且设置了百分比
+                    healthPercent = data.HealthPercent;
+                    changeHealth = true;
+                }
+                Pointer<AbstractClass> pTarget = pTechno.Ref.Target;
+                Mission mission = pTechno.Convert<MissionClass>().Ref.CurrentMission;
+                DirStruct dir = pTechno.Ref.Facing.current();
                 // 开始投送单位，每生成一个单位就选择一次位置
                 foreach (string id in gifts)
                 {
@@ -135,28 +179,72 @@ namespace Extension.Ext
                     Pointer<TechnoClass> pGift = ExHelper.CreateAndPutTechno(id, pHouse, location, pCell);
                     if (!pGift.IsNull)
                     {
-                        // 开往预定目的地
-                        if (pDest.IsNull && pFocus.IsNull)
+                        if (data.IsTransform)
                         {
-                            pGift.Ref.Base.Scatter(CoordStruct.Empty, true, false);
+                            // 同步朝向
+                            pGift.Ref.Facing.set(dir);
+                            // 同步小队
+                        }
+
+                        // 同步选中
+                        if (isSelected)
+                        {
+                            pGift.Ref.Base.Select();
+                        }
+
+                        // 同步血量
+                        if (changeHealth || data.IsTransform)
+                        {
+                            int strength = pGift.Ref.Type.Ref.Base.Strength;
+                            int health = (int)(strength * healthPercent);
+                            if (health <= 0)
+                            {
+                                health = 1;
+                            }
+                            if (health < strength)
+                            {
+                                pGift.Ref.Base.Health = health;
+                            }
+                        }
+
+                        if (data.ForceMission != Mission.None)
+                        {
+                            // 强制任务
+                            pGift.Convert<MissionClass>().Ref.QueueMission(data.ForceMission, false);
                         }
                         else
                         {
-                            if (pGift.Ref.Base.Base.WhatAmI() != AbstractType.Building)
+                            if (!pTarget.IsNull && data.InheritTarget && pGift.Ref.CanAttack(pTarget))
                             {
-                                CoordStruct des = pDest.IsNull ? location : pDest.Ref.GetCoords();
-                                if (!pFocus.IsNull)
+                                // 同步目标
+                                pGift.Ref.SetTarget(pTarget);
+                            }
+                            else
+                            {
+                                // 开往预定目的地
+                                if (pDest.IsNull && pFocus.IsNull)
                                 {
-                                    pGift.Ref.SetFocus(pFocus);
-                                    if (pGift.Ref.Base.Base.WhatAmI() == AbstractType.Unit)
-                                    {
-                                        des = pFocus.Ref.GetCoords();
-                                    }
+                                    pGift.Ref.Base.Scatter(CoordStruct.Empty, true, false);
                                 }
-                                if (MapClass.Instance.TryGetCellAt(des, out Pointer<CellClass> pTargetCell))
+                                else
                                 {
-                                    pGift.Ref.SetDestination(pTargetCell, true);
-                                    pGift.Convert<MissionClass>().Ref.QueueMission(Mission.Move, false);
+                                    if (pGift.Ref.Base.Base.WhatAmI() != AbstractType.Building)
+                                    {
+                                        CoordStruct des = pDest.IsNull ? location : pDest.Ref.GetCoords();
+                                        if (!pFocus.IsNull)
+                                        {
+                                            pGift.Ref.SetFocus(pFocus);
+                                            if (pGift.Ref.Base.Base.WhatAmI() == AbstractType.Unit)
+                                            {
+                                                des = pFocus.Ref.GetCoords();
+                                            }
+                                        }
+                                        if (MapClass.Instance.TryGetCellAt(des, out Pointer<CellClass> pTargetCell))
+                                        {
+                                            pGift.Ref.SetDestination(pTargetCell, true);
+                                            pGift.Convert<MissionClass>().Ref.QueueMission(Mission.Move, false);
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -174,7 +262,7 @@ namespace Extension.Ext
 
     public partial class TechnoTypeExt
     {
-        public GiftBoxType GiftBoxType;
+        public GiftBoxType GiftBoxData;
 
         /// <summary>
         /// [TechnoType]
@@ -198,7 +286,7 @@ namespace Extension.Ext
             GiftBoxType temp = new GiftBoxType();
             if (temp.TryReadType(reader, section))
             {
-                this.GiftBoxType = temp;
+                this.GiftBoxData = temp;
             }
 
         }
