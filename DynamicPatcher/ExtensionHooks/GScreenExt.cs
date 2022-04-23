@@ -16,7 +16,7 @@ namespace ExtensionHooks
         {
             Kratos.DrawActiveMessage();
             PrintTextManager.PrintText();
-            return (uint)0;
+            return 0;
         }
     }
 }

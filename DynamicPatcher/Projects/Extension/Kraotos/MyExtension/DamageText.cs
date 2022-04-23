@@ -304,7 +304,7 @@ namespace Extension.Ext
 
         private void ReadDamageText(INIReader reader)
         {
-            GeneralDamageTextTypeControlData.ReadDamageText(reader, SectionAV);
+            GeneralDamageTextTypeControlData.ReadDamageText(reader, SectionAudioVisual);
         }
 
     }

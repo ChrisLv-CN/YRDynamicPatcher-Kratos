@@ -68,7 +68,7 @@ namespace Extension.Ext
         private void ReadChaosAnim(INIReader reader)
         {
             string chaosAnimId = default;
-            if (pChaosAnimType.IsNull && reader.ReadNormal(SectionAV, "BerserkAnim", ref chaosAnimId))
+            if (pChaosAnimType.IsNull && reader.ReadNormal(SectionAudioVisual, "BerserkAnim", ref chaosAnimId))
             {
                 pChaosAnimType.Pointer = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(chaosAnimId);
             }

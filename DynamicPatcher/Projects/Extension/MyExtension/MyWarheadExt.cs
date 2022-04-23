@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace Extension.Ext
 {
 
-    public partial class WarheadTypeExt
+    public partial class WarheadTypeExt : ITypeExtension
     {
 
         public bool CanAffectHouse(Pointer<HouseClass> pOwnerHouse, Pointer<HouseClass> pTargetHouse)

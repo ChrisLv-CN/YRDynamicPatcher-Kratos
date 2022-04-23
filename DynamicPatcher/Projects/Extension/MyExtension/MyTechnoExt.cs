@@ -233,8 +233,12 @@ namespace Extension.Ext
             IsDead = true;
             TechnoClass_Destroy_AttachEffect();
             TechnoClass_Destroy_ConvertType();
-            TechnoClass_Destroy_DestroyAnims();
             TechnoClass_Destroy_GiftBox();
+        }
+
+        public unsafe void DestroyAnim()
+        {
+            TechnoClass_Destroy_DestroyAnims();
         }
 
         public unsafe void OnUnInit()
@@ -349,7 +353,7 @@ namespace Extension.Ext
 
     }
 
-    public partial class TechnoTypeExt
+    public partial class TechnoTypeExt : ITypeExtension
     {
         public SwizzleablePointer<SuperWeaponTypeClass> FireSuperWeapon = new SwizzleablePointer<SuperWeaponTypeClass>(IntPtr.Zero);
 

@@ -429,13 +429,14 @@ namespace Extension.Ext
                 }
 
                 // 在预定引爆地点引爆弹头
-                MapClass.DamageArea(detonatePos, damage, pBulletOwner, pWH, pWH.Ref.Tiberium, pBulletOwner.Ref.Owner);
+                MapClass.DamageArea(detonatePos, damage, pBulletOwner, pWH, pWH.Ref.Tiberium, pSourceHouse);
                 // 播放弹头动画
                 LandType landType = Proximity.pCheckedCell.IsNull ? LandType.Clear : Proximity.pCheckedCell.Ref.LandType;
                 Pointer<AnimTypeClass> pAnimType = MapClass.SelectDamageAnimation(damage, pWH, landType, sourcePos);
                 if (!pAnimType.IsNull)
                 {
-                    YRMemory.Create<AnimClass>(pAnimType, sourcePos);
+                    Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, sourcePos);
+                    pAnim.Ref.Owner = pSourceHouse;
                 }
                 // 计数器减1
                 Proximity.ThroughOnce();

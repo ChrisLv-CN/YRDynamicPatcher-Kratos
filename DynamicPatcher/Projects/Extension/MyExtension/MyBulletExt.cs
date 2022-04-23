@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -149,7 +150,7 @@ namespace Extension.Ext
 
     }
 
-    public partial class BulletTypeExt
+    public partial class BulletTypeExt : ITypeExtension
     {
 
         [INILoadAction]
@@ -183,6 +184,11 @@ namespace Extension.Ext
             ReadTrail(reader, section, artReader, artSection);
         }
 
+        [LoadAction]
+        public void Load(IStream stream) { }
+
+        [SaveAction]
+        public void Save(IStream stream) { }
     }
 
 }

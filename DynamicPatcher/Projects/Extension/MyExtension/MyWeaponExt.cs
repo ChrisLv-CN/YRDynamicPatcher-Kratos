@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace Extension.Ext
 {
 
-    public partial class WeaponTypeExt
+    public partial class WeaponTypeExt : ITypeExtension
     {
 
 

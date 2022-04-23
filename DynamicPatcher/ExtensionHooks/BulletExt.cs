@@ -252,6 +252,7 @@ namespace ExtensionHooks
             {
                 Pointer<BulletClass> pBullet = (IntPtr)R->ESI;
                 Pointer<AnimClass> pAnim = (IntPtr)R->EAX;
+                // Logger.Log($"{Game.CurrentFrame} - 抛射体 {pBullet} [{pBullet.Ref.Type.Ref.Base.Base.ID}] 所属 {(pBullet.Ref.Owner.IsNull ? "null" : pBullet.Ref.Owner.Ref.Owner)} 弹头动画 ECX = {R->ECX} EDI = {R->EDI} EAX = {R->EAX}");
                 if (!pAnim.IsNull)
                 {
                     pAnim.SetAnimOwner(pBullet);

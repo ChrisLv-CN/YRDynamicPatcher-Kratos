@@ -1,4 +1,5 @@
-﻿using DynamicPatcher;
+﻿using System.Diagnostics;
+using DynamicPatcher;
 using Extension.Utilities;
 using PatcherYRpp;
 using System;
@@ -26,6 +27,18 @@ namespace Extension.Ext
     public interface IExtension
     {
         IntPtr OwnerObject { get; }
+    }
+
+    public interface ITypeExtension
+    {
+        [INILoadAction]
+        public void LoadINI(Pointer<CCINIClass> pINI);
+
+        [LoadAction]
+        public void Load(IStream stream);
+
+        [SaveAction]
+        public void Save(IStream stream);
     }
 
     [Serializable]

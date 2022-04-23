@@ -143,6 +143,7 @@ namespace Extension.Ext
                 {
                     CoordStruct targetPos = OwnerObject.Ref.Base.Base.GetCoords();
                     FireSuperWeaponManager.Order(OwnerObject.Ref.Owner, targetPos, data);
+                    // Logger.Log($"{Game.CurrentFrame} - 动画 {OwnerObject} [{OwnerObject.Ref.Type.Ref.Base.Base.ID}] Update 下单投放超武 {data.Supers[0]} 所属 {OwnerObject.Ref.Owner}");
                 }
             }
 
@@ -156,6 +157,7 @@ namespace Extension.Ext
             {
                 CoordStruct targetPos = OwnerObject.Ref.Base.Base.GetCoords();
                 FireSuperWeaponManager.Launch(OwnerObject.Ref.Owner, targetPos, data);
+                // Logger.Log($"{Game.CurrentFrame} - 动画 {OwnerObject} [{OwnerObject.Ref.Type.Ref.Base.Base.ID}] Loop 投放超武 {data.Supers[0]} 所属 {OwnerObject.Ref.Owner}");
             }
         }
 
@@ -173,6 +175,7 @@ namespace Extension.Ext
                     case PlaySuperWeaponMode.DONE:
                         CoordStruct targetPos = OwnerObject.Ref.Base.Base.GetCoords();
                         FireSuperWeaponManager.Launch(OwnerObject.Ref.Owner, targetPos, data);
+                        // Logger.Log($"{Game.CurrentFrame} - 动画 {OwnerObject} [{OwnerObject.Ref.Type.Ref.Base.Base.ID}] Done 投放超武 {data.Supers[0]} 所属 {OwnerObject.Ref.Owner}");
                         break;
                 }
             }

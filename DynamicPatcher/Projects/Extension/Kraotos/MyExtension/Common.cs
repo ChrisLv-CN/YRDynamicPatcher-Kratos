@@ -176,5 +176,38 @@ namespace Extension.Ext
         }
     }
 
+    [Serializable]
+    public class AresAnimExt
+    {
+        public string Weapon;
+        public int WeaponDelay;
+
+        public AresAnimExt()
+        {
+            this.Weapon = null;
+            this.WeaponDelay = 0;
+        }
+    }
+
+    public partial class AnimTypeExt
+    {
+
+        public AresAnimExt Ares = new AresAnimExt();
+
+        private void ReadAresFlags(INIReader reader, string section)
+        {
+            string weapon = null;
+            if (reader.ReadNormal(section, "Weapon", ref weapon))
+            {
+                Ares.Weapon = weapon;
+            }
+
+            int weaponDelay = 0;
+            if (reader.ReadNormal(section, "Damage.Delay", ref weaponDelay))
+            {
+                Ares.WeaponDelay = weaponDelay;
+            }
+        }
+    }
 }
 

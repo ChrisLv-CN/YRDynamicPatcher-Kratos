@@ -79,6 +79,35 @@ namespace ExtensionHooks
             return 0;
         }
 
+        // Takes over all damage from animations, including Ares
+        [Hook(HookType.AresHook, Address = 0x424538, Size = 6)] // 动画伤害
+        public static unsafe UInt32 AnimClass_Update_Explosion(REGISTERS* R)
+        {
+            try
+            {
+                if (RulesExt.Instance.AllowAnimDamageTakeOverByKratos)
+                {
+                    Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
+                    AnimExt ext = AnimExt.ExtMap.Find(pAnim);
+                    ext.OnDamage();
+                    // Logger.Log($"{Game.CurrentFrame} - {pAnim} [{pAnim.Ref.Type.Ref.Base.Base.ID}] 爆炸啦");
+                    return 0x42464C;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+        // [Hook(HookType.AresHook, Address = 0x489280, Size = 6)]
+        // public static unsafe UInt32 _FastCall_Ex(REGISTERS* R)
+        // {
+        //     Logger.Log($"{Game.CurrentFrame} - 轰炸地区 damage = {R->EDX}, warhead = {R->Stack<uint>(0x12C)}");
+        //     return 0;
+        // }
+
         [Hook(HookType.AresHook, Address = 0x424785, Size = 6)]
         public static unsafe UInt32 AnimClass_Loop(REGISTERS* R)
         {
@@ -107,9 +136,9 @@ namespace ExtensionHooks
                 ext?.OnDone();
 
                 // string animID = pAnim.Ref.Type.Ref.Base.Base.ID;
-                // if (!animID.StartsWith("FIRE") && animID.IndexOf("SMOKE") < 0 && pAnim.Ref.Owner.IsNull)
+                // if (!animID.StartsWith("FIRE") && animID.IndexOf("SMOKE") < 0)
                 // {
-                //     Logger.Log($"{Game.CurrentFrame} - {pAnim} {pAnim.Ref.Type.Ref.Base.Base.ID}播放完毕, 所属 {pAnim.Ref.Owner}");
+                //     Logger.Log($"{Game.CurrentFrame} - {pAnim} [{pAnim.Ref.Type.Ref.Base.Base.ID}] 播放完毕, 所属 {pAnim.Ref.Owner}");
                 // }
             }
             catch (Exception e)
@@ -128,7 +157,7 @@ namespace ExtensionHooks
             {
                 AnimExt ext = AnimExt.ExtMap.Find(pAnim);
                 ext?.OnNext();
-                // Logger.Log($"{Game.CurrentFrame} - {pAnim} {pAnim.Ref.Type.Ref.Base.Base.ID}播放结束，Next动画[{pNextAnimType.Ref.Base.Base.ID}]");
+                // Logger.Log($"{Game.CurrentFrame} - {pAnim} {pAnim.Ref.Type.Ref.Base.Base.ID}播放结束，Next动画[{pNextAnimType.Ref.Base.Base.ID}] 所属 {pAnim.Ref.Owner}");
             }
             catch (Exception e)
             {
@@ -212,6 +241,7 @@ namespace ExtensionHooks
             return 0;
         }
 
+
         [Hook(HookType.AresHook, Address = 0x423E75, Size = 6)]
         public static unsafe UInt32 AnimClass_Extras_Remap(REGISTERS* R)
         {
@@ -222,17 +252,51 @@ namespace ExtensionHooks
             return 0;
         }
 
+        // Takes over all damage from animations, including Ares
+        [Hook(HookType.AresHook, Address = 0x423E7B, Size = 0xA)]
+        public static unsafe UInt32 AnimClass_Extras_Explosion(REGISTERS* R)
+        {
+            try
+            {
+                // 碎片、流星敲地板，砸水中不执行
+                if (RulesExt.Instance.AllowAnimDamageTakeOverByKratos)
+                {
+                    Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
+                    AnimExt ext = AnimExt.ExtMap.Find(pAnim);
+                    ext.OnDebrisDamage();
+                    // Logger.Log($"{Game.CurrentFrame} - {pAnim} [{pAnim.Ref.Type.Ref.Base.Base.ID}] 碎片敲地板爆炸啦");
+                    return 0x423EFD;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
         // Take over to create Extras Anim when Meteor hit the water
         [Hook(HookType.AresHook, Address = 0x423CEA, Size = 5)]
         public static unsafe UInt32 AnimClass_Extras_HitWater_Meteor(REGISTERS* R)
         {
-            Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
-            AnimExt ext = AnimExt.ExtMap.Find(pAnim);
-            if (ext.OverrideExpireAnimOnWater())
+            try
             {
-                // Logger.Log($"{Game.CurrentFrame} - {pAnim} {pAnim.Ref.Type.Ref.Base.Base.ID} Extras {R->EDI} {R->EAX} ");
-                R->EAX = 0;
-                return 0x423CEF;
+                Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
+                AnimExt ext = AnimExt.ExtMap.Find(pAnim);
+                if (RulesExt.Instance.AllowAnimDamageTakeOverByKratos)
+                {
+                    ext.HitWater_Meteor();
+                }
+                if (ext.OverrideExpireAnimOnWater())
+                {
+                    // Logger.Log($"{Game.CurrentFrame} - {pAnim} {pAnim.Ref.Type.Ref.Base.Base.ID} Extras {R->EDI} {R->EAX} ");
+                    R->EAX = 0;
+                    return 0x423CEF;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
             }
             return 0;
         }
@@ -241,13 +305,24 @@ namespace ExtensionHooks
         [Hook(HookType.AresHook, Address = 0x423D46, Size = 5)]
         public static unsafe UInt32 AnimClass_Extras_HitWater_Other(REGISTERS* R)
         {
-            Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
-            AnimExt ext = AnimExt.ExtMap.Find(pAnim);
-            if (ext.OverrideExpireAnimOnWater())
+            try
             {
-                // Logger.Log($"{Game.CurrentFrame} - {pAnim} {pAnim.Ref.Type.Ref.Base.Base.ID} Extras {R->EDI} {R->EAX} ");
-                R->EAX = 0;
-                return 0x423D9B;
+                Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
+                AnimExt ext = AnimExt.ExtMap.Find(pAnim);
+                if (RulesExt.Instance.AllowAnimDamageTakeOverByKratos)
+                {
+                    ext.HitWater_Debris();
+                }
+                if (ext.OverrideExpireAnimOnWater())
+                {
+                    // Logger.Log($"{Game.CurrentFrame} - {pAnim} {pAnim.Ref.Type.Ref.Base.Base.ID} Extras {R->EDI} {R->EAX} ");
+                    R->EAX = 0;
+                    return 0x423D9B;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
             }
             return 0;
         }
@@ -256,28 +331,44 @@ namespace ExtensionHooks
         [Hook(HookType.AresHook, Address = 0x423F8C, Size = 5)]
         public static unsafe UInt32 AnimClass_Spawn_Remap(REGISTERS* R)
         {
-            Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
-            // Pointer<AnimClass> pNewAnim = (IntPtr)R->EAX;
-            if (!pAnim.Ref.Type.IsNull && !pAnim.Ref.Type.Ref.Spawns.IsNull)
+            try
             {
-                Pointer<AnimClass> pNewAnim = YRMemory.Create<AnimClass>(pAnim.Ref.Type.Ref.Spawns, pAnim.Ref.Base.Base.GetCoords());
-                pNewAnim.Ref.Owner = pAnim.Ref.Owner;
+                Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
+                // Pointer<AnimClass> pNewAnim = (IntPtr)R->EAX;
+                if (!pAnim.Ref.Type.IsNull && !pAnim.Ref.Type.Ref.Spawns.IsNull)
+                {
+                    Pointer<AnimClass> pNewAnim = YRMemory.Create<AnimClass>(pAnim.Ref.Type.Ref.Spawns, pAnim.Ref.Base.Base.GetCoords());
+                    pNewAnim.Ref.Owner = pAnim.Ref.Owner;
+                }
+                // Logger.Log($"{Game.CurrentFrame} - {pAnim} {pAnim.Ref.Type.Ref.Base.Base.ID} Spawns {pAnim.Ref.Type.Ref.Spawns.Ref.Base.Base.ID} owner {pAnim.Ref.Owner} ");
+                return 0x423FC3;
             }
-            // Logger.Log($"{Game.CurrentFrame} - {pAnim} {pAnim.Ref.Type.Ref.Base.Base.ID} Spawns {pAnim.Ref.Type.Ref.Spawns.Ref.Base.Base.ID} owner {pAnim.Ref.Owner} ");
-            return 0x423FC3;
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
         }
 
         // Take over to Create Trailer Anim
         [Hook(HookType.AresHook, Address = 0x4242E1, Size = 5)]
         public static unsafe UInt32 AnimClass_Trailer_Remap(REGISTERS* R)
         {
-            Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
-            if (!pAnim.Ref.Type.IsNull && !pAnim.Ref.Type.Ref.TrailerAnim.IsNull)
+            try
             {
-                Pointer<AnimClass> pNewAnim = YRMemory.Create<AnimClass>(pAnim.Ref.Type.Ref.TrailerAnim, pAnim.Ref.Base.Base.GetCoords());
-                pNewAnim.Ref.Owner = pAnim.Ref.Owner;
+                Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
+                if (!pAnim.Ref.Type.IsNull && !pAnim.Ref.Type.Ref.TrailerAnim.IsNull)
+                {
+                    Pointer<AnimClass> pNewAnim = YRMemory.Create<AnimClass>(pAnim.Ref.Type.Ref.TrailerAnim, pAnim.Ref.Base.Base.GetCoords());
+                    pNewAnim.Ref.Owner = pAnim.Ref.Owner;
+                }
+                return 0x424322;
             }
-            return 0x424322;
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
         }
 
     }

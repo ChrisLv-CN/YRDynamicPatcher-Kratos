@@ -440,7 +440,7 @@ namespace Extension.Ext
 
         private void ReadHealthText(INIReader reader)
         {
-            GeneralHealthTextTypeControlData.ReadHealthText(reader, SectionAV);
+            GeneralHealthTextTypeControlData.ReadHealthText(reader, SectionAudioVisual);
         }
     }
 

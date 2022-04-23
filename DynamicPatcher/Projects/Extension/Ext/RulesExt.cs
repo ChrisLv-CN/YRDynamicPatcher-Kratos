@@ -19,7 +19,7 @@ namespace Extension.Ext
 
         public const string SectionGeneral = "General";
         public const string SectionCombatDamage = "CombatDamage";
-        public const string SectionAV = "AudioVisual";
+        public const string SectionAudioVisual = "AudioVisual";
 
         [NonSerialized]
         public static RulesExt Instance = null;

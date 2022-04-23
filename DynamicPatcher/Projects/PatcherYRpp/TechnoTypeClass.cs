@@ -64,6 +64,10 @@ namespace PatcherYRpp
 
         [FieldOffset(1824)] public int TurretOffset;
 
+        [FieldOffset(1836)] public DynamicVectorClass<Pointer<AnimTypeClass>> Explosion;
+
+        [FieldOffset(1864)] public DynamicVectorClass<Pointer<AnimTypeClass>> DestroyAnim;
+
         [FieldOffset(2060)] public int WeaponCount;
 
         [FieldOffset(2068)] public CoordStruct turretWeaponFLH_first; // index 6 - 10 is AlternateFLH0 - AlternateFLH4, if no data use Weapon1FLH's data.

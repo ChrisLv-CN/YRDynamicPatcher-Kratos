@@ -56,4 +56,24 @@ namespace Extension.Ext
         }
     }
 
+    public partial class RulesExt
+    {
+        public bool AllowDamageIfDebrisHitWater = true;
+
+        /// <summary>
+        /// [CombatDamage]
+        /// AllowDamageIfDebrisHitWater=yes ;允许碎片\流星落到水上时产生伤害
+        /// 
+        /// </summary>
+        /// <param name="reader"></param>
+        private void ReadAllowDamageIfDebrisHitWater(INIReader reader)
+        {
+            bool allowDamage = false;
+            if (reader.ReadNormal(SectionCombatDamage, "AllowDamageIfDebrisHitWater", ref allowDamage))
+            {
+                AllowDamageIfDebrisHitWater = allowDamage;
+            }
+        }
+    }
+
 }
