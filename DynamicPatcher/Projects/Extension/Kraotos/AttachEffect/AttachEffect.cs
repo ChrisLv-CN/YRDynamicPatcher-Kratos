@@ -195,16 +195,15 @@ namespace Extension.Ext
 
         public bool IsAlive()
         {
-            bool dead = false;
             foreach (IAttachEffectBehaviour effect in effects)
             {
-                if (dead || (dead = !effect.IsAlive()))
+                if (!effect.IsAlive())
                 {
                     // Logger.Log($"{Game.CurrentFrame} - AE {Name} 模块 {effect.GetType().Name} 狗带了");
-                    break;
+                    return false;
                 }
             }
-            return !dead;
+            return true;
             // return (null == Animation || Animation.IsAlive())
             //     && (null == AttachStatus || AttachStatus.IsAlive())
             //     && (null == AutoWeapon || AutoWeapon.IsAlive())
