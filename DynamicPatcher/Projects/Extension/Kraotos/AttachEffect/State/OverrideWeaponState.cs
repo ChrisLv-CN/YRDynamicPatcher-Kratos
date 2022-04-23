@@ -37,14 +37,29 @@ namespace Extension.Ext
             weaponType = null;
             if (null != Data)
             {
-                weaponType = Data.Type;
+                List<string> types = Data.Types;
+                bool isRandomType = Data.RandomType;
+                List<int> weights = Data.Weights;
                 int overrideIndex = Data.Index;
                 double chance = Data.Chance;
                 if (isElite)
                 {
-                    weaponType = Data.EliteType;
+                    types = Data.EliteTypes;
+                    isRandomType = Data.EliteRandomType;
+                    weights = Data.EliteWeights;
                     overrideIndex = Data.EliteIndex;
                     chance = Data.EliteChance;
+                }
+                weaponType = types[0];
+                if (isRandomType)
+                {
+                    // 算权重
+                    int typeCount = types.Count;
+                    // 获取权重标靶
+                    Dictionary<Point2D, int> targetPad = weights.MakeTargetPad(typeCount, out int maxValue);
+                    // 中
+                    int i = targetPad.Hit(maxValue);
+                    weaponType = types[i];
                 }
                 if (!string.IsNullOrEmpty(weaponType) && (overrideIndex < 0 || overrideIndex == index))
                 {
@@ -53,6 +68,30 @@ namespace Extension.Ext
                 }
             }
             return false;
+        }
+
+        private string FinedWeaponType(bool isElite)
+        {
+            List<string> types = Data.Types;
+            bool isRandomType = Data.RandomType;
+            List<int> weights = Data.Weights;
+            if (isElite)
+            {
+                types = Data.EliteTypes;
+                isRandomType = Data.EliteRandomType;
+                weights = Data.EliteWeights;
+            }
+            if (isRandomType)
+            {
+                // 算权重
+                int typeCount = types.Count;
+
+                int weightCount = null != weights ? weights.Count : 0;
+                Dictionary<Point2D, int> targetPad = weights.MakeTargetPad(typeCount, out int maxValue);
+                int index = MathEx.Random.Next(0, maxValue);
+                return types[index];
+            }
+            return types[0];
         }
 
     }

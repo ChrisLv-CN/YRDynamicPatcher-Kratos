@@ -34,8 +34,12 @@ namespace Extension.Ext
     [Serializable]
     public class OverrideWeaponType : EffectType<OverrideWeapon>, IAEStateData
     {
-        public string Type; // 替换武器
-        public string EliteType; // 精英替换武器
+        public List<string> Types; // 替换武器序号
+        public bool RandomType;
+        public List<int> Weights;
+        public List<string> EliteTypes; // 精英替换武器
+        public bool EliteRandomType;
+        public List<int> EliteWeights;
         public int Index; // 替换武器序号
         public int EliteIndex; // 精英替换武器序号
         public double Chance; // 概率
@@ -44,10 +48,18 @@ namespace Extension.Ext
         public OverrideWeaponType()
         {
             this.Enable = false;
-            this.Type = null;
-            this.EliteType = null;
+
+            this.Types = null;
+            this.RandomType = false;
+            this.Weights = null;
+
+            this.EliteTypes = null;
+            this.EliteRandomType = false;
+            this.EliteWeights = null;
+
             this.Index = -1;
             this.EliteIndex = -1;
+            
             this.Chance = 1;
             this.EliteChance = 1;
         }
@@ -57,14 +69,42 @@ namespace Extension.Ext
 
             ReadCommonType(reader, section, "OverrideWeapon.");
 
-            string type = null;
-            if (reader.ReadNormal(section, "OverrideWeapon.Type", ref type))
+            // string type = null;
+            // if (reader.ReadNormal(section, "OverrideWeapon.Type", ref type))
+            // {
+            //     if (!string.IsNullOrEmpty(type) && !"none".Equals(type.ToLower()))
+            //     {
+            //         this.Enable = true;
+            //         this.Type = type;
+            //         this.EliteType = type;
+            //     }
+            // }
+
+            List<string> types = null;
+            if (reader.ReadStringList(section, "OverrideWeapon.Type", ref types))
             {
-                if (!string.IsNullOrEmpty(type) && !"none".Equals(type.ToLower()))
+                // 过滤none
+                List<string> realTypes = new List<string>();
+                foreach(string t in types)
                 {
-                    this.Enable = true;
-                    this.Type = type;
-                    this.EliteType = type;
+                    if (!string.IsNullOrEmpty(t) && "none" != t.ToLower())
+                    {
+                        realTypes.Add(t);
+                    }
+                }
+                this.Types = realTypes;
+                this.EliteTypes = realTypes;
+                this.Enable = Types.Count > 0;
+                if (realTypes.Count > 1)
+                {
+                    this.RandomType = true;
+                    this.EliteRandomType = true;
+                    List<int> weights = null;
+                    if (reader.ReadIntList(section, "OverrideWeapon.Weight", ref weights))
+                    {
+                        this.Weights = weights;
+                        this.EliteWeights = weights;
+                    }
                 }
             }
 
@@ -82,23 +122,51 @@ namespace Extension.Ext
                 this.EliteChance = chance;
             }
 
-            string eliteType = null;
-            if (reader.ReadNormal(section, "OverrideWeapon.EliteType", ref eliteType))
+            // string eliteType = null;
+            // if (reader.ReadNormal(section, "OverrideWeapon.EliteType", ref eliteType))
+            // {
+            //     if (!string.IsNullOrEmpty(eliteType))
+            //     {
+            //         if (!"none".Equals(eliteType.ToLower()))
+            //         {
+            //             this.Enable = true;
+            //             this.EliteType = eliteType;
+            //         }
+            //         else
+            //         {
+            //             this.EliteType = null;
+            //         }
+            //     }
+            // }
+
+            
+            List<string> eliteTypes = null;
+            if (reader.ReadStringList(section, "OverrideWeapon.EliteType", ref eliteTypes))
             {
-                if (!string.IsNullOrEmpty(eliteType))
+                // 过滤none
+                List<string> realTypes = new List<string>();
+                foreach(string t in eliteTypes)
                 {
-                    if (!"none".Equals(eliteType.ToLower()))
+                    if (!string.IsNullOrEmpty(t) && "none" != t.ToLower())
                     {
-                        this.Enable = true;
-                        this.EliteType = eliteType;
-                    }
-                    else
-                    {
-                        this.EliteType = null;
+                        realTypes.Add(t);
                     }
                 }
-
+                this.EliteTypes = realTypes;
+                this.EliteRandomType = false;
+                this.EliteWeights = null;
+                this.Enable = EliteTypes.Count > 0;
+                if (realTypes.Count > 1)
+                {
+                    this.EliteRandomType = true;
+                    List<int> weights = null;
+                    if (reader.ReadIntList(section, "OverrideWeapon.EliteWeight", ref weights))
+                    {
+                        this.EliteWeights = weights;
+                    }
+                }
             }
+
 
             int eliteIndex = -1;
             if (reader.ReadNormal(section, "OverrideWeapon.EliteIndex", ref eliteIndex))

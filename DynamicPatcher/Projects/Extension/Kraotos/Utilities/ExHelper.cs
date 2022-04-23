@@ -41,6 +41,49 @@ namespace Extension.Utilities
         // public static Random Random = new Random(114514);
         public const double BINARY_ANGLE_MAGIC = -(360.0 / (65535 - 1)) * (Math.PI / 180);
 
+
+        public static Dictionary<Point2D, int> MakeTargetPad(this List<int> weights, int count, out int maxValue)
+        {
+            int weightCount = null != weights ? weights.Count : 0;
+            Dictionary<Point2D, int> targetPad = new Dictionary<Point2D, int>();
+            maxValue = 0;
+            // 将所有的概率加起来，获得上游指标
+            for (int index = 0; index < count; index++)
+            {
+                Point2D target = new Point2D();
+                target.X = maxValue;
+                int weight = 1;
+                if (weightCount > 0 && index < weightCount)
+                {
+                    int w = weights[index];
+                    if (w > 0)
+                    {
+                        weight = w;
+                    }
+                }
+                maxValue += weight;
+                target.Y = maxValue;
+                targetPad.Add(target, index);
+            }
+            return targetPad;
+        }
+
+        public static int Hit(this Dictionary<Point2D, int> targetPad, int maxValue)
+        {
+            int index = 0;
+            int p = MathEx.Random.Next(0, maxValue);
+            foreach (var target in targetPad)
+            {
+                Point2D tKey = target.Key;
+                if (p >= tKey.X && p < tKey.Y)
+                {
+                    index = target.Value;
+                    break;
+                }
+            }
+            return index;
+        }
+
         public static bool Bingo(this List<double> chances, int index)
         {
             if (null == chances || chances.Count < index + 1)
