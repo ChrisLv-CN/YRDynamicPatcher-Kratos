@@ -69,51 +69,51 @@ namespace Extension.Ext
             {
                 this.Enable = giftTypes.Count > 0;
                 this.Gifts = giftTypes;
-
-                List<int> giftNums = default;
-                if (ExHelper.ReadIntList(reader, section, title + "Nums", ref giftNums))
-                {
-                    this.Nums = giftNums;
-                }
-
-                List<double> giftChances = null;
-                if (reader.ReadChanceList(section, title + "Chances", ref giftChances))
-                {
-                    this.Chances = giftChances;
-                }
-
-                bool randomType = false;
-                if (reader.ReadNormal(section, title + "RandomType", ref randomType))
-                {
-                    this.RandomType = randomType;
-                }
-
-                List<int> randomWeights = null;
-                if (reader.ReadIntList(section, title + "RandomWeights", ref randomWeights))
-                {
-                    this.RandomWeights = randomWeights;
-                }
-
-
-                int giftBoxDelay = 0;
-                if (reader.ReadNormal(section, title + "Delay", ref giftBoxDelay))
-                {
-                    this.Delay = giftBoxDelay;
-                }
-
-                Point2D randomDelay = default;
-                if (ExHelper.ReadPoint2D(reader, section, title + "RandomDelay", ref randomDelay))
-                {
-                    Point2D tempDelay = randomDelay;
-                    if (tempDelay.X > tempDelay.Y)
-                    {
-                        tempDelay.X = randomDelay.Y;
-                        tempDelay.Y = randomDelay.X;
-                    }
-                    this.RandomDelay = tempDelay;
-                }
-
             }
+
+            List<int> giftNums = default;
+            if (ExHelper.ReadIntList(reader, section, title + "Nums", ref giftNums))
+            {
+                this.Nums = giftNums;
+            }
+
+            List<double> giftChances = null;
+            if (reader.ReadChanceList(section, title + "Chances", ref giftChances))
+            {
+                this.Chances = giftChances;
+            }
+
+            bool randomType = false;
+            if (reader.ReadNormal(section, title + "RandomType", ref randomType))
+            {
+                this.RandomType = randomType;
+            }
+
+            List<int> randomWeights = null;
+            if (reader.ReadIntList(section, title + "RandomWeights", ref randomWeights))
+            {
+                this.RandomWeights = randomWeights;
+            }
+
+
+            int giftBoxDelay = 0;
+            if (reader.ReadNormal(section, title + "Delay", ref giftBoxDelay))
+            {
+                this.Delay = giftBoxDelay;
+            }
+
+            Point2D randomDelay = default;
+            if (ExHelper.ReadPoint2D(reader, section, title + "RandomDelay", ref randomDelay))
+            {
+                Point2D tempDelay = randomDelay;
+                if (tempDelay.X > tempDelay.Y)
+                {
+                    tempDelay.X = randomDelay.Y;
+                    tempDelay.Y = randomDelay.X;
+                }
+                this.RandomDelay = tempDelay;
+            }
+
             return this.Enable;
         }
     }

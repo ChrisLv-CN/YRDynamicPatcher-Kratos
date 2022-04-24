@@ -208,7 +208,7 @@ namespace Extension.Ext
                         {
                             int strength = pGiftType.Ref.Base.Strength;
                             int health = (int)(strength * healthPercent);
-                            Logger.Log($"{Game.CurrentFrame} - 设置礼物 {pGift} [{pGift.Ref.Type.Ref.Base.Base.ID}] 的血量 {health} / {strength} {healthPercent}");
+                            // Logger.Log($"{Game.CurrentFrame} - 设置礼物 {pGift} [{pGift.Ref.Type.Ref.Base.Base.ID}] 的血量 {health} / {strength} {healthPercent}");
                             if (health <= 0)
                             {
                                 health = 1;
