@@ -424,7 +424,7 @@ namespace Extension.Ext
             return IntPtr.Zero;
         }
 
-        public override void OnPut(Pointer<ObjectClass> pObject, Pointer<CoordStruct> pCoord, Direction faceDir)
+        public override void OnPut(Pointer<ObjectClass> pObject, Pointer<CoordStruct> pCoord, DirStruct faceDir)
         {
             this.Active = true;
         }

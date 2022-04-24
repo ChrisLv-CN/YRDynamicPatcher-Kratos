@@ -56,6 +56,11 @@ namespace Extension.Ext
             }
         }
 
+        public void SetLastLocation(CoordStruct location)
+        {
+            this.LastLocation = location;
+        }
+
         public void ClearLastLocation()
         {
             this.LastLocation = default;

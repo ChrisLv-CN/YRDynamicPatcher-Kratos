@@ -545,7 +545,7 @@ namespace Extension.Ext
             pStand.Ref.TurretFacing.set(targetDir);
         }
 
-        public override void OnPut(Pointer<ObjectClass> pOwner, Pointer<CoordStruct> pCoord, Direction faceDir)
+        public override void OnPut(Pointer<ObjectClass> pOwner, Pointer<CoordStruct> pCoord, DirStruct faceDir)
         {
             if (pStand.Ref.Base.InLimbo)
             {

@@ -14,19 +14,16 @@ namespace Extension.Ext
 
     public partial class TechnoExt
     {
-        public TrailManager trailManager = new TrailManager();
+        public TrailManager trailManager;
 
-        public unsafe void TechnoClass_Init_Trail()
+        public unsafe void TechnoClass_Put_Trail(Pointer<CoordStruct> pCoord, DirStruct faceDir)
         {
-            if (null != Type.TrailDatas)
+            if (null != Type.TrailDatas && null == trailManager)
             {
-                // ColorStruct houseColor = default;
-                // if (!OwnerObject.Ref.Owner.IsNull)
-                // {
-                //     houseColor = OwnerObject.Ref.Owner.Ref.LaserColor;
-                // }
+                trailManager = new TrailManager();
                 trailManager.SetTrailData(Type.TrailDatas);
             }
+            trailManager?.SourceLocation(pCoord.Data, faceDir);
         }
 
         public unsafe void TechnoClass_Render_Trail()
@@ -37,14 +34,14 @@ namespace Extension.Ext
                 return;
             }
             // 绘制尾巴
-            trailManager.DrawTrail(pTechno, DrivingState);
+            trailManager?.DrawTrail(pTechno, DrivingState);
         }
 
         public unsafe void TechnoClass_Remove_Trail(bool isDead)
         {
             if (!isDead)
             {
-                trailManager.ClearLocation();
+                trailManager?.ClearLocation();
             }
         }
 
@@ -78,6 +75,7 @@ namespace Extension.Ext
                 trailManager = new TrailManager();
                 trailManager.SetTrailData(Type.TrailDatas);
                 trailManager.pHouse.Pointer = pSourceHouse;
+                trailManager.SourceLocation(OwnerObject.Convert<BulletClass>(), pCoord.Data);
             }
         }
 

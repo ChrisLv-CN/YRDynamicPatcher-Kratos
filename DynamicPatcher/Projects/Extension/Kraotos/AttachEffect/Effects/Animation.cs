@@ -118,7 +118,7 @@ namespace Extension.Ext
             }
         }
 
-        public override void OnPut(Pointer<ObjectClass> pObject, Pointer<CoordStruct> pCoord, Direction faceDir)
+        public override void OnPut(Pointer<ObjectClass> pObject, Pointer<CoordStruct> pCoord, DirStruct faceDir)
         {
             // Logger.Log("单位显现，创建持续动画{0}", Type.IdleAnim);
             CreateAnim(pObject);

@@ -34,7 +34,7 @@ namespace Extension.Ext
         // 被超时空冻结更新
         void OnTemporalUpdate(TechnoExt ext, Pointer<TemporalClass> pTemporal);
         // 挂载AE的单位出现在地图上
-        void OnPut(Pointer<ObjectClass> pOwner, Pointer<CoordStruct> pCoord, Direction faceDir);
+        void OnPut(Pointer<ObjectClass> pOwner, Pointer<CoordStruct> pCoord, DirStruct faceDir);
         // 挂载AE的单位从地图隐藏
         void OnRemove(Pointer<ObjectClass> pOwner);
         // 收到伤害
@@ -63,7 +63,7 @@ namespace Extension.Ext
         // 被超时空冻结更新
         public virtual void OnTemporalUpdate(TechnoExt ext, Pointer<TemporalClass> pTemporal) { }
         // 挂载AE的单位出现在地图上
-        public virtual void OnPut(Pointer<ObjectClass> pOwner, Pointer<CoordStruct> pCoord, Direction faceDir) { }
+        public virtual void OnPut(Pointer<ObjectClass> pOwner, Pointer<CoordStruct> pCoord, DirStruct faceDir) { }
         // 挂载AE的单位从地图隐藏
         public virtual void OnRemove(Pointer<ObjectClass> pOwner) { }
         // 收到伤害

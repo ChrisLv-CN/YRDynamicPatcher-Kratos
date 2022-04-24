@@ -158,7 +158,7 @@ namespace ExtensionHooks
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
             var pCoord = R->Stack<Pointer<CoordStruct>>(0x4);
-            var faceDir = R->Stack<Direction>(0x8);
+            var faceDir = R->Stack<DirStruct>(0x8);
 
             TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
             ext?.OnPut(pCoord, faceDir);

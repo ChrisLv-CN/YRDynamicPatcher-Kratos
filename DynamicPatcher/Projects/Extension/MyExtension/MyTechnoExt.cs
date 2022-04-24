@@ -46,7 +46,6 @@ namespace Extension.Ext
             TechnoClass_Init_Deselect();
             TechnoClass_Init_SuperWeapon();
             TechnoClass_Init_GiftBox();
-            TechnoClass_Init_Trail();
             TechnoClass_Init_VirtualUnit();
         }
 
@@ -142,11 +141,12 @@ namespace Extension.Ext
             TechnoClass_Render2_AttachEffect();
         }
 
-        public unsafe void OnPut(Pointer<CoordStruct> pCoord, Direction faceDir)
+        public unsafe void OnPut(Pointer<CoordStruct> pCoord, DirStruct faceDir)
         {
             TechnoClass_Put_AircraftPut(pCoord, faceDir);
             TechnoClass_Put_AttachEffect(pCoord, faceDir);
             TechnoClass_Put_DestroySelf(pCoord, faceDir);
+            TechnoClass_Put_Trail(pCoord, faceDir);
         }
 
         public unsafe void OnRemove()

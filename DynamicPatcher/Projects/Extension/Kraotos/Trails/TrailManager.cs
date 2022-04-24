@@ -58,9 +58,25 @@ namespace Extension.Ext
             }
         }
 
+        public void SourceLocation(CoordStruct location, DirStruct faceDir)
+        {
+            foreach (Trail trail in Trails)
+            {
+                CoordStruct sourcePos = ExHelper.GetFLHAbsoluteCoords(location, trail.FLH, faceDir);
+                trail.SetLastLocation(sourcePos);
+            }
+        }
+
+        public void SourceLocation(Pointer<BulletClass> pBullet, CoordStruct location)
+        {
+            CoordStruct forwardLocation = location + pBullet.Ref.Velocity.ToCoordStruct();
+            DirStruct bulletFacing = ExHelper.Point2Dir(location, forwardLocation);
+            SourceLocation(location, bulletFacing);
+        }
+
         public void ClearLocation()
         {
-            foreach(Trail trail in Trails)
+            foreach (Trail trail in Trails)
             {
                 trail.ClearLastLocation();
             }
@@ -125,7 +141,7 @@ namespace Extension.Ext
                     if (reader.ReadStringList(section, "Trail" + i + ".OnLands", ref onLands))
                     {
                         List<LandType> landTypes = null;
-                        foreach(string tile in onLands)
+                        foreach (string tile in onLands)
                         {
                             if (Enum.TryParse<LandType>(tile, out LandType landType))
                             {
@@ -146,7 +162,7 @@ namespace Extension.Ext
                     if (reader.ReadStringList(section, "Trail" + i + ".OnTiles", ref onTiles))
                     {
                         List<TileType> tileTypes = null;
-                        foreach(string tile in onTiles)
+                        foreach (string tile in onTiles)
                         {
                             if (Enum.TryParse<TileType>(tile, out TileType tileType))
                             {

@@ -357,7 +357,7 @@ namespace Extension.Ext
             return multiplier;
         }
 
-        public void Put(Pointer<ObjectClass> pOwner, Pointer<CoordStruct> pCoord, Direction faceDir)
+        public void Put(Pointer<ObjectClass> pOwner, Pointer<CoordStruct> pCoord, DirStruct faceDir)
         {
             foreach (AttachEffect ae in AttachEffects)
             {

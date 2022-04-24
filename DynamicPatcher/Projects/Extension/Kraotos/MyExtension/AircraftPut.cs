@@ -59,7 +59,7 @@ namespace Extension.Ext
         private bool aircraftPutOffsetFlag = false;
         private bool aircraftPutOffset = false;
 
-        public unsafe void TechnoClass_Put_AircraftPut(Pointer<CoordStruct> pCoord, Direction faceDir)
+        public unsafe void TechnoClass_Put_AircraftPut(Pointer<CoordStruct> pCoord, DirStruct faceDir)
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
 

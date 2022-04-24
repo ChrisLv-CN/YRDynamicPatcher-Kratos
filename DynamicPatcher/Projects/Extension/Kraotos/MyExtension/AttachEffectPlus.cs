@@ -26,7 +26,7 @@ namespace Extension.Ext
             // }
         }
 
-        public unsafe void TechnoClass_Put_AttachEffect(Pointer<CoordStruct> pCoord, Direction faceDir)
+        public unsafe void TechnoClass_Put_AttachEffect(Pointer<CoordStruct> pCoord, DirStruct faceDir)
         {
             AttachEffectManager.Put(OwnerObject.Convert<ObjectClass>(), pCoord, faceDir);
         }
