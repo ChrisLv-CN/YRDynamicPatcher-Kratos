@@ -245,17 +245,28 @@ namespace ExtensionHooks
             return (uint)0;
         }
 
-        [Hook(HookType.AresHook, Address = 0x469D06, Size = 6)]
+        // Take over to create Warhead Anim
+        [Hook(HookType.AresHook, Address = 0x469C4E, Size = 5)]
         public static unsafe UInt32 BulletClass_Detonate_WHAnim_Remap(REGISTERS* R)
         {
             try
             {
                 Pointer<BulletClass> pBullet = (IntPtr)R->ESI;
-                Pointer<AnimClass> pAnim = (IntPtr)R->EAX;
-                // Logger.Log($"{Game.CurrentFrame} - 抛射体 {pBullet} [{pBullet.Ref.Type.Ref.Base.Base.ID}] 所属 {(pBullet.Ref.Owner.IsNull ? "null" : pBullet.Ref.Owner.Ref.Owner)} 弹头动画 ECX = {R->ECX} EDI = {R->EDI} EAX = {R->EAX}");
-                if (!pAnim.IsNull)
+                Pointer<AnimTypeClass> pAnimType = (IntPtr)R->EBX;
+                CoordStruct location = R->Stack<CoordStruct>(0x64);
+                // Logger.Log($"{Game.CurrentFrame} - 抛射体 {pBullet} [{pBullet.Ref.Type.Ref.Base.Base.ID}] 所属 {(pBullet.Ref.Owner.IsNull ? "null" : pBullet.Ref.Owner.Ref.Owner)} 播放弹头动画 {pAnimType} [{pAnimType.Ref.Base.Base.ID}], 位置 {location}");
+                // 播放弹头动画
+                // Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, location);
+                Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, location, 0, 1, BlitterFlags.Flat | BlitterFlags.bf_400 | BlitterFlags.Centered, -15, false);
+                ExHelper.SetAnimOwner(pAnim, pBullet);
+                if (pBullet.Ref.WH == RulesClass.Instance.Ref.NukeWarhead)
                 {
-                    pAnim.SetAnimOwner(pBullet);
+                    // 制造核弹伤害
+                    return 0x469CAF;
+                }
+                else
+                {
+                    return 0x469D06;
                 }
             }
             catch (Exception e)

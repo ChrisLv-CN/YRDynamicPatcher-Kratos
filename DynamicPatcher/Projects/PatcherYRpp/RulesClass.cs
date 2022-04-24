@@ -33,6 +33,18 @@ namespace PatcherYRpp
 
         [FieldOffset(1688)] public double VeteranCap;
 
+        [FieldOffset(3008)] public DynamicVectorClass<AnimTypeClass> SplashList;
+
+        [FieldOffset(3972)] public Pointer<WarheadTypeClass> FlameDamage;
+
+        [FieldOffset(3976)] public Pointer<WarheadTypeClass> FlameDamage2;
+
+        [FieldOffset(3980)] public Pointer<WarheadTypeClass> NukeWarhead;
+
+        [FieldOffset(3984)] public Pointer<BulletTypeClass> NukeProjectile;
+
+        [FieldOffset(3988)] public Pointer<BulletTypeClass> NukeDown;
+
         [FieldOffset(4008)] public Pointer<WarheadTypeClass> C4Warhead;
 
         [FieldOffset(4012)] public Pointer<WarheadTypeClass> CrushWarhead;

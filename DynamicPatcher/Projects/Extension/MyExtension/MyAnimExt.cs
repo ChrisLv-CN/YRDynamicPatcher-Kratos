@@ -23,6 +23,7 @@ namespace Extension.Ext
 
         public unsafe void OnUpdate()
         {
+            AnimClass_Update_Damage();
             AnimClass_Update_SuperWeapon();
         }
 

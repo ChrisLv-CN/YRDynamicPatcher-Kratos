@@ -38,11 +38,12 @@ namespace PatcherYRpp
         {
             Constructor(pThis, pAnimType, Location, 0);
         }
+
         public static unsafe void Constructor(Pointer<AnimClass> pThis, Pointer<AnimTypeClass> pAnimType, CoordStruct Location, int LoopDelay = 0,
-            int LoopCount = 1, uint flags = 0x600, int ForceZAdjust = 0, bool reverse = false)
+            int LoopCount = 1, BlitterFlags flags = BlitterFlags.bf_400|BlitterFlags.Centered, int ForceZAdjust = 0, bool reverse = false)
         {
             var func = (delegate* unmanaged[Thiscall]<ref AnimClass, IntPtr, ref CoordStruct, int,
-                int, uint, int, Bool, void>)0x421EA0;
+                int, BlitterFlags, int, Bool, void>)0x421EA0;
             func(ref pThis.Ref, pAnimType, ref Location, LoopDelay, LoopCount, flags, ForceZAdjust, reverse);
         }
 
