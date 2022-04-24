@@ -43,6 +43,8 @@ namespace Extension.Ext
         private int locationMarkDistance; // 多少格记录一个位置
         private double totleMileage; // 总里程
 
+        private bool renderFlag = false; // Render比Update先执行，在附着对象Render时先调整替身位置，Update就不用调整
+
         public int LocationSpace; // 替身火车的车厢间距
 
         public AttachEffectManager()
@@ -388,7 +390,11 @@ namespace Extension.Ext
         public void Update(Pointer<ObjectClass> pOwner, bool isDead)
         {
             // 记录下位置
-            CoordStruct location = MarkLocation(pOwner);
+            CoordStruct location = pOwner.Ref.Base.GetCoords();
+            if (!renderFlag)
+            {
+                location = MarkLocation(pOwner);
+            }
             // 逐个触发有效的AEbuff，并移除无效的AEbuff
             int markIndex = 0;
             for (int i = Count() - 1; i >= 0; i--)
@@ -399,7 +405,7 @@ namespace Extension.Ext
                     // Logger.Log("{0}更新AE类型{1}", pOwner, ae.Type.Name);
                     ae.OnUpdate(pOwner, isDead);
                     // 如果是替身，额外执行替身的定位操作
-                    if (null != ae.Stand && ae.Stand.IsAlive())
+                    if (!renderFlag && null != ae.Stand && ae.Stand.IsAlive())
                     {
                         StandHelper.UpdateStandLocation(this, pOwner, ae.Stand, ref markIndex);
                     }
@@ -427,6 +433,31 @@ namespace Extension.Ext
                     }
                 }
             }
+            renderFlag = false;
+            // if (pOwner.Ref.Type.Ref.Base.ID.ToString().StartsWith("SHOGUN"))
+            //     Logger.Log($"{Game.CurrentFrame} - {pOwner} [{pOwner.Ref.Type.Ref.Base.ID}] Update, pos {pOwner.Ref.Base.GetCoords()}");
+        }
+
+        public unsafe void Render2(Pointer<ObjectClass> pOwner, bool isDead)
+        {
+            renderFlag = true;
+            // 记录下位置
+            CoordStruct location = MarkLocation(pOwner);
+            // 更新替身的位置
+            int markIndex = 0;
+            for (int i = Count() - 1; i >= 0; i--)
+            {
+                AttachEffect ae = AttachEffects[i];
+                if (ae.IsActive())
+                {
+                    // 如果是替身，额外执行替身的定位操作
+                    if (null != ae.Stand && ae.Stand.IsAlive())
+                    {
+                        StandHelper.UpdateStandLocation(this, pOwner, ae.Stand, ref markIndex);
+                    }
+                }
+            }
+
         }
 
         public unsafe void ReceiveDamage(Pointer<ObjectClass> pOwner, Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,

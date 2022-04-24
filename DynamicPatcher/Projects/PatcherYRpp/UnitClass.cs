@@ -13,17 +13,22 @@ namespace PatcherYRpp
         public static readonly IntPtr ArrayPointer = new IntPtr(0x8B4108);
         public static ref DynamicVectorClass<Pointer<UnitClass>> Array { get => ref DynamicVectorClass<Pointer<UnitClass>>.GetDynamicVector(ArrayPointer); }
 
-
-        public unsafe void DrawAsVXL(Point2D coords, RectangleStruct boundingRect, int dwUnk7, int dwUnk8)
+        public unsafe void DrawIt(Point2D point, RectangleStruct bound)
         {
-            var func = (delegate* unmanaged[Thiscall]<ref UnitClass, Point2D, RectangleStruct, int, int, void>)0x73B470;
-            func(ref this, coords, boundingRect, dwUnk7, dwUnk8);
+            var func = (delegate* unmanaged[Thiscall]<ref UnitClass, ref Point2D, ref RectangleStruct, void>)0x73CEC0;
+            func(ref this, ref point, ref bound);
         }
 
-        public unsafe void DrawAsSHP(Point2D coords, RectangleStruct boundingRect, int dwUnk7, int dwUnk8)
+        public unsafe void DrawAsVXL(Point2D coords, RectangleStruct bound, int dwUnk7, int dwUnk8)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref UnitClass, Point2D, RectangleStruct, int, int, void>)0x73B470;
+            func(ref this, coords, bound, dwUnk7, dwUnk8);
+        }
+
+        public unsafe void DrawAsSHP(Point2D coords, RectangleStruct bound, int dwUnk7, int dwUnk8)
         {
             var func = (delegate* unmanaged[Thiscall]<ref UnitClass, Point2D, RectangleStruct, int, int, void>)0x73C5F0;
-            func(ref this, coords, boundingRect, dwUnk7, dwUnk8);
+            func(ref this, coords, bound, dwUnk7, dwUnk8);
         }
 
         [FieldOffset(0)] public FootClass Base;

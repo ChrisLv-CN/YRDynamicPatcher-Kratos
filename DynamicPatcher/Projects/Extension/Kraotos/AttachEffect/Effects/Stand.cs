@@ -205,20 +205,15 @@ namespace Extension.Ext
 
         public override void OnUpdate(Pointer<ObjectClass> pObject, bool isDead)
         {
-            CoordStruct sourcePos = pObject.Ref.Base.GetCoords();
-
+            
             // 只同步状态，位置和朝向由StandManager控制
-            switch (pObject.Ref.Base.WhatAmI())
+            if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
             {
-                case AbstractType.Unit:
-                case AbstractType.Aircraft:
-                case AbstractType.Infantry:
-                case AbstractType.Building:
-                    UpdateState(pObject.Convert<TechnoClass>());
-                    break;
-                case AbstractType.Bullet:
-                    UpdateState(pObject.Convert<BulletClass>());
-                    break;
+                UpdateState(pTechno);
+            }
+            else if (pObject.CastToBullet(out Pointer<BulletClass> pBullet))
+            {
+                UpdateState(pBullet);
             }
         }
 

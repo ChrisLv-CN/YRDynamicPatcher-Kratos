@@ -58,6 +58,11 @@ namespace Extension.Ext
             AttachEffectManager.Update(OwnerObject.Convert<ObjectClass>(), IsDead);
         }
 
+        public unsafe void TechnoClass_Render2_AttachEffect()
+        {
+            AttachEffectManager.Render2(OwnerObject.Convert<ObjectClass>(), IsDead);
+        }
+
         public unsafe void TechnoClass_ReceiveDamage_AttachEffect(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
             Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse,
             WarheadTypeExt whExt, int realDamage)

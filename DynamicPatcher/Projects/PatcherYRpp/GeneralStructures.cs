@@ -392,10 +392,10 @@ namespace PatcherYRpp
             return ret;
         }
 
-        public DirStruct next()
-        {
-            return current(1);
-        }
+        // public DirStruct next()
+        // {
+        //     return current(1);
+        // }
 
         public bool set(DirStruct value)
         {

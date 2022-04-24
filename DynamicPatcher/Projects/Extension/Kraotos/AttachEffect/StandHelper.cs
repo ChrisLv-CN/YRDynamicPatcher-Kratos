@@ -49,8 +49,8 @@ namespace Extension.Ext
                 }
             }
             // 获取挂载对象的位置和方向
-            LocationMark location = GetLocation(pObject, stand.Type);
-            stand.UpdateLocation(location);
+            LocationMark locationMark = GetLocation(pObject, stand.Type);
+            stand.UpdateLocation(locationMark);
         }
 
         public static LocationMark GetLocation(Pointer<ObjectClass> pObject, StandType standType)

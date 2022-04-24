@@ -110,30 +110,48 @@ namespace ExtensionHooks
             return 0x71AB08;
         }
 
-        /*
-        [Hook(HookType.AresHook, Address = 0x71A84E, Size = 5)]
-        public static unsafe UInt32 TemporalClass_UpdateA(REGISTERS* R)
+
+        #region After Render
+        static public UInt32 TechnoClass_Render2(Pointer<TechnoClass> pTechno)
         {
             try
             {
-                Pointer<TemporalClass> pTemporal = (IntPtr)R->ESI;
-
-                Pointer<TechnoClass> pTechno = pTemporal.Ref.Target;
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                ext?.OnTemporalUpdate(pTemporal);
-                ext?.Scriptable?.OnTemporalUpdate(pTemporal);
+                ext.OnRender2();
 
-                // pTemporal.Ref.WarpRemaining -= pTemporal.Ref.GetWarpPerStep(0);
-                // R->EAX = (uint)pTemporal.Ref.WarpRemaining;
-                // return 0x71A88D;
+                return 0;
             }
             catch (Exception e)
             {
                 Logger.PrintException(e);
+                return 0;
             }
-            return 0;
         }
-        */
+        [Hook(HookType.AresHook, Address = 0x4149F0, Size = 5)]
+        static public unsafe UInt32 AircraftClass_Render2(REGISTERS* R)
+        {
+            Pointer<AircraftClass> pAircraft = (IntPtr)R->ECX;
+            return TechnoClass_Render2(pAircraft.Convert<TechnoClass>());
+        }
+        // [Hook(HookType.AresHook, Address = 0x43DA6C, Size = 7)]
+        // static public unsafe UInt32 BuildingClass_Render2(REGISTERS* R)
+        // {
+        //     Pointer<BuildingClass> pBuilding = (IntPtr)R->ECX;
+        //     return TechnoClass_Render2(pBuilding.Convert<TechnoClass>());
+        // }
+        [Hook(HookType.AresHook, Address = 0x51961A, Size = 5)]
+        static public unsafe UInt32 InfantryClass_Render2(REGISTERS* R)
+        {
+            Pointer<InfantryClass> pInfantry = (IntPtr)R->ECX;
+            return TechnoClass_Render2(pInfantry.Convert<TechnoClass>());
+        }
+        [Hook(HookType.AresHook, Address = 0x73D410, Size = 5)]
+        static public unsafe UInt32 UnitClass_Render2(REGISTERS* R)
+        {
+            Pointer<UnitClass> pUnit = (IntPtr)R->ECX;
+            return TechnoClass_Render2(pUnit.Convert<TechnoClass>());
+        }
+        #endregion
 
         [Hook(HookType.AresHook, Address = 0x6F6CA0, Size = 7)]
         public static unsafe UInt32 TechnoClass_Put(REGISTERS* R)
@@ -600,11 +618,12 @@ namespace ExtensionHooks
             try
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
+                // Pointer<Point2D> pPos = R->Stack<IntPtr>(0x18);
                 // uint bright = R->Stack<uint>(0x20);
                 // uint tint = R->Stack<uint>(0x24);
                 // R->Stack<uint>(0x20, 500);
                 // R->Stack<uint>(0x24, ExHelper.ColorAdd2RGB565(new ColorStruct(255, 0, 0)));
-                // Logger.Log($"{Game.CurrentFrame} - Techno {pTechno.Ref.Type.Ref.Base.Base.ID} vxl draw. Bright = {bright}, Tint = {tint}");
+                // Logger.Log($"{Game.CurrentFrame} - Techno {pTechno} [{pTechno.Ref.Type.Ref.Base.Base.ID}] vxl draw. Pos = {R->Stack<uint>(0x18)}, Bright = {bright}, Tint = {tint}");
                 // Only for Building's turret
                 if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Building)
                 {

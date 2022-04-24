@@ -129,7 +129,16 @@ namespace Extension.Ext
 
         public unsafe void OnRender()
         {
+            // if (!MyMaster.IsNull)
+            // {
+            //     Logger.Log($"{Game.CurrentFrame} - 渲染替身 {OwnerObject} [{Type.OwnerObject.Ref.Base.Base.ID}] 开始，位置 {OwnerObject.Ref.Base.Base.GetCoords()}");
+            // }
 
+        }
+
+        public unsafe void OnRender2()
+        {
+            TechnoClass_Render2_AttachEffect();
         }
 
         public unsafe void OnPut(Pointer<CoordStruct> pCoord, Direction faceDir)
