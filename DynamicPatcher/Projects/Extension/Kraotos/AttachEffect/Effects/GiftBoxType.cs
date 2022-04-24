@@ -28,104 +28,81 @@ namespace Extension.Ext
 
     }
 
-    /// <summary>
-    /// 礼物盒
-    /// </summary>
     [Serializable]
-    public class GiftBoxType : EffectType<GiftBox>, IAEStateData
+    public class GiftBoxData
     {
+        public bool Enable;
+
         public List<string> Gifts;
         public List<int> Nums;
         public List<double> Chances;
-        public bool Remove;
-        public bool Destroy;
-        public int Delay;
-        public Point2D RandomDelay;
-        public int RandomRange;
-        public bool EmptyCell;
         public bool RandomType;
         public List<int> RandomWeights;
-        public bool OpenWhenDestoryed;
-        public bool OpenWhenHealthPercent;
-        public double OpenHealthPercent;
 
-        public bool IsTransform;
-        public bool InheritHealth;
-        public double HealthPercent;
-        public bool InheritTarget;
-        public Mission ForceMission;
+        public int Delay;
+        public Point2D RandomDelay;
 
-        public GiftBoxType()
+        public GiftBoxData()
         {
+            this.Enable = false;
             this.Gifts = null;
             this.Chances = null;
             this.Nums = null;
-            this.Remove = true;
-            this.Destroy = false;
-            this.Delay = 0;
-            this.RandomDelay = default;
-            this.RandomRange = 0;
-            this.EmptyCell = false;
             this.RandomType = false;
             this.RandomWeights = null;
-            this.OpenWhenDestoryed = false;
-            this.OpenWhenHealthPercent = false;
-            this.OpenHealthPercent = 0;
 
-            this.IsTransform = false;
-            this.InheritHealth = false;
-            this.HealthPercent = 1;
-            this.InheritTarget = true;
-            this.ForceMission = Mission.None;
-
-            this.AffectWho = AffectWho.MASTER;
+            this.Delay = 0;
+            this.RandomDelay = default;
         }
 
-        public override bool TryReadType(INIReader reader, string section)
+        public GiftBoxData Clone()
         {
+            GiftBoxData data = new GiftBoxData();
+            ExHelper.ReflectClone(this, data);
+            return data;
+        }
 
-            ReadCommonType(reader, section, "GiftBox.");
-
-            // GiftBox
+        public bool TryReadType(INIReader reader, string section, string title)
+        {
             List<string> giftTypes = default;
-            if (reader.ReadStringList(section, "GiftBox.Types", ref giftTypes))
+            if (reader.ReadStringList(section, title + "Types", ref giftTypes))
             {
                 this.Enable = giftTypes.Count > 0;
                 this.Gifts = giftTypes;
 
                 List<int> giftNums = default;
-                if (ExHelper.ReadIntList(reader, section, "GiftBox.Nums", ref giftNums))
+                if (ExHelper.ReadIntList(reader, section, title + "Nums", ref giftNums))
                 {
                     this.Nums = giftNums;
                 }
 
                 List<double> giftChances = null;
-                if (reader.ReadChanceList(section, "GiftBox.Chances", ref giftChances))
+                if (reader.ReadChanceList(section, title + "Chances", ref giftChances))
                 {
                     this.Chances = giftChances;
                 }
 
-
-                bool giftBoxRemove = false;
-                if (reader.ReadNormal(section, "GiftBox.Remove", ref giftBoxRemove))
+                bool randomType = false;
+                if (reader.ReadNormal(section, title + "RandomType", ref randomType))
                 {
-                    this.Remove = giftBoxRemove;
+                    this.RandomType = randomType;
                 }
 
-                bool giftBoxDestroy = false;
-                if (reader.ReadNormal(section, "GiftBox.Explodes", ref giftBoxDestroy))
+                List<int> randomWeights = null;
+                if (reader.ReadIntList(section, title + "RandomWeights", ref randomWeights))
                 {
-                    this.Destroy = giftBoxDestroy;
+                    this.RandomWeights = randomWeights;
                 }
+
 
                 int giftBoxDelay = 0;
-                if (reader.ReadNormal(section, "GiftBox.Delay", ref giftBoxDelay))
+                if (reader.ReadNormal(section, title + "Delay", ref giftBoxDelay))
                 {
                     this.Delay = giftBoxDelay;
                 }
 
                 Point2D randomDelay = default;
-                if (ExHelper.ReadPoint2D(reader, section, "GiftBox.RandomDelay", ref randomDelay))
+                if (ExHelper.ReadPoint2D(reader, section, title + "RandomDelay", ref randomDelay))
                 {
                     Point2D tempDelay = randomDelay;
                     if (tempDelay.X > tempDelay.Y)
@@ -136,38 +113,130 @@ namespace Extension.Ext
                     this.RandomDelay = tempDelay;
                 }
 
+            }
+            return this.Enable;
+        }
+    }
+
+    /// <summary>
+    /// 礼物盒
+    /// </summary>
+    [Serializable]
+    public class GiftBoxType : EffectType<GiftBox>, IAEStateData
+    {
+        public GiftBoxData Data;
+        public GiftBoxData EliteData;
+        public bool Remove;
+        public bool Destroy;
+        public int RandomRange;
+        public bool EmptyCell;
+        public bool OpenWhenDestoryed;
+        public bool OpenWhenHealthPercent;
+        public double OpenHealthPercent;
+
+        public bool IsTransform;
+        public bool InheritHealth;
+        public double HealthPercent;
+        public bool InheritTarget;
+        public bool InheritExperience;
+        public bool InheritAmmo;
+        public Mission ForceMission;
+
+        public GiftBoxType()
+        {
+            this.Data = null;
+            this.EliteData = null;
+
+            this.Remove = true;
+            this.Destroy = false;
+            this.RandomRange = 0;
+            this.EmptyCell = false;
+            this.OpenWhenDestoryed = false;
+            this.OpenWhenHealthPercent = false;
+            this.OpenHealthPercent = 0;
+
+            this.IsTransform = false;
+            this.InheritHealth = false;
+            this.HealthPercent = 1;
+            this.InheritTarget = true;
+            this.InheritExperience = true;
+            this.InheritAmmo = false;
+            this.ForceMission = Mission.None;
+
+            this.AffectWho = AffectWho.MASTER;
+        }
+
+        public void ForTransform()
+        {
+            this.Remove = true;
+            this.Destroy = false;
+            this.OpenWhenDestoryed = false;
+            this.OpenWhenHealthPercent = false;
+            this.IsTransform = true;
+            this.InheritHealth = true;
+        }
+
+        public override bool TryReadType(INIReader reader, string section)
+        {
+            return TryReadType(reader, section, "GiftBox.");
+        }
+
+
+        public bool TryReadType(INIReader reader, string section, string title)
+        {
+            ReadCommonType(reader, section, title);
+
+            GiftBoxData data = new GiftBoxData();
+            if (data.TryReadType(reader, section, title))
+            {
+                this.Enable = data.Enable;
+                this.Data = data;
+                this.EliteData = data;
+            }
+
+            GiftBoxData eliteData = null != Data ? Data.Clone() : new GiftBoxData();
+            if (eliteData.TryReadType(reader, section, title + "Elite"))
+            {
+                this.Enable = eliteData.Enable;
+                this.EliteData = eliteData;
+            }
+
+            if (null != Data || null != EliteData)
+            {
+
+
+                bool giftBoxRemove = false;
+                if (reader.ReadNormal(section, title + "Remove", ref giftBoxRemove))
+                {
+                    this.Remove = giftBoxRemove;
+                }
+
+                bool giftBoxDestroy = false;
+                if (reader.ReadNormal(section, title + "Explodes", ref giftBoxDestroy))
+                {
+                    this.Destroy = giftBoxDestroy;
+                }
+
                 int randomRange = 0;
-                if (reader.ReadNormal(section, "GiftBox.RandomRange", ref randomRange))
+                if (reader.ReadNormal(section, title + "RandomRange", ref randomRange))
                 {
                     this.RandomRange = randomRange;
                 }
 
                 bool emptyCell = false;
-                if (reader.ReadNormal(section, "GiftBox.RandomToEmptyCell", ref emptyCell))
+                if (reader.ReadNormal(section, title + "RandomToEmptyCell", ref emptyCell))
                 {
                     this.EmptyCell = emptyCell;
                 }
 
-                bool randomType = false;
-                if (reader.ReadNormal(section, "GiftBox.RandomType", ref randomType))
-                {
-                    this.RandomType = randomType;
-                }
-
-                List<int> randomWeights = null;
-                if (reader.ReadIntList(section, "GiftBox.RandomWeights", ref randomWeights))
-                {
-                    this.RandomWeights = randomWeights;
-                }
-
                 bool openWhenDestoryed = false;
-                if (reader.ReadNormal(section, "GiftBox.OpenWhenDestoryed", ref openWhenDestoryed))
+                if (reader.ReadNormal(section, title + "OpenWhenDestoryed", ref openWhenDestoryed))
                 {
                     this.OpenWhenDestoryed = openWhenDestoryed;
                 }
 
                 double openWhenHealthPercent = 0;
-                if (reader.ReadPercent(section, "GiftBox.OpenWhenHealthPercent", ref openWhenHealthPercent))
+                if (reader.ReadPercent(section, title + "OpenWhenHealthPercent", ref openWhenHealthPercent))
                 {
                     if (openWhenHealthPercent > 0 && openWhenHealthPercent < 1)
                     {
@@ -177,7 +246,7 @@ namespace Extension.Ext
                 }
 
                 bool isTransform = false;
-                if (reader.ReadNormal(section, "GiftBox.IsTransform", ref isTransform))
+                if (reader.ReadNormal(section, title + "IsTransform", ref isTransform))
                 {
                     this.IsTransform = isTransform;
                     if (IsTransform)
@@ -189,7 +258,7 @@ namespace Extension.Ext
                 }
 
                 double healthPercent = 1;
-                if (reader.ReadPercent(section, "GiftBox.HealthPercent", ref healthPercent))
+                if (reader.ReadPercent(section, title + "HealthPercent", ref healthPercent))
                 {
                     if (healthPercent <= 0)
                     {
@@ -206,13 +275,25 @@ namespace Extension.Ext
                 }
 
                 bool inheritTarget = true;
-                if (reader.ReadNormal(section, "GiftBox.InheritTarget", ref inheritTarget))
+                if (reader.ReadNormal(section, title + "InheritTarget", ref inheritTarget))
                 {
                     this.InheritTarget = inheritTarget;
                 }
 
+                bool inheritExp = true;
+                if (reader.ReadNormal(section, title + "InheritExp", ref inheritExp))
+                {
+                    this.InheritExperience = inheritExp;
+                }
+
+                bool inheritAmmo = true;
+                if (reader.ReadNormal(section, title + "InheritAmmo", ref inheritAmmo))
+                {
+                    this.InheritAmmo = inheritAmmo;
+                }
+
                 string forceMission = null;
-                if (reader.ReadNormal(section, "GiftBox.ForceMission", ref forceMission))
+                if (reader.ReadNormal(section, title + "ForceMission", ref forceMission))
                 {
                     string t = forceMission.Substring(0, 1).ToUpper();
                     switch (t)

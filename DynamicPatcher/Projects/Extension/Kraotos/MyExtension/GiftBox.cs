@@ -34,11 +34,14 @@ namespace Extension.Ext
 
             Pointer<TechnoClass> pTechno = OwnerObject;
 
+            GiftBoxState.Update(pTechno.Ref.Veterancy.IsElite());
+
             // CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
             // Surface.Primary.Ref.DrawText(lastMission.ToString(), TacticalClass.Instance.Ref.CoordsToClient(location), new ColorStruct(255, 255, 255));
 
             GiftBoxState.IsSelected = pTechno.Ref.Base.IsSelected;
             GiftBoxState.BodyDir = pTechno.Ref.Facing.current();
+            GiftBoxState.Group = pTechno.Ref.Group;
             if (GiftBoxState.IsActive())
             {
                 if (!GiftBoxState.Data.OpenWhenDestoryed && !GiftBoxState.Data.OpenWhenHealthPercent && GiftBoxState.CanOpen())
@@ -184,11 +187,14 @@ namespace Extension.Ext
                     Pointer<TechnoClass> pGift = ExHelper.CreateAndPutTechno(id, pHouse, location, pCell);
                     if (!pGift.IsNull)
                     {
+                        Pointer<TechnoTypeClass> pGiftType = pGift.Ref.Type;
+
                         if (data.IsTransform)
                         {
                             // 同步朝向
                             pGift.Ref.Facing.set(GiftBoxState.BodyDir);
                             // 同步小队
+                            pGift.Ref.Group = GiftBoxState.Group;
                         }
 
                         // 同步选中
@@ -200,7 +206,7 @@ namespace Extension.Ext
                         // 修改血量
                         if (changeHealth)
                         {
-                            int strength = pGift.Ref.Type.Ref.Base.Strength;
+                            int strength = pGiftType.Ref.Base.Strength;
                             int health = (int)(strength * healthPercent);
                             // Logger.Log($"{Game.CurrentFrame} - 设置礼物 {pGift} [{pGift.Ref.Type.Ref.Base.Base.ID}] 的血量 {health} / {strength} {healthPercent}");
                             if (health <= 0)
@@ -210,6 +216,22 @@ namespace Extension.Ext
                             if (health < strength)
                             {
                                 pGift.Ref.Base.Health = health;
+                            }
+                        }
+                        
+                        // 继承等级
+                        if (data.InheritExperience && pGiftType.Ref.Trainable)
+                        {
+                            pGift.Ref.Veterancy = pTechno.Ref.Veterancy;
+                        }
+
+                        // 继承弹药
+                        if (data.InheritAmmo && pGiftType.Ref.Ammo > 1 && pTechno.Ref.Type.Ref.Ammo > 1)
+                        {
+                            int ammo = pTechno.Ref.Ammo;
+                            if (ammo >= 0)
+                            {
+                                pGift.Ref.Ammo = ammo;
                             }
                         }
 

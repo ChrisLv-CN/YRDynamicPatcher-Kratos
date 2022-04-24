@@ -104,6 +104,7 @@ namespace Extension.Ext
                 TechnoClass_Update_CrawlingFLH();
                 TechnoClass_Update_DecoyMissile();
                 TechnoClass_Update_Deselect();
+                TechnoClass_Update_DeployToTransform();
                 TechnoClass_Update_FixGattlingStage();
                 TechnoClass_Update_GiftBox();
                 TechnoClass_Update_JumpjetFacingToTarget();
@@ -447,6 +448,7 @@ namespace Extension.Ext
             ReadAutoFireAreaWeapon(reader, section);
             ReadCrawlingFLH(reader, section, artReader, artSection);
             ReadDecoyMissile(reader, section);
+            ReadDeployToTransform(reader, section);
             ReadDeselect(reader, section);
             ReadDestroyAnims(reader, section);
             ReadDestroySelf(reader, section);

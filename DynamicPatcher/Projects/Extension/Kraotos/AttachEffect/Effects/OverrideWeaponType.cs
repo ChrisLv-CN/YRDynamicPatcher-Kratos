@@ -81,7 +81,7 @@ namespace Extension.Ext
             // }
 
             List<string> types = null;
-            if (reader.ReadStringList(section, "OverrideWeapon.Type", ref types))
+            if (reader.ReadStringList(section, "OverrideWeapon.Types", ref types))
             {
                 // 过滤none
                 List<string> realTypes = new List<string>();
@@ -100,7 +100,7 @@ namespace Extension.Ext
                     this.RandomType = true;
                     this.EliteRandomType = true;
                     List<int> weights = null;
-                    if (reader.ReadIntList(section, "OverrideWeapon.Weight", ref weights))
+                    if (reader.ReadIntList(section, "OverrideWeapon.Weights", ref weights))
                     {
                         this.Weights = weights;
                         this.EliteWeights = weights;
@@ -141,7 +141,7 @@ namespace Extension.Ext
 
             
             List<string> eliteTypes = null;
-            if (reader.ReadStringList(section, "OverrideWeapon.EliteType", ref eliteTypes))
+            if (reader.ReadStringList(section, "OverrideWeapon.EliteTypes", ref eliteTypes))
             {
                 // 过滤none
                 List<string> realTypes = new List<string>();
@@ -160,7 +160,7 @@ namespace Extension.Ext
                 {
                     this.EliteRandomType = true;
                     List<int> weights = null;
-                    if (reader.ReadIntList(section, "OverrideWeapon.EliteWeight", ref weights))
+                    if (reader.ReadIntList(section, "OverrideWeapon.EliteWeights", ref weights))
                     {
                         this.EliteWeights = weights;
                     }

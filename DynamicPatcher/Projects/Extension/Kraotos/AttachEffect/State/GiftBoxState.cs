@@ -25,9 +25,29 @@ namespace Extension.Ext
 
         public bool IsSelected;
         public DirStruct BodyDir;
+        public int Group;
 
+        private bool isElite;
         private int delay;
         private TimerStruct delayTimer;
+
+        public void Update(bool isElite)
+        {
+            if (this.isElite != isElite && IsActive() && delayTimer.Expired())
+            {
+                Reset();
+            }
+            this.isElite = isElite;
+        }
+
+        private GiftBoxData GetGiftBoxData()
+        {
+            if (isElite && null != Data.EliteData)
+            {
+                return Data.EliteData;
+            }
+            return Data.Data;
+        }
 
         public override void OnEnable()
         {
@@ -36,8 +56,9 @@ namespace Extension.Ext
 
         public void Reset()
         {
+            GiftBoxData data = GetGiftBoxData();
             this.IsOpen = false;
-            this.delay = Data.RandomDelay.GetRandomValue(Data.Delay);
+            this.delay = data.RandomDelay.GetRandomValue(data.Delay);
             if (this.delay > 0)
             {
                 delayTimer.Start(this.delay);
@@ -46,7 +67,7 @@ namespace Extension.Ext
 
         public bool CanOpen()
         {
-            return IsActive() && !IsOpen && Timeup();
+            return IsActive() && !IsOpen && Timeup() && null != GetGiftBoxData();
         }
 
         private bool Timeup()
@@ -56,18 +77,19 @@ namespace Extension.Ext
 
         public List<string> GetGiftList()
         {
+            GiftBoxData data = GetGiftBoxData();
             List<string> gifts = new List<string>();
             if (null != Data)
             {
-                int giftCount = Data.Gifts.Count;
-                int numsCount = null != Data.Nums ? Data.Nums.Count : 0;
-                if (Data.RandomType)
+                int giftCount = data.Gifts.Count;
+                int numsCount = null != data.Nums ? data.Nums.Count : 0;
+                if (data.RandomType)
                 {
                     int times = 1;
                     if (numsCount > 0)
                     {
                         times = 0;
-                        foreach (int num in Data.Nums)
+                        foreach (int num in data.Nums)
                         {
                             times += num;
                         }
@@ -94,7 +116,7 @@ namespace Extension.Ext
                     //     targetPad.Add(target, index);
                     // }
                     // 获取权重标靶
-                    Dictionary<Point2D, int> targetPad = Data.RandomWeights.MakeTargetPad(giftCount, out int maxValue);
+                    Dictionary<Point2D, int> targetPad = data.RandomWeights.MakeTargetPad(giftCount, out int maxValue);
                     // 算出随机值，确认位置，取得序号，选出单位
                     for (int i = 0; i < times; i++)
                     {
@@ -114,9 +136,9 @@ namespace Extension.Ext
                         //     }
                         // }
                         // 计算概率
-                        if (Data.Chances.Bingo(index))
+                        if (data.Chances.Bingo(index))
                         {
-                            gifts.Add(Data.Gifts[index]);
+                            gifts.Add(data.Gifts[index]);
                         }
                     }
                 }
@@ -124,16 +146,16 @@ namespace Extension.Ext
                 {
                     for (int index = 0; index < giftCount; index++)
                     {
-                        string id = Data.Gifts[index];
+                        string id = data.Gifts[index];
                         int times = 1;
                         if (numsCount > 0 && index < numsCount)
                         {
-                            times = Data.Nums[index];
+                            times = data.Nums[index];
                         }
                         for (int i = 0; i < times; i++)
                         {
                             // 计算概率
-                            if (Data.Chances.Bingo(index))
+                            if (data.Chances.Bingo(index))
                             {
                                 gifts.Add(id);
                             }
