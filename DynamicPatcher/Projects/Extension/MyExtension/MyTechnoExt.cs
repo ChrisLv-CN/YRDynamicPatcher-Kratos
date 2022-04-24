@@ -117,7 +117,6 @@ namespace Extension.Ext
             }
             // 死亡还会执行的，坠落，沉没等
             TechnoClass_Update_AttachEffect();
-            TechnoClass_Update_Trail();
 
             lastLocation = OwnerObject.Ref.Base.Base.GetCoords();
         }
@@ -133,7 +132,8 @@ namespace Extension.Ext
             // {
             //     Logger.Log($"{Game.CurrentFrame} - 渲染替身 {OwnerObject} [{Type.OwnerObject.Ref.Base.Base.ID}] 开始，位置 {OwnerObject.Ref.Base.Base.GetCoords()}");
             // }
-
+            
+            TechnoClass_Render_Trail();
         }
 
         public unsafe void OnRender2()

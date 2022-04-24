@@ -103,7 +103,7 @@ namespace Extension.Ext
             return true;
         }
 
-        public void DrawTrail(Pointer<HouseClass> pHouse, CoordStruct sourcePos, CoordStruct createOffset = default)
+        public void DrawTrail(Pointer<HouseClass> pHouse, CoordStruct sourcePos)
         {
             if (default != sourcePos)
             {
@@ -127,7 +127,7 @@ namespace Extension.Ext
                 }
                 else
                 {
-                    LastLocation = sourcePos - createOffset;
+                    LastLocation = sourcePos;
                 }
             }
         }

@@ -60,6 +60,11 @@ namespace Extension.Utilities
             return new SingleVector3D(coord.X, coord.Y, coord.Z);
         }
 
+        public static Point2D ToClientPos(this CoordStruct coord)
+        {
+            return TacticalClass.Instance.Ref.CoordsToClient(coord);
+        }
+
         public static SingleVector3D ToSingleVector3D(this BulletVelocity bulletVelocity)
         {
             return new SingleVector3D(bulletVelocity.X, bulletVelocity.Y, bulletVelocity.Z);

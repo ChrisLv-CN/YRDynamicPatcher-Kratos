@@ -29,7 +29,7 @@ namespace Extension.Ext
             }
         }
 
-        public unsafe void TechnoClass_Update_Trail()
+        public unsafe void TechnoClass_Render_Trail()
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
             if (null == trailManager || pTechno.IsDeadOrInvisibleOrCloaked())
@@ -81,7 +81,7 @@ namespace Extension.Ext
             }
         }
 
-        public unsafe void BulletClass_Update_Trail()
+        public unsafe void BulletClass_Render_Trail()
         {
             trailManager?.DrawTrail(OwnerObject);
         }

@@ -20,7 +20,7 @@ namespace Extension.Ext
             Pointer<BulletClass> pBullet = OwnerObject;
             if (pBullet.Ref.Type.Ref.Arcing && Type.ArcingAdvanced)
             {
-                CoordStruct sourcePos = pCoord.Data;
+                CoordStruct sourcePos = pBullet.Ref.SourceCoords;
                 CoordStruct targetPos = pBullet.Ref.TargetCoords;
 
                 // 速度控制
@@ -45,7 +45,7 @@ namespace Extension.Ext
                 // 不精确
                 if (pBullet.Ref.Type.Ref.Inaccurate)
                 {
-                    
+
                     // 不精确, 需要修改目标坐标
                     int min = Type.Ares.BallisticScatterMin;
                     int max = Type.Ares.BallisticScatterMax > 0 ? Type.Ares.BallisticScatterMax : RulesClass.Global().BallisticScatter;
@@ -63,10 +63,15 @@ namespace Extension.Ext
                     targetPos += offset;
                     pBullet.Ref.TargetCoords = targetPos;
                     // Logger.Log("计算结果, 随机半径{0}[{1},{2}], 随机角度{3}, 偏移{4}", r, min, max, theta, offset);
+                    if (MapClass.Instance.TryGetCellAt(targetPos, out Pointer<CellClass> pCell))
+                    {
+                        CoordStruct cellPos = pCell.Ref.Base.GetCoords();
+                        targetPos.Z = cellPos.Z; // 修正高度差
+                    }
                 }
 
                 // 重算抛物线弹道
-                int zDiff = targetPos.Z - sourcePos.Z;
+                int zDiff = targetPos.Z - sourcePos.Z + pBullet.Ref.Velocity.ToCoordStruct().Z; // 修正高度差
                 targetPos.Z = 0;
                 sourcePos.Z = 0;
                 double distance = targetPos.DistanceFrom(sourcePos);
@@ -82,6 +87,22 @@ namespace Extension.Ext
             }
         }
 
+        public unsafe void BulletClass_Update_ArcingTrajectory()
+        {
+            Pointer<BulletClass> pBullet = OwnerObject;
+            if (pBullet.Ref.Type.Ref.Arcing && Type.ArcingAdvanced)
+            {
+                // 接近目标位置时引爆
+                CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
+                CoordStruct targetPos = pBullet.Ref.TargetCoords;
+                if (sourcePos.DistanceFrom(targetPos) < 64 + pBullet.Ref.Type.Ref.Acceleration)
+                {
+                    // Logger.Log($"{Game.CurrentFrame} - 距离目标太近，直接引爆，height = {pBullet.Ref.Base.GetHeight()} sourcePos = {sourcePos}, velocity = {pBullet.Ref.Velocity}, targetPos = {targetPos}");
+                    pBullet.Ref.Detonate(targetPos);
+                    pBullet.Ref.Base.UnInit();
+                }
+            }
+        }
     }
 
     public partial class BulletTypeExt

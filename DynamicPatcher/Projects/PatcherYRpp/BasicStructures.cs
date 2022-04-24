@@ -12,6 +12,11 @@ namespace PatcherYRpp
     public struct ColorStruct : IEquatable<ColorStruct>
     {
         public static ColorStruct Empty = default;
+        public static ColorStruct Red = new ColorStruct(252, 0, 0);
+        public static ColorStruct Green = new ColorStruct(0, 252, 0);
+        public static ColorStruct Blue = new ColorStruct(0, 0, 252);
+        public static ColorStruct White = new ColorStruct(252, 252, 252);
+        public static ColorStruct Black = new ColorStruct(3, 3, 3);
 
         public ColorStruct(int r, int g, int b)
         {

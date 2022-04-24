@@ -81,7 +81,6 @@ namespace Extension.Ext
                             break;
                     }
                 }
-
                 CoordStruct sourcePos = ExHelper.GetFLHAbsoluteCoords(pTechno, trail.FLH, trail.IsOnTurret);
                 trail.DrawTrail(pTechno.Ref.Owner, sourcePos);
             }
@@ -89,13 +88,13 @@ namespace Extension.Ext
 
         public void DrawTrail(Pointer<BulletClass> pBullet)
         {
+            CoordStruct location = pBullet.Ref.Base.Base.GetCoords();
+            CoordStruct forwardLocation = location + pBullet.Ref.Velocity.ToCoordStruct();
+            DirStruct bulletFacing = ExHelper.Point2Dir(location, forwardLocation);
             foreach (Trail trail in Trails)
             {
-                CoordStruct location = pBullet.Ref.Base.Location;
-                BulletVelocity velocity = pBullet.Ref.Velocity;
-                CoordStruct offset = new CoordStruct((int)velocity.X, (int)velocity.Y, (int)velocity.Z);
-                CoordStruct sourcePos = new CoordStruct((int)(location.X + velocity.X), (int)(location.Y + velocity.Y), (int)(location.Z + velocity.Z));
-                trail.DrawTrail(pHouse, sourcePos, offset);
+                CoordStruct sourcePos = ExHelper.GetFLHAbsoluteCoords(location, trail.FLH, bulletFacing);
+                trail.DrawTrail(pHouse, sourcePos);
             }
         }
 

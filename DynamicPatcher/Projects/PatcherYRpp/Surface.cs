@@ -242,6 +242,12 @@ namespace PatcherYRpp
             DrawText(text, Pointer<Point2D>.AsPointer(ref temp), color, flags);
         }
 
+        public unsafe void DrawText(string text, CoordStruct location, ColorStruct color, TextPrintType flags = TextPrintType.NoShadow)
+        {
+            Point2D pos = TacticalClass.Instance.Ref.CoordsToClient(location);
+            DrawText(text, Pointer<Point2D>.AsPointer(ref pos), color, flags);
+        }
+
         // Comments from thomassneddon
         public static unsafe Pointer<Point2D> Fancy_Text_Print_Wide(Pointer<Point2D> RetVal, UniString pText, Pointer<Surface> pSurface, Pointer<RectangleStruct> pBound,
             Pointer<Point2D> pLocation, int foreColor, int backColor, TextPrintType flags)
