@@ -174,6 +174,7 @@ namespace Extension.Ext
             this.OpenWhenHealthPercent = false;
             this.IsTransform = true;
             this.InheritHealth = true;
+            this.HealthPercent = 0;
         }
 
         public override bool TryReadType(INIReader reader, string section)
