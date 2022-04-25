@@ -79,8 +79,11 @@ namespace Extension.Ext
                     {
                         JJFacing.Turning();
                         pFoot.Ref.StopMoving();
+                        Pointer<JumpjetLocomotionClass> jjLoco = pFoot.Ref.Locomotor.ToLocomotionClass<JumpjetLocomotionClass>();
+                        jjLoco.Ref.LocomotionFacing.turn(JJFacing.ToDir); // Discovery by Trsdy
                         // pFoot.Ref.Locomotor.Ref.Do_Turn(JJFacing.ToDir); // no work
                         // pFoot.Ref.Locomotor.Ref.Push(JJFacing.ToDir); // no work
+                        /* // old school
                         CoordStruct location = pTechno.Ref.Base.Location;
                         if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell) && !pCell.IsNull)
                         {
@@ -91,6 +94,7 @@ namespace Extension.Ext
                             // pTechno.Convert<MissionClass>().Ref.QueueMission(Mission.Move, true);
                             // Logger.Log("转向, 目标方向{0}, 本体方向{1}, 偏移向量{2}, 最小向量{3}", JJFacing.ToDir.value32(), pTechno.Ref.GetRealFacing().current().value32(), offset, vector);
                         }
+                        */
                     }
                     else
                     {
