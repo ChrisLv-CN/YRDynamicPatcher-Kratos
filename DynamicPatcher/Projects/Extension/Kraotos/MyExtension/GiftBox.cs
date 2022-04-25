@@ -149,6 +149,7 @@ namespace Extension.Ext
                 }
                 Pointer<AbstractClass> pTarget = pTechno.Ref.Target;
                 Mission mission = pTechno.Convert<MissionClass>().Ref.CurrentMission;
+                bool moreGift = gifts.Count > 1;
                 // 开始投送单位，每生成一个单位就选择一次位置
                 foreach (string id in gifts)
                 {
@@ -253,7 +254,11 @@ namespace Extension.Ext
                                 // 开往预定目的地
                                 if (pDest.IsNull && pFocus.IsNull)
                                 {
-                                    pGift.Ref.Base.Scatter(CoordStruct.Empty, true, false);
+                                    // 多个礼物时散开，一个傻站着
+                                    if (moreGift)
+                                    {
+                                        pGift.Ref.Base.Scatter(CoordStruct.Empty, true, false);
+                                    }
                                 }
                                 else
                                 {
