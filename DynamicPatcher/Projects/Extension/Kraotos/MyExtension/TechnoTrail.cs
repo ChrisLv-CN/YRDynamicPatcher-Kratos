@@ -23,7 +23,7 @@ namespace Extension.Ext
                 trailManager = new TrailManager();
                 trailManager.SetTrailData(Type.TrailDatas);
             }
-            trailManager?.SourceLocation(pCoord.Data, faceDir);
+            trailManager?.Put(pCoord.Data, faceDir);
         }
 
         public unsafe void TechnoClass_Render_Trail()
@@ -37,11 +37,16 @@ namespace Extension.Ext
             trailManager?.DrawTrail(pTechno, DrivingState);
         }
 
+        public unsafe void TechnoClass_Update_Trail()
+        {
+            trailManager?.Update(OwnerObject, DrivingState);
+        }
+
         public unsafe void TechnoClass_Remove_Trail(bool isDead)
         {
             if (!isDead)
             {
-                trailManager?.ClearLocation();
+                trailManager?.Remove();
             }
         }
 
@@ -75,7 +80,7 @@ namespace Extension.Ext
                 trailManager = new TrailManager();
                 trailManager.SetTrailData(Type.TrailDatas);
                 trailManager.pHouse.Pointer = pSourceHouse;
-                trailManager.SourceLocation(OwnerObject.Convert<BulletClass>(), pCoord.Data);
+                trailManager.Put(OwnerObject.Convert<BulletClass>(), pCoord.Data);
             }
         }
 
@@ -83,6 +88,12 @@ namespace Extension.Ext
         {
             trailManager?.DrawTrail(OwnerObject);
         }
+
+        public unsafe void BulletClass_Update_Trail()
+        {
+            trailManager?.Update(OwnerObject.Convert<BulletClass>());
+        }
+
     }
 
     public partial class BulletTypeExt

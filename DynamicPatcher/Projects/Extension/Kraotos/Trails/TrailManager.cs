@@ -58,7 +58,7 @@ namespace Extension.Ext
             }
         }
 
-        public void SourceLocation(CoordStruct location, DirStruct faceDir)
+        public void Put(CoordStruct location, DirStruct faceDir)
         {
             foreach (Trail trail in Trails)
             {
@@ -67,14 +67,46 @@ namespace Extension.Ext
             }
         }
 
-        public void SourceLocation(Pointer<BulletClass> pBullet, CoordStruct location)
+        public void Put(Pointer<BulletClass> pBullet, CoordStruct location)
         {
             CoordStruct forwardLocation = location + pBullet.Ref.Velocity.ToCoordStruct();
             DirStruct bulletFacing = ExHelper.Point2Dir(location, forwardLocation);
-            SourceLocation(location, bulletFacing);
+            Put(location, bulletFacing);
         }
 
-        public void ClearLocation()
+        public void Update(Pointer<TechnoClass> pTechno, DrivingState drivingState = DrivingState.Moving)
+        {
+            foreach (Trail trail in Trails)
+            {
+                // 检查动画尾巴
+                if (trail.Type.Mode == TrailMode.ANIM)
+                {
+                    switch (drivingState)
+                    {
+                        case DrivingState.Start:
+                        case DrivingState.Stop:
+                            trail.SetDrivingState(drivingState);
+                            break;
+                    }
+                }
+                CoordStruct sourcePos = ExHelper.GetFLHAbsoluteCoords(pTechno, trail.FLH, trail.IsOnTurret);
+                trail.UpdateLastLocation(sourcePos);
+            }
+        }
+
+        public void Update(Pointer<BulletClass> pBullet)
+        {
+            CoordStruct location = pBullet.Ref.Base.Base.GetCoords();
+            CoordStruct forwardLocation = location + pBullet.Ref.Velocity.ToCoordStruct();
+            DirStruct bulletFacing = ExHelper.Point2Dir(location, forwardLocation);
+            foreach (Trail trail in Trails)
+            {
+                CoordStruct sourcePos = ExHelper.GetFLHAbsoluteCoords(location, trail.FLH, bulletFacing);
+                trail.UpdateLastLocation(sourcePos);
+            }
+        }
+
+        public void Remove()
         {
             foreach (Trail trail in Trails)
             {

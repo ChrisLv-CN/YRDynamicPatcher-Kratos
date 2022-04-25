@@ -50,6 +50,7 @@ namespace Extension.Ext
             BulletClass_Update_ArcingTrajectory();
             BulletClass_Update_ProximityRange();
             BulletClass_Update_StraightTrajectory();
+            BulletClass_Update_Trail();
             // 重设属性
             BulletClass_Update_RecalculateStatus();
             // AE要在属性重设的后面，即便AE失效后也是在下一帧再改变属性

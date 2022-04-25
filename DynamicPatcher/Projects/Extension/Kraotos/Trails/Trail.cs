@@ -61,6 +61,15 @@ namespace Extension.Ext
             this.LastLocation = location;
         }
 
+        public void UpdateLastLocation(CoordStruct location)
+        {
+            int distance = Type.Distance;
+            if (location.DistanceFrom(LastLocation) > distance || this.forceDraw)
+            {
+                this.LastLocation = location;
+            }
+        }
+
         public void ClearLastLocation()
         {
             this.LastLocation = default;

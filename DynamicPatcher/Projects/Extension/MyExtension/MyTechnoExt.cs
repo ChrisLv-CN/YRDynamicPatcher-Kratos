@@ -111,7 +111,7 @@ namespace Extension.Ext
                 TechnoClass_Update_Passengers();
                 TechnoClass_Update_SpawnFireOnce();
                 TechnoClass_Update_SpawnSupport();
-
+                TechnoClass_Update_Trail();
                 TechnoClass_Update_CustomWeapon();
                 TechnoClass_Update_Fighter_Area_Guard();
             }
@@ -132,7 +132,7 @@ namespace Extension.Ext
             // {
             //     Logger.Log($"{Game.CurrentFrame} - 渲染替身 {OwnerObject} [{Type.OwnerObject.Ref.Base.Base.ID}] 开始，位置 {OwnerObject.Ref.Base.Base.GetCoords()}");
             // }
-            
+
             TechnoClass_Render_Trail();
         }
 
