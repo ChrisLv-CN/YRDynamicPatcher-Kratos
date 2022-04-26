@@ -101,13 +101,6 @@ namespace ExtensionHooks
             return 0;
         }
 
-        // [Hook(HookType.AresHook, Address = 0x489280, Size = 6)]
-        // public static unsafe UInt32 _FastCall_Ex(REGISTERS* R)
-        // {
-        //     Logger.Log($"{Game.CurrentFrame} - 轰炸地区 damage = {R->EDX}, warhead = {R->Stack<uint>(0x12C)}");
-        //     return 0;
-        // }
-
         [Hook(HookType.AresHook, Address = 0x424785, Size = 6)]
         public static unsafe UInt32 AnimClass_Loop(REGISTERS* R)
         {

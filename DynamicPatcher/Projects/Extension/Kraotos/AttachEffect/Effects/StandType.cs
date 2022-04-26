@@ -48,12 +48,15 @@ namespace Extension.Ext
         public bool SameLoseTarget; // 使者失去目标时替身也失去
         public bool ForceAttackMaster; // 强制选择使者为目标
         public bool MobileFire; // 移动攻击
+        public bool Immune; // 无敌
+        public double DamageFromMaster; // 分摊JOJO的伤害
+        public double DamageToMaster; // 分摊伤害给JOJO
         public bool Explodes; // 死亡会爆炸
         public bool ExplodesWithMaster; // 使者死亡时强制替身爆炸
         public bool RemoveAtSinking; // 沉船时移除
-        public bool PromoteFormMaster; // 与使者同等级
+        public bool PromoteFromMaster; // 与使者同等级
         public double ExperienceToMaster; // 经验给使者
-        public bool VirtualUnit; // 不可被选择
+        public bool VirtualUnit; // 虚单位
         public bool SameTilter; // 同步倾斜
         public bool IsTrain; // 火车类型
         public bool CabinHead; // 插入车厢前端
@@ -75,12 +78,15 @@ namespace Extension.Ext
             this.ForceAttackMaster = false;
             this.MobileFire = true;
             this.Powered = false;
+            this.Immune = true;
+            this.DamageFromMaster = 0.0;
+            this.DamageToMaster = 0.0;
             this.Explodes = false;
             this.ExplodesWithMaster = false;
             this.RemoveAtSinking = false;
-            this.PromoteFormMaster = false;
+            this.PromoteFromMaster = false;
             this.ExperienceToMaster = 0.0;
-            this.VirtualUnit = false;
+            this.VirtualUnit = true;
             this.SameTilter = true;
             this.IsTrain = false;
             this.CabinHead = false;
@@ -202,6 +208,40 @@ namespace Extension.Ext
                     this.Powered = powered;
                 }
 
+                bool immune = false;
+                if (reader.ReadNormal(section, "Stand.Immune", ref immune))
+                {
+                    this.Immune = immune;
+                }
+
+                double damageFromMaster = 0.0;
+                if (reader.ReadNormal(section, "Stand.DamageFromMaster", ref damageFromMaster))
+                {
+                    if (damageFromMaster > 1.0)
+                    {
+                        damageFromMaster = 1.0;
+                    }
+                    else if (damageFromMaster < 0.0)
+                    {
+                        damageFromMaster = 0.0;
+                    }
+                    this.DamageFromMaster = damageFromMaster;
+                }
+
+                double damageToMaster = 0.0;
+                if (reader.ReadNormal(section, "Stand.DamageToMaster", ref damageToMaster))
+                {
+                    if (damageToMaster > 1.0)
+                    {
+                        damageToMaster = 1.0;
+                    }
+                    else if (damageToMaster < 0.0)
+                    {
+                        damageToMaster = 0.0;
+                    }
+                    this.DamageToMaster = damageToMaster;
+                }
+
                 bool explodes = false;
                 if (reader.ReadNormal(section, "Stand.Explodes", ref explodes))
                 {
@@ -220,10 +260,10 @@ namespace Extension.Ext
                     this.RemoveAtSinking = removeAtSinking;
                 }
 
-                bool promoteFormMaster = false;
-                if (reader.ReadNormal(section, "Stand.PromoteFormMaster", ref promoteFormMaster))
+                bool promoteFromMaster = false;
+                if (reader.ReadNormal(section, "Stand.PromoteFromMaster", ref promoteFromMaster))
                 {
-                    this.PromoteFormMaster = promoteFormMaster;
+                    this.PromoteFromMaster = promoteFromMaster;
                 }
 
                 double experienceToMaster = 0.0;
@@ -244,6 +284,10 @@ namespace Extension.Ext
                 if (reader.ReadNormal(section, "Stand.VirtualUnit", ref virtualUnit))
                 {
                     this.VirtualUnit = virtualUnit;
+                    if (VirtualUnit)
+                    {
+                        this.Immune = true;
+                    }
                 }
 
                 bool sameTilter = false;

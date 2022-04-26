@@ -173,6 +173,7 @@ namespace Extension.Ext
                 // TechnoClass_ReceiveDamage_TauntWarhead(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse, whExt, realDamage);
             }
 
+            TechnoClass_ReceiveDamage_Stand(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
         }
 
         public unsafe void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState)
@@ -272,11 +273,6 @@ namespace Extension.Ext
             {
                 return;
             }
-            if (ceaseFire = TechnoClass_CanFire_StandUnit(pTarget, pWeapon))
-            {
-                return;
-            }
-
         }
 
         public unsafe void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex)

@@ -19,21 +19,43 @@ namespace Extension.Ext
         public SwizzleablePointer<TechnoClass> MyMaster = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
         public StandType StandType;
 
-        public unsafe bool TechnoClass_CanFire_StandUnit(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon)
+        public unsafe void TechnoClass_ReceiveDamage_Stand(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
+                    Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
         {
-            if (null == StandType || StandType.MobileFire)
+            if (null != StandType)
             {
-                return false;
-            }
-            if (!MyMaster.IsNull)
-            {
-                if (MyMaster.Ref.Base.Base.WhatAmI() != AbstractType.Building)
+                // I'm stand
+                if (StandType.Immune)
                 {
-                    // 检查JOJO是否处于移动状态
-
+                    pDamage.Ref = 0;
+                }
+                else if (StandType.DamageToMaster > 0)
+                {
+                    int damage = pDamage.Ref;
+                    // 分摊伤害给使者
+                    double to = damage * StandType.DamageToMaster;
+                    pDamage.Ref = (int)(damage - to);
+                    MyMaster.Ref.Base.ReceiveDamage((int)to, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
                 }
             }
-            return false;
+            else
+            {
+                int damage = pDamage.Ref;
+                // I'm JoJO
+                foreach (AttachEffect ae in AttachEffectManager.AttachEffects)
+                {
+                    Stand stand = ae.Stand;
+                    if (null != stand && ae.IsActive() && !stand.Type.IsTrain && !stand.Type.Immune && stand.Type.DamageFromMaster > 0)
+                    {
+                        // 找到一个可以分摊伤害的替身
+                        double to = damage * stand.Type.DamageFromMaster;
+                        damage -= (int)to;
+                        stand.pStand.Ref.Base.ReceiveDamage((int)to, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
+                    }
+                }
+                pDamage.Ref = damage;
+            }
+
         }
 
         public unsafe bool TechnoClass_RegisterDestruction_StandUnit(Pointer<TechnoClass> pKiller, int cost)

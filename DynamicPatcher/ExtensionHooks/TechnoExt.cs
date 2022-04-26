@@ -441,7 +441,8 @@ namespace ExtensionHooks
                 }
                 if (ceaseFire)
                 {
-                    return (uint)0x6FCB7E;
+                    // Logger.Log($"{Game.CurrentFrame} {pTechno} [{pTechno.Ref.Type.Ref.Base.Base.ID}] cease fire !!!");
+                    return 0x6FCB7E;
                 }
             }
             catch (Exception e)
@@ -449,6 +450,41 @@ namespace ExtensionHooks
                 Logger.PrintException(e);
             }
             return 0;
+        }
+
+        // 替身需要显示在上层时，修改了渲染的层，导致单位在试图攻击替身时，需要武器具备AA
+        [Hook(HookType.AresHook, Address = 0x6FC749, Size = 5)]
+        public static unsafe UInt32 TechnoClass_CanFire_WhichLayer_Stand(REGISTERS* R)
+        {
+            uint inAir = 0x6FC74E;
+            uint onGround = 0x6FC762;
+            try
+            {
+                Pointer<AbstractClass> pTarget = R->Stack<Pointer<AbstractClass>>(0x20 - (-0x4));
+                if (pTarget.CastToTechno(out Pointer<TechnoClass> pTechno))
+                {
+                    TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                    if (null != ext && !ext.MyMaster.IsNull)
+                    {
+                        if (pTechno.InAir(true))
+                        {
+                            // in air
+                            return inAir;
+                        }
+                        // on ground
+                        return onGround;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            if ((Layer)R->EAX != Layer.Ground)
+            {
+                return inAir;
+            }
+            return onGround;
         }
 
         [Hook(HookType.AresHook, Address = 0x6FDD50, Size = 6)]
@@ -834,7 +870,7 @@ namespace ExtensionHooks
         }
 
         [Hook(HookType.AresHook, Address = 0x4D94B0, Size = 5)]
-        public static unsafe UInt32 TechnoClass_SetDestination(REGISTERS* R)
+        public static unsafe UInt32 TechnoClass_SetDestination_Stand(REGISTERS* R)
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
             TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
@@ -848,7 +884,7 @@ namespace ExtensionHooks
         }
 
         [Hook(HookType.AresHook, Address = 0x704363, Size = 5)]
-        public static unsafe UInt32 TechnoClass_GetZAdjust(REGISTERS* R)
+        public static unsafe UInt32 TechnoClass_GetZAdjust_Stand(REGISTERS* R)
         {
 
             Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
@@ -864,7 +900,7 @@ namespace ExtensionHooks
         }
 
         [Hook(HookType.AresHook, Address = 0x4DB7F7, Size = 6)]
-        public static unsafe UInt32 FootClass_In_Which_Layer(REGISTERS* R)
+        public static unsafe UInt32 FootClass_In_Which_Layer_Stand(REGISTERS* R)
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
             TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);

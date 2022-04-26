@@ -24,7 +24,7 @@ namespace Extension.Ext
             // Logger.Log("{0}, 从Type读入虚单位标签{1}", pTechno.Ref.Type.Ref.Base.Base.ID, Type.VirtualUnit);
             if (VirtualUnit)
             {
-                pTechno.Ref.Base.UpdatePlacement(PlacementType.Remove);
+                pTechno.Ref.Base.Mark(MarkType.UP);
                 pTechno.Ref.Base.IsOnMap = false;
 
                 pTechno.Ref.Type.Ref.DontScore = true;

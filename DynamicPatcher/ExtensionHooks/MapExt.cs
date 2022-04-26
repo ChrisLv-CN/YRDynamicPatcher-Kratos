@@ -16,6 +16,30 @@ namespace ExtensionHooks
     public class MapExtHooks
     {
 
+        [Hook(HookType.AresHook, Address = 0x489280, Size = 6)]
+        public static unsafe UInt32 _MapClass_DamageArea(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<CoordStruct> pLocation = (IntPtr)R->ECX;
+                int damage = (int)R->EDX;
+                Pointer<ObjectClass> pAttacker = R->Stack<IntPtr>(0x4);
+                Pointer<WarheadTypeClass> pWH = R->Stack<IntPtr>(0x8);
+                bool affectsTiberium = R->Stack<bool>(0xC);
+                Pointer<HouseClass> pAttackingHouse = R->Stack<IntPtr>(0x10);
+                // Logger.Log($"{Game.CurrentFrame} - 轰炸地区 {pLocation.Data} damage {R->EDX}, warhead {pWH} [{pWH.Ref.Base.ID}], shooter {pAttacker}, owner {pAttackingHouse}");
+
+                // Finder all stand, check distance and blown it up.
+                ExHelper.FindAndDamageStand(pLocation.Data, damage, pAttacker, pWH, affectsTiberium, pAttackingHouse);
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+
         [Hook(HookType.AresHook, Address = 0x69252D, Size = 6)]
         public static unsafe UInt32 ScrollClass_ProcessClickCoords_VirtualUnit(REGISTERS* R)
         {

@@ -101,9 +101,9 @@ namespace Extension.Ext
                     }
 
                     // 初始化替身
-                    pStand.Ref.Base.UpdatePlacement(PlacementType.Remove);
-                    pStand.Ref.Base.IsOnMap = false;
-                    pStand.Ref.Base.NeedsRedraw = true;
+                    pStand.Ref.Base.Mark(MarkType.UP); // 拔起，不在地图上
+                    // pStand.Ref.Base.IsOnMap = false;
+                    // pStand.Ref.Base.NeedsRedraw = true;
                     bool canGuard = pHouse.Ref.ControlledByHuman();
                     if (pStand.Ref.Base.Base.WhatAmI() == AbstractType.Building)
                     {
@@ -205,7 +205,7 @@ namespace Extension.Ext
 
         public override void OnUpdate(Pointer<ObjectClass> pObject, bool isDead)
         {
-            
+
             // 只同步状态，位置和朝向由StandManager控制
             if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
             {
@@ -247,9 +247,9 @@ namespace Extension.Ext
                 return;
             }
             // reset state
-            pStand.Ref.Base.UpdatePlacement(PlacementType.Remove);
-            pStand.Ref.Base.IsOnMap = false;
-            pStand.Ref.Base.NeedsRedraw = true;
+            pStand.Ref.Base.Mark(MarkType.UP); // 拔起，不在地图上
+            // pStand.Ref.Base.IsOnMap = false;
+            // pStand.Ref.Base.NeedsRedraw = true;
             if (pStand.Ref.Base.Base.WhatAmI() != AbstractType.Building)
             {
                 pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Lock();
@@ -289,7 +289,7 @@ namespace Extension.Ext
             pStand.Ref.ShouldLoseTargetNow = pMaster.Ref.ShouldLoseTargetNow;
 
             // synch Promote
-            if (Type.PromoteFormMaster && pStand.Ref.Type.Ref.Trainable)
+            if (Type.PromoteFromMaster && pStand.Ref.Type.Ref.Trainable)
             {
                 pStand.Ref.Veterancy = pMaster.Ref.Veterancy;
             }

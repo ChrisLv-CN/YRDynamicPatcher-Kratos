@@ -144,6 +144,19 @@ namespace Extension.Utilities
             return pTechno.IsDeadOrInvisible() || pTechno.IsCloaked();
         }
 
+        public static bool InAir(this Pointer<TechnoClass> pTechno, bool stand)
+        {
+            if (!pTechno.IsNull)
+            {
+                if (stand)
+                {
+                    return pTechno.Ref.Base.GetHeight() > Game.LevelHeight * 2;
+                }
+                return pTechno.Ref.Base.Base.IsInAir();
+            }
+            return false;
+        }
+
         public static void SetAnimOwner(this Pointer<AnimClass> pAnim, Pointer<ObjectClass> pObject)
         {
             switch (pObject.Ref.Base.WhatAmI())
