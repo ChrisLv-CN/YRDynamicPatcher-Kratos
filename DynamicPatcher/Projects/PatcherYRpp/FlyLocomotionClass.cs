@@ -24,10 +24,10 @@ namespace PatcherYRpp
 		[FieldOffset(80)] public byte IsTakingOff;
 		[FieldOffset(81)] public Bool IsLanding;
 		[FieldOffset(82)] public Bool WasLanding;
-		[FieldOffset(83)] public Bool unknown_bool_53;
-		[FieldOffset(84)] public int unknown_54;
-		[FieldOffset(88)] public int unknown_58;
-		[FieldOffset(92)] public Bool IsElevating;
+		[FieldOffset(83)] public Bool unknown_bool_53; // rotation_byte_53
+		[FieldOffset(84)] public int unknown_54; // rotation_drword_54
+		[FieldOffset(88)] public int unknown_58; // strength_drword_58
+		[FieldOffset(92)] public Bool IsElevating; // land_shadow_bool
 		[FieldOffset(93)] public Bool unknown_bool_5D;
 		[FieldOffset(94)] public Bool unknown_bool_5E;
 		[FieldOffset(95)] public Bool unknown_bool_5F;

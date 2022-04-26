@@ -124,6 +124,8 @@ namespace PatcherYRpp
         [FieldOffset(1640)] public TimerStruct BlockagePathTimer;
         [FieldOffset(1652)] public COMPtr<ILocomotion> locomotor;
         public ILocomotion Locomotor { get => locomotor.Object; set => locomotor.Object = value; }
+        [FieldOffset(1684)] public IntPtr parasiteEatingMe;
+        public Pointer<FootClass> ParasiteEatingMe => parasiteEatingMe;
         [FieldOffset(1711)] public Bool FacingChanging;
         [FieldOffset(1718)] public Bool FrozenStill;
     }

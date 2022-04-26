@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using PatcherYRpp.FileFormats;
 
 namespace PatcherYRpp
 {
@@ -51,6 +52,26 @@ namespace PatcherYRpp
         [FieldOffset(156)] public Armor Armor;
 
         [FieldOffset(160)] public int Strength;
+
+        [FieldOffset(164)] public Pointer<SHPStruct> Image;
+
+        [FieldOffset(168)] public Bool ImageAllocated;
+
+        [FieldOffset(172)] public Pointer<SHPStruct> AlphaImage;
+
+        [FieldOffset(176)] public VoxelStruct MainVoxel;
+
+        [FieldOffset(184)] public VoxelStruct TurretVoxel;
+
+        [FieldOffset(192)] public VoxelStruct BarrelVoxel;
+
+        [FieldOffset(200)] public VoxelStruct chargerTurrets_first;
+        public Pointer<VoxelStruct> ChargeTurrets => Pointer<VoxelStruct>.AsPointer(ref chargerTurrets_first);
+
+        [FieldOffset(344)] public VoxelStruct chargerBarrels_first;
+        public Pointer<VoxelStruct> ChargerBarrels => Pointer<VoxelStruct>.AsPointer(ref chargerBarrels_first);
+
+        [FieldOffset(488)] public Bool NoSpawnAlt;
 
         [FieldOffset(560)] public Bool Selectable;
 

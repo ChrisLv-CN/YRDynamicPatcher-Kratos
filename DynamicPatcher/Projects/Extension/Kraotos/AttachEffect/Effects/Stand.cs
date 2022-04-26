@@ -263,12 +263,6 @@ namespace Extension.Ext
                 pStand.Ref.Owner = pMaster.Ref.Owner;
             }
 
-            // synch Tilt
-            if (!Type.IsTrain)
-            {
-                pStand.Ref.AngleRotatedForwards = pMaster.Ref.AngleRotatedForwards;
-                pStand.Ref.AngleRotatedSideways = pMaster.Ref.AngleRotatedSideways;
-            }
 
             // synch State
             pStand.Ref.IsSinking = pMaster.Ref.IsSinking;
@@ -320,79 +314,6 @@ namespace Extension.Ext
             {
                 Pointer<FootClass> pFoot = pMaster.Convert<FootClass>();
                 masterIsMoving = pFoot.Ref.Locomotor.Is_Moving() && pFoot.Ref.GetCurrentSpeed() > 0;
-            }
-
-            ILocomotion masterLoco = null;
-            ILocomotion standLoco = null;
-            if (!masterIsBuilding)
-            {
-                masterLoco = pMaster.Convert<FootClass>().Ref.Locomotor;
-            }
-            if (!isBuilding)
-            {
-                standLoco = pStand.Pointer.Convert<FootClass>().Ref.Locomotor;
-            }
-
-            // synch Moving anim
-            if (Type.IsTrain && !isBuilding)
-            {
-                // switch (pStand.Ref.Base.Base.WhatAmI())
-                // {
-                //     case AbstractType.Infantry:
-                //         Pointer<InfantryClass> pInf = pStand.Pointer.Convert<InfantryClass>();
-                //         // pInf.Convert<FootClass>().Ref.Inf_PlayAnim(SequenceAnimType.FIRE_WEAPON);
-
-                //         pInf.Ref.SequenceAnim = SequenceAnimType.FIRE_WEAPON;
-                //         break;
-                //     case AbstractType.Unit:
-
-                //         break;
-                // }
-                // CoordStruct sourcePos = pStand.Ref.Base.Base.GetCoords();
-                // ILocomotion loco = pStand.Pointer.Convert<FootClass>().Ref.Locomotor;
-                // Guid locoId = loco.ToLocomotionClass().Ref.GetClassID();
-                // if (LocomotionClass.Walk == locoId)
-                // {
-                //     Pointer<WalkLocomotionClass> pLoco = loco.ToLocomotionClass<WalkLocomotionClass>();
-                //     if (masterIsMoving)
-                //     {
-                //         pLoco.Ref.Destination = ExHelper.GetFLHAbsoluteCoords(pStand.Pointer, new CoordStruct(1024, 0, 0));
-                //         pLoco.Ref.IsMoving = false;
-                //     }
-                //     else
-                //     {
-                //         pLoco.Ref.Destination = default;
-                //         pLoco.Ref.IsMoving = false;
-                //     }
-                // }
-                // else if (LocomotionClass.Mech == locoId)
-                // {
-                //     Pointer<MechLocomotionClass> pLoco = loco.ToLocomotionClass<MechLocomotionClass>();
-                //     if (masterIsMoving)
-                //     {
-                //         pLoco.Ref.Destination = ExHelper.GetFLHAbsoluteCoords(pStand.Pointer, new CoordStruct(1024, 0, 0));
-                //         pLoco.Ref.IsMoving = true;
-                //     }
-                //     else
-                //     {
-                //         pLoco.Ref.Destination = default;
-                //         pLoco.Ref.IsMoving = false;
-                //     }
-
-                // }
-            }
-            else if (Type.SameTilter && null != masterLoco && null != standLoco)
-            {
-                // synch Tilter
-                Guid masterLocoId = masterLoco.ToLocomotionClass().Ref.GetClassID();
-                Guid standLocoId = standLoco.ToLocomotionClass().Ref.GetClassID();
-                if (LocomotionClass.Drive == masterLocoId && LocomotionClass.Drive == standLocoId)
-                {
-                    Pointer<DriveLocomotionClass> pMasterLoco = masterLoco.ToLocomotionClass<DriveLocomotionClass>();
-                    Pointer<DriveLocomotionClass> pStandLoco = standLoco.ToLocomotionClass<DriveLocomotionClass>();
-                    pStandLoco.Ref.Ramp1 = pMasterLoco.Ref.Ramp1;
-                    pStandLoco.Ref.Ramp2 = pMasterLoco.Ref.Ramp2;
-                }
             }
 
             // check fire
@@ -487,6 +408,136 @@ namespace Extension.Ext
                 pStand.Ref.SpawnManager.Ref.Destination = IntPtr.Zero;
                 pStand.Ref.SpawnManager.Ref.Target = IntPtr.Zero;
                 pStand.Ref.SpawnManager.Ref.SetTarget(IntPtr.Zero);
+            }
+        }
+
+        public void OnRender2(Pointer<ObjectClass> pObject)
+        {
+            if (!isBuilding && pObject.CastToFoot(out Pointer<FootClass> pMaster))
+            {
+                // synch Tilt
+                if (!Type.IsTrain)
+                {
+                    // rocker Squid capture ship
+                    // pStand.Ref.AngleRotatedForwards = pMaster.Ref.Base.AngleRotatedForwards;
+                    // pStand.Ref.AngleRotatedSideways = pMaster.Ref.Base.AngleRotatedSideways;
+
+                    if (Type.SameTilter)
+                    {
+                        float forwards = pMaster.Ref.Base.AngleRotatedForwards;
+                        float sideways = pMaster.Ref.Base.AngleRotatedSideways;
+                        float t = 0f;
+                        // Logger.Log($"{Game.CurrentFrame} 替身 朝向 {Type.Direction}, forwards = {forwards}, sideways = {sideways}");
+                        // 计算方向
+                        switch (Type.Direction)
+                        {
+                            case 0: // 正前 N
+                                break;
+                            case 2: // 前右 NE
+                                break;
+                            case 4: // 正右 E
+                                t = forwards;
+                                forwards = -sideways;
+                                sideways = t;
+                                break;
+                            case 6: // 右后 SE
+                                break;
+                            case 8: // 正后 S
+                                sideways = -sideways;
+                                break;
+                            case 10: // 后左 SW
+                            case 12: // 正左 W
+                                t = forwards;
+                                forwards = sideways;
+                                sideways = -t;
+                                break;
+                            case 14: // 前左 NW
+                                break;
+                        }
+                        pStand.Ref.AngleRotatedForwards = forwards;
+                        pStand.Ref.AngleRotatedSideways = sideways;
+                        pStand.Ref.RockingForwardsPerFrame = forwards;
+                        pStand.Ref.RockingSidewaysPerFrame = sideways;
+
+                        ILocomotion masterLoco = pMaster.Ref.Locomotor;
+                        ILocomotion standLoco = pStand.Pointer.Convert<FootClass>().Ref.Locomotor;
+
+                        Guid masterLocoId = masterLoco.ToLocomotionClass().Ref.GetClassID();
+                        Guid standLocoId = standLoco.ToLocomotionClass().Ref.GetClassID();
+                        if (masterLocoId == LocomotionClass.Drive && standLocoId == LocomotionClass.Drive)
+                        {
+                            Pointer<DriveLocomotionClass> pMasterLoco = masterLoco.ToLocomotionClass<DriveLocomotionClass>();
+                            Pointer<DriveLocomotionClass> pStandLoco = masterLoco.ToLocomotionClass<DriveLocomotionClass>();
+                            pStandLoco.Ref.Ramp1 = pMasterLoco.Ref.Ramp1;
+                            pStandLoco.Ref.Ramp2 = pMasterLoco.Ref.Ramp2;
+                        }
+                        else if (masterLocoId == LocomotionClass.Ship && standLocoId == LocomotionClass.Ship)
+                        {
+                            Pointer<ShipLocomotionClass> pMasterLoco = masterLoco.ToLocomotionClass<ShipLocomotionClass>();
+                            Pointer<ShipLocomotionClass> pStandLoco = masterLoco.ToLocomotionClass<ShipLocomotionClass>();
+                            pStandLoco.Ref.Ramp1 = pMasterLoco.Ref.Ramp1;
+                            pStandLoco.Ref.Ramp2 = pMasterLoco.Ref.Ramp2;
+                        }
+
+                        // 播放行动动画的测试
+                        if (standLocoId == LocomotionClass.Drive)
+                        {
+                            Pointer<DriveLocomotionClass> pStandLoco = masterLoco.ToLocomotionClass<DriveLocomotionClass>();
+                            pStandLoco.Ref.IsDriving = true;
+                        }
+                    }
+                }
+
+
+                // synch Moving anim
+                if (Type.IsTrain)
+                {
+                    // switch (pStand.Ref.Base.Base.WhatAmI())
+                    // {
+                    //     case AbstractType.Infantry:
+                    //         Pointer<InfantryClass> pInf = pStand.Pointer.Convert<InfantryClass>();
+                    //         // pInf.Convert<FootClass>().Ref.Inf_PlayAnim(SequenceAnimType.FIRE_WEAPON);
+
+                    //         pInf.Ref.SequenceAnim = SequenceAnimType.FIRE_WEAPON;
+                    //         break;
+                    //     case AbstractType.Unit:
+
+                    //         break;
+                    // }
+                    // CoordStruct sourcePos = pStand.Ref.Base.Base.GetCoords();
+                    // ILocomotion loco = pStand.Pointer.Convert<FootClass>().Ref.Locomotor;
+                    // Guid locoId = loco.ToLocomotionClass().Ref.GetClassID();
+                    // if (LocomotionClass.Walk == locoId)
+                    // {
+                    //     Pointer<WalkLocomotionClass> pLoco = loco.ToLocomotionClass<WalkLocomotionClass>();
+                    //     if (masterIsMoving)
+                    //     {
+                    //         pLoco.Ref.Destination = ExHelper.GetFLHAbsoluteCoords(pStand.Pointer, new CoordStruct(1024, 0, 0));
+                    //         pLoco.Ref.IsMoving = false;
+                    //     }
+                    //     else
+                    //     {
+                    //         pLoco.Ref.Destination = default;
+                    //         pLoco.Ref.IsMoving = false;
+                    //     }
+                    // }
+                    // else if (LocomotionClass.Mech == locoId)
+                    // {
+                    //     Pointer<MechLocomotionClass> pLoco = loco.ToLocomotionClass<MechLocomotionClass>();
+                    //     if (masterIsMoving)
+                    //     {
+                    //         pLoco.Ref.Destination = ExHelper.GetFLHAbsoluteCoords(pStand.Pointer, new CoordStruct(1024, 0, 0));
+                    //         pLoco.Ref.IsMoving = true;
+                    //     }
+                    //     else
+                    //     {
+                    //         pLoco.Ref.Destination = default;
+                    //         pLoco.Ref.IsMoving = false;
+                    //     }
+
+                    // }
+                }
+
             }
         }
 

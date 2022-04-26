@@ -454,6 +454,7 @@ namespace Extension.Ext
                     if (null != ae.Stand && ae.Stand.IsAlive())
                     {
                         StandHelper.UpdateStandLocation(this, pOwner, ae.Stand, ref markIndex);
+                        ae.Stand.OnRender2(pOwner);
                     }
                 }
             }
