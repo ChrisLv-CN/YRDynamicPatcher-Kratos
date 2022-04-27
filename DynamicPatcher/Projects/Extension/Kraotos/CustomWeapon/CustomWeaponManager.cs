@@ -23,6 +23,7 @@ namespace Extension.Ext
         public AttachFireData FireData; // 武器发射的设置
         public FireBulletToTarget Callback; // 武器发射后回调函数
         public int Burst; // 总数
+        public int MinRange; // 最近射程
         public int Range; // 射程
 
         public int FlipY; // 左右发射位点标签
@@ -31,13 +32,14 @@ namespace Extension.Ext
         private TimerStruct timer;
         private int flag;
 
-        public SimulateBurst(Pointer<WeaponTypeClass> pWeaponType, Pointer<TechnoClass> pShooter, Pointer<AbstractClass> pTarget, CoordStruct flh, int burst, int range, AttachFireData fireData, int flipY, FireBulletToTarget callback)
+        public SimulateBurst(Pointer<WeaponTypeClass> pWeaponType, Pointer<TechnoClass> pShooter, Pointer<AbstractClass> pTarget, CoordStruct flh, int burst, int minRange, int range, AttachFireData fireData, int flipY, FireBulletToTarget callback)
         {
             this.pWeaponType = new SwizzleablePointer<WeaponTypeClass>(pWeaponType);
             this.pShooter = new SwizzleablePointer<TechnoClass>(pShooter);
             this.pTarget = new SwizzleablePointer<AbstractClass>(pTarget);
             this.FLH = flh;
             this.Burst = burst;
+            this.MinRange = minRange;
             this.Range = range;
             this.FireData = fireData;
             this.Callback = callback;
@@ -49,7 +51,7 @@ namespace Extension.Ext
 
         public SimulateBurst Clone()
         {
-            SimulateBurst newObj = new SimulateBurst(pWeaponType, pShooter, pTarget, FLH, Burst, Range, FireData, FlipY, Callback);
+            SimulateBurst newObj = new SimulateBurst(pWeaponType, pShooter, pTarget, FLH, Burst, MinRange, Range, FireData, FlipY, Callback);
             newObj.Index = Index;
             return newObj;
         }
@@ -126,7 +128,7 @@ namespace Extension.Ext
                             if (!pWeaponType.IsNull
                                 && !pShooter.IsNull && pShooter.Ref.Base.IsAlive
                                 && !pTarget.IsNull && (!pTarget.CastToTechno(out Pointer<TechnoClass> pTemp) || !pTemp.IsDeadOrInvisible())
-                                && (!burst.FireData.CheckRange || pShooter.Ref.Base.Base.GetCoords().DistanceFrom(pTarget.Ref.GetCoords()) <= burst.Range)
+                                && (!burst.FireData.CheckRange || InRange(pShooter, pTarget, burst))
                                 && (pAttacker.Ref.Transporter.IsNull || (pWeaponType.Ref.FireInTransport || burst.FireData.OnlyFireInTransport))
                             )
                             {
@@ -144,6 +146,17 @@ namespace Extension.Ext
                     }
                 }
             }
+        }
+
+        private bool InRange(Pointer<TechnoClass> pShooter, Pointer<AbstractClass> pTarget, SimulateBurst burst)
+        {
+            return InRange(pShooter, pTarget, burst.MinRange, burst.Range);
+        }
+
+        private bool InRange(Pointer<TechnoClass> pShooter, Pointer<AbstractClass> pTarget, int minRange, int range)
+        {
+            double dist = pShooter.Ref.Base.Base.GetCoords().DistanceFrom(pTarget.Ref.GetCoords());
+            return dist >= minRange && dist <= range;
         }
 
         public bool FireCustomWeapon(Pointer<TechnoClass> pShooter, Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget, string weaponId, CoordStruct flh, CoordStruct bulletSourcePos, double rofMult, FireBulletToTarget callback)
@@ -180,6 +193,7 @@ namespace Extension.Ext
                         return isFire;
                     }
                     int burst = pWeapon.Ref.Burst;
+                    int minRange = pWeapon.Ref.MinimumRange;
                     int range = pWeapon.Ref.Range;
                     if (pTarget.Ref.IsInAir())
                     {
@@ -199,7 +213,7 @@ namespace Extension.Ext
                                 flipY = -1;
                             }
                         }
-                        SimulateBurst newBurst = new SimulateBurst(pWeapon, pShooter, pTarget, fireFLH, burst, range, fireData, flipY, callback);
+                        SimulateBurst newBurst = new SimulateBurst(pWeapon, pShooter, pTarget, fireFLH, burst, minRange, range, fireData, flipY, callback);
                         // Logger.Log("{0} - {1}{2}添加订单模拟Burst发射{3}发，目标类型{4}，入队", Game.CurrentFrame, pAttacker.IsNull ? "null" : pAttacker.Ref.Type.Ref.Base.Base.ID, pAttacker, burst, pAttacker.Ref.Target.IsNull ? "null" : pAttacker.Ref.Target.Ref.WhatAmI());
                         // 发射武器
                         SimulateBurstFire(pShooter, pAttacker, pTarget, pWeapon, ref newBurst);
@@ -210,7 +224,7 @@ namespace Extension.Ext
                     else
                     {
                         // 检查射程
-                        if (!fireData.CheckRange || pShooter.Ref.Base.Base.GetCoords().DistanceFrom(pTarget.Ref.GetCoords()) <= range)
+                        if (!fireData.CheckRange || InRange(pShooter, pTarget, minRange, range))
                         {
                             // 直接发射武器
                             // Logger.Log("{0} - {1}{2}添加订单发射自定义武器{3}，目标类型{4}，入队", Game.CurrentFrame, pAttacker.IsNull ? "null" : pAttacker.Ref.Type.Ref.Base.Base.ID, pAttacker, pWeapon.Ref.Base.ID, pAttacker.Ref.Target.IsNull ? "null" : pAttacker.Ref.Target.Ref.WhatAmI());
