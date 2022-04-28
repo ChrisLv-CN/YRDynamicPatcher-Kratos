@@ -110,6 +110,7 @@ namespace Extension.Ext
                 TechnoClass_Update_Paintball();
                 TechnoClass_Update_Passengers();
                 TechnoClass_Update_SpawnFireOnce();
+                TechnoClass_Update_SpawnMissileHoming();
                 TechnoClass_Update_SpawnSupport();
                 TechnoClass_Update_Trail();
                 TechnoClass_Update_CustomWeapon();
@@ -146,6 +147,7 @@ namespace Extension.Ext
             TechnoClass_Put_AircraftPut(pCoord, faceDir);
             TechnoClass_Put_AttachEffect(pCoord, faceDir);
             TechnoClass_Put_DestroySelf(pCoord, faceDir);
+            TechnoClass_Put_SpawnMissileHoming(pCoord, faceDir);
             TechnoClass_Put_Trail(pCoord, faceDir);
         }
 

@@ -147,6 +147,14 @@ namespace PatcherYRpp
 
         [FieldOffset(3412)] public Bool Spawned;
 
+        [FieldOffset(3412)] public int SpawnsNumber;
+
+        [FieldOffset(3412)] public int SpawnRegenRate;
+
+        [FieldOffset(3412)] public int SpawnReloadRate;
+
+        [FieldOffset(3432)] public Bool MissileSpawn;
+
         [FieldOffset(3434)] public Bool BalloonHover;
 
         [FieldOffset(3476)] public Bool JumpJet;
