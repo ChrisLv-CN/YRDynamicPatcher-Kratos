@@ -150,13 +150,13 @@ namespace Extension.Ext
 
         private bool InRange(Pointer<TechnoClass> pShooter, Pointer<AbstractClass> pTarget, SimulateBurst burst)
         {
-            return InRange(pShooter, pTarget, burst.MinRange, burst.Range);
+            return InRange(pShooter, pTarget, burst.pWeaponType);
         }
 
-        private bool InRange(Pointer<TechnoClass> pShooter, Pointer<AbstractClass> pTarget, int minRange, int range)
+        private bool InRange(Pointer<TechnoClass> pShooter, Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon)
         {
-            double dist = pShooter.Ref.Base.Base.GetCoords().DistanceFrom(pTarget.Ref.GetCoords());
-            return dist >= minRange && dist <= range;
+            CoordStruct location = pShooter.Ref.Base.Base.GetCoords();
+            return pShooter.Ref.InRange(location, pTarget, pWeapon);
         }
 
         public bool FireCustomWeapon(Pointer<TechnoClass> pShooter, Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget, string weaponId, CoordStruct flh, CoordStruct bulletSourcePos, double rofMult, FireBulletToTarget callback)
@@ -224,7 +224,7 @@ namespace Extension.Ext
                     else
                     {
                         // 检查射程
-                        if (!fireData.CheckRange || InRange(pShooter, pTarget, minRange, range))
+                        if (!fireData.CheckRange || InRange(pShooter, pTarget, pWeapon))
                         {
                             // 直接发射武器
                             // Logger.Log("{0} - {1}{2}添加订单发射自定义武器{3}，目标类型{4}，入队", Game.CurrentFrame, pAttacker.IsNull ? "null" : pAttacker.Ref.Type.Ref.Base.Base.ID, pAttacker, pWeapon.Ref.Base.ID, pAttacker.Ref.Target.IsNull ? "null" : pAttacker.Ref.Target.Ref.WhatAmI());

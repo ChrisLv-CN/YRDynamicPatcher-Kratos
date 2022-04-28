@@ -202,6 +202,12 @@ namespace PatcherYRpp
             return func(ref this);
         }
 
+        public unsafe bool InRange(CoordStruct location, Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr, IntPtr, IntPtr, Bool>)0x6F7220;
+            return func(ref this, Pointer<CoordStruct>.AsPointer(ref location), pTarget, pWeapon);
+        }
+
         public unsafe void SetFocus(Pointer<AbstractClass> pTarget)
         {
             var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr, void>)0x70C610;

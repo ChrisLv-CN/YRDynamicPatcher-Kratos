@@ -17,6 +17,8 @@ namespace PatcherYRpp
 
         [FieldOffset(52)] public Timer34 Timer34; // 飞行轨迹阶段，0x66231F
 
+        [FieldOffset(68)] public int Speed; // 0x44
+
         [FieldOffset(81)] public Bool UseElite;
     }
 
