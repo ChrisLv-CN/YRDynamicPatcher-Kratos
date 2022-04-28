@@ -440,25 +440,27 @@ namespace Extension.Ext
 
         public unsafe void Render2(Pointer<ObjectClass> pOwner, bool isDead)
         {
-            renderFlag = true;
-            // 记录下位置
-            CoordStruct location = MarkLocation(pOwner);
-            // 更新替身的位置
-            int markIndex = 0;
-            for (int i = Count() - 1; i >= 0; i--)
+            renderFlag = !isDead;
+            if (renderFlag)
             {
-                AttachEffect ae = AttachEffects[i];
-                if (ae.IsActive())
+                // 记录下位置
+                CoordStruct location = MarkLocation(pOwner);
+                // 更新替身的位置
+                int markIndex = 0;
+                for (int i = Count() - 1; i >= 0; i--)
                 {
-                    // 如果是替身，额外执行替身的定位操作
-                    if (null != ae.Stand && ae.Stand.IsAlive())
+                    AttachEffect ae = AttachEffects[i];
+                    if (ae.IsActive())
                     {
-                        StandHelper.UpdateStandLocation(this, pOwner, ae.Stand, ref markIndex);
-                        ae.Stand.OnRender2(pOwner);
+                        // 如果是替身，额外执行替身的定位操作
+                        if (null != ae.Stand && ae.Stand.IsAlive())
+                        {
+                            StandHelper.UpdateStandLocation(this, pOwner, ae.Stand, ref markIndex);
+                            ae.Stand.OnRender2(pOwner);
+                        }
                     }
                 }
             }
-
         }
 
         public unsafe void ReceiveDamage(Pointer<ObjectClass> pOwner, Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,

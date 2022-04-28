@@ -456,32 +456,33 @@ namespace ExtensionHooks
         [Hook(HookType.AresHook, Address = 0x6FC749, Size = 5)]
         public static unsafe UInt32 TechnoClass_CanFire_WhichLayer_Stand(REGISTERS* R)
         {
+            Layer layer = (Layer)R->EAX;
             uint inAir = 0x6FC74E;
             uint onGround = 0x6FC762;
-            try
+            if (layer != Layer.Ground)
             {
-                Pointer<AbstractClass> pTarget = R->Stack<Pointer<AbstractClass>>(0x20 - (-0x4));
-                if (pTarget.CastToTechno(out Pointer<TechnoClass> pTechno))
+                try
                 {
-                    TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                    if (null != ext && !ext.MyMaster.IsNull)
+                    Pointer<AbstractClass> pTarget = R->Stack<Pointer<AbstractClass>>(0x20 - (-0x4));
+                    if (pTarget.CastToTechno(out Pointer<TechnoClass> pTechno))
                     {
-                        if (pTechno.InAir(true))
+                        TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                        if (null != ext && !ext.MyMaster.IsNull)
                         {
-                            // in air
-                            return inAir;
+                            if (pTechno.InAir(true))
+                            {
+                                // in air
+                                return inAir;
+                            }
+                            // on ground
+                            return onGround;
                         }
-                        // on ground
-                        return onGround;
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                Logger.PrintException(e);
-            }
-            if ((Layer)R->EAX != Layer.Ground)
-            {
+                catch (Exception e)
+                {
+                    Logger.PrintException(e);
+                }
                 return inAir;
             }
             return onGround;
