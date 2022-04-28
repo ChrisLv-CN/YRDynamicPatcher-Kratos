@@ -457,6 +457,7 @@ namespace Extension.Ext
             ReadJumpjetFacingToTarget(reader, section);
             ReadPassengers(reader, section);
             ReadSpawnFireOnce(reader, section);
+            ReadSpawnMissileHoming(reader, section);
             ReadSpawnSupport(reader, section, artReader, artSection);
             ReadTrail(reader, section, artReader, artSection);
             ReadVirtualUnit(reader, section);
