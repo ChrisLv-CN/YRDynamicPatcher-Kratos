@@ -57,7 +57,7 @@ namespace Extension.Ext
         //}
 
         //[Hook(HookType.AresHook, Address = 0x711835, Size = 5)]
-        static public unsafe UInt32 TechnoTypeClass_CTOR(REGISTERS* R)
+        public static unsafe UInt32 TechnoTypeClass_CTOR(REGISTERS* R)
         {
             var pItem = (Pointer<TechnoTypeClass>)R->ESI;
 
@@ -66,7 +66,7 @@ namespace Extension.Ext
         }
 
         //[Hook(HookType.AresHook, Address = 0x711AE0, Size = 5)]
-        static public unsafe UInt32 TechnoTypeClass_DTOR(REGISTERS* R)
+        public static unsafe UInt32 TechnoTypeClass_DTOR(REGISTERS* R)
         {
             var pItem = (Pointer<TechnoTypeClass>)R->ECX;
 
@@ -76,7 +76,7 @@ namespace Extension.Ext
 
         //[Hook(HookType.AresHook, Address = 0x716132, Size = 5)]
         //[Hook(HookType.AresHook, Address = 0x716123, Size = 5)]
-        static public unsafe UInt32 TechnoTypeClass_LoadFromINI(REGISTERS* R)
+        public static unsafe UInt32 TechnoTypeClass_LoadFromINI(REGISTERS* R)
         {
             var pItem = (Pointer<TechnoTypeClass>)R->EBP;
             var pINI = R->Stack<Pointer<CCINIClass>>(0x380);
@@ -87,7 +87,7 @@ namespace Extension.Ext
 
         //[Hook(HookType.AresHook, Address = 0x716DC0, Size = 5)]
         //[Hook(HookType.AresHook, Address = 0x7162F0, Size = 6)]
-        static public unsafe UInt32 TechnoTypeClass_SaveLoad_Prefix(REGISTERS* R)
+        public static unsafe UInt32 TechnoTypeClass_SaveLoad_Prefix(REGISTERS* R)
         {
             var pItem = R->Stack<Pointer<TechnoTypeClass>>(0x4);
             var pStm = R->Stack<Pointer<IStream>>(0x8);
@@ -98,14 +98,14 @@ namespace Extension.Ext
         }
 
         //[Hook(HookType.AresHook, Address = 0x716DAC, Size = 0xA)]
-        static public unsafe UInt32 TechnoTypeClass_Load_Suffix(REGISTERS* R)
+        public static unsafe UInt32 TechnoTypeClass_Load_Suffix(REGISTERS* R)
         {
             TechnoTypeExt.ExtMap.LoadStatic();
             return 0;
         }
 
         //[Hook(HookType.AresHook, Address = 0x717094, Size = 5)]
-        static public unsafe UInt32 TechnoTypeClass_Save_Suffix(REGISTERS* R)
+        public static unsafe UInt32 TechnoTypeClass_Save_Suffix(REGISTERS* R)
         {
             TechnoTypeExt.ExtMap.SaveStatic();
             return 0;

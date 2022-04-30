@@ -12,13 +12,13 @@ namespace PatcherYRpp
     public struct ObjectClass
     {
 
-        static public readonly IntPtr CurrentObjectsPointer = new IntPtr(0xA8ECB8);
-        static public ref DynamicVectorClass<Pointer<ObjectClass>> CurrentObjects { get => ref DynamicVectorClass<Pointer<ObjectClass>>.GetDynamicVector(CurrentObjectsPointer); }
+        public static readonly IntPtr CurrentObjectsPointer = new IntPtr(0xA8ECB8);
+        public static ref DynamicVectorClass<Pointer<ObjectClass>> CurrentObjects { get => ref DynamicVectorClass<Pointer<ObjectClass>>.GetDynamicVector(CurrentObjectsPointer); }
 
-        static public readonly IntPtr ArrayPointer = new IntPtr(0xA8E360);
-        static public ref DynamicVectorClass<Pointer<ObjectClass>> Array { get => ref DynamicVectorClass<Pointer<ObjectClass>>.GetDynamicVector(ArrayPointer); }
+        public static readonly IntPtr ArrayPointer = new IntPtr(0xA8E360);
+        public static ref DynamicVectorClass<Pointer<ObjectClass>> Array { get => ref DynamicVectorClass<Pointer<ObjectClass>>.GetDynamicVector(ArrayPointer); }
 
-        static public readonly IntPtr ObjectsInLayersPointer = new IntPtr(0x8A0360);
+        public static readonly IntPtr ObjectsInLayersPointer = new IntPtr(0x8A0360);
 
         public unsafe Pointer<TechnoTypeClass> TechnoType
         {

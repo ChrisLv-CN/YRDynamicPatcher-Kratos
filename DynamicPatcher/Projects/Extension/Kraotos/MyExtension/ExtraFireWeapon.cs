@@ -99,129 +99,134 @@ namespace Extension.Ext
     {
         Dictionary<string, TimerStruct> extraFireROF = new Dictionary<string, TimerStruct>();
 
-        public unsafe void TechnoClass_OnFire_ExtraFireWeapon(Pointer<AbstractClass> pTarget, int weaponIndex)
+        public unsafe void TechnoClass_Init_ExtraFireWeapon()
         {
             if (null != Type.ExtraFireData && Type.ExtraFireData.Enable)
             {
-                // 获取武器清单和FLH设置
-                List<string> weapons = null;
-                CoordStruct customFLH = default;
-                ExtraFireFLHData flhData = Type.ExtraFireFLHData;
-                // in Transport
-                Pointer<TechnoClass> pTransporter = OwnerObject.Ref.Transporter;
-                if (!pTransporter.IsNull)
+                OnFireAction += TechnoClass_OnFire_ExtraFireWeapon;
+            }
+        }
+
+        public unsafe void TechnoClass_OnFire_ExtraFireWeapon(Pointer<AbstractClass> pTarget, int weaponIndex)
+        {
+            // 获取武器清单和FLH设置
+            List<string> weapons = null;
+            CoordStruct customFLH = default;
+            ExtraFireFLHData flhData = Type.ExtraFireFLHData;
+            // in Transport
+            Pointer<TechnoClass> pTransporter = OwnerObject.Ref.Transporter;
+            if (!pTransporter.IsNull)
+            {
+                TechnoExt transporterExt = TechnoExt.ExtMap.Find(pTransporter);
+                if (null != transporterExt)
                 {
-                    TechnoExt transporterExt = TechnoExt.ExtMap.Find(pTransporter);
-                    if (null != transporterExt)
+                    flhData = transporterExt.Type.ExtraFireFLHData;
+                }
+            }
+            if (!OwnerObject.Ref.Veterancy.IsElite())
+            {
+                // 检查WeaponX
+                if (OwnerObject.Ref.Type.Ref.WeaponCount > 0)
+                {
+                    if (null != Type.ExtraFireData.WeaponX)
                     {
-                        flhData = transporterExt.Type.ExtraFireFLHData;
+                        Type.ExtraFireData.WeaponX.TryGetValue(weaponIndex, out weapons);
+                        flhData.WeaponXFLH.TryGetValue(weaponIndex, out customFLH);
+                    }
+
+                }
+                else if (weaponIndex == 0)
+                {
+                    weapons = Type.ExtraFireData.PrimaryWeapons;
+                    customFLH = flhData.PrimaryWeaponFLH;
+                }
+                else if (weaponIndex == 1)
+                {
+                    weapons = Type.ExtraFireData.SecondaryWeapons;
+                    customFLH = flhData.SecondaryWeaponFLH;
+                }
+            }
+            else
+            {
+                // 检查WeaponX
+                if (OwnerObject.Ref.Type.Ref.WeaponCount > 0)
+                {
+                    if (null != Type.ExtraFireData.EliteWeaponX)
+                    {
+                        Type.ExtraFireData.WeaponX.TryGetValue(weaponIndex, out weapons);
+                        flhData.WeaponXFLH.TryGetValue(weaponIndex, out customFLH);
                     }
                 }
-                if (!OwnerObject.Ref.Veterancy.IsElite())
+                else if (weaponIndex == 0)
                 {
-                    // 检查WeaponX
-                    if (OwnerObject.Ref.Type.Ref.WeaponCount > 0)
-                    {
-                        if (null != Type.ExtraFireData.WeaponX)
-                        {
-                            Type.ExtraFireData.WeaponX.TryGetValue(weaponIndex, out weapons);
-                            flhData.WeaponXFLH.TryGetValue(weaponIndex, out customFLH);
-                        }
-
-                    }
-                    else if (weaponIndex == 0)
-                    {
-                        weapons = Type.ExtraFireData.PrimaryWeapons;
-                        customFLH = flhData.PrimaryWeaponFLH;
-                    }
-                    else if (weaponIndex == 1)
-                    {
-                        weapons = Type.ExtraFireData.SecondaryWeapons;
-                        customFLH = flhData.SecondaryWeaponFLH;
-                    }
+                    weapons = Type.ExtraFireData.ElitePrimaryWeapons;
+                    customFLH = flhData.ElitePrimaryWeaponFLH;
                 }
-                else
+                else if (weaponIndex == 1)
                 {
-                    // 检查WeaponX
-                    if (OwnerObject.Ref.Type.Ref.WeaponCount > 0)
-                    {
-                        if (null != Type.ExtraFireData.EliteWeaponX)
-                        {
-                            Type.ExtraFireData.WeaponX.TryGetValue(weaponIndex, out weapons);
-                            flhData.WeaponXFLH.TryGetValue(weaponIndex, out customFLH);
-                        }
-                    }
-                    else if (weaponIndex == 0)
-                    {
-                        weapons = Type.ExtraFireData.ElitePrimaryWeapons;
-                        customFLH = flhData.ElitePrimaryWeaponFLH;
-                    }
-                    else if (weaponIndex == 1)
-                    {
-                        weapons = Type.ExtraFireData.EliteSecondaryWeapons;
-                        customFLH = flhData.EliteSecondaryWeaponFLH;
-                    }
+                    weapons = Type.ExtraFireData.EliteSecondaryWeapons;
+                    customFLH = flhData.EliteSecondaryWeaponFLH;
                 }
+            }
 
-                if (null != weapons)
+            if (null != weapons)
+            {
+
+                // bool rofAbility = false;
+                // if (OwnerObject.Ref.Veterancy.IsElite())
+                // {
+                //     rofAbility = OwnerObject.Ref.Type.Ref.VeteranAbilities.ROF || OwnerObject.Ref.Type.Ref.EliteAbilities.ROF;
+                // }
+                // else if (OwnerObject.Ref.Veterancy.IsVeteran())
+                // {
+                //     rofAbility = OwnerObject.Ref.Type.Ref.VeteranAbilities.ROF;
+                // }
+                // double rofMult = !rofAbility ? 1.0 : RulesClass.Global().VeteranROF * ((OwnerObject.Ref.Owner.IsNull || OwnerObject.Ref.Owner.Ref.Type.IsNull) ? 1.0 : OwnerObject.Ref.Owner.Ref.Type.Ref.ROFMult);
+
+                double rofMult = OwnerObject.GetROFMult(); // ExHelper.GetROFMult(OwnerObject);
+
+                CoordStruct flh = OwnerObject.Ref.GetWeapon(weaponIndex).Ref.FLH;
+                if (customFLH != default)
                 {
-
-                    // bool rofAbility = false;
-                    // if (OwnerObject.Ref.Veterancy.IsElite())
-                    // {
-                    //     rofAbility = OwnerObject.Ref.Type.Ref.VeteranAbilities.ROF || OwnerObject.Ref.Type.Ref.EliteAbilities.ROF;
-                    // }
-                    // else if (OwnerObject.Ref.Veterancy.IsVeteran())
-                    // {
-                    //     rofAbility = OwnerObject.Ref.Type.Ref.VeteranAbilities.ROF;
-                    // }
-                    // double rofMult = !rofAbility ? 1.0 : RulesClass.Global().VeteranROF * ((OwnerObject.Ref.Owner.IsNull || OwnerObject.Ref.Owner.Ref.Type.IsNull) ? 1.0 : OwnerObject.Ref.Owner.Ref.Type.Ref.ROFMult);
-
-                    double rofMult = OwnerObject.GetROFMult(); // ExHelper.GetROFMult(OwnerObject);
-
-                    CoordStruct flh = OwnerObject.Ref.GetWeapon(weaponIndex).Ref.FLH;
-                    if (customFLH != default)
+                    flh = customFLH;
+                }
+                // 循环武器清单并发射
+                foreach (string weaponId in weapons)
+                {
+                    // 进行ROF检查
+                    Pointer<WeaponTypeClass> pWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find(weaponId);
+                    if (!pWeapon.IsNull)
                     {
-                        flh = customFLH;
-                    }
-                    // 循环武器清单并发射
-                    foreach (string weaponId in weapons)
-                    {
-                        // 进行ROF检查
-                        Pointer<WeaponTypeClass> pWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find(weaponId);
-                        if (!pWeapon.IsNull)
+                        bool canFire = true;
+                        WeaponTypeExt typeExt = WeaponTypeExt.ExtMap.Find(pWeapon);
+                        if (null != typeExt)
                         {
-                            bool canFire = true;
-                            WeaponTypeExt typeExt = WeaponTypeExt.ExtMap.Find(pWeapon);
-                            if (null != typeExt)
+                            AttachFireData fireData = typeExt.AttachFireData;
+                            // 进行ROF检查
+                            canFire = !fireData.UseROF;
+                            if (!canFire)
                             {
-                                AttachFireData fireData = typeExt.AttachFireData;
-                                // 进行ROF检查
-                                canFire = !fireData.UseROF;
-                                if (!canFire)
+                                // 本次发射的rof
+                                int rof = (int)(pWeapon.Ref.ROF * rofMult);
+                                if (extraFireROF.TryGetValue(weaponId, out TimerStruct rofTimer))
                                 {
-                                    // 本次发射的rof
-                                    int rof = (int)(pWeapon.Ref.ROF * rofMult);
-                                    if (extraFireROF.TryGetValue(weaponId, out TimerStruct rofTimer))
-                                    {
-                                        if (rofTimer.Expired())
-                                        {
-                                            canFire = true;
-                                            rofTimer.Start(rof);
-                                            extraFireROF[weaponId] = rofTimer;
-                                        }
-                                    }
-                                    else
+                                    if (rofTimer.Expired())
                                     {
                                         canFire = true;
-                                        extraFireROF.Add(weaponId, new TimerStruct(rof));
+                                        rofTimer.Start(rof);
+                                        extraFireROF[weaponId] = rofTimer;
                                     }
                                 }
+                                else
+                                {
+                                    canFire = true;
+                                    extraFireROF.Add(weaponId, new TimerStruct(rof));
+                                }
                             }
-                            if (canFire)
-                            {
-                                FireCustomWeapon(OwnerObject, OwnerObject, pTarget, weaponId, flh, default, rofMult);
-                            }
+                        }
+                        if (canFire)
+                        {
+                            FireCustomWeapon(OwnerObject, OwnerObject, pTarget, weaponId, flh, default, rofMult);
                         }
                     }
                 }

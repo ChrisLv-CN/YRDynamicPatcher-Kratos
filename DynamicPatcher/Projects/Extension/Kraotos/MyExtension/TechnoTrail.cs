@@ -16,13 +16,22 @@ namespace Extension.Ext
     {
         public TrailManager trailManager;
 
-        public unsafe void TechnoClass_Put_Trail(Pointer<CoordStruct> pCoord, DirStruct faceDir)
+        public unsafe void TechnoClass_Init_Trail()
         {
             if (null != Type.TrailDatas && null == trailManager)
             {
                 trailManager = new TrailManager();
                 trailManager.SetTrailData(Type.TrailDatas);
+
+                OnPutAction += TechnoClass_Put_Trail;
+                OnRenderAction += TechnoClass_Render_Trail;
+                OnUpdateAction += TechnoClass_Update_Trail;
+                OnRemoveAction += TechnoClass_Remove_Trail;
             }
+        }
+
+        public unsafe void TechnoClass_Put_Trail(Pointer<CoordStruct> pCoord, DirStruct faceDir)
+        {
             trailManager?.Put(pCoord.Data, faceDir);
         }
 
@@ -42,12 +51,9 @@ namespace Extension.Ext
             trailManager?.Update(OwnerObject, DrivingState);
         }
 
-        public unsafe void TechnoClass_Remove_Trail(bool isDead)
+        public unsafe void TechnoClass_Remove_Trail()
         {
-            if (!isDead)
-            {
-                trailManager?.Remove();
-            }
+            trailManager?.Remove();
         }
 
     }

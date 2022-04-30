@@ -60,16 +60,26 @@ namespace Extension.Ext
     public partial class TechnoExt
     {
         // private JJFacingToTarget jjFacingToTarget;
-        private JJFacingToTarget JJFacing = new JJFacingToTarget();
+        private JJFacingToTarget JJFacing;
 
-        public unsafe void TechnoClass_Update_JumpjetFacingToTarget()
+        public unsafe void TechnoClass_Init_JumpjetFacingToTarget()
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
             if (null != Type.JJFacingData && Type.JJFacingData.Enable
                 && pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Unit
                 && pTechno.Ref.Type.Ref.JumpJet
-                && pTechno.Convert<AbstractClass>().Ref.IsInAir()
             )
+            {
+                JJFacing = new JJFacingToTarget();
+
+                OnUpdateAction += TechnoClass_Update_JumpjetFacingToTarget;
+            }
+        }
+
+        public unsafe void TechnoClass_Update_JumpjetFacingToTarget()
+        {
+            Pointer<TechnoClass> pTechno = OwnerObject;
+            if (pTechno.Convert<AbstractClass>().Ref.IsInAir())
             {
                 if (JJFacing.NeedToTurn)
                 {
@@ -81,8 +91,7 @@ namespace Extension.Ext
                         pFoot.Ref.StopMoving();
                         Pointer<JumpjetLocomotionClass> jjLoco = pFoot.Ref.Locomotor.ToLocomotionClass<JumpjetLocomotionClass>();
                         jjLoco.Ref.LocomotionFacing.turn(JJFacing.ToDir); // Discovery by Trsdy
-                        // pFoot.Ref.Locomotor.Ref.Do_Turn(JJFacing.ToDir); // no work
-                        // pFoot.Ref.Locomotor.Ref.Push(JJFacing.ToDir); // no work
+
                         /* // old school
                         CoordStruct location = pTechno.Ref.Base.Location;
                         if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell) && !pCell.IsNull)

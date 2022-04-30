@@ -43,7 +43,7 @@ namespace Extension.Ext
         }
 
         //[Hook(HookType.AresHook, Address = 0x46BDD9, Size = 5)]
-        static public unsafe UInt32 BulletTypeClass_CTOR(REGISTERS* R)
+        public static unsafe UInt32 BulletTypeClass_CTOR(REGISTERS* R)
         {
             var pItem = (Pointer<BulletTypeClass>)R->EAX;
 
@@ -52,7 +52,7 @@ namespace Extension.Ext
         }
 
         //[Hook(HookType.AresHook, Address = 0x46C8B6, Size = 6)]
-        static public unsafe UInt32 BulletTypeClass_SDDTOR(REGISTERS* R)
+        public static unsafe UInt32 BulletTypeClass_SDDTOR(REGISTERS* R)
         {
             var pItem = (Pointer<BulletTypeClass>)R->ESI;
 
@@ -62,7 +62,7 @@ namespace Extension.Ext
 
         //[Hook(HookType.AresHook, Address = 0x46C429, Size = 0xA)]
         //[Hook(HookType.AresHook, Address = 0x46C41C, Size = 0xA)]
-        static public unsafe UInt32 BulletTypeClass_LoadFromINI(REGISTERS* R)
+        public static unsafe UInt32 BulletTypeClass_LoadFromINI(REGISTERS* R)
         {
             var pItem = (Pointer<BulletTypeClass>)R->ESI;
             var pINI = R->Stack<Pointer<CCINIClass>>(0x90);
@@ -73,7 +73,7 @@ namespace Extension.Ext
 
         //[Hook(HookType.AresHook, Address = 0x46C730, Size = 8)]
         //[Hook(HookType.AresHook, Address = 0x46C6A0, Size = 5)]
-        static public unsafe UInt32 BulletTypeClass_SaveLoad_Prefix(REGISTERS* R)
+        public static unsafe UInt32 BulletTypeClass_SaveLoad_Prefix(REGISTERS* R)
         {
             var pItem = R->Stack<Pointer<BulletTypeClass>>(0x4);
             var pStm = R->Stack<Pointer<IStream>>(0x8);
@@ -84,14 +84,14 @@ namespace Extension.Ext
         }
 
         //[Hook(HookType.AresHook, Address = 0x46C722, Size = 4)]
-        static public unsafe UInt32 BulletTypeClass_Load_Suffix(REGISTERS* R)
+        public static unsafe UInt32 BulletTypeClass_Load_Suffix(REGISTERS* R)
         {
             BulletTypeExt.ExtMap.LoadStatic();
             return 0;
         }
 
         //[Hook(HookType.AresHook, Address = 0x46C74A, Size = 3)]
-        static public unsafe UInt32 BulletTypeClass_Save_Suffix(REGISTERS* R)
+        public static unsafe UInt32 BulletTypeClass_Save_Suffix(REGISTERS* R)
         {
             BulletTypeExt.ExtMap.SaveStatic();
             return 0;

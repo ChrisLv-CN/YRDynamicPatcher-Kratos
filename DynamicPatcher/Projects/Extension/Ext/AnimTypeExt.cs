@@ -43,7 +43,7 @@ namespace Extension.Ext
         }
 
         //[Hook(HookType.AresHook, Address = 0x42784B, Size = 5)]
-        static public unsafe UInt32 AnimTypeClass_CTOR(REGISTERS* R)
+        public static unsafe UInt32 AnimTypeClass_CTOR(REGISTERS* R)
         {
             var pItem = (Pointer<AnimTypeClass>)R->EAX;
 
@@ -52,7 +52,7 @@ namespace Extension.Ext
         }
 
         //[Hook(HookType.AresHook, Address = 0x428EA8, Size = 5)]
-        static public unsafe UInt32 AnimTypeClass_SDDTOR(REGISTERS* R)
+        public static unsafe UInt32 AnimTypeClass_SDDTOR(REGISTERS* R)
         {
             var pItem = (Pointer<AnimTypeClass>)R->ECX;
 
@@ -62,7 +62,7 @@ namespace Extension.Ext
 
         //[Hook(HookType.AresHook, Address = 0x4287E9, Size = 0xA)]
         //[Hook(HookType.AresHook, Address = 0x4287DC, Size = 0xA)]
-        static public unsafe UInt32 AnimTypeClass_LoadFromINI(REGISTERS* R)
+        public static unsafe UInt32 AnimTypeClass_LoadFromINI(REGISTERS* R)
         {
             var pItem = (Pointer<AnimTypeClass>)R->ESI;
             var pINI = R->Stack<Pointer<CCINIClass>>(0xBC);
@@ -73,7 +73,7 @@ namespace Extension.Ext
 
         //[Hook(HookType.AresHook, Address = 0x428970, Size = 8)]
         //[Hook(HookType.AresHook, Address = 0x428800, Size = 0xA)]
-        static public unsafe UInt32 AnimTypeClass_SaveLoad_Prefix(REGISTERS* R)
+        public static unsafe UInt32 AnimTypeClass_SaveLoad_Prefix(REGISTERS* R)
         {
             var pItem = R->Stack<Pointer<AnimTypeClass>>(0x4);
             var pStm = R->Stack<Pointer<IStream>>(0x8);
@@ -85,14 +85,14 @@ namespace Extension.Ext
 
         //[Hook(HookType.AresHook, Address = 0x42892C, Size = 6)]
         //[Hook(HookType.AresHook, Address = 0x428958, Size = 6)]
-        static public unsafe UInt32 AnimTypeClass_Load_Suffix(REGISTERS* R)
+        public static unsafe UInt32 AnimTypeClass_Load_Suffix(REGISTERS* R)
         {
             AnimTypeExt.ExtMap.LoadStatic();
             return 0;
         }
 
         //[Hook(HookType.AresHook, Address = 0x42898A, Size = 3)]
-        static public unsafe UInt32 AnimTypeClass_Save_Suffix(REGISTERS* R)
+        public static unsafe UInt32 AnimTypeClass_Save_Suffix(REGISTERS* R)
         {
             AnimTypeExt.ExtMap.SaveStatic();
             return 0;

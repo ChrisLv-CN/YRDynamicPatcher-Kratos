@@ -61,7 +61,7 @@ namespace Extension.Ext
         }
 
         //[Hook(HookType.AresHook, Address = 0x4664BA, Size = 5)]
-        static public unsafe UInt32 BulletClass_CTOR(REGISTERS* R)
+        public static unsafe UInt32 BulletClass_CTOR(REGISTERS* R)
         {
             var pItem = (Pointer<BulletClass>)R->ESI;
 
@@ -70,7 +70,7 @@ namespace Extension.Ext
         }
 
         //[Hook(HookType.AresHook, Address = 0x4665E9, Size = 0xA)]
-        static public unsafe UInt32 BulletClass_DTOR(REGISTERS* R)
+        public static unsafe UInt32 BulletClass_DTOR(REGISTERS* R)
         {
             var pItem = (Pointer<BulletClass>)R->ESI;
 
@@ -80,7 +80,7 @@ namespace Extension.Ext
 
         //[Hook(HookType.AresHook, Address = 0x46AFB0, Size = 8)]
         //[Hook(HookType.AresHook, Address = 0x46AE70, Size = 5)]
-        static public unsafe UInt32 BulletClass_SaveLoad_Prefix(REGISTERS* R)
+        public static unsafe UInt32 BulletClass_SaveLoad_Prefix(REGISTERS* R)
         {
             var pItem = R->Stack<Pointer<BulletClass>>(0x4);
             var pStm = R->Stack<Pointer<IStream>>(0x8);
@@ -92,14 +92,14 @@ namespace Extension.Ext
 
         //[Hook(HookType.AresHook, Address = 0x46AF97, Size = 7)]
         //[Hook(HookType.AresHook, Address = 0x46AF9E, Size = 7)]
-        static public unsafe UInt32 BulletClass_Load_Suffix(REGISTERS* R)
+        public static unsafe UInt32 BulletClass_Load_Suffix(REGISTERS* R)
         {
             BulletExt.ExtMap.LoadStatic();
             return 0;
         }
 
         //[Hook(HookType.AresHook, Address = 0x46AFC4, Size = 3)]
-        static public unsafe UInt32 BulletClass_Save_Suffix(REGISTERS* R)
+        public static unsafe UInt32 BulletClass_Save_Suffix(REGISTERS* R)
         {
             BulletExt.ExtMap.SaveStatic();
             return 0;

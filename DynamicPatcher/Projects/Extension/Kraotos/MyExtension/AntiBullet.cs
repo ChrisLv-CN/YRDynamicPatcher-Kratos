@@ -133,6 +133,8 @@ namespace Extension.Ext
                 else
                 {
                     antiBullet = new AntiBullet(Type.AntiBulletData);
+
+                    OnUpdateAction += TechnoClass_Update_AntiBullet;
                 }
             }
         }
@@ -143,53 +145,14 @@ namespace Extension.Ext
             TechnoTypeExt extType = Type;
             Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
 
-            if (null != antiBullet && antiBullet.Enable)
+            if (!antiBullet.IsBusy())
             {
-                if (!antiBullet.IsBusy())
+
+                ExHelper.FindBulletTargetHouse(pTechno, (pBullet) =>
                 {
-
-                    ExHelper.FindBulletTargetHouse(pTechno, (pBullet) =>
+                    if (antiBullet.Data.ScanAll || pBullet.Ref.Target == pTechno.Convert<AbstractClass>())
                     {
-                        if (antiBullet.Data.ScanAll || pBullet.Ref.Target == pTechno.Convert<AbstractClass>())
-                        {
                             // Scan Target
-                            int scanRange = antiBullet.Data.Range;
-                            if (pTechno.Ref.Veterancy.IsElite())
-                                scanRange = antiBullet.Data.EliteRange;
-
-                            if (pTechno.Ref.Base.DistanceFrom(pBullet.Convert<ObjectClass>()) <= scanRange)
-                            {
-                                antiBullet.CoolDown();
-                                if (antiBullet.Data.ForPassengers)
-                                {
-                                    pTechno.Ref.SetTargetForPassengers(pBullet.Convert<AbstractClass>());
-                                }
-
-                                if (antiBullet.Data.Self && (pTechno.Ref.Target.IsNull || pTechno.Ref.Target.Ref.IsDead()))
-                                {
-                                    pTechno.Ref.SetTarget(pBullet.Convert<AbstractClass>());
-                                }
-
-                                return true;
-                            }
-                        }
-                        return false;
-                    });
-
-                    /*
-                    // find target
-                    DynamicVectorClass<Pointer<BulletClass>> bullets = BulletClass.Array;
-                    for (int i = 0; i < bullets.Count; i++)
-                    {
-                        Pointer<BulletClass> pBullet = bullets.Get(i);
-                        BulletExt bulletExt = BulletExt.ExtMap.Find(pBullet);
-                        if (null == bulletExt || !bulletExt.bulletLifeData.Interceptable
-                            || pBullet.Ref.Type.Ref.Inviso == YES
-                            || (null != pBullet.Ref.Owner && !pBullet.Ref.Owner.IsNull && pBullet.Ref.Owner.Ref.Owner == pHouse)
-                            || (!antiBullet.Data.ScanAll && pBullet.Ref.Target != pTechno.Convert<AbstractClass>()))
-                            continue;
-
-                        // Scan Target
                         int scanRange = antiBullet.Data.Range;
                         if (pTechno.Ref.Veterancy.IsElite())
                             scanRange = antiBullet.Data.EliteRange;
@@ -207,11 +170,11 @@ namespace Extension.Ext
                                 pTechno.Ref.SetTarget(pBullet.Convert<AbstractClass>());
                             }
 
-                            break;
+                            return true;
                         }
                     }
-                    */
-                }
+                    return false;
+                });
             }
         }
 

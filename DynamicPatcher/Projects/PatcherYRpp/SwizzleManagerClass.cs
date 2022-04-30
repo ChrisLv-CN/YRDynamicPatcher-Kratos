@@ -31,7 +31,7 @@ namespace PatcherYRpp
     public struct SwizzleManagerClass
     {
         private static IntPtr instance = new IntPtr(0xB0C110);
-        static public ref SwizzleManagerClass Instance { get => ref instance.Convert<SwizzleManagerClass>().Ref; }
+        public static ref SwizzleManagerClass Instance { get => ref instance.Convert<SwizzleManagerClass>().Ref; }
         public unsafe HRESULT Reset()
         {
             var func = (delegate* unmanaged[Stdcall]<ref SwizzleManagerClass, HRESULT>)this.GetVirtualFunctionPointer(3);

@@ -71,7 +71,7 @@ namespace Extension.Ext
             this.IsOnTurret = false;
             this.IsOnWorld = false;
             this.DrawLayer = Layer.None;
-            this.ZOffset = 12;
+            this.ZOffset = 14;
             this.SameHouse = true;
             this.SameTarget = true;
             this.SameLoseTarget = false;

@@ -68,7 +68,7 @@ namespace Extension.Ext
         // DEFINE_HOOK_AGAIN(0x422126, AnimClass_CTOR, 0x5)
         // DEFINE_HOOK_AGAIN(0x422707, AnimClass_CTOR, 0x5)
         // DEFINE_HOOK(0x4228D2, AnimClass_CTOR, 0x5)
-        static public unsafe UInt32 AnimClass_CTOR(REGISTERS* R)
+        public static unsafe UInt32 AnimClass_CTOR(REGISTERS* R)
         {
             var pItem = (Pointer<AnimClass>)R->ESI;
 
@@ -77,7 +77,7 @@ namespace Extension.Ext
         }
 
         // DEFINE_HOOK(0x422967, AnimClass_DTOR, 0x6)
-        static public unsafe UInt32 AnimClass_DTOR(REGISTERS* R)
+        public static unsafe UInt32 AnimClass_DTOR(REGISTERS* R)
         {
             var pItem = (Pointer<AnimClass>)R->ESI;
 
@@ -87,7 +87,7 @@ namespace Extension.Ext
 
         // DEFINE_HOOK_AGAIN(0x425280, AnimClass_SaveLoad_Prefix, 0x5)
         // DEFINE_HOOK(0x4253B0, AnimClass_SaveLoad_Prefix, 0x5)
-        static public unsafe UInt32 AnimClass_SaveLoad_Prefix(REGISTERS* R)
+        public static unsafe UInt32 AnimClass_SaveLoad_Prefix(REGISTERS* R)
         {
             var pItem = R->Stack<Pointer<AnimClass>>(0x4);
             var pStm = R->Stack<Pointer<IStream>>(0x8);
@@ -101,14 +101,14 @@ namespace Extension.Ext
         // DEFINE_HOOK_AGAIN(0x425391, AnimClass_Load_Suffix, 0x7)
         // DEFINE_HOOK_AGAIN(0x4253A2, AnimClass_Load_Suffix, 0x7)
         // DEFINE_HOOK(0x425358, AnimClass_Load_Suffix, 0x7)
-        static public unsafe UInt32 AnimClass_Load_Suffix(REGISTERS* R)
+        public static unsafe UInt32 AnimClass_Load_Suffix(REGISTERS* R)
         {
             AnimExt.ExtMap.LoadStatic();
             return 0;
         }
 
         // DEFINE_HOOK(0x4253FF, AnimClass_Save_Suffix, 0x5)
-        static public unsafe UInt32 AnimClass_Save_Suffix(REGISTERS* R)
+        public static unsafe UInt32 AnimClass_Save_Suffix(REGISTERS* R)
         {
             AnimExt.ExtMap.SaveStatic();
             return 0;

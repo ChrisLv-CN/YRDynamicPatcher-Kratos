@@ -131,8 +131,9 @@ namespace Extension.Ext
 
             // bool attackerInvisible = pAttacker.IsNull || pAttacker.Ref.Base.Health <= 0 || !pAttacker.Ref.Base.IsAlive || pAttacker.Ref.Base.InLimbo || pAttacker.Ref.IsImmobilized || !pAttacker.Ref.Transporter.IsNull;
             bool attackerInvisible = pAttacker.Pointer.IsDeadOrInvisible() || pAttacker.Ref.IsImmobilized || !pAttacker.Ref.Transporter.IsNull;
-            // 攻击者标记下，攻击者死亡或不存在或AE被赋予抛射体，AE结束，没有启用标记，却设置了反向，同样结束AE
-            if (Type.IsAttackerMark ? (isOnBullet || attackerInvisible) : !Type.ReceiverAttack)
+            bool bulletOwnerInvisible = isOnBullet && (pReceiverOwner.IsDeadOrInvisible() || pReceiverOwner.Ref.IsImmobilized || !pReceiverOwner.Ref.Transporter.IsNull);
+            // 攻击者标记下，攻击者死亡或不存在，如果在抛射体上，而抛射体的发射者死亡或不存在，AE结束，没有启用标记，却设置了反向，同样结束AE
+            if (Type.IsAttackerMark ? (attackerInvisible || bulletOwnerInvisible) : !Type.ReceiverAttack)
             {
                 Disable(default);
                 return;
@@ -167,7 +168,7 @@ namespace Extension.Ext
                         // 可以发射
                         // Logger.Log("{0}朝{1}发射自身的武器{2}", pShooter.Ref.Type.Ref.Base.Base.ID, pTarget.Ref.Type.Ref.Base.ID, weaponIndex);
                         // 准备发射，获取发射位置
-                        GetFireLocation(pObject, pReceiverOwner, pShooter, fireFLH, targetFLH, out CoordStruct forceFirePos, out CoordStruct fakeTargetPos);
+                        GetFireLocation(pObject, pReceiverOwner, pShooter, fireFLH, pTarget, targetFLH, out CoordStruct forceFirePos, out CoordStruct fakeTargetPos);
                         if (needFakeTarget && !pReceiverHouse.IsNull && default != fakeTargetPos)
                         {
                             // 需要创建假目标
@@ -189,7 +190,7 @@ namespace Extension.Ext
             {
                 // 发射自定义的武器
                 // 准备发射，获取发射位置
-                GetFireLocation(pObject, pReceiverOwner, pShooter, fireFLH, targetFLH, out CoordStruct forceFirePos, out CoordStruct fakeTargetPos);
+                GetFireLocation(pObject, pReceiverOwner, pShooter, fireFLH, pTarget, targetFLH, out CoordStruct forceFirePos, out CoordStruct fakeTargetPos);
                 // 随机发射武器
                 if (randomNum > 0)
                 {
@@ -352,7 +353,7 @@ namespace Extension.Ext
             return false;
         }
 
-        private void GetFireLocation(Pointer<ObjectClass> pObject, Pointer<TechnoClass> pReceiverOwner, Pointer<TechnoClass> pShooter, CoordStruct fireFLH, CoordStruct targetFLH, out CoordStruct forceFirePos, out CoordStruct fakeTargetPos)
+        private void GetFireLocation(Pointer<ObjectClass> pObject, Pointer<TechnoClass> pReceiverOwner, Pointer<TechnoClass> pShooter, CoordStruct fireFLH, Pointer<AbstractClass> pTarget, CoordStruct targetFLH, out CoordStruct forceFirePos, out CoordStruct fakeTargetPos)
         {
             forceFirePos = default;
             fakeTargetPos = default;
@@ -368,7 +369,8 @@ namespace Extension.Ext
                     break;
                 case AbstractType.Bullet:
                     Pointer<BulletClass> pBullet = pObject.Convert<BulletClass>();
-                    if (pReceiverOwner == pShooter)
+                    // pReceiverOwner 是抛射体的发射者，pShooter也可能是抛射体的发射者
+                    if (pReceiverOwner == pShooter && pBullet.Convert<AbstractClass>() != pTarget)
                     {
                         // 附加的对象是抛射体，默认武器的发射者为抛射体的发射者，从抛射体所在的位置向目标发射
                         DirStruct bulletDir = new DirStruct();

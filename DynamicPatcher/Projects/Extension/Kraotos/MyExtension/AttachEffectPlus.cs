@@ -43,6 +43,16 @@ namespace Extension.Ext
             }
         }
 
+        public unsafe void TechnoClass_Render_AttachEffect()
+        {
+            AttachEffectManager.Render(OwnerObject.Convert<ObjectClass>(), IsDead);
+        }
+
+        public unsafe void TechnoClass_Render2_AttachEffect()
+        {
+            AttachEffectManager.Render2(OwnerObject.Convert<ObjectClass>(), IsDead);
+        }
+
         public unsafe void TechnoClass_Update_AttachEffect()
         {
             // if (OwnerObject.IsNull || OwnerObject.Ref.Base.InLimbo || OwnerObject.Ref.IsImmobilized || !OwnerObject.Ref.Transporter.IsNull)
@@ -58,9 +68,9 @@ namespace Extension.Ext
             AttachEffectManager.Update(OwnerObject.Convert<ObjectClass>(), IsDead);
         }
 
-        public unsafe void TechnoClass_Render2_AttachEffect()
+        public unsafe void TemporalClass_UpdateA_AttachEffect(Pointer<TemporalClass> pTemporal)
         {
-            AttachEffectManager.Render2(OwnerObject.Convert<ObjectClass>(), IsDead);
+            AttachEffectManager.TemporalUpdate(this, pTemporal);
         }
 
         public unsafe void TechnoClass_ReceiveDamage_AttachEffect(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,

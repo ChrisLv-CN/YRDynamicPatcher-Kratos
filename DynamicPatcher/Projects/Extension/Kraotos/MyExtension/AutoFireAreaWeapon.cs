@@ -79,13 +79,15 @@ namespace Extension.Ext
             if (null != Type.AutoFireAreaWeaponData && Type.AutoFireAreaWeaponData.Enable && null == autoFireAreaWeapon)
             {
                 autoFireAreaWeapon = new AutoFireAreaWeapon(Type.AutoFireAreaWeaponData);
+
+                OnUpdateAction += TechnoClass_Update_AutoFireAreaWeapon;
             }
         }
 
         public unsafe void TechnoClass_Update_AutoFireAreaWeapon()
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
-            if (null != autoFireAreaWeapon && autoFireAreaWeapon.Enable && autoFireAreaWeapon.CanFire() && pTechno.Convert<ObjectClass>().Ref.IsAlive && pTechno.Convert<ObjectClass>().Ref.IsOnMap)
+            if (autoFireAreaWeapon.CanFire())
             {
                 Pointer<WeaponStruct> pWeapon = pTechno.Ref.GetWeapon(autoFireAreaWeapon.Data.WeaponIndex);
                 if (null == pWeapon || pWeapon.IsNull || pWeapon.Ref.WeaponType.IsNull)

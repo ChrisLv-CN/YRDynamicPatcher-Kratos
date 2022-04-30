@@ -1,3 +1,4 @@
+using System.Reflection;
 using DynamicPatcher;
 using Extension.Utilities;
 using PatcherYRpp;
@@ -50,7 +51,7 @@ namespace Extension.Ext
         public bool Enable;
 
         public int ZOffset;
-        
+
         public int Delay;
 
         public bool CanDive;
@@ -94,44 +95,43 @@ namespace Extension.Ext
             {
                 aircraftDive = new AircraftDive(Type.AircraftDiveData);
                 // Logger.Log("激活俯冲：{0}", extType.AircraftDiveData);
+                OnUpdateAction += TechnoClass_Update_AircraftDive;
+                if (Type.AircraftDiveData.PullUpAfterFire)
+                {
+                    OnFireAction += TechnoClass_OnFire_AircraftDive;
+                }
             }
         }
 
         public unsafe void TechnoClass_Update_AircraftDive()
         {
-            if (null != aircraftDive && aircraftDive.Enable)
+            Pointer<TechnoClass> pTechno = OwnerObject;
+            Pointer<AbstractClass> pTarget = pTechno.Ref.Target;
+            if (pTarget.IsNull || !pTechno.Convert<AbstractClass>().Ref.IsInAir())
             {
-                Pointer<TechnoClass> pTechno = OwnerObject;
-                Pointer<AbstractClass> pTarget = pTechno.Ref.Target;
-                if (pTarget.IsNull || !pTechno.Convert<AbstractClass>().Ref.IsInAir())
-                {
-                    aircraftDive.Reset();
-                    return;
-                }
-                CoordStruct location = pTechno.Ref.Base.Location;
-                CoordStruct targetPos = pTarget.Ref.GetCoords();
-                int distance = aircraftDive.Data.Distance;
-                if (distance == 0)
-                {
-                    int weaponIndex = pTechno.Ref.SelectWeapon(pTarget);
-                    distance = pTechno.Ref.GetWeapon(weaponIndex).Ref.WeaponType.Ref.Range * 2;
-                }
-                if (location.DistanceFrom(targetPos) < distance && aircraftDive.CanDive)
-                {
-                    int max = targetPos.Z + aircraftDive.Data.FlightLevel;
-                    int z = location.Z - aircraftDive.Diving();
-                    // Logger.Log("Pos.Z {0}, Offset.Z {1}, Offset.Max {2}, Z {3}", location.Z, aircraftDive.ZOffset, max, z);
-                    pTechno.Ref.Base.Location.Z = z > max ? z : max;
-                }
+                aircraftDive.Reset();
+                return;
+            }
+            CoordStruct location = pTechno.Ref.Base.Location;
+            CoordStruct targetPos = pTarget.Ref.GetCoords();
+            int distance = aircraftDive.Data.Distance;
+            if (distance == 0)
+            {
+                int weaponIndex = pTechno.Ref.SelectWeapon(pTarget);
+                distance = pTechno.Ref.GetWeapon(weaponIndex).Ref.WeaponType.Ref.Range * 2;
+            }
+            if (location.DistanceFrom(targetPos) < distance && aircraftDive.CanDive)
+            {
+                int max = targetPos.Z + aircraftDive.Data.FlightLevel;
+                int z = location.Z - aircraftDive.Diving();
+                // Logger.Log("Pos.Z {0}, Offset.Z {1}, Offset.Max {2}, Z {3}", location.Z, aircraftDive.ZOffset, max, z);
+                pTechno.Ref.Base.Location.Z = z > max ? z : max;
             }
         }
 
         public unsafe void TechnoClass_OnFire_AircraftDive(Pointer<AbstractClass> pTarget, int weaponIndex)
         {
-            if (null != aircraftDive && aircraftDive.Enable && aircraftDive.Data.PullUpAfterFire)
-            {
-                aircraftDive.CanDive = false;
-            }
+            aircraftDive.CanDive = false;
         }
 
 

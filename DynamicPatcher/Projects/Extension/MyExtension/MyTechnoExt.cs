@@ -32,21 +32,69 @@ namespace Extension.Ext
 
         private Mission lastMission;
         private CoordStruct lastLocation;
+        
+        private event System.Action OnUnInitAction;
 
+		private event System.Action OnRenderAction;
+		private event System.Action OnRender2Action;
+
+        private event System.Action OnUpdateAction;
+        private event System.Action OnTemporalUpdateAction;
+        private event System.Action<Pointer<CoordStruct>, DirStruct> OnPutAction;
+        private event System.Action OnRemoveAction;
+
+        private event System.Action<Pointer<int>, int, Pointer<WarheadTypeClass>, Pointer<ObjectClass>, bool, bool, Pointer<HouseClass>> OnReceiveDamageAction;
+        private event System.Action<Pointer<int>, Pointer<WarheadTypeClass>, DamageState> OnReceiveDamage2Action;
+        private event System.Action OnDestroyAction;
+        private event System.Action OnDestroyAnimAction;
+
+        private event System.Action<Pointer<AbstractClass>, int> OnFireAction;
 
         public void OnInit()
         {
             TechnoClass_Init_AircraftDive();
+            TechnoClass_Init_AircraftPut();
             TechnoClass_Init_AttachEffect();
             TechnoClass_Init_AttackBeacon();
             TechnoClass_Init_AntiBullet();
             TechnoClass_Init_AutoFireAreaWeapon();
+            TechnoClass_Init_ChaosAnim();
             TechnoClass_Init_ConvertType();
             TechnoClass_Init_DecoyMissile();
+            TechnoClass_Init_DeployToTransform();
             TechnoClass_Init_Deselect();
+            TechnoClass_Init_ExtraFireWeapon();
+            TechnoClass_Init_Fighter_Area_Guard();
+            TechnoClass_Init_FixGattlingStage();
+            TechnoClass_Init_JumpjetFacingToTarget();
+            TechnoClass_Init_OverrideWeapon();
             TechnoClass_Init_SuperWeapon();
+            TechnoClass_Init_SpawnMissileHoming();
+            TechnoClass_Init_SpawnSupport();
+            TechnoClass_Init_Trail();
+
             TechnoClass_Init_GiftBox();
             TechnoClass_Init_VirtualUnit();
+        }
+
+        public unsafe void OnRender()
+        {
+            // if (!MyMaster.IsNull)
+            // {
+            //     Logger.Log($"{Game.CurrentFrame} - 渲染替身 {OwnerObject} [{Type.OwnerObject.Ref.Base.Base.ID}] 开始，位置 {OwnerObject.Ref.Base.Base.GetCoords()}");
+            // }
+
+            OnRenderAction?.Invoke();
+
+            TechnoClass_Render_AttachEffect();
+
+            // TechnoClass_Render_ChaosAnim();
+            // TechnoClass_Render_Trail();
+        }
+
+        public unsafe void OnRender2()
+        {
+            TechnoClass_Render2_AttachEffect();
         }
 
         public unsafe void OnUpdate()
@@ -93,28 +141,29 @@ namespace Extension.Ext
                 }
                 lastMission = mission;
 
-                TechnoClass_Update_AircraftDive();
-                TechnoClass_Update_AircraftPut();
-                TechnoClass_Update_AntiBullet();
-                TechnoClass_Update_AttackBeacon();
-                TechnoClass_Update_AutoFireAreaWeapon();
-                TechnoClass_Update_ChaosAnim();
+                OnUpdateAction?.Invoke();
+
+                // TechnoClass_Update_AircraftDive();
+                // TechnoClass_Update_AircraftPut();
+                // TechnoClass_Update_AntiBullet();
+                // TechnoClass_Update_AttackBeacon();
+                // TechnoClass_Update_AutoFireAreaWeapon();
                 TechnoClass_Update_ConvertType();
-                TechnoClass_Update_CrawlingFLH();
-                TechnoClass_Update_DecoyMissile();
+                // TechnoClass_Update_CrawlingFLH();
+                // TechnoClass_Update_DecoyMissile();
                 TechnoClass_Update_Deselect();
-                TechnoClass_Update_DeployToTransform();
-                TechnoClass_Update_FixGattlingStage();
+                // TechnoClass_Update_DeployToTransform();
+                // TechnoClass_Update_FixGattlingStage();
                 TechnoClass_Update_GiftBox();
-                TechnoClass_Update_JumpjetFacingToTarget();
+                // TechnoClass_Update_JumpjetFacingToTarget();
                 TechnoClass_Update_Paintball();
                 TechnoClass_Update_Passengers();
                 TechnoClass_Update_SpawnFireOnce();
-                TechnoClass_Update_SpawnMissileHoming();
-                TechnoClass_Update_SpawnSupport();
-                TechnoClass_Update_Trail();
+                // TechnoClass_Update_SpawnMissileHoming();
+                // TechnoClass_Update_SpawnSupport();
+                // TechnoClass_Update_Trail();
                 TechnoClass_Update_CustomWeapon();
-                TechnoClass_Update_Fighter_Area_Guard();
+                // TechnoClass_Update_Fighter_Area_Guard();
             }
             // 死亡还会执行的，坠落，沉没等
             TechnoClass_Update_AttachEffect();
@@ -124,38 +173,28 @@ namespace Extension.Ext
 
         public unsafe void OnTemporalUpdate(Pointer<TemporalClass> pTemporal)
         {
-            // TemporalClass_UpdateA_Stand(pTemporal);
-        }
-
-        public unsafe void OnRender()
-        {
-            // if (!MyMaster.IsNull)
-            // {
-            //     Logger.Log($"{Game.CurrentFrame} - 渲染替身 {OwnerObject} [{Type.OwnerObject.Ref.Base.Base.ID}] 开始，位置 {OwnerObject.Ref.Base.Base.GetCoords()}");
-            // }
-
-            TechnoClass_Render_Trail();
-        }
-
-        public unsafe void OnRender2()
-        {
-            TechnoClass_Render2_AttachEffect();
+            OnTemporalUpdateAction?.Invoke();
+            TemporalClass_UpdateA_AttachEffect(pTemporal);
         }
 
         public unsafe void OnPut(Pointer<CoordStruct> pCoord, DirStruct faceDir)
         {
-            TechnoClass_Put_AircraftPut(pCoord, faceDir);
+            OnPutAction?.Invoke(pCoord, faceDir);
+
+            // TechnoClass_Put_AircraftPut(pCoord, faceDir);
             TechnoClass_Put_AttachEffect(pCoord, faceDir);
             TechnoClass_Put_DestroySelf(pCoord, faceDir);
-            TechnoClass_Put_SpawnMissileHoming(pCoord, faceDir);
-            TechnoClass_Put_Trail(pCoord, faceDir);
+            // TechnoClass_Put_SpawnMissileHoming(pCoord, faceDir);
+            // TechnoClass_Put_Trail(pCoord, faceDir);
         }
 
         public unsafe void OnRemove()
         {
+            OnRemoveAction?.Invoke();
+
             // Logger.Log("{0} UnLimbo", OwnerObject.Ref.Type.Ref.Base.Base.ID);
             TechnoClass_Remove_AttachEffect();
-            TechnoClass_Remove_Trail(IsDead);
+            // TechnoClass_Remove_Trail(IsDead);
         }
 
         public unsafe void OnReceiveDamage(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
@@ -180,6 +219,9 @@ namespace Extension.Ext
 
         public unsafe void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState)
         {
+
+            OnReceiveDamage2Action?.Invoke(pRealDamage, pWH, damageState);
+
             TechnoClass_ReceiveDamage2_DamageText(pRealDamage, pWH, damageState);
             TechnoClass_ReceiveDamage2_GiftBox(pRealDamage, pWH, damageState);
         }
@@ -244,6 +286,9 @@ namespace Extension.Ext
         {
             // Logger.Log("{0} {1} 收到足够的伤害死亡.", OwnerObject, OwnerObject.Ref.Type.Ref.Base.Base.ID);
             IsDead = true;
+
+            OnDestroyAction?.Invoke();
+
             TechnoClass_Destroy_AttachEffect();
             TechnoClass_Destroy_ConvertType();
             TechnoClass_Destroy_GiftBox();
@@ -267,10 +312,6 @@ namespace Extension.Ext
             {
                 return;
             }
-            if (ceaseFire = TechnoClass_CanFire_AttackBeacon(pTarget, pWeapon))
-            {
-                return;
-            }
             if (ceaseFire = TechnoClass_CanFire_Passengers(pTarget, pWeapon))
             {
                 return;
@@ -279,11 +320,14 @@ namespace Extension.Ext
 
         public unsafe void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex)
         {
-            TechnoClass_OnFire_AircraftDive(pTarget, weaponIndex);
-            TechnoClass_OnFire_AttackBeacon(pTarget, weaponIndex);
-            TechnoClass_OnFire_ExtraFireWeapon(pTarget, weaponIndex);
+
+            OnFireAction?.Invoke(pTarget, weaponIndex);
+
+            // TechnoClass_OnFire_AircraftDive(pTarget, weaponIndex);
+            // TechnoClass_OnFire_AttackBeacon_Recruit(pTarget, weaponIndex);
+            // TechnoClass_OnFire_ExtraFireWeapon(pTarget, weaponIndex);
             TechnoClass_OnFire_RockerPitch(pTarget, weaponIndex);
-            TechnoClass_OnFire_SpawnSupport(pTarget, weaponIndex);
+            // TechnoClass_OnFire_SpawnSupport(pTarget, weaponIndex);
             TechnoClass_OnFire_SuperWeapon(pTarget, weaponIndex);
         }
 
@@ -342,11 +386,6 @@ namespace Extension.Ext
         public unsafe void DrawVXL_Colour(REGISTERS* R, bool isBuilding)
         {
             TechnoClass_DrawVXL_Paintball(R, isBuilding);
-        }
-
-        public unsafe void OnDestroy_UnitClass()
-        {
-
         }
 
         // public unsafe void CanEnterCell_UnitClass(Pointer<TechnoClass> pOccuiper, ref bool ignoreOccupier)
@@ -455,6 +494,7 @@ namespace Extension.Ext
             ReadGiftBox(reader, section);
             ReadHelthText(reader, section);
             ReadJumpjetFacingToTarget(reader, section);
+            ReadOverrideWeapon(reader, section);
             ReadPassengers(reader, section);
             ReadSpawnFireOnce(reader, section);
             ReadSpawnMissileHoming(reader, section);

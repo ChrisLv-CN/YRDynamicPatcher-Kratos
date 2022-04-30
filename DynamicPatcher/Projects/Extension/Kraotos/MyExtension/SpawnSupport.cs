@@ -64,6 +64,17 @@ namespace Extension.Ext
         private int supportFLHMult = 1;
         private TimerStruct supportFireROF = new TimerStruct(0);
 
+        public unsafe void TechnoClass_Init_SpawnSupport()
+        {
+            // I'm Spawn
+             if (OwnerObject.CastIf<AircraftClass>(AbstractType.Aircraft, out var pAircraft)
+                && pAircraft.Ref.Type.Ref.Base.Spawned)
+            {
+                    OnUpdateAction += TechnoClass_Update_SpawnSupport;
+                    OnFireAction += TechnoClass_OnFire_SpawnSupport;
+            }
+        }
+
 
         public unsafe void TechnoClass_Update_SpawnSupport()
         {

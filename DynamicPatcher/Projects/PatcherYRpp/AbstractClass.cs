@@ -11,8 +11,8 @@ namespace PatcherYRpp
     [StructLayout(LayoutKind.Explicit, Size = 36)]
     public struct AbstractClass
     {
-        static public readonly IntPtr ArrayPointer = new IntPtr(0xA8E360);
-        static public ref DynamicVectorClass<Pointer<ObjectClass>> Array { get => ref DynamicVectorClass<Pointer<ObjectClass>>.GetDynamicVector(ArrayPointer); }
+        public static readonly IntPtr ArrayPointer = new IntPtr(0xA8E360);
+        public static ref DynamicVectorClass<Pointer<ObjectClass>> Array { get => ref DynamicVectorClass<Pointer<ObjectClass>>.GetDynamicVector(ArrayPointer); }
 
         public unsafe void Init()
         {

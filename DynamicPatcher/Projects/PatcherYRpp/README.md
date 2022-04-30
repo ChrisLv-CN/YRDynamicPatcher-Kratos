@@ -48,11 +48,11 @@ public struct YourClass
   }
 
   // YR's class DVC
-  static public readonly IntPtr ArrayPointer = new IntPtr(DVC_address);
-  static public ref DynamicVectorClass<Pointer<TechnoClass>> Array { get => ref DynamicVectorClass<Pointer<TechnoClass>>.GetDynamicVector(ArrayPointer); }
+  public static readonly IntPtr ArrayPointer = new IntPtr(DVC_address);
+  public static ref DynamicVectorClass<Pointer<TechnoClass>> Array { get => ref DynamicVectorClass<Pointer<TechnoClass>>.GetDynamicVector(ArrayPointer); }
 
   // for xxxTypeClass
-	static public YRPP.ABSTRACTTYPE_ARRAY<YourClass> ABSTRACTTYPE_ARRAY = new YRPP.ABSTRACTTYPE_ARRAY<YourClass>(ArrayPointer);
+	public static YRPP.ABSTRACTTYPE_ARRAY<YourClass> ABSTRACTTYPE_ARRAY = new YRPP.ABSTRACTTYPE_ARRAY<YourClass>(ArrayPointer);
 
   // your member
   [FieldOffset(member_offset)] public TMember Member;

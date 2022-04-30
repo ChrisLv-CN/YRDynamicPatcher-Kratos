@@ -13,7 +13,7 @@ namespace PatcherYRpp
     [StructLayout(LayoutKind.Sequential)]
     public struct DynamicVectorClass<T> : IEnumerable<T>
     {
-        static public ref DynamicVectorClass<T> GetDynamicVector(IntPtr ptr)
+        public static ref DynamicVectorClass<T> GetDynamicVector(IntPtr ptr)
         {
             return ref Helpers.GetUnmanagedRef<DynamicVectorClass<T>>(ptr);
         }

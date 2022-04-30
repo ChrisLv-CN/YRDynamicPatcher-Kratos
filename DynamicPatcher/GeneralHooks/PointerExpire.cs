@@ -11,7 +11,7 @@ namespace GeneralHooks
 {
     public class PointerExpire
     {
-        [Hook(HookType.AresHook, Address = 0x7258D0, Size = 6)]
+        // [Hook(HookType.AresHook, Address = 0x7258D0, Size = 6)]
         public static unsafe UInt32 AnnounceExpiredPointer(REGISTERS* R)
         {
             var pAbstract = (Pointer<AbstractClass>)R->ECX;

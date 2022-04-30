@@ -16,6 +16,16 @@ namespace Extension.Ext
         public bool IsHoming;
         public CoordStruct HomingTargetLocation;
 
+        public unsafe void TechnoClass_Init_SpawnMissileHoming()
+        {
+            if (Type.SpawnMissileHoming && OwnerObject.CastIf(AbstractType.Aircraft, out Pointer<AircraftClass> pAircraft)
+                && pAircraft.Ref.Type.Ref.Base.Spawned && pAircraft.Ref.Type.Ref.Base.MissileSpawn)
+            {
+                OnPutAction += TechnoClass_Put_SpawnMissileHoming;
+                OnUpdateAction += TechnoClass_Update_SpawnMissileHoming;
+            }
+        }
+
         public unsafe void TechnoClass_Put_SpawnMissileHoming(Pointer<CoordStruct> pCoord, DirStruct faceDir)
         {
             // 子机管理器可能会强制开启

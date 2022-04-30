@@ -72,68 +72,74 @@ namespace Extension.Ext
 
     public partial class TechnoExt
     {
+        public unsafe void TechnoClass_Init_CrawlingFLH()
+        {
+            if (null != Type.CrawlingFLHData && OwnerObject.Ref.Base.Base.WhatAmI() == AbstractType.Infantry)
+            {
+                Pointer<InfantryClass> pInf = OwnerObject.Convert<InfantryClass>();
+                if (pInf.Ref.Crawling)
+                {
+                    OnUpdateAction += TechnoClass_Update_CrawlingFLH;
+                }
+            }
+        }
 
         public unsafe void TechnoClass_Update_CrawlingFLH()
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
-            if (null != Type.CrawlingFLHData && pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Infantry)
+            Pointer<WeaponStruct> primary = pTechno.Ref.GetWeapon(0);
+            Pointer<WeaponStruct> secondary = pTechno.Ref.GetWeapon(1);
+            
+            CrawlingFLHData crawlingFLHData = Type.CrawlingFLHData;
+            // Logger.Log("CrawlingFLHData = {0}", crawlingFLHData);
+
+            if (pTechno.Convert<InfantryClass>().Ref.Crawling)
             {
-                Pointer<InfantryClass> pInf = pTechno.Convert<InfantryClass>();
-                if (pInf.Ref.Type.Ref.Crawls)
+                if (pTechno.Ref.Veterancy.IsElite())
                 {
-                    ref CrawlingFLHData crawlingFLHData = ref Type.CrawlingFLHData;
-                    // Logger.Log("CrawlingFLHData = {0}", crawlingFLHData);
-                    Pointer<WeaponStruct> primary = pTechno.Ref.GetWeapon(0);
-                    Pointer<WeaponStruct> secondary = pTechno.Ref.GetWeapon(1);
-                    if (pInf.Ref.Crawling)
+                    if (null != primary && !primary.IsNull)
                     {
-                        if (pTechno.Ref.Veterancy.IsElite())
-                        {
-                            if (null != primary && !primary.IsNull)
-                            {
-                                primary.Ref.FLH = crawlingFLHData.ElitePrimaryCrawlingFLH;
-                            }
-                            if (null != secondary && !secondary.IsNull)
-                            {
-                                secondary.Ref.FLH = crawlingFLHData.EliteSecondaryCrawlingFLH;
-                            }
-                        }
-                        else
-                        {
-                            if (null != primary && !primary.IsNull)
-                            {
-                                primary.Ref.FLH = crawlingFLHData.PrimaryCrawlingFLH;
-                            }
-                            if (null != secondary && !secondary.IsNull)
-                            {
-                                secondary.Ref.FLH = crawlingFLHData.SecondaryCrawlingFLH;
-                            }
-                        }
+                        primary.Ref.FLH = crawlingFLHData.ElitePrimaryCrawlingFLH;
                     }
-                    else
+                    if (null != secondary && !secondary.IsNull)
                     {
-                        if (pTechno.Ref.Veterancy.IsElite())
-                        {
-                            if (null != primary && !primary.IsNull)
-                            {
-                                primary.Ref.FLH = crawlingFLHData.ElitePrimaryFireFLH;
-                            }
-                            if (null != secondary && !secondary.IsNull)
-                            {
-                                secondary.Ref.FLH = crawlingFLHData.EliteSecondaryFireFLH;
-                            }
-                        }
-                        else
-                        {
-                            if (null != primary && !primary.IsNull)
-                            {
-                                primary.Ref.FLH = crawlingFLHData.PrimaryFireFLH;
-                            }
-                            if (null != secondary && !secondary.IsNull)
-                            {
-                                secondary.Ref.FLH = crawlingFLHData.SecondaryFireFLH;
-                            }
-                        }
+                        secondary.Ref.FLH = crawlingFLHData.EliteSecondaryCrawlingFLH;
+                    }
+                }
+                else
+                {
+                    if (null != primary && !primary.IsNull)
+                    {
+                        primary.Ref.FLH = crawlingFLHData.PrimaryCrawlingFLH;
+                    }
+                    if (null != secondary && !secondary.IsNull)
+                    {
+                        secondary.Ref.FLH = crawlingFLHData.SecondaryCrawlingFLH;
+                    }
+                }
+            }
+            else
+            {
+                if (pTechno.Ref.Veterancy.IsElite())
+                {
+                    if (null != primary && !primary.IsNull)
+                    {
+                        primary.Ref.FLH = crawlingFLHData.ElitePrimaryFireFLH;
+                    }
+                    if (null != secondary && !secondary.IsNull)
+                    {
+                        secondary.Ref.FLH = crawlingFLHData.EliteSecondaryFireFLH;
+                    }
+                }
+                else
+                {
+                    if (null != primary && !primary.IsNull)
+                    {
+                        primary.Ref.FLH = crawlingFLHData.PrimaryFireFLH;
+                    }
+                    if (null != secondary && !secondary.IsNull)
+                    {
+                        secondary.Ref.FLH = crawlingFLHData.SecondaryFireFLH;
                     }
                 }
             }

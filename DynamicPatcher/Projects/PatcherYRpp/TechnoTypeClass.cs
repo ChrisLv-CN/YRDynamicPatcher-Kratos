@@ -161,6 +161,10 @@ namespace PatcherYRpp
 
         [FieldOffset(3516)] public Bool IsSelectableCombatant;
 
+        [FieldOffset(3518)] public Bool DisableVoxelCache;
+
+        [FieldOffset(3519)] public Bool DisableShadowCache;
+
         public Pointer<WeaponTypeClass> get_Primary() => Weapon[0].WeaponType;
         public Pointer<WeaponTypeClass> get_Secondary() => Weapon[1].WeaponType;
         public Pointer<WeaponTypeClass> get_Weapon(int i) => Weapon[i].WeaponType;

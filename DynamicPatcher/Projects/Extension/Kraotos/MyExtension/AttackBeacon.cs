@@ -123,14 +123,14 @@ namespace Extension.Ext
             if (null != Type.AttackBeaconData && Type.AttackBeaconData.Enable && null == attackBeacon)
             {
                 attackBeacon = new AttackBeacon(Type.AttackBeaconData);
+                OnUpdateAction += TechnoClass_Update_AttackBeacon;
             }
+            OnFireAction += TechnoClass_OnFire_AttackBeacon_Recruit;
         }
 
         public unsafe void TechnoClass_Update_AttackBeacon()
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
-            if (null != attackBeacon && attackBeacon.Enable)
-            {
                 if (attackBeacon.IsReady())
                 {
                     attackBeacon.Reload();
@@ -221,22 +221,16 @@ namespace Extension.Ext
                     }
 
                 }
-            }
         }
 
-        public unsafe bool TechnoClass_CanFire_AttackBeacon(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon)
+        public unsafe void TechnoClass_OnFire_AttackBeacon_Recruit(Pointer<AbstractClass> pTarget, int weaponIndex)
         {
-            return false;
-        }
-
-        public unsafe void TechnoClass_OnFire_AttackBeacon(Pointer<AbstractClass> pTarget, int weaponIndex)
-        {
-            Pointer<TechnoClass> pTechno = OwnerObject;
+            // 被征召去攻击信标
             if (attackBeaconRecruited)
             {
                 attackBeaconRecruited = false;
                 // clean recruited target
-                pTechno.Ref.SetTarget(Pointer<AbstractClass>.Zero);
+                OwnerObject.Ref.SetTarget(Pointer<AbstractClass>.Zero);
             }
         }
 

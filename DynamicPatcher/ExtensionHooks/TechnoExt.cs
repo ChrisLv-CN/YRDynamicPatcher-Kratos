@@ -109,10 +109,136 @@ namespace ExtensionHooks
             }
             return 0x71AB08;
         }
+        
+        // [Hook(HookType.AresHook, Address = 0x7067E8, Size = 7)]
+        // public static unsafe UInt32 TechnoClass_Draw_Voxel(REGISTERS* R)
+        // {
+        //     Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
+        //     pTechno.Ref.Type.Ref.DisableVoxelCache=true;
+        //     Logger.Log($"{Game.CurrentFrame} 单位 {pTechno} [{pTechno.Ref.Type.Ref.Base.Base.ID}] DisableVoxelCache {pTechno.Ref.Type.Ref.DisableVoxelCache} Draw vxl {R->Stack<uint>(0x5C)} ZGradient = {pTechno.Ref.GetZGradient()} ZAdjust = {pTechno.Ref.GetZAdjustment()}");
+        //     return 0;
+        // }
+
+        // [Hook(HookType.AresHook, Address = 0x706866, Size = 5)]
+        // public static unsafe UInt32 TechnoClass_voxel_707480(REGISTERS* R)
+        // {
+        //     Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
+        //     Logger.Log($"{Game.CurrentFrame} 地面单位 {pTechno} [{pTechno.Ref.Type.Ref.Base.Base.ID}] DisableVoxelCache {pTechno.Ref.Type.Ref.DisableVoxelCache} Draw vxl {R->Stack<uint>(0x5C)} ZGradient = {pTechno.Ref.GetZGradient()} ZAdjust = {pTechno.Ref.GetZAdjustment()}");
+        //     return 0;
+        // }
+
+        // [Hook(HookType.AresHook, Address = 0x7068BB, Size = 5)]
+        // public static unsafe UInt32 TechnoClass_Draw_Voxel_706ED0(REGISTERS* R)
+        // {
+        //     Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
+        //     Logger.Log($"{Game.CurrentFrame} 浮空单位 {pTechno} [{pTechno.Ref.Type.Ref.Base.Base.ID}] DisableVoxelCache {pTechno.Ref.Type.Ref.DisableVoxelCache} Draw vxl {R->Stack<uint>(0x5C)} ZGradient = {pTechno.Ref.GetZGradient()} ZAdjust = {pTechno.Ref.GetZAdjustment()}");
+        //     return 0;
+        // }
+
+        // [Hook(HookType.AresHook, Address = 0x707210, Size = 5)]
+        // public static unsafe UInt32 OOXXXX2(REGISTERS* R)
+        // {
+        //     Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
+        //     Logger.Log($"{Game.CurrentFrame} 浮空单位 {pTechno.Ref.Type.Ref.Base.Base.ID} 获取色盘 ZGradient = {pTechno.Ref.GetZGradient()} ZAdjust = {pTechno.Ref.GetZAdjustment()}");
+        //     return 0;
+        // }
+
+        #region Amin ChronoSparkle
+        [Hook(HookType.AresHook, Address = 0x414C27, Size = 5)]
+        public static unsafe UInt32 AircraftClass_Update_SkipCreateChronoSparkleAnimOnStand(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                if (null != ext && !ext.MyMaster.IsNull && null != ext.StandType && ext.StandType.Immune)
+                {
+                    return 0x414C78;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+        [Hook(HookType.AresHook, Address = 0x440499, Size = 5)]
+        public static unsafe UInt32 BuildingClass_Update_SkipCreateChronoSparkleAnimOnStand1(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                if (null != ext && !ext.MyMaster.IsNull && null != ext.StandType && ext.StandType.Immune)
+                {
+                    return 0x4404D9;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+        [Hook(HookType.AresHook, Address = 0x44050C, Size = 5)]
+        public static unsafe UInt32 BuildingClass_Update_SkipCreateChronoSparkleAnimOnStand2(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                if (null != ext && !ext.MyMaster.IsNull && null != ext.StandType && ext.StandType.Immune)
+                {
+                    return 0x44055D;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+        [Hook(HookType.AresHook, Address = 0x51BB17, Size = 5)]
+        public static unsafe UInt32 InfantryClass_Update_SkipCreateChronoSparkleAnimOnStand(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                if (null != ext && !ext.MyMaster.IsNull && null != ext.StandType && ext.StandType.Immune)
+                {
+                    return 0x51BB6E;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+        [Hook(HookType.AresHook, Address = 0x736250, Size = 5)]
+        public static unsafe UInt32 UnitClass_Update_SkipCreateChronoSparkleAnimOnStand(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                if (null != ext && !ext.MyMaster.IsNull && null != ext.StandType && ext.StandType.Immune)
+                {
+                    return 0x7362A7;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+        #endregion
 
 
         #region After Render
-        static public UInt32 TechnoClass_Render2(Pointer<TechnoClass> pTechno)
+        public static UInt32 TechnoClass_Render2(Pointer<TechnoClass> pTechno)
         {
             try
             {
@@ -128,25 +254,25 @@ namespace ExtensionHooks
             }
         }
         [Hook(HookType.AresHook, Address = 0x4149F0, Size = 5)]
-        static public unsafe UInt32 AircraftClass_Render2(REGISTERS* R)
+        public static unsafe UInt32 AircraftClass_Render2(REGISTERS* R)
         {
             Pointer<AircraftClass> pAircraft = (IntPtr)R->ECX;
             return TechnoClass_Render2(pAircraft.Convert<TechnoClass>());
         }
         // [Hook(HookType.AresHook, Address = 0x43DA6C, Size = 7)]
-        // static public unsafe UInt32 BuildingClass_Render2(REGISTERS* R)
+        // public static unsafe UInt32 BuildingClass_Render2(REGISTERS* R)
         // {
         //     Pointer<BuildingClass> pBuilding = (IntPtr)R->ECX;
         //     return TechnoClass_Render2(pBuilding.Convert<TechnoClass>());
         // }
         [Hook(HookType.AresHook, Address = 0x51961A, Size = 5)]
-        static public unsafe UInt32 InfantryClass_Render2(REGISTERS* R)
+        public static unsafe UInt32 InfantryClass_Render2(REGISTERS* R)
         {
             Pointer<InfantryClass> pInfantry = (IntPtr)R->ECX;
             return TechnoClass_Render2(pInfantry.Convert<TechnoClass>());
         }
         [Hook(HookType.AresHook, Address = 0x73D410, Size = 5)]
-        static public unsafe UInt32 UnitClass_Render2(REGISTERS* R)
+        public static unsafe UInt32 UnitClass_Render2(REGISTERS* R)
         {
             Pointer<UnitClass> pUnit = (IntPtr)R->ECX;
             return TechnoClass_Render2(pUnit.Convert<TechnoClass>());
@@ -510,7 +636,7 @@ namespace ExtensionHooks
         }
 
 
-        [Hook(HookType.AresHook, Address = 0x6FDD71, Size = 6)]
+        [Hook(HookType.AresHook, Address = 0x6FDD61, Size = 5)]
         public static unsafe UInt32 TechnoClass_Fire_OverrideWeapon(REGISTERS* R)
         {
             try
@@ -523,10 +649,26 @@ namespace ExtensionHooks
                 {
                     if (!pWeapon.IsNull)
                     {
-                        // Logger.Log("Override weapon {0}", pWeapon.Ref.Base.ID);
+                        Logger.Log("Override weapon {0}", pWeapon.Ref.Base.ID);
                         R->EBX = (uint)pWeapon;
+                        return 0x6FDD71;
                     }
                 }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x6FDD7D, Size = 5)]
+        public static unsafe UInt32 TechnoClass_Fire_OverrideWeapon2(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<WeaponTypeClass> pWeapon = (IntPtr)R->EBX;
+                Logger.Log($"{Game.CurrentFrame} - OOXX {R->EBX} [{pWeapon.Ref.Base.ID}]");
             }
             catch (Exception e)
             {
@@ -889,13 +1031,16 @@ namespace ExtensionHooks
         {
 
             Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
-            int z = (int)R->EAX;
+            int height = (int)R->EAX;
             TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
             if (null != ext && !ext.MyMaster.IsNull && (null == ext.StandType || !ext.StandType.IsTrain))
             {
-                int offset = null != ext.StandType ? ext.StandType.ZOffset : 12;
-                R->ECX = (uint)(z + offset);
+                int ZAdjust = TacticalClass.Instance.Ref.AdjustForZ(height);
+                int offset = null != ext.StandType ? ext.StandType.ZOffset : 14;
+                // Logger.Log($"{Game.CurrentFrame} - {pTechno} [{pTechno.Ref.Type.Ref.Base.Base.ID}] GetZAdjust EAX = {height}, AdjForZ = {ZAdjust}, offset = {offset}");
+                R->ECX = (uint)(ZAdjust + offset);
                 // Logger.Log("ZOffset = {0}, ECX = {1}, EAX = {2}", offset, R->ECX, R->EAX);
+                return 0x704368;
             }
             return 0;
         }

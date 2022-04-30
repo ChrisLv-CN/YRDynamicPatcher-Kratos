@@ -59,63 +59,71 @@ namespace Extension.Ext
         private bool aircraftPutOffsetFlag = false;
         private bool aircraftPutOffset = false;
 
+        public unsafe void TechnoClass_Init_AircraftPut()
+        {
+            Pointer<TechnoClass> pTechno = OwnerObject;
+            if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Aircraft
+                && !pTechno.Ref.Spawned
+                && null != RulesExt.Instance.PadAircraftTypes && RulesExt.Instance.PadAircraftTypes.Count > 0
+                && RulesExt.Instance.PadAircraftTypes.Contains(pTechno.Ref.Type.Ref.Base.Base.ID)
+                && null != Type.AircraftPutData)
+            {
+                OnPutAction += TechnoClass_Put_AircraftPut;
+                OnUpdateAction += TechnoClass_Update_AircraftPut;
+            }
+        }
+
         public unsafe void TechnoClass_Put_AircraftPut(Pointer<CoordStruct> pCoord, DirStruct faceDir)
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
+            // Logger.Log("检查飞机{0}, 参数{1}, 需要机场的飞机数量{2}", OwnerObject.Ref.Type.Ref.Base.Base.ID, Type.AircraftPutData, RulesExt.Instance.PadAircraftTypes.Count);
 
-            if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Aircraft && !pTechno.Ref.Spawned
-                && null != RulesExt.Instance.PadAircraftTypes && RulesExt.Instance.PadAircraftTypes.Count > 0
-                && RulesExt.Instance.PadAircraftTypes.Contains(pTechno.Ref.Type.Ref.Base.Base.ID) && null != Type.AircraftPutData)
+            // remove extra pad Aircraft
+            if (pTechno.Convert<AircraftClass>().Ref.Type.Ref.AirportBound && Type.AircraftPutData.RemoveIfNoDocks)
             {
-                // Logger.Log("检查飞机{0}, 参数{1}, 需要机场的飞机数量{2}", OwnerObject.Ref.Type.Ref.Base.Base.ID, Type.AircraftPutData, RulesExt.Instance.PadAircraftTypes.Count);
-
-                // remove extra pad Aircraft
-                if (pTechno.Convert<AircraftClass>().Ref.Type.Ref.AirportBound && Type.AircraftPutData.RemoveIfNoDocks)
+                int count = 0;
+                if (pTechno.Ref.Owner.Ref.AirportDocks <= 0 || pTechno.Ref.Owner.Ref.AirportDocks < (count = ExHelper.CountAircraft(pTechno.Ref.Owner, RulesExt.Instance.PadAircraftTypes)))
                 {
-                    int count = 0;
-                    if (pTechno.Ref.Owner.Ref.AirportDocks <= 0 || pTechno.Ref.Owner.Ref.AirportDocks < (count = ExHelper.CountAircraft(pTechno.Ref.Owner, RulesExt.Instance.PadAircraftTypes)))
+                    // Logger.Log("House {0}-{1} push Aircraft {2} cancel, owner bound pad Aircraft {3}, Docks {4}",
+                    //     pTechno.Ref.Owner.Ref.ArrayIndex, pTechno.Ref.Owner.Ref.Type.Ref.Base.ID,
+                    //     pTechno.Ref.Type.Ref.Base.Base.ID,
+                    //     count, pTechno.Ref.Owner.Ref.AirportDocks
+                    // );
+                    int cost = pTechno.Ref.Type.Ref.Cost;
+                    if (cost > 0)
                     {
-                        // Logger.Log("House {0}-{1} push Aircraft {2} cancel, owner bound pad Aircraft {3}, Docks {4}",
-                        //     pTechno.Ref.Owner.Ref.ArrayIndex, pTechno.Ref.Owner.Ref.Type.Ref.Base.ID,
-                        //     pTechno.Ref.Type.Ref.Base.Base.ID,
-                        //     count, pTechno.Ref.Owner.Ref.AirportDocks
-                        // );
-                        int cost = pTechno.Ref.Type.Ref.Cost;
-                        if (cost > 0)
+                        pTechno.Ref.Owner.Ref.GiveMoney(cost);
+                    }
+                    else
+                    {
+                        pTechno.Ref.Owner.Ref.TakeMoney(-cost);
+                    }
+                    pTechno.Ref.Base.Remove();
+                    pTechno.Ref.Base.UnInit();
+                    return;
+                }
+            }
+
+            // move location
+            if (!aircraftPutOffsetFlag && default != Type.AircraftPutData.PosOffset)
+            {
+                aircraftPutOffsetFlag = true;
+                aircraftPutOffset = true;
+                if (!Type.AircraftPutData.FouceOffset)
+                {
+                    // check Building has Helipad
+                    if (MapClass.Instance.TryGetCellAt(pCoord.Ref, out Pointer<CellClass> pCell))
+                    {
+                        Pointer<BuildingClass> pBuilding = pCell.Ref.GetBuilding();
+                        if (!pBuilding.IsNull && pBuilding.Ref.Type.Ref.Helipad)
                         {
-                            pTechno.Ref.Owner.Ref.GiveMoney(cost);
+                            aircraftPutOffset = false;
                         }
-                        else
-                        {
-                            pTechno.Ref.Owner.Ref.TakeMoney(-cost);
-                        }
-                        pTechno.Ref.Base.Remove();
-                        pTechno.Ref.Base.UnInit();
-                        return;
                     }
                 }
-
-                // move location
-                if (!aircraftPutOffsetFlag && default != Type.AircraftPutData.PosOffset)
+                if (aircraftPutOffset)
                 {
-                    aircraftPutOffsetFlag = true;
-                    aircraftPutOffset = true;
-                    if (!Type.AircraftPutData.FouceOffset)
-                    {
-                        // check Building has Helipad
-                        if (MapClass.Instance.TryGetCellAt(pCoord.Ref, out Pointer<CellClass> pCell))
-                        {
-                            Pointer<BuildingClass> pBuilding = pCell.Ref.GetBuilding();
-                            if (!pBuilding.IsNull && pBuilding.Ref.Type.Ref.Helipad)
-                            {
-                                aircraftPutOffset = false;
-                            }
-                        }
-                    }
-                    if (aircraftPutOffset)
-                    {
-                        pCoord.Ref += Type.AircraftPutData.PosOffset;
-                    }
+                    pCoord.Ref += Type.AircraftPutData.PosOffset;
                 }
             }
             // Logger.Log("Put {0}, AircraftPut={1}, Docks={2}", pTechno.Ref.Type.Ref.Base.Base.ID, Type.AircraftPutData, pTechno.Ref.Owner.Ref.AirportDocks);
@@ -123,7 +131,7 @@ namespace Extension.Ext
 
         public unsafe void TechnoClass_Update_AircraftPut()
         {
-            if (aircraftPutOffset && null != Type.AircraftPutData)
+            if (aircraftPutOffset)
             {
                 aircraftPutOffset = false;
                 CoordStruct location = OwnerObject.Ref.Base.Location;

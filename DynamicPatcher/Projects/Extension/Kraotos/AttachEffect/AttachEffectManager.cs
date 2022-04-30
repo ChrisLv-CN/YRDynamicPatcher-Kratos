@@ -438,6 +438,39 @@ namespace Extension.Ext
             //     Logger.Log($"{Game.CurrentFrame} - {pOwner} [{pOwner.Ref.Type.Ref.Base.ID}] Update, pos {pOwner.Ref.Base.GetCoords()}");
         }
 
+        public unsafe void TemporalUpdate(TechnoExt ext, Pointer<TemporalClass> pTemporal)
+        {
+            for (int i = Count() - 1; i >= 0; i--)
+            {
+                AttachEffect ae = AttachEffects[i];
+                if (ae.IsActive())
+                {
+                    ae.OnTemporalUpdate(ext, pTemporal);
+                }
+            }
+        }
+        public unsafe void Render(Pointer<ObjectClass> pOwner, bool isDead)
+        {
+            if (renderFlag)
+            {
+                // 记录下位置
+                CoordStruct location = pOwner.Ref.Base.GetCoords();
+
+                for (int i = Count() - 1; i >= 0; i--)
+                {
+                    AttachEffect ae = AttachEffects[i];
+                    if (ae.IsActive())
+                    {
+                        // 如果是替身，额外执行替身的定位操作
+                        if (null != ae.Stand && ae.Stand.IsAlive())
+                        {
+                            ae.Stand.SetLocation(location);
+                        }
+                    }
+                }
+            }
+        }
+
         public unsafe void Render2(Pointer<ObjectClass> pOwner, bool isDead)
         {
             renderFlag = !isDead;

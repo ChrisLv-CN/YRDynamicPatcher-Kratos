@@ -30,7 +30,7 @@ namespace ExtensionHooks
                 AnimExt ext = AnimExt.ExtMap.Find(pAnim);
                 ext?.OnUnInit();
 
-                ext?.AttachedComponent.Foreach(c => (c as IObjectScriptable)?.OnUnInit());
+                // ext?.AttachedComponent.Foreach(c => (c as IObjectScriptable)?.OnUnInit());
             }
             catch (Exception e)
             {
@@ -70,7 +70,7 @@ namespace ExtensionHooks
                 AnimExt ext = AnimExt.ExtMap.Find(pAnim);
                 ext?.OnUpdate();
 
-                ext.AttachedComponent.Foreach(c => c.OnUpdate());
+                // ext.AttachedComponent.Foreach(c => c.OnUpdate());
             }
             catch (Exception e)
             {

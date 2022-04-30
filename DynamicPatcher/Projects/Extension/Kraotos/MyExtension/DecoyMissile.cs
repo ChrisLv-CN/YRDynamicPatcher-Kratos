@@ -220,7 +220,7 @@ namespace Extension.Ext
 
         public unsafe void TechnoClass_Init_DecoyMissile()
         {
-            ref DecoyMissileData data = ref Type.DecoyMissileData;
+            DecoyMissileData data = Type.DecoyMissileData;
             if (null != data && data.Enable && null == decoyMissile)
             {
                 Pointer<WeaponTypeClass> pWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find(data.Weapon);
@@ -230,6 +230,8 @@ namespace Extension.Ext
                     data.Velocity = data.FLH;
                 }
                 decoyMissile = new DecoyMissile(data, pWeapon, pEliteWeapon, OwnerObject.Ref.Veterancy.IsElite());
+
+                OnUpdateAction += TechnoClass_Update_DecoyMissile;
             }
         }
 

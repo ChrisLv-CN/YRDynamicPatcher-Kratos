@@ -18,26 +18,31 @@ namespace Extension.Ext
     public partial class TechnoExt
     {
 
-
-        public unsafe void TechnoClass_Update_DeployToTransform()
+        public unsafe void TechnoClass_Init_DeployToTransform()
         {
             if (null != Type.DeployToTransformData)
             {
-                switch (OwnerObject.Ref.Base.Base.WhatAmI())
-                {
-                    case AbstractType.Unit:
-                        if (OwnerObject.Convert<UnitClass>().Ref.Deployed)
-                        {
-                            AttachEffectManager.GiftBoxState.Enable(Type.DeployToTransformData);
-                        }
-                        break;
-                    case AbstractType.Infantry:
-                        if (OwnerObject.Convert<InfantryClass>().Ref.SequenceAnim == SequenceAnimType.Deployed)
-                        {
-                            AttachEffectManager.GiftBoxState.Enable(Type.DeployToTransformData);
-                        }
-                        break;
-                }
+                OnUpdateAction += TechnoClass_Update_DeployToTransform;
+            }
+        }
+
+
+        public unsafe void TechnoClass_Update_DeployToTransform()
+        {
+            switch (OwnerObject.Ref.Base.Base.WhatAmI())
+            {
+                case AbstractType.Unit:
+                    if (OwnerObject.Convert<UnitClass>().Ref.Deployed)
+                    {
+                        AttachEffectManager.GiftBoxState.Enable(Type.DeployToTransformData);
+                    }
+                    break;
+                case AbstractType.Infantry:
+                    if (OwnerObject.Convert<InfantryClass>().Ref.SequenceAnim == SequenceAnimType.Deployed)
+                    {
+                        AttachEffectManager.GiftBoxState.Enable(Type.DeployToTransformData);
+                    }
+                    break;
             }
         }
 
