@@ -67,6 +67,13 @@ namespace Extension.Ext
             }
         }
 
+        public void Put(CoordStruct location, short faceDirValue8)
+        {
+            DirStruct facing = new DirStruct();
+            facing.value8(faceDirValue8);
+            Put(location, facing);
+        }
+
         public void Put(Pointer<BulletClass> pBullet, CoordStruct location)
         {
             CoordStruct forwardLocation = location + pBullet.Ref.Velocity.ToCoordStruct();

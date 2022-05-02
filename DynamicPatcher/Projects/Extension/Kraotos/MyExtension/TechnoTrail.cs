@@ -24,31 +24,29 @@ namespace Extension.Ext
                 trailManager.SetTrailData(Type.TrailDatas);
 
                 OnPutAction += TechnoClass_Put_Trail;
-                OnRenderAction += TechnoClass_Render_Trail;
                 OnUpdateAction += TechnoClass_Update_Trail;
                 OnRemoveAction += TechnoClass_Remove_Trail;
             }
         }
 
-        public unsafe void TechnoClass_Put_Trail(Pointer<CoordStruct> pCoord, DirStruct faceDir)
+        public unsafe void TechnoClass_Put_Trail(Pointer<CoordStruct> pCoord, short faceDirValue8)
         {
-            trailManager?.Put(pCoord.Data, faceDir);
-        }
-
-        public unsafe void TechnoClass_Render_Trail()
-        {
-            Pointer<TechnoClass> pTechno = OwnerObject;
-            if (null == trailManager || pTechno.IsDeadOrInvisibleOrCloaked())
-            {
-                return;
-            }
-            // 绘制尾巴
-            trailManager?.DrawTrail(pTechno, DrivingState);
+            // Logger.Log($"{Game.CurrentFrame} - {OwnerObject} [{OwnerObject.Ref.Type.Ref.Base.Base.ID}] put. {OwnerObject.Ref.Base.Base.GetCoords()} {pCoord.Data}");
+            trailManager?.Put(pCoord.Data, faceDirValue8);
         }
 
         public unsafe void TechnoClass_Update_Trail()
         {
-            trailManager?.Update(OwnerObject, DrivingState);
+            // Logger.Log($"{Game.CurrentFrame} - {OwnerObject} [{OwnerObject.Ref.Type.Ref.Base.Base.ID}] update. {OwnerObject.Ref.Base.Base.GetCoords()}");
+            if (OwnerObject.IsDeadOrInvisibleOrCloaked())
+            {
+                trailManager?.Update(OwnerObject, DrivingState);
+            }
+            else
+            {
+                // 绘制尾巴
+                trailManager?.DrawTrail(OwnerObject, DrivingState);
+            }
         }
 
         public unsafe void TechnoClass_Remove_Trail()

@@ -19,7 +19,7 @@ namespace Extension.Script
 
     public interface IObjectScriptable : IAbstractScriptable
     {
-        public void OnPut(CoordStruct pCoord, DirStruct faceDir);
+        public void OnPut(CoordStruct pCoord, short faceDirValue8);
         public void OnRemove();
         public void OnReceiveDamage(Pointer<int> pDamage, int DistanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
             Pointer<ObjectClass> pAttacker, bool IgnoreDefenses, bool PreventPassengerEscape, Pointer<HouseClass> pAttackingHouse);
@@ -66,7 +66,7 @@ namespace Extension.Script
 
         public virtual void OnTemporalUpdate(Pointer<TemporalClass> pTemporal) { }
 
-        public virtual void OnPut(CoordStruct pCoord, DirStruct faceDir) { }
+        public virtual void OnPut(CoordStruct pCoord, short faceDirValue8) { }
         public virtual void OnRemove() { }
 
         public virtual void OnReceiveDamage(Pointer<int> pDamage, int DistanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
@@ -91,7 +91,7 @@ namespace Extension.Script
 
         public virtual void OnDetonate(Pointer<CoordStruct> location) { }
 
-        public virtual void OnPut(CoordStruct pCoord, DirStruct faceDir) { }
+        public virtual void OnPut(CoordStruct pCoord, short faceDirValue8) { }
         public virtual void OnRemove() { }
 
         public virtual void OnReceiveDamage(Pointer<int> pDamage, int DistanceFromEpicenter, Pointer<WarheadTypeClass> pWH,

@@ -16,7 +16,7 @@ namespace Extension.Ext
 
         public DestroySelfState DestroySelfState => AttachEffectManager.DestroySelfState;
 
-        public unsafe void TechnoClass_Put_DestroySelf(Pointer<CoordStruct> pCoord, DirStruct faceDir)
+        public unsafe void TechnoClass_Put_DestroySelf(Pointer<CoordStruct> pCoord, short faceDirValue8)
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
             if (null != Type.DestroySelfData && Type.DestroySelfData.Enable)

@@ -357,31 +357,48 @@ namespace Extension.Ext
             return multiplier;
         }
 
-        public void Put(Pointer<ObjectClass> pOwner, Pointer<CoordStruct> pCoord, DirStruct faceDir)
+        public unsafe void Render(Pointer<ObjectClass> pOwner, bool isDead)
         {
-            foreach (AttachEffect ae in AttachEffects)
-            {
-                if (ae.IsActive())
-                {
-                    ae.OnPut(pOwner, pCoord, faceDir);
-                }
-            }
+            // if (renderFlag)
+            // {
+            //     // 记录下位置
+            //     CoordStruct location = pOwner.Ref.Base.GetCoords();
+
+            //     for (int i = Count() - 1; i >= 0; i--)
+            //     {
+            //         AttachEffect ae = AttachEffects[i];
+            //         if (ae.IsActive())
+            //         {
+            //             // 如果是替身，额外执行替身的定位操作
+            //             if (null != ae.Stand && ae.Stand.IsAlive())
+            //             {
+            //                 ae.Stand.SetLocation(location);
+            //             }
+            //         }
+            //     }
+            // }
         }
 
-        public void Remove(Pointer<ObjectClass> pOwner)
+        public unsafe void Render2(Pointer<ObjectClass> pOwner, bool isDead)
         {
-            CoordStruct location = pOwner.Ref.Base.GetCoords();
-            foreach (AttachEffect ae in AttachEffects)
+            renderFlag = !isDead;
+            if (renderFlag)
             {
-                if (ae.Type.DiscardOnEntry)
+                // 记录下位置
+                CoordStruct location = MarkLocation(pOwner);
+                // 更新替身的位置
+                int markIndex = 0;
+                for (int i = Count() - 1; i >= 0; i--)
                 {
-                    ae.Disable(location);
-                }
-                else
-                {
+                    AttachEffect ae = AttachEffects[i];
                     if (ae.IsActive())
                     {
-                        ae.OnRemove(pOwner);
+                        // 如果是替身，额外执行替身的定位操作
+                        if (null != ae.Stand && ae.Stand.IsAlive())
+                        {
+                            StandHelper.UpdateStandLocation(this, pOwner, ae.Stand, ref markIndex); // 调整位置
+                            ae.Stand.OnRender2(pOwner); // 调整倾斜
+                        }
                     }
                 }
             }
@@ -391,6 +408,7 @@ namespace Extension.Ext
         {
             // 记录下位置
             CoordStruct location = pOwner.Ref.Base.GetCoords();
+
             if (!renderFlag)
             {
                 location = MarkLocation(pOwner);
@@ -449,48 +467,32 @@ namespace Extension.Ext
                 }
             }
         }
-        public unsafe void Render(Pointer<ObjectClass> pOwner, bool isDead)
-        {
-            if (renderFlag)
-            {
-                // 记录下位置
-                CoordStruct location = pOwner.Ref.Base.GetCoords();
 
-                for (int i = Count() - 1; i >= 0; i--)
+        public void Put(Pointer<ObjectClass> pOwner, Pointer<CoordStruct> pCoord, short faceDirValue8)
+        {
+            foreach (AttachEffect ae in AttachEffects)
+            {
+                if (ae.IsActive())
                 {
-                    AttachEffect ae = AttachEffects[i];
-                    if (ae.IsActive())
-                    {
-                        // 如果是替身，额外执行替身的定位操作
-                        if (null != ae.Stand && ae.Stand.IsAlive())
-                        {
-                            ae.Stand.SetLocation(location);
-                        }
-                    }
+                    ae.OnPut(pOwner, pCoord, faceDirValue8);
                 }
             }
         }
 
-        public unsafe void Render2(Pointer<ObjectClass> pOwner, bool isDead)
+        public void Remove(Pointer<ObjectClass> pOwner)
         {
-            renderFlag = !isDead;
-            if (renderFlag)
+            CoordStruct location = pOwner.Ref.Base.GetCoords();
+            foreach (AttachEffect ae in AttachEffects)
             {
-                // 记录下位置
-                CoordStruct location = MarkLocation(pOwner);
-                // 更新替身的位置
-                int markIndex = 0;
-                for (int i = Count() - 1; i >= 0; i--)
+                if (ae.Type.DiscardOnEntry)
                 {
-                    AttachEffect ae = AttachEffects[i];
+                    ae.Disable(location);
+                }
+                else
+                {
                     if (ae.IsActive())
                     {
-                        // 如果是替身，额外执行替身的定位操作
-                        if (null != ae.Stand && ae.Stand.IsAlive())
-                        {
-                            StandHelper.UpdateStandLocation(this, pOwner, ae.Stand, ref markIndex);
-                            ae.Stand.OnRender2(pOwner);
-                        }
+                        ae.OnRemove(pOwner);
                     }
                 }
             }

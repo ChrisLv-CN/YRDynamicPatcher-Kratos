@@ -284,12 +284,12 @@ namespace ExtensionHooks
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
             var pCoord = R->Stack<Pointer<CoordStruct>>(0x4);
-            var faceDir = R->Stack<DirStruct>(0x8);
+            var faceDirValue8 = R->Stack<short>(0x8);
 
             TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-            ext?.OnPut(pCoord, faceDir);
+            ext?.OnPut(pCoord, faceDirValue8);
 
-            ext?.AttachedComponent.Foreach(c => (c as ITechnoScriptable)?.OnPut(pCoord.Data, faceDir));
+            ext?.AttachedComponent.Foreach(c => (c as ITechnoScriptable)?.OnPut(pCoord.Data, faceDirValue8));
             return 0;
         }
 
@@ -649,7 +649,7 @@ namespace ExtensionHooks
                 {
                     if (!pWeapon.IsNull)
                     {
-                        Logger.Log("Override weapon {0}", pWeapon.Ref.Base.ID);
+                        // Logger.Log("Override weapon {0}", pWeapon.Ref.Base.ID);
                         R->EBX = (uint)pWeapon;
                         return 0x6FDD71;
                     }
@@ -662,20 +662,20 @@ namespace ExtensionHooks
             return 0;
         }
 
-        [Hook(HookType.AresHook, Address = 0x6FDD7D, Size = 5)]
-        public static unsafe UInt32 TechnoClass_Fire_OverrideWeapon2(REGISTERS* R)
-        {
-            try
-            {
-                Pointer<WeaponTypeClass> pWeapon = (IntPtr)R->EBX;
-                Logger.Log($"{Game.CurrentFrame} - OOXX {R->EBX} [{pWeapon.Ref.Base.ID}]");
-            }
-            catch (Exception e)
-            {
-                Logger.PrintException(e);
-            }
-            return 0;
-        }
+        // [Hook(HookType.AresHook, Address = 0x6FDD7D, Size = 5)]
+        // public static unsafe UInt32 TechnoClass_Fire_OverrideWeapon2(REGISTERS* R)
+        // {
+        //     try
+        //     {
+        //         Pointer<WeaponTypeClass> pWeapon = (IntPtr)R->EBX;
+        //         Logger.Log($"{Game.CurrentFrame} - OOXX {R->EBX} [{pWeapon.Ref.Base.ID}]");
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         Logger.PrintException(e);
+        //     }
+        //     return 0;
+        // }
 
         [Hook(HookType.AresHook, Address = 0x702E9D, Size = 6)]
         public static unsafe UInt32 TechnoClass_RegisterDestruction(REGISTERS* R)

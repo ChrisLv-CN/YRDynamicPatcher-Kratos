@@ -194,7 +194,7 @@ namespace Extension.Utilities
                         var occFlags = pCell.Ref.OccupationFlags;
                         pTechno.Ref.Base.OnBridge = pCell.Ref.ContainsBridge();
                         ++Game.IKnowWhatImDoing;
-                        pTechno.Ref.Base.Put(pCell.Ref.GetCoordsWithBridge(), Direction.E);
+                        pTechno.Ref.Base.Put(pCell.Ref.GetCoordsWithBridge(), ((short)DirType.E));
                         --Game.IKnowWhatImDoing;
                         pCell.Ref.OccupationFlags = occFlags;
                         // 单位放到指定的位置

@@ -26,9 +26,9 @@ namespace Extension.Ext
             // }
         }
 
-        public unsafe void TechnoClass_Put_AttachEffect(Pointer<CoordStruct> pCoord, DirStruct faceDir)
+        public unsafe void TechnoClass_Put_AttachEffect(Pointer<CoordStruct> pCoord, short faceDirValue8)
         {
-            AttachEffectManager.Put(OwnerObject.Convert<ObjectClass>(), pCoord, faceDir);
+            AttachEffectManager.Put(OwnerObject.Convert<ObjectClass>(), pCoord, faceDirValue8);
         }
 
         public unsafe void TechnoClass_Remove_AttachEffect()

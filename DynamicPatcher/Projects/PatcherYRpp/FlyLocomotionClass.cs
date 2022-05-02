@@ -15,9 +15,9 @@ namespace PatcherYRpp
         [FieldOffset(0)] public LocomotionClass Base;
 
 		[FieldOffset(24)] public Bool AirportBound;
-		[FieldOffset(28)] public CoordStruct MovingDestination;
-		[FieldOffset(40)] public CoordStruct XYZ2;
-		[FieldOffset(52)] public Bool HasMoveOrder;
+		[FieldOffset(28)] public CoordStruct Destination;
+		[FieldOffset(40)] public CoordStruct HeadToCoord;
+		[FieldOffset(52)] public Bool IsMoving;
 		[FieldOffset(56)] public int FlightLevel;
 		[FieldOffset(64)] public double TargetSpeed;
 		[FieldOffset(72)] public double CurrentSpeed;

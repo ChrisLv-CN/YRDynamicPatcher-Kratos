@@ -351,6 +351,28 @@ namespace PatcherYRpp
         NorthWest = 0x7,
     }
 
+    public enum DirType
+    {
+        MIN = 0,
+        N = 0,
+        North = 0,
+        NE = 32,
+        NorthEast = 32,
+        E = 64,
+        East = 64,
+        SE = 96,
+        SouthEast = 96,
+        S = 128,
+        South = 128,
+        SW = 160,
+        SouthWest = 160,
+        W = 192,
+        West = 192,
+        NW = 224,
+        NorthWest = 224,
+        MAX = 255
+    }
+
     public enum FireError
     {
         NotAValue = 0xFF,

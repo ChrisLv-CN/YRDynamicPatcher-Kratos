@@ -40,7 +40,7 @@ namespace Extension.Ext
 
         private event System.Action OnUpdateAction;
         private event System.Action OnTemporalUpdateAction;
-        private event System.Action<Pointer<CoordStruct>, DirStruct> OnPutAction;
+        private event System.Action<Pointer<CoordStruct>, short> OnPutAction;
         private event System.Action OnRemoveAction;
 
         private event System.Action<Pointer<int>, int, Pointer<WarheadTypeClass>, Pointer<ObjectClass>, bool, bool, Pointer<HouseClass>> OnReceiveDamageAction;
@@ -86,7 +86,7 @@ namespace Extension.Ext
 
             OnRenderAction?.Invoke();
 
-            TechnoClass_Render_AttachEffect();
+            TechnoClass_Render_AttachEffect(); // 调整替身位置到和本体一样
 
             // TechnoClass_Render_ChaosAnim();
             // TechnoClass_Render_Trail();
@@ -94,7 +94,9 @@ namespace Extension.Ext
 
         public unsafe void OnRender2()
         {
-            TechnoClass_Render2_AttachEffect();
+            OnRender2Action?.Invoke();
+
+            TechnoClass_Render2_AttachEffect(); // 再次调整替身的位置
         }
 
         public unsafe void OnUpdate()
@@ -174,18 +176,19 @@ namespace Extension.Ext
         public unsafe void OnTemporalUpdate(Pointer<TemporalClass> pTemporal)
         {
             OnTemporalUpdateAction?.Invoke();
+
             TemporalClass_UpdateA_AttachEffect(pTemporal);
         }
 
-        public unsafe void OnPut(Pointer<CoordStruct> pCoord, DirStruct faceDir)
+        public unsafe void OnPut(Pointer<CoordStruct> pCoord, short faceDirValue8)
         {
-            OnPutAction?.Invoke(pCoord, faceDir);
+            OnPutAction?.Invoke(pCoord, faceDirValue8);
 
-            // TechnoClass_Put_AircraftPut(pCoord, faceDir);
-            TechnoClass_Put_AttachEffect(pCoord, faceDir);
-            TechnoClass_Put_DestroySelf(pCoord, faceDir);
-            // TechnoClass_Put_SpawnMissileHoming(pCoord, faceDir);
-            // TechnoClass_Put_Trail(pCoord, faceDir);
+            // TechnoClass_Put_AircraftPut(pCoord, faceDirValue8);
+            TechnoClass_Put_AttachEffect(pCoord, faceDirValue8);
+            TechnoClass_Put_DestroySelf(pCoord, faceDirValue8);
+            // TechnoClass_Put_SpawnMissileHoming(pCoord, faceDirValue8);
+            // TechnoClass_Put_Trail(pCoord, faceDirValue8);
         }
 
         public unsafe void OnRemove()

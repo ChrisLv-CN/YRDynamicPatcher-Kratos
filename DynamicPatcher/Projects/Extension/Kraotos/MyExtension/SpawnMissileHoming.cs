@@ -26,7 +26,7 @@ namespace Extension.Ext
             }
         }
 
-        public unsafe void TechnoClass_Put_SpawnMissileHoming(Pointer<CoordStruct> pCoord, DirStruct faceDir)
+        public unsafe void TechnoClass_Put_SpawnMissileHoming(Pointer<CoordStruct> pCoord, short faceDirValue8)
         {
             // 子机管理器可能会强制开启
             if (!IsHoming)

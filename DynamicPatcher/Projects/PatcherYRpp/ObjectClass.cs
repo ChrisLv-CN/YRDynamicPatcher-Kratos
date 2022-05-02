@@ -157,11 +157,11 @@ namespace PatcherYRpp
             return func(ref this);
         }
 
-        public unsafe bool Put(CoordStruct where, Direction faceDir)
+        public unsafe bool Put(CoordStruct where, short faceDirValue8)
         {
-            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, ref CoordStruct, Direction, Bool>)
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, ref CoordStruct, short, Bool>)
                 this.GetVirtualFunctionPointer(54);
-            return func(ref this, ref where, faceDir);
+            return func(ref this, ref where, faceDirValue8);
         }
 
         // cleanup things (lose line trail, deselect, etc). Permanently: destroyed/removed/gone opposed to just going out of sight.

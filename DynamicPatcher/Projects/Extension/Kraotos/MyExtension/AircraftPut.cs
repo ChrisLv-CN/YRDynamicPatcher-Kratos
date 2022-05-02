@@ -73,7 +73,7 @@ namespace Extension.Ext
             }
         }
 
-        public unsafe void TechnoClass_Put_AircraftPut(Pointer<CoordStruct> pCoord, DirStruct faceDir)
+        public unsafe void TechnoClass_Put_AircraftPut(Pointer<CoordStruct> pCoord, short faceDirValue8)
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
             // Logger.Log("检查飞机{0}, 参数{1}, 需要机场的飞机数量{2}", OwnerObject.Ref.Type.Ref.Base.Base.ID, Type.AircraftPutData, RulesExt.Instance.PadAircraftTypes.Count);

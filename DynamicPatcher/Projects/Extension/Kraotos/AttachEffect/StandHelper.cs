@@ -100,14 +100,14 @@ namespace Extension.Ext
             // turn offset
             DirStruct targetDir = ExHelper.DirNormalized(dir, 16);
 
-            if (pMaster.Convert<AbstractClass>().Ref.WhatAmI() != AbstractType.Building)
+            if (pMaster.CastToFoot(out Pointer<FootClass> pFoot))
             {
                 double targetRad = targetDir.radians();
 
                 DirStruct sourceDir = pMaster.Ref.Facing.current();
                 if (!pMaster.Ref.IsSinking)
                 {
-                    if (isOnTurret)
+                    if (isOnTurret || pFoot.Ref.Base.Base.Base.WhatAmI() == AbstractType.Aircraft) // WWSB Aircraft is a turret!!!
                     {
                         sourceDir = pMaster.Ref.GetRealFacing().current();
                     }

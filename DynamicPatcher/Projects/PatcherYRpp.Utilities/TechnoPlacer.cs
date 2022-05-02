@@ -98,7 +98,7 @@ namespace PatcherYRpp.Utilities
 				// place and set up
 				var XYZ = pCell.Ref.GetCoordsWithBridge();
 
-				var isPut = pTechno.Ref.Base.Put(XYZ, (Direction)(MapClass.GetCellIndex(pCell.Ref.MapCoords) & 7u));
+				var isPut = pTechno.Ref.Base.Put(XYZ, (short)(MapClass.GetCellIndex(pCell.Ref.MapCoords) & 7u));
 
 				if (isPut)
 				{
@@ -136,7 +136,7 @@ namespace PatcherYRpp.Utilities
 				edge == Edge.None ? pTechno.Ref.Owner.Ref.GetStartingEdge() : edge,
 				default, default, SpeedType.Winged, true, MovementZone.Normal);
             CoordStruct placeCoords = CellClass.Cell2Coord(crd);
-            bool isPut = pTechno.Ref.Base.Put(placeCoords, Direction.N);
+            bool isPut = pTechno.Ref.Base.Put(placeCoords, 0);
 			if (!isPut)
 			{
 				pTechno.Ref.Base.UnInit();

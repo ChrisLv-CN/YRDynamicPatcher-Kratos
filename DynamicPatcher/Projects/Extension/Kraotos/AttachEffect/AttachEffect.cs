@@ -48,7 +48,7 @@ namespace Extension.Ext
         // 被超时空冻结更新
         private event System.Action<TechnoExt, Pointer<TemporalClass>> OnTemporalUpdateAction;
         // 挂载AE的单位出现在地图上
-        private event System.Action<Pointer<ObjectClass>, Pointer<CoordStruct>, DirStruct> OnPutAction;
+        private event System.Action<Pointer<ObjectClass>, Pointer<CoordStruct>, short> OnPutAction;
         // 挂载AE的单位从地图隐藏
         private event System.Action<Pointer<ObjectClass>> OnRemoveAction;
         // 收到伤害
@@ -311,13 +311,13 @@ namespace Extension.Ext
             OnTemporalUpdateAction?.Invoke(ext, pTemporal);
         }
 
-        public void OnPut(Pointer<ObjectClass> pObject, Pointer<CoordStruct> pCoord, DirStruct faceDir)
+        public void OnPut(Pointer<ObjectClass> pObject, Pointer<CoordStruct> pCoord, short faceDirValue8)
         {
             if (delayToEnable)
             {
                 return;
             }
-            OnPutAction?.Invoke(pObject, pCoord, faceDir);
+            OnPutAction?.Invoke(pObject, pCoord, faceDirValue8);
         }
 
         public void OnRemove(Pointer<ObjectClass> pObject)

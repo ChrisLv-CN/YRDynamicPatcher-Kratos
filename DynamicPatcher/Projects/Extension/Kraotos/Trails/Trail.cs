@@ -119,6 +119,7 @@ namespace Extension.Ext
 
         public void DrawTrail(Pointer<HouseClass> pHouse, CoordStruct sourcePos)
         {
+            // Logger.Log($"{Game.CurrentFrame} - 绘制尾巴 {sourcePos} {LastLocation}, {sourcePos.DistanceFrom(LastLocation)} > {Type.Distance}, CheckV {CheckVertical(sourcePos, LastLocation)}, IsOnLand {IsOnLand(sourcePos)}");
             if (default != sourcePos)
             {
                 if (default != LastLocation)
