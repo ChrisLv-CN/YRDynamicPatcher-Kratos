@@ -56,7 +56,7 @@ namespace Extension.Ext
             float max = 0;
             if (reader.ReadNormal(section, "BallisticScatter.Max", ref max))
             {
-                Ares.BallisticScatterMin = (int)(max * 256);
+                Ares.BallisticScatterMax = (int)(max * 256);
             }
         }
     }
