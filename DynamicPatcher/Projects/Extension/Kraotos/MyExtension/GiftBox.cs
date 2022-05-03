@@ -42,6 +42,12 @@ namespace Extension.Ext
             GiftBoxState.IsSelected = pTechno.Ref.Base.IsSelected;
             GiftBoxState.BodyDir = pTechno.Ref.Facing.current();
             GiftBoxState.Group = pTechno.Ref.Group;
+            GiftBoxState.FirepowerMultiplier = pTechno.Ref.FirepowerMultiplier;
+            GiftBoxState.ArmorMultiplier = pTechno.Ref.ArmorMultiplier;
+            if (pTechno.CastToFoot(out Pointer<FootClass> pFoot))
+            {
+                GiftBoxState.SpeedMultiplier = pFoot.Ref.SpeedMultiplier;
+            }
             if (GiftBoxState.IsActive())
             {
                 if (!GiftBoxState.Data.OpenWhenDestoryed && !GiftBoxState.Data.OpenWhenHealthPercent && GiftBoxState.CanOpen())
@@ -196,6 +202,18 @@ namespace Extension.Ext
                             pGift.Ref.Facing.set(GiftBoxState.BodyDir);
                             // 同步小队
                             pGift.Ref.Group = GiftBoxState.Group;
+                            pGift.Ref.ArmorMultiplier = GiftBoxState.ArmorMultiplier;
+                            pGift.Ref.FirepowerMultiplier = GiftBoxState.FirepowerMultiplier;
+                            if (pGift.CastToFoot(out Pointer<FootClass> pGiftFoot))
+                            {
+                                pGiftFoot.Ref.SpeedMultiplier = GiftBoxState.SpeedMultiplier;
+                            }
+                            // 同步AE属性
+                            TechnoExt giftExt = TechnoExt.ExtMap.Find(pGift);
+                            if (null != giftExt)
+                            {
+                                giftExt.CrateStatus += this.CrateStatus;
+                            }
                         }
 
                         // 同步选中
@@ -219,7 +237,7 @@ namespace Extension.Ext
                                 pGift.Ref.Base.Health = health;
                             }
                         }
-                        
+
                         // 继承等级
                         if (data.InheritExperience && pGiftType.Ref.Trainable)
                         {

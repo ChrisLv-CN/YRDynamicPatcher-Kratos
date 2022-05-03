@@ -54,6 +54,17 @@ namespace Extension.Ext
             this.ForceDecloak = false;
         }
 
+        public static AttachStatusType operator +(AttachStatusType a, AttachStatusType b)
+        {
+            a.FirepowerMultiplier += b.FirepowerMultiplier;
+            a.ArmorMultiplier += b.ArmorMultiplier;
+            a.SpeedMultiplier += b.SpeedMultiplier;
+            a.ROFMultiplier += b.ROFMultiplier;
+            a.Cloakable = b.Cloakable;
+            a.ForceDecloak = b.ForceDecloak;
+            return a;
+        }
+
         public override bool TryReadType(INIReader reader, string section)
         {
 
