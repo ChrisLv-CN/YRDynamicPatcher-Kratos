@@ -94,6 +94,8 @@ namespace Extension.Ext
                                     TechnoExt masterExt = TechnoExt.ExtMap.Find(pObject.Convert<TechnoClass>());
                                     // 染色
                                     ext.AttachEffectManager.PaintballState = masterExt.AttachEffectManager.PaintballState;
+                                    // 箱子加成
+                                    ext.CrateStatus = masterExt.CrateStatus;
                                 }
                                 break;
                         }
@@ -429,6 +431,10 @@ namespace Extension.Ext
             pStand.Ref.Berzerk = pMaster.Ref.Berzerk;
             pStand.Ref.EMPLockRemaining = pMaster.Ref.EMPLockRemaining;
             pStand.Ref.ShouldLoseTargetNow = pMaster.Ref.ShouldLoseTargetNow;
+
+            // synch status
+            pStand.Ref.FirepowerMultiplier = pMaster.Ref.FirepowerMultiplier;
+            pStand.Ref.ArmorMultiplier = pMaster.Ref.ArmorMultiplier;
 
             // synch ammo
             if (Type.SameAmmo)
