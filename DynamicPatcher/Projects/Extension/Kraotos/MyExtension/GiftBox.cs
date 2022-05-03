@@ -200,6 +200,10 @@ namespace Extension.Ext
                         {
                             // 同步朝向
                             pGift.Ref.Facing.set(GiftBoxState.BodyDir);
+                            if (pGift.Ref.HasTurret())
+                            {
+                                pGift.Ref.TurretFacing.set(GiftBoxState.BodyDir);
+                            }
                             // 同步小队
                             pGift.Ref.Group = GiftBoxState.Group;
                             pGift.Ref.ArmorMultiplier = GiftBoxState.ArmorMultiplier;
