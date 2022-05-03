@@ -18,29 +18,20 @@ namespace Extension.Ext
 
         public unsafe void TechnoClass_Init_SpawnMissileHoming()
         {
-            if (Type.SpawnMissileHoming && OwnerObject.CastIf(AbstractType.Aircraft, out Pointer<AircraftClass> pAircraft)
+            if (OwnerObject.CastIf(AbstractType.Aircraft, out Pointer<AircraftClass> pAircraft)
                 && pAircraft.Ref.Type.Ref.Base.Spawned && pAircraft.Ref.Type.Ref.Base.MissileSpawn)
             {
-                OnPutAction += TechnoClass_Put_SpawnMissileHoming;
-                OnUpdateAction += TechnoClass_Update_SpawnMissileHoming;
-            }
-        }
-
-        public unsafe void TechnoClass_Put_SpawnMissileHoming(Pointer<CoordStruct> pCoord, short faceDirValue8)
-        {
-            // 子机管理器可能会强制开启
-            if (!IsHoming)
-            {
                 this.IsHoming = Type.SpawnMissileHoming;
+                OnUpdateAction += TechnoClass_Update_SpawnMissileHoming;
             }
         }
 
         public unsafe void TechnoClass_Update_SpawnMissileHoming()
         {
-            if (IsHoming && OwnerObject.CastIf(AbstractType.Aircraft, out Pointer<AircraftClass> pAircraft)
-                && pAircraft.Ref.Type.Ref.Base.Spawned && pAircraft.Ref.Type.Ref.Base.MissileSpawn)
+            // 子机管理器可能会强制开启
+            if (IsHoming)
             {
-                Pointer<AbstractClass> pTarget = pAircraft.Ref.Base.Base.Target;
+                Pointer<AbstractClass> pTarget = OwnerObject.Ref.Target;
                 if (!pTarget.IsNull)
                 {
                     if (pTarget.CastToTechno(out Pointer<TechnoClass> pTargetTechno))
@@ -49,27 +40,21 @@ namespace Extension.Ext
                         if (!pTargetTechno.IsDeadOrInvisibleOrCloaked())
                         {
                             HomingTargetLocation = pTarget.Ref.GetCoords();
+                            // Logger.Log($"{Game.CurrentFrame} 更新导弹 {OwnerObject} [{OwnerObject.Ref.Type.Ref.Base.Base.ID}] 目的地 {HomingTargetLocation}");
                         }
                     }
-                    // else
-                    // {
-                    //     HomingTargetLocation = pTarget.Ref.GetCoords();
-                    // }
                 }
-                // else
-                // {
-                //     Logger.Log($"{Game.CurrentFrame} 导弹 {pAircraft} [{pAircraft.Ref.Type.Ref.Base.Base.Base.ID}] 没有或失去目标，坐标被永久停留在 {HomingTargetLocation}");
-                // }
+
                 if (default != HomingTargetLocation)
                 {
-                    ILocomotion loco = pAircraft.Ref.Base.Locomotor;
+                    ILocomotion loco = OwnerObject.Convert<FootClass>().Ref.Locomotor;
                     Pointer<LocomotionClass> pLoco = loco.ToLocomotionClass();
                     if (LocomotionClass.Rocket == pLoco.Ref.GetClassID())
                     {
                         Pointer<RocketLocomotionClass> pRLoco = pLoco.Convert<RocketLocomotionClass>();
                         if (pRLoco.Ref.Timer34.Step > 2)
                         {
-                            // Logger.Log($"{Game.CurrentFrame} 重设导弹 {pAircraft} [{pAircraft.Ref.Type.Ref.Base.Base.Base.ID}] 目的地 {HomingTargetLocation}");
+                            // Logger.Log($"{Game.CurrentFrame} 重设导弹 {OwnerObject} [{OwnerObject.Ref.Type.Ref.Base.Base.ID}] 目的地 {HomingTargetLocation}");
                             pRLoco.Ref.Destination = HomingTargetLocation;
                         }
                     }
