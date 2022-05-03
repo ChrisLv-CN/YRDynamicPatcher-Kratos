@@ -727,6 +727,25 @@ namespace ExtensionHooks
             return 0;
         }
 
+        [Hook(HookType.AresHook, Address = 0x6FC018, Size = 6)]
+        public static unsafe UInt32 TechnoClass_Select_SkipVoice(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                if (ext.SkipSelectVoice)
+                {
+                    return 0x6FC01E;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
 
         [Hook(HookType.AresHook, Address = 0x6F65D1, Size = 6)]
         public static unsafe UInt32 TechnoClass_DrawHealthBar_Building(REGISTERS* R)

@@ -18,6 +18,7 @@ namespace Extension.Ext
     {
 
         public GiftBoxState GiftBoxState => AttachEffectManager.GiftBoxState;
+        public bool SkipSelectVoice = false;
 
         public unsafe void TechnoClass_Init_GiftBox()
         {
@@ -195,6 +196,7 @@ namespace Extension.Ext
                     if (!pGift.IsNull)
                     {
                         Pointer<TechnoTypeClass> pGiftType = pGift.Ref.Type;
+                        TechnoExt giftExt = TechnoExt.ExtMap.Find(pGift);
 
                         if (data.IsTransform)
                         {
@@ -213,17 +215,15 @@ namespace Extension.Ext
                                 pGiftFoot.Ref.SpeedMultiplier = GiftBoxState.SpeedMultiplier;
                             }
                             // 同步AE属性
-                            TechnoExt giftExt = TechnoExt.ExtMap.Find(pGift);
-                            if (null != giftExt)
-                            {
-                                giftExt.CrateStatus += this.CrateStatus;
-                            }
+                            giftExt.CrateStatus += this.CrateStatus;
                         }
 
                         // 同步选中
                         if (GiftBoxState.IsSelected)
                         {
+                            giftExt.SkipSelectVoice = true;
                             pGift.Ref.Base.Select();
+                            giftExt.SkipSelectVoice = false;
                         }
 
                         // 修改血量
@@ -277,7 +277,7 @@ namespace Extension.Ext
                                 if (pDest.IsNull && pFocus.IsNull)
                                 {
                                     // 第一个傻站着，第二个之后的散开
-                                    if (scatter)
+                                    if (scatter || pGiftType.Ref.BalloonHover)
                                     {
                                         pGift.Ref.Base.Scatter(CoordStruct.Empty, true, false);
                                     }
