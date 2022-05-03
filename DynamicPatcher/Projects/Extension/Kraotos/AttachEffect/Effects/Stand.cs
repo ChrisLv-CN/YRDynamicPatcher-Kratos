@@ -430,6 +430,12 @@ namespace Extension.Ext
             pStand.Ref.EMPLockRemaining = pMaster.Ref.EMPLockRemaining;
             pStand.Ref.ShouldLoseTargetNow = pMaster.Ref.ShouldLoseTargetNow;
 
+            // synch ammo
+            if (Type.SameAmmo)
+            {
+                pStand.Ref.Ammo = pMaster.Ref.Ammo;
+            }
+
             // synch Promote
             if (Type.PromoteFromMaster && pStand.Ref.Type.Ref.Trainable)
             {

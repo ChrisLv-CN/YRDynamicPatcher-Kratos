@@ -46,6 +46,7 @@ namespace Extension.Ext
         public bool SameHouse; // 与使者同所属
         public bool SameTarget; // 与使者同个目标
         public bool SameLoseTarget; // 使者失去目标时替身也失去
+        public bool SameAmmo; // 与使者弹药数相同
         public bool ForceAttackMaster; // 强制选择使者为目标
         public bool MobileFire; // 移动攻击
         public bool Immune; // 无敌
@@ -75,6 +76,7 @@ namespace Extension.Ext
             this.SameHouse = true;
             this.SameTarget = true;
             this.SameLoseTarget = false;
+            this.SameAmmo = false;
             this.ForceAttackMaster = false;
             this.MobileFire = true;
             this.Powered = false;
@@ -188,6 +190,12 @@ namespace Extension.Ext
                 if (reader.ReadNormal(section, "Stand.SameLoseTarget", ref sameLoseTarget))
                 {
                     this.SameLoseTarget = sameLoseTarget;
+                }
+
+                bool sameAmmo = true;
+                if (reader.ReadNormal(section, "Stand.SameAmmo", ref sameAmmo))
+                {
+                    this.SameAmmo = sameAmmo;
                 }
 
                 bool forceAttackMaster = false;
