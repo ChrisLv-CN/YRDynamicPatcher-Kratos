@@ -17,32 +17,28 @@ namespace Extension.Ext
 
     public partial class TechnoExt
     {
-
         public unsafe void TechnoClass_Init_DeployToTransform()
         {
-            if (null != Type.DeployToTransformData)
+            if (null != Type.DeployToTransformData && OwnerObject.CastIf(AbstractType.Infantry, out Pointer<InfantryClass> pInf))
             {
-                OnUpdateAction += TechnoClass_Update_DeployToTransform;
+                OnUpdateAction += InfantryClass_Update_DeployToTransform;
             }
         }
 
-
-        public unsafe void TechnoClass_Update_DeployToTransform()
+        public unsafe void InfantryClass_Update_DeployToTransform()
         {
-            switch (OwnerObject.Ref.Base.Base.WhatAmI())
+            if (OwnerObject.Convert<InfantryClass>().Ref.SequenceAnim == SequenceAnimType.Deployed)
             {
-                case AbstractType.Unit:
-                    if (OwnerObject.Convert<UnitClass>().Ref.Deployed)
-                    {
-                        AttachEffectManager.GiftBoxState.Enable(Type.DeployToTransformData);
-                    }
-                    break;
-                case AbstractType.Infantry:
-                    if (OwnerObject.Convert<InfantryClass>().Ref.SequenceAnim == SequenceAnimType.Deployed)
-                    {
-                        AttachEffectManager.GiftBoxState.Enable(Type.DeployToTransformData);
-                    }
-                    break;
+                AttachEffectManager.GiftBoxState.Enable(Type.DeployToTransformData);
+            }
+        }
+
+        // Hook触发
+        public unsafe void UnitClass_Deployed_DeployToTransform()
+        {
+            if (null != Type.DeployToTransformData)
+            {
+                AttachEffectManager.GiftBoxState.Enable(Type.DeployToTransformData);
             }
         }
 
