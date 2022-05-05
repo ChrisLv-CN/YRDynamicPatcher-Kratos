@@ -58,6 +58,28 @@ namespace PatcherYRpp
 
         [FieldOffset(1696)] public int ReloadIncrement;
 
+        [FieldOffset(1700)] public int RadialFireSegments;
+
+        [FieldOffset(1704)] public int DeployFireWeapon;
+
+        [FieldOffset(1708)] public Bool DeployFire;
+
+        [FieldOffset(1709)] public Bool DeployToLand;
+
+        [FieldOffset(1710)] public Bool MobileFire;
+
+        [FieldOffset(1711)] public Bool OpportunityFire;
+
+        [FieldOffset(1712)] public Bool DistributedFire;
+
+        [FieldOffset(1728)] public Bool AttackFriendlies;
+
+        [FieldOffset(1729)] public Bool AttackCursorOnFriendlies;
+
+        [FieldOffset(1732)] public int UndeployDelay;
+
+        [FieldOffset(1736)] public Bool PreventAttackMove;
+
         [FieldOffset(1749)] public Bool AllowedToStartInMultiplayer;
 
         [FieldOffset(1820)] public int ROT;

@@ -645,6 +645,22 @@ namespace ExtensionHooks
             return 0;
         }
 
+        [Hook(HookType.AresHook, Address = 0x6FF929, Size = 6)]
+        public static unsafe UInt32 TechnoClass_Fire_FireOnce(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                ext?.OnFireOnce();
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
 
         [Hook(HookType.AresHook, Address = 0x6FDD61, Size = 5)]
         public static unsafe UInt32 TechnoClass_Fire_OverrideWeapon(REGISTERS* R)

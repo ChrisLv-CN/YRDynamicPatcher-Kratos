@@ -49,6 +49,11 @@ namespace Extension.Ext
         private event System.Action OnDestroyAnimAction;
 
         private event System.Action<Pointer<AbstractClass>, int> OnFireAction;
+        private event System.Action OnFireOnceAction;
+
+        public void ChangeType()
+        {
+        }
 
         public void OnInit()
         {
@@ -72,6 +77,7 @@ namespace Extension.Ext
             TechnoClass_Init_SpawnMissileHoming();
             TechnoClass_Init_SpawnSupport();
             TechnoClass_Init_Trail();
+            TechnoClass_Init_UnitDeployFireOnce();
 
             TechnoClass_Init_GiftBox();
             TechnoClass_Init_VirtualUnit();
@@ -332,6 +338,11 @@ namespace Extension.Ext
             TechnoClass_OnFire_RockerPitch(pTarget, weaponIndex);
             // TechnoClass_OnFire_SpawnSupport(pTarget, weaponIndex);
             TechnoClass_OnFire_SuperWeapon(pTarget, weaponIndex);
+        }
+
+        public unsafe void OnFireOnce()
+        {
+            OnFireOnceAction?.Invoke();
         }
 
         public unsafe void OnRegisterDestruction(Pointer<TechnoClass> pKiller, int cost, ref bool skip)
