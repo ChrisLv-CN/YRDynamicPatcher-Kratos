@@ -36,7 +36,7 @@ namespace Extension.Ext
         // Hook触发
         public unsafe void UnitClass_Deployed_DeployToTransform()
         {
-            if (null != Type.DeployToTransformData)
+            if (null != Type.DeployToTransformData && OwnerObject.Convert<UnitClass>().Ref.Deployed)
             {
                 AttachEffectManager.GiftBoxState.Enable(Type.DeployToTransformData);
             }

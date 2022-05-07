@@ -19,13 +19,12 @@ namespace Extension.Ext
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
             // Logger.Log("Techno IsAlive={0} IsActive={1}, IsOnMap={2}", pTechno.Ref.Base.IsAlive, pTechno.Ref.Base.IsActive(), pTechno.Ref.Base.IsOnMap);
-            TechnoTypeExt typeExt = Type;
-            List<string> destroyAnims = typeExt.DestroyAnims;
+            List<string> destroyAnims = Type.DestroyAnims;
             if (null != destroyAnims && destroyAnims.Count > 0)
             {
                 int facing = destroyAnims.Count;
                 int index = 0;
-                if (!typeExt.DestroyAnimsRandom && facing % 8 == 0)
+                if (!Type.DestroyAnimsRandom && facing % 8 == 0)
                 {
                     // uint bits = (uint)Math.Round(Math.Sqrt(facing), MidpointRounding.AwayFromZero);
                     // double face = pTechno.Ref.GetRealFacing().target().GetValue(bits);

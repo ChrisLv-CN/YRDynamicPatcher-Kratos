@@ -41,14 +41,37 @@ namespace Extension.Ext
             // Surface.Primary.Ref.DrawText(lastMission.ToString(), TacticalClass.Instance.Ref.CoordsToClient(location), new ColorStruct(255, 255, 255));
 
             GiftBoxState.IsSelected = pTechno.Ref.Base.IsSelected;
-            GiftBoxState.BodyDir = pTechno.Ref.Facing.current();
+
             GiftBoxState.Group = pTechno.Ref.Group;
             GiftBoxState.FirepowerMultiplier = pTechno.Ref.FirepowerMultiplier;
             GiftBoxState.ArmorMultiplier = pTechno.Ref.ArmorMultiplier;
-            if (pTechno.CastToFoot(out Pointer<FootClass> pFoot))
+            // 记录朝向
+            if (pTechno.CastIf(AbstractType.Aircraft, out Pointer<AircraftClass> pPlane))
             {
+                // 飞机朝向是TurretFacing
+                GiftBoxState.BodyDir = pTechno.Ref.GetRealFacing().current();
+            }
+            else if (pTechno.CastToFoot(out Pointer<FootClass> pFoot))
+            {
+                ILocomotion loco = pFoot.Ref.Locomotor;
+                if (loco.ToLocomotionClass().Ref.GetClassID() == LocomotionClass.Jumpjet)
+                {
+                    // JJ朝向是单独的Facing
+                    Pointer<JumpjetLocomotionClass> pLoco = loco.ToLocomotionClass<JumpjetLocomotionClass>();
+                    GiftBoxState.BodyDir = pLoco.Ref.LocomotionFacing.current();
+                }
+                else
+                {
+                    GiftBoxState.BodyDir = pTechno.Ref.Facing.current();
+                }
+                // 记录速度加成
                 GiftBoxState.SpeedMultiplier = pFoot.Ref.SpeedMultiplier;
             }
+            else
+            {
+                GiftBoxState.BodyDir = pTechno.Ref.Facing.current();
+            }
+
             if (GiftBoxState.IsActive())
             {
                 if (!GiftBoxState.Data.OpenWhenDestoryed && !GiftBoxState.Data.OpenWhenHealthPercent && GiftBoxState.CanOpen())
@@ -201,19 +224,44 @@ namespace Extension.Ext
                         if (data.IsTransform)
                         {
                             // 同步朝向
-                            pGift.Ref.Facing.set(GiftBoxState.BodyDir);
-                            if (pGift.Ref.HasTurret())
+                            if (pGift.CastIf(AbstractType.Aircraft, out Pointer<AircraftClass> pPlane))
                             {
-                                pGift.Ref.TurretFacing.set(GiftBoxState.BodyDir);
+                                // 飞机朝向使用炮塔朝向
+                                pGift.Ref.GetRealFacing().set(GiftBoxState.BodyDir);
+                            }
+                            else if (pGift.CastToFoot(out Pointer<FootClass> pFoot))
+                            {
+                                ILocomotion loco = pFoot.Ref.Locomotor;
+                                if (loco.ToLocomotionClass().Ref.GetClassID() == LocomotionClass.Jumpjet)
+                                {
+                                    // JJ朝向是单独的Facing
+                                    Pointer<JumpjetLocomotionClass> pLoco = loco.ToLocomotionClass<JumpjetLocomotionClass>();
+                                    pLoco.Ref.LocomotionFacing.set(GiftBoxState.BodyDir);
+                                }
+                                else
+                                {
+                                    pGift.Ref.Facing.set(GiftBoxState.BodyDir);
+                                    if (pGift.Ref.HasTurret())
+                                    {
+                                        pGift.Ref.TurretFacing.set(GiftBoxState.BodyDir);
+                                    }
+                                }
+                                // 同步速度
+                                pFoot.Ref.SpeedMultiplier = GiftBoxState.SpeedMultiplier;
+                            }
+                            else
+                            {
+                                pGift.Ref.Facing.set(GiftBoxState.BodyDir);
+                                if (pGift.Ref.HasTurret())
+                                {
+                                    pGift.Ref.TurretFacing.set(GiftBoxState.BodyDir);
+                                }
                             }
                             // 同步小队
                             pGift.Ref.Group = GiftBoxState.Group;
                             pGift.Ref.ArmorMultiplier = GiftBoxState.ArmorMultiplier;
                             pGift.Ref.FirepowerMultiplier = GiftBoxState.FirepowerMultiplier;
-                            if (pGift.CastToFoot(out Pointer<FootClass> pGiftFoot))
-                            {
-                                pGiftFoot.Ref.SpeedMultiplier = GiftBoxState.SpeedMultiplier;
-                            }
+
                             // 同步AE属性
                             giftExt.CrateStatus += this.CrateStatus;
                         }

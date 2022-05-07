@@ -278,8 +278,10 @@ namespace ExtensionHooks
         #endregion
 
         #region UnitClass Deplayed
-        [Hook(HookType.AresHook, Address = 0x739B6A, Size = 6)] // No Anim
-        [Hook(HookType.AresHook, Address = 0x739C6A, Size = 6)] // Has Anim
+        // [Hook(HookType.AresHook, Address = 0x739B6A, Size = 6)] // Has Anim
+        // [Hook(HookType.AresHook, Address = 0x739C6A, Size = 6)] // No Anim
+        // Phobos Skip ↑ those address.
+        [Hook(HookType.AresHook, Address = 0x739C74, Size = 6)]
         public static unsafe UInt32 UnitClass_Deployed(REGISTERS* R)
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
