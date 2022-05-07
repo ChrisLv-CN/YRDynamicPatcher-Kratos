@@ -187,6 +187,7 @@ namespace Extension.Ext
         // 销毁
         public override void Disable(CoordStruct location)
         {
+            // Logger.Log($"{Game.CurrentFrame} {AEType.Name} 替身 {Type.Type} 销毁");
             if (pStand.IsNull)
             {
                 return;
@@ -196,7 +197,7 @@ namespace Extension.Ext
 
         private void ExplodesOrDisappear(bool remove)
         {
-            // Logger.Log("替身{0}注销", Type.Type);
+            // Logger.Log($"{Game.CurrentFrame} {AEType.Name} 替身 {Type.Type} 注销");
             if (Type.Explodes || notBeHuman)
             {
                 pStand.Ref.Base.TakeDamage(pStand.Ref.Base.Health + 1, pStand.Ref.Type.Ref.Crewed);
@@ -369,6 +370,7 @@ namespace Extension.Ext
 
         public void UpdateState(Pointer<BulletClass> pBullet)
         {
+            // Logger.Log($"{Game.CurrentFrame} 抛射体上的 {AEType.Name} 替身 {Type.Type} {(pStand.Ref.Base.IsAlive ? "存活" : "死亡")}");
             // Synch Target
             RemoveStandIllegalTarget();
             Pointer<AbstractClass> target = pBullet.Ref.Target;
@@ -389,7 +391,7 @@ namespace Extension.Ext
 
         public void UpdateState(Pointer<TechnoClass> pMaster)
         {
-            // Logger.Log("Stand {0} {1}", Type.Name, pStand.Ref.Base.IsAlive ? "is Alive" : "is Dead");
+            // Logger.Log($"{Game.CurrentFrame} 单位上的 {AEType.Name} 替身 {Type.Type} {(pStand.Ref.Base.IsAlive ? "存活" : "死亡")}");
             if (pMaster.Ref.IsSinking && Type.RemoveAtSinking)
             {
                 // Logger.Log("{0} 船沉了，自爆吧！", Type.Type);

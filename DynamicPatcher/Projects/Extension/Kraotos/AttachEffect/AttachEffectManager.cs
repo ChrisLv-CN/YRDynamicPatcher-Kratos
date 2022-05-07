@@ -420,7 +420,7 @@ namespace Extension.Ext
                 AttachEffect ae = AttachEffects[i];
                 if (ae.IsActive())
                 {
-                    // Logger.Log("{0}更新AE类型{1}", pOwner, ae.Type.Name);
+                    // Logger.Log($"{Game.CurrentFrame} - {pOwner} [{pOwner.Ref.Type.Ref.Base.ID}] {ae.Type.Name} 执行更新");
                     ae.OnUpdate(pOwner, isDead);
                     // 如果是替身，额外执行替身的定位操作
                     if (!renderFlag && null != ae.Stand && ae.Stand.IsAlive())
@@ -430,7 +430,7 @@ namespace Extension.Ext
                 }
                 else
                 {
-                    // Logger.Log("{0}移除失效AE类型{1}, 设置不可再获取的延迟时间{2}", pOwner, ae.Type.Name, ae.Type.Delay);
+                    // Logger.Log($"{Game.CurrentFrame} - {pOwner} [{pOwner.Ref.Type.Ref.Base.ID}] {ae.Type.Name} 失效，从列表中移除，不可再赋予延迟 {ae.Type.Delay}");
                     int delay = ae.Type.Delay;
                     if (ae.Type.RandomDelay)
                     {
@@ -527,10 +527,12 @@ namespace Extension.Ext
             for (int i = Count() - 1; i >= 0; i--)
             {
                 AttachEffect ae = AttachEffects[i];
-                if (ae.IsActive())
+                if (ae.IsAnyAlive())
                 {
+                    // Logger.Log($"{Game.CurrentFrame} - {ae.Type.Name} 注销，执行关闭");
                     ae.Disable(location);
                 }
+                // Logger.Log($"{Game.CurrentFrame} - {ae.Type.Name} 注销，移出列表");
                 AttachEffects.Remove(ae);
             }
             AttachEffects.Clear();

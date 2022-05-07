@@ -193,6 +193,19 @@ namespace Extension.Ext
             return Active;
         }
 
+        public bool IsAnyAlive()
+        {
+            foreach (IAttachEffectBehaviour effect in effects)
+            {
+                if (effect.IsAlive())
+                {
+                    // Logger.Log($"{Game.CurrentFrame} - AE {Name} 模块 {effect.GetType().Name} 狗带了");
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public bool IsAlive()
         {
             foreach (IAttachEffectBehaviour effect in effects)
