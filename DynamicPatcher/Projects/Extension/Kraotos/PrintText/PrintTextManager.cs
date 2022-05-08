@@ -38,6 +38,11 @@ namespace Extension.Ext
 
         private static Queue<RollingText> rollingTextQueue = new Queue<RollingText>();
 
+        public static void Clear()
+        {
+            rollingTextQueue.Clear();
+        }
+
         public static void RollingText(string text, CoordStruct location, Point2D offset, int rollSpeed, int duration, PrintTextData data)
         {
             RollingText rollingText = new RollingText(text, location, offset, rollSpeed, duration, data);

@@ -27,14 +27,7 @@ namespace Extension.Ext
             Pointer<MissionClass> pMission = OwnerObject.Convert<MissionClass>();
             if (pMission.Ref.CurrentMission == Mission.Unload)
             {
-                if (OwnerObject.Ref.Type.Ref.DefaultToGuardArea)
-                {
-                    pMission.Ref.QueueMission(Mission.Area_Guard, false);
-                }
-                else
-                {
-                    pMission.Ref.QueueMission(Mission.Guard, false);
-                }
+                pMission.Ref.QueueMission(Mission.Stop, true);
             }
         }
 

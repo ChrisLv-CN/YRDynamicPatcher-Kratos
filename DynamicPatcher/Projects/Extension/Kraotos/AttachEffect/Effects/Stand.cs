@@ -200,6 +200,7 @@ namespace Extension.Ext
             // Logger.Log($"{Game.CurrentFrame} {AEType.Name} 替身 {Type.Type} 注销");
             if (Type.Explodes || notBeHuman)
             {
+                // Logger.Log($"{Game.CurrentFrame} {AEType.Name} 替身 {Type.Type} 自爆");
                 pStand.Ref.Base.TakeDamage(pStand.Ref.Base.Health + 1, pStand.Ref.Type.Ref.Crewed);
                 if (remove)
                 {
@@ -208,8 +209,10 @@ namespace Extension.Ext
             }
             else
             {
-                // pStand.Ref.Base.Remove();
-                pStand.Ref.Base.UnInit();
+                // Logger.Log($"{Game.CurrentFrame} {AEType.Name} 替身 {Type.Type} 移除");
+                pStand.Ref.Base.Remove();
+                // pStand.Ref.Base.UnInit(); // 替身攻击建筑时死亡会导致崩溃，莫名其妙的bug
+                pStand.Ref.Base.TakeDamage(pStand.Ref.Base.Health + 1, false);
             }
             pStand.Pointer = IntPtr.Zero;
         }
@@ -346,7 +349,6 @@ namespace Extension.Ext
 
         public override void OnUpdate(Pointer<ObjectClass> pObject, bool isDead)
         {
-
             // 只同步状态，位置和朝向由StandManager控制
             if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
             {
@@ -453,6 +455,12 @@ namespace Extension.Ext
             // synch PrimaryFactory
             pStand.Ref.IsPrimaryFactory = pMaster.Ref.IsPrimaryFactory;
 
+            if (pStand.Pointer.IsInvisible())
+            {
+                RemoveStandTarget();
+                return;
+            }
+
             // get mission
             Mission masterMission = pMaster.Convert<MissionClass>().Ref.CurrentMission;
 
@@ -506,9 +514,10 @@ namespace Extension.Ext
             // synch target
             if (Type.ForceAttackMaster)
             {
-                if (!powerOff)
+                Pointer<AbstractClass> pTarget = pMaster.Convert<AbstractClass>();
+                if (!powerOff && StandCanAttackTarget(pTarget))
                 {
-                    pStand.Ref.SetTarget(pMaster.Convert<AbstractClass>());
+                    pStand.Ref.SetTarget(pTarget);
                 }
             }
             else
@@ -520,7 +529,7 @@ namespace Extension.Ext
                     Pointer<AbstractClass> target = pMaster.Ref.Target;
                     if (!target.IsNull)
                     {
-                        if (Type.SameTarget && canFire)
+                        if (Type.SameTarget && canFire && StandCanAttackTarget(target))
                         {
                             pStand.Ref.SetTarget(target);
                         }
@@ -540,22 +549,27 @@ namespace Extension.Ext
             }
         }
 
+        private bool StandCanAttackTarget(Pointer<AbstractClass> pTarget)
+        {
+            int i = pStand.Ref.SelectWeapon(pTarget);
+            FireError fireError = pStand.Ref.GetFireError(pTarget, i, true);
+            switch (fireError)
+            {
+                case FireError.ILLEGAL:
+                case FireError.CANT:
+                case FireError.MOVING:
+                case FireError.RANGE:
+                    return false;
+            }
+            return true;
+        }
+
         private void RemoveStandIllegalTarget()
         {
             Pointer<AbstractClass> pStandTarget;
-            if (!(pStandTarget = pStand.Ref.Target).IsNull)
+            if (!(pStandTarget = pStand.Ref.Target).IsNull && !StandCanAttackTarget(pStandTarget))
             {
-                int i = pStand.Ref.SelectWeapon(pStandTarget);
-                FireError fireError = pStand.Ref.GetFireError(pStandTarget, i, true);
-                switch (fireError)
-                {
-                    case FireError.ILLEGAL:
-                    case FireError.CANT:
-                    case FireError.MOVING:
-                    case FireError.RANGE:
-                        pStand.Ref.SetTarget(Pointer<AbstractClass>.Zero);
-                        break;
-                }
+                pStand.Ref.SetTarget(Pointer<AbstractClass>.Zero);
             }
         }
 
@@ -564,7 +578,7 @@ namespace Extension.Ext
             // Logger.Log("清空替身{0}的目标对象", Type.Type);
             pStand.Ref.Target = IntPtr.Zero;
             pStand.Ref.SetTarget(IntPtr.Zero);
-            pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(Mission.Area_Guard, true);
+            pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(Mission.Stop, true);
             if (!pStand.Ref.SpawnManager.IsNull)
             {
                 pStand.Ref.SpawnManager.Ref.Destination = IntPtr.Zero;
