@@ -29,6 +29,7 @@ namespace Extension.Ext
         public bool IsDead;
         public DrivingState DrivingState;
 
+        public bool IsBuilding;
 
         private Mission lastMission;
         private CoordStruct lastLocation;
@@ -57,6 +58,8 @@ namespace Extension.Ext
 
         public void OnInit()
         {
+            IsBuilding = OwnerObject.Ref.Base.Base.WhatAmI() == AbstractType.Building;
+
             TechnoClass_Init_AircraftDive();
             TechnoClass_Init_AircraftPut();
             TechnoClass_Init_AttachEffect();
@@ -71,6 +74,7 @@ namespace Extension.Ext
             TechnoClass_Init_ExtraFireWeapon();
             TechnoClass_Init_Fighter_Area_Guard();
             TechnoClass_Init_FixGattlingStage();
+            TechnoClass_Init_HealthBarText();
             TechnoClass_Init_JumpjetFacingToTarget();
             TechnoClass_Init_OverrideWeapon();
             TechnoClass_Init_SuperWeapon();

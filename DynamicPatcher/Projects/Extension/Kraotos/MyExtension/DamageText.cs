@@ -16,44 +16,6 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public class DamageTextTypeControlData
-    {
-        public bool Hidden;
-
-        public Dictionary<int, DamageTextTypeData> Types;
-
-        public DamageTextTypeControlData(bool init)
-        {
-            this.Hidden = false;
-            this.Types = new Dictionary<int, DamageTextTypeData>();
-            if (init)
-            {
-                for (int i = 0; i <= 10; i++)
-                {
-                    // 0 是unknow类型，默认设置
-                    Types.Add(i, new DamageTextTypeData());
-                }
-            }
-        }
-
-        public void ReadDamageText(INIReader reader, string section)
-        {
-            bool hidden = false;
-            if (reader.ReadNormal(section, "DamageText.Hidden", ref hidden))
-            {
-                this.Hidden = hidden;
-            }
-
-            foreach (KeyValuePair<int, DamageTextTypeData> type in Types)
-            {
-                type.Value.ReadDamageTextType(reader, section, "DamageText.");
-
-                type.Value.ReadDamageTextType(reader, section, "DamageText." + type.Key + ".");
-            }
-        }
-    }
-
-    [Serializable]
     public class DamageTextTypeData
     {
         public bool Hidden;
@@ -251,7 +213,7 @@ namespace Extension.Ext
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
             WarheadTypeExt whExt = WarheadTypeExt.ExtMap.Find(pWH);
-            if (pTechno.IsInvisible() || pTechno.IsCloaked() || null == whExt || null == whExt.DamageTextTypeData || whExt.DamageTextTypeData.Hidden)
+            if (pTechno.IsInvisible() || pTechno.IsCloaked() || null == whExt || whExt.DamageTextTypeData.Hidden)
             {
                 return;
             }
@@ -341,7 +303,7 @@ namespace Extension.Ext
 
     public partial class WarheadTypeExt
     {
-        public DamageTextTypeData DamageTextTypeData;
+        public DamageTextTypeData DamageTextTypeData = new DamageTextTypeData();
         private int DamageTextTypeNum;
 
         /// <summary>
@@ -383,34 +345,12 @@ namespace Extension.Ext
                     this.DamageTextTypeNum = infDeath;
                 }
             }
-            if (null == DamageTextTypeData)
-            {
-                if (null != RulesExt.Instance.GeneralDamageTextTypeControlData)
-                {
-                    DamageTextTypeData = RulesExt.Instance.GeneralDamageTextTypeControlData.Types[DamageTextTypeNum].Clone();
-                }
-                else
-                {
-                    DamageTextTypeData = new DamageTextTypeData();
-                }
-            }
-            if (null != DamageTextTypeData)
-            {
-                DamageTextTypeData.ReadDamageTextType(reader, section, "DamageText.");
-                DamageTextTypeData.ReadDamageTextType(reader, section, "DamageText." + DamageTextTypeNum + ".");
-            }
+            DamageTextTypeData.ReadDamageTextType(reader, RulesExt.SectionAudioVisual, "DamageText.");
+            DamageTextTypeData.ReadDamageTextType(reader, RulesExt.SectionAudioVisual, "DamageText." + DamageTextTypeNum + ".");
+            DamageTextTypeData.ReadDamageTextType(reader, section, "DamageText.");
+            DamageTextTypeData.ReadDamageTextType(reader, section, "DamageText." + DamageTextTypeNum + ".");
         }
     }
 
-    public partial class RulesExt
-    {
-        public DamageTextTypeControlData GeneralDamageTextTypeControlData = new DamageTextTypeControlData(true);
-
-        private void ReadDamageText(INIReader reader)
-        {
-            GeneralDamageTextTypeControlData.ReadDamageText(reader, SectionAudioVisual);
-        }
-
-    }
 
 }

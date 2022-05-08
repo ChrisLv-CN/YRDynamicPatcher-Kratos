@@ -267,9 +267,39 @@ namespace Extension.Ext
 
     public partial class TechnoExt
     {
+        private bool hiddenHealthText = false;
+        private HealthTextTypeData healthTextTypeData;
+
+        public unsafe void TechnoClass_Init_HealthBarText()
+        {
+            this.hiddenHealthText = Type.HealthTextControlData.Hidden;
+            if (!hiddenHealthText)
+            {
+                switch (OwnerObject.Ref.Base.Base.WhatAmI())
+                {
+                    case AbstractType.Building:
+                        healthTextTypeData = Type.HealthTextControlData.Building;
+                        break;
+                    case AbstractType.Infantry:
+                        healthTextTypeData = Type.HealthTextControlData.Infantry;
+                        break;
+                    case AbstractType.Unit:
+                        healthTextTypeData = Type.HealthTextControlData.Unit;
+                        break;
+                    case AbstractType.Aircraft:
+                        healthTextTypeData = Type.HealthTextControlData.Aircraft;
+                        break;
+                    default:
+                        this.hiddenHealthText = true;
+                        return;
+                }
+                this.hiddenHealthText = healthTextTypeData.Hidden;
+            }
+        }
+
         public unsafe void TechnoClass_DrawHealthBar_Building_Text(int length, Pointer<Point2D> pLocation, Pointer<RectangleStruct> pBound)
         {
-            if (!Type.HealthTextControlData.Hidden)
+            if (!hiddenHealthText)
             {
                 PrintHealthText(length, pLocation, pBound);
             }
@@ -277,7 +307,7 @@ namespace Extension.Ext
 
         public unsafe void TechnoClass_DrawHealthBar_Other_Text(int length, Pointer<Point2D> pLocation, Pointer<RectangleStruct> pBound)
         {
-            if (!Type.HealthTextControlData.Hidden)
+            if (!hiddenHealthText)
             {
                 PrintHealthText(length, pLocation, pBound);
             }
@@ -286,41 +316,17 @@ namespace Extension.Ext
         private void PrintHealthText(int barLength, Pointer<Point2D> pLocation, Pointer<RectangleStruct> pBound)
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
-            bool isBuilding = false;
             bool isSelected = pTechno.Ref.Base.IsSelected;
-            HealthTextTypeData typeData = null;
-            switch (pTechno.Ref.Base.Base.WhatAmI())
-            {
-                case AbstractType.Building:
-                    isBuilding = true;
-                    typeData = Type.HealthTextControlData.Building;
-                    break;
-                case AbstractType.Infantry:
-                    typeData = Type.HealthTextControlData.Infantry;
-                    break;
-                case AbstractType.Unit:
-                    typeData = Type.HealthTextControlData.Unit;
-                    break;
-                case AbstractType.Aircraft:
-                    typeData = Type.HealthTextControlData.Aircraft;
-                    break;
-                default:
-                    return;
-            }
-            if (typeData.Hidden)
-            {
-                return;
-            }
             // 根据血量状态获取设置
-            HealthTextData data = typeData.Green;
+            HealthTextData data = healthTextTypeData.Green;
             HealthState healthState = pTechno.Ref.Base.GetHealthStatus();
             switch (healthState)
             {
                 case HealthState.Yellow:
-                    data = typeData.Yellow;
+                    data = healthTextTypeData.Yellow;
                     break;
                 case HealthState.Red:
-                    data = typeData.Red;
+                    data = healthTextTypeData.Red;
                     break;
             }
             // Logger.Log($"{Game.CurrentFrame} - Hidden = {data.Hidden}, ShowEnemy = {(!pTechno.Ref.Owner.Ref.PlayerControl && !data.ShowEnemy)}, ShowHover = {(!isSelected && !data.ShowHover)}");
@@ -336,7 +342,7 @@ namespace Extension.Ext
 
             // Point2D fountSize = data.FontSize; // 使用shp则按照shp图案大小来偏移锚点
             HealthTextStyle style = isSelected ? data.Style : data.HoverStyle; ; // 数值的格式
-            if (isBuilding)
+            if (IsBuilding)
             {
                 // 算出建筑血条最左边格子的偏移
                 CoordStruct dimension = pTechno.Ref.Type.Ref.Base.Dimension2();
@@ -351,7 +357,7 @@ namespace Extension.Ext
             else
             {
                 yOffset += pTechno.Ref.Type.Ref.PixelSelectionBracketDelta;
-                pos.X += - barLength + 3 + xOffset;
+                pos.X += -barLength + 3 + xOffset;
                 pos.Y += -28 + yOffset;
                 if (barLength == 8)
                 {
@@ -371,7 +377,7 @@ namespace Extension.Ext
             {
                 case HealthTextStyle.FULL:
                     int strength = OwnerObject.Ref.Type.Ref.Base.Strength;
-                    string s = isBuilding ? "|" : "/";
+                    string s = IsBuilding ? "|" : "/";
                     text = string.Format("{0}{1}{2}", health, s, strength);
                     break;
                 case HealthTextStyle.PERCENT:
@@ -396,11 +402,11 @@ namespace Extension.Ext
                     {
                         int x = data.ImageSize.X % 2 == 0 ? data.ImageSize.X : data.ImageSize.X + 1;
                         int textWidth = text.ToCharArray().Count() * x;
-                        OffsetPosAlign(ref pos, textWidth, barWidth, data.Align, isBuilding, true);
+                        OffsetPosAlign(ref pos, textWidth, barWidth, data.Align, IsBuilding, true);
                     }
                     else
                     {
-                        if (isBuilding)
+                        if (IsBuilding)
                         {
                             pos.X += data.ImageSize.X; // 右移一个字宽，美观
                         }
@@ -417,11 +423,11 @@ namespace Extension.Ext
                     {
                         RectangleStruct textRect = Drawing.GetTextDimensions(text, new Point2D(0, 0), 0, 2, 0);
                         int textWidth = textRect.Width;
-                        OffsetPosAlign(ref pos, textWidth, barWidth, data.Align, isBuilding, false);
+                        OffsetPosAlign(ref pos, textWidth, barWidth, data.Align, IsBuilding, false);
                     }
                     else
                     {
-                        if (isBuilding)
+                        if (IsBuilding)
                         {
                             pos.X += PrintTextManager.FontSize.X; // 右移一个字宽，美观
                         }
@@ -431,7 +437,7 @@ namespace Extension.Ext
                         }
                     }
                 }
-                PrintTextManager.Print(text, data, pos, pBound, Surface.Current, isBuilding);
+                PrintTextManager.Print(text, data, pos, pBound, Surface.Current, IsBuilding);
             }
 
         }
@@ -468,7 +474,7 @@ namespace Extension.Ext
 
     public partial class TechnoTypeExt
     {
-        public HealthTextTypeControlData HealthTextControlData;
+        public HealthTextTypeControlData HealthTextControlData = new HealthTextTypeControlData();
 
         /// <summary>
         /// [AudioVisual]
@@ -480,6 +486,7 @@ namespace Extension.Ext
         /// HealthText.X.Y.ShowEnemy=no ;显示给敌方
         /// HealthText.X.Y.ShowHover=no ;鼠标悬停时是否显示
         /// HealthText.X.Y.Offset=0,0 ;锚点向右和向下的偏移位置
+        /// HealthText.X.Y.Align=LEFT ;对齐方式，LEFT\CENTER\RIGHT，建筑恒定为左对齐
         /// ; 数字格式
         /// HealthText.Building.Y.Style=FULL ;数显的类型，FULL\SHORT\PERCENT
         /// HealthText.Building.Y.HoverStyle=SHORT ;鼠标悬停时数显的类型，FULL\SHORT\PERCENT
@@ -508,23 +515,19 @@ namespace Extension.Ext
         /// <param name="section"></param>
         private void ReadHelthText(INIReader reader, string section)
         {
-            if (null == HealthTextControlData && null != RulesExt.Instance.GeneralHealthTextTypeControlData)
-            {
-                HealthTextControlData = RulesExt.Instance.GeneralHealthTextTypeControlData.Clone();
-            }
-
+            HealthTextControlData.ReadHealthText(reader, RulesExt.SectionAudioVisual);
             HealthTextControlData.ReadHealthText(reader, section);
         }
     }
 
-    public partial class RulesExt
-    {
-        public HealthTextTypeControlData GeneralHealthTextTypeControlData = new HealthTextTypeControlData();
+    // public partial class RulesExt
+    // {
+    //     public HealthTextTypeControlData GeneralHealthTextTypeControlData = new HealthTextTypeControlData();
 
-        private void ReadHealthText(INIReader reader)
-        {
-            GeneralHealthTextTypeControlData.ReadHealthText(reader, SectionAudioVisual);
-        }
-    }
+    //     private void ReadHealthText(INIReader reader)
+    //     {
+    //         GeneralHealthTextTypeControlData.ReadHealthText(reader, SectionAudioVisual);
+    //     }
+    // }
 
 }
