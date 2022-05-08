@@ -99,6 +99,8 @@ namespace Extension.Ext
     public class DamageTextData : PrintTextData
     {
         public bool Hidden;
+        public bool Detail;
+        public int Rate;
         public Point2D XOffset;
         public Point2D YOffset;
         public int RollSpeed;
@@ -107,6 +109,8 @@ namespace Extension.Ext
         public DamageTextData(bool isDamage) : base()
         {
             this.Hidden = false;
+            this.Detail = true;
+            this.Rate = 0;
             this.XOffset = new Point2D(-15, 15);
             this.YOffset = new Point2D(-12, 12);
             this.RollSpeed = 1;
@@ -134,6 +138,18 @@ namespace Extension.Ext
             if (reader.ReadNormal(section, title + "Hidden", ref hidden))
             {
                 this.Hidden = hidden;
+            }
+
+            bool detail = false;
+            if (reader.ReadNormal(section, title + "Detail", ref detail))
+            {
+                this.Detail = detail;
+            }
+
+            int rate = 0;
+            if (reader.ReadNormal(section, title + "Rate", ref rate))
+            {
+                this.Rate = rate;
             }
 
             Point2D xOffset = default;
@@ -181,8 +197,55 @@ namespace Extension.Ext
         }
     }
 
+    [Serializable]
+    public class DamageTextCache
+    {
+        public int StartFrame;
+        public int Value;
+
+        public DamageTextCache(int value)
+        {
+            this.StartFrame = Game.CurrentFrame;
+            this.Value = value;
+        }
+
+        public void Add(int value)
+        {
+            this.Value += value;
+        }
+    }
+
     public partial class TechnoExt
     {
+
+        Dictionary<DamageTextData, DamageTextCache> DamageCache = new Dictionary<DamageTextData, DamageTextCache>();
+        Dictionary<DamageTextData, DamageTextCache> RepairCache = new Dictionary<DamageTextData, DamageTextCache>();
+
+        public unsafe void TechnoClass_Update_DamageText()
+        {
+            CoordStruct location = OwnerObject.Ref.Base.Base.GetCoords();
+            int frame = Game.CurrentFrame;
+            for (int i = DamageCache.Count() - 1; i >= 0; i--)
+            {
+                var d = DamageCache.ElementAt(i);
+                if (frame - d.Value.StartFrame >= d.Key.Rate)
+                {
+                    string text = "-" + d.Value.Value;
+                    OrderDamageText(text, location, d.Key);
+                    DamageCache.Remove(d.Key);
+                }
+            }
+            for (int j = RepairCache.Count() - 1; j >= 0; j--)
+            {
+                var r = RepairCache.ElementAt(j);
+                if (frame - r.Value.StartFrame >= r.Key.Rate)
+                {
+                    string text = "+" + r.Value.Value;
+                    OrderDamageText(text, location, r.Key);
+                    RepairCache.Remove(r.Key);
+                }
+            }
+        }
 
         public unsafe void TechnoClass_ReceiveDamage2_DamageText(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState)
         {
@@ -195,11 +258,14 @@ namespace Extension.Ext
             string text = null;
             DamageTextData data = null;
             int damage = pRealDamage.Data;
+            int damageValue = 0;
+            int repairValue = 0;
             if (damage > 0)
             {
                 data = whExt.DamageTextTypeData.Damage;
                 if (!data.Hidden)
                 {
+                    damageValue += damage;
                     text = "-" + damage;
                 }
             }
@@ -208,6 +274,7 @@ namespace Extension.Ext
                 data = whExt.DamageTextTypeData.Repair;
                 if (!data.Hidden)
                 {
+                    repairValue += -damage;
                     text = "+" + -damage;
                 }
             }
@@ -217,22 +284,57 @@ namespace Extension.Ext
             }
             if (!string.IsNullOrEmpty(text))
             {
-                int x = MathEx.Random.Next(data.XOffset.X, data.XOffset.Y);
-                int y = MathEx.Random.Next(data.YOffset.X, data.YOffset.Y) - 15; // 离地高度
-                Point2D offset = new Point2D(x, y);
-                // 横向锚点修正
-                int length = text.Length / 2;
-                if (data.UseSHP)
+                if (data.Detail || damageState == DamageState.NowDead)
                 {
-                    offset.X -= data.ImageSize.X * length;
+                    // 直接下单
+                    CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
+                    OrderDamageText(text, location, data);
                 }
                 else
                 {
-                    offset.X -= PrintTextManager.FontSize.X * length;
+                    // 写入缓存
+                    if (damageValue > 0)
+                    {
+                        if (DamageCache.ContainsKey(data))
+                        {
+                            DamageCache[data].Add(damageValue);
+                        }
+                        else
+                        {
+                            DamageCache.Add(data, new DamageTextCache(damageValue));
+                        }
+                    }
+                    else if (repairValue > 0)
+                    {
+                        if (RepairCache.ContainsKey(data))
+                        {
+                            RepairCache[data].Add(repairValue);
+                        }
+                        else
+                        {
+                            RepairCache.Add(data, new DamageTextCache(damageValue));
+                        }
+                    }
                 }
-                CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
-                PrintTextManager.RollingText(text, location, offset, data.RollSpeed, data.Duration, data);
             }
+        }
+
+        private void OrderDamageText(string text, CoordStruct location, DamageTextData data)
+        {
+            int x = MathEx.Random.Next(data.XOffset.X, data.XOffset.Y);
+            int y = MathEx.Random.Next(data.YOffset.X, data.YOffset.Y) - 15; // 离地高度
+            Point2D offset = new Point2D(x, y);
+            // 横向锚点修正
+            int length = text.Length / 2;
+            if (data.UseSHP)
+            {
+                offset.X -= data.ImageSize.X * length;
+            }
+            else
+            {
+                offset.X -= PrintTextManager.FontSize.X * length;
+            }
+            PrintTextManager.RollingText(text, location, offset, data.RollSpeed, data.Duration, data);
         }
 
     }
@@ -249,6 +351,8 @@ namespace Extension.Ext
         /// ; X表示若干种伤害类型，分别是0\1\2\3\4\5..10，对应弹头的InfDeath=X，0表示未知，不写则是全局设置，如DamageText.Color=255,0,0不管弹头是什么伤害类型都是红色，DamageText.5.Color=255,0,0，则只有火焰伤害是红色
         /// ; Y表示两种伤害状态，分别是Damage\Repair，不写则是全局设置，如DamageText.Hidden=yes，停用显示，DamageText.Damage.Hidden=yes，不显示收到的伤害
         /// DamageText.X.Y.Hidden=no ;隐藏显示
+        /// DamageText.X.Y.Detail=yes ;显示每一次伤害的数字，或是显示一个总的伤害数字
+        /// DamageText.X.Y.Rate=0 ;显示总伤害数字时的频率，每个多少帧显示一次
         /// DamageText.X.Y.XOffset=-15,15 ;锚点随机横向范围
         /// DamageText.X.Y.YOffset=-12,12 ;锚点随机纵向范围
         /// DamageText.X.Y.RollSpeed=1 ;数字向上滚动的速度

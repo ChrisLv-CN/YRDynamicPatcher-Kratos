@@ -146,6 +146,7 @@ namespace Extension.Ext
         public bool ShowHover;
         public HealthTextStyle Style;
         public HealthTextStyle HoverStyle;
+        public HealthTextAlign Align;
 
         public HealthTextData(HealthState healthState) : base()
         {
@@ -154,6 +155,7 @@ namespace Extension.Ext
             this.ShowHover = false;
             this.Style = HealthTextStyle.FULL;
             this.HoverStyle = HealthTextStyle.SHORT;
+            this.Align = HealthTextAlign.LEFT;
 
             this.SHPFileName = "pips.shp";
             this.ImageSize = new Point2D(4, 6);
@@ -224,6 +226,24 @@ namespace Extension.Ext
                 HealthTextStyle style = ReadStyle(h, HealthTextStyle.SHORT);
                 this.HoverStyle = style;
             }
+
+            string a = null;
+            if (reader.ReadNormal(section, title + "Align", ref a))
+            {
+                string t = a.Substring(0, 1).ToUpper();
+                switch (t)
+                {
+                    case "L":
+                        this.Align = HealthTextAlign.LEFT;
+                        break;
+                    case "C":
+                        this.Align = HealthTextAlign.CENTER;
+                        break;
+                    case "R":
+                        this.Align = HealthTextAlign.RIGHT;
+                        break;
+                }
+            }
         }
 
         public HealthTextData Clone()
@@ -238,6 +258,11 @@ namespace Extension.Ext
     public enum HealthTextStyle
     {
         AUTO = 0, FULL = 1, SHORT = 2, PERCENT = 3
+    }
+
+    public enum HealthTextAlign
+    {
+        LEFT = 0, CENTER = 1, RIGHT = 2
     }
 
     public partial class TechnoExt
@@ -258,7 +283,7 @@ namespace Extension.Ext
             }
         }
 
-        private void PrintHealthText(int length, Pointer<Point2D> pLocation, Pointer<RectangleStruct> pBound)
+        private void PrintHealthText(int barLength, Pointer<Point2D> pLocation, Pointer<RectangleStruct> pBound)
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
             bool isBuilding = false;
@@ -307,6 +332,7 @@ namespace Extension.Ext
             Point2D pos = pLocation.Data;
             int xOffset = data.Offset.X; // 锚点向右的偏移值
             int yOffset = data.Offset.Y; // 锚点向下的偏移值
+            int barWidth = barLength * 2; // 血条显示的个数，单位是半条，建筑是满条
 
             // Point2D fountSize = data.FontSize; // 使用shp则按照shp图案大小来偏移锚点
             HealthTextStyle style = isSelected ? data.Style : data.HoverStyle; ; // 数值的格式
@@ -318,27 +344,24 @@ namespace Extension.Ext
                 Point2D pos2 = TacticalClass.Instance.Ref.CoordsToScreen(dimension2);
                 // 修正锚点
                 pos += pos2;
-                pos.X = pos.X + 4 + xOffset;
+                pos.X = pos.X - 2 + xOffset;
                 pos.Y = pos.Y - 2 + yOffset;
-                // 数值格式
-                style = isSelected ? data.Style : data.HoverStyle;
+                barWidth = barLength * 4 + 6; // 建筑是满条，每个块是10像素宽，每个4像素绘制一个，头边距2，尾边距4
             }
             else
             {
                 yOffset += pTechno.Ref.Type.Ref.PixelSelectionBracketDelta;
-                if (length == 8)
+                pos.X += - barLength + 3 + xOffset;
+                pos.Y += -28 + yOffset;
+                if (barLength == 8)
                 {
-                    // 步兵血条
-                    pos.X = pos.X - 7 + xOffset;
-                    pos.Y = pos.Y - 28 + yOffset;
+                    // 步兵血条 length = 8
+                    pos.X += 1;
                 }
                 else
                 {
-                    // 载具血条
-                    pos.X = pos.X - 17 + xOffset;
-                    pos.Y = pos.Y - 29 + yOffset;
-                    // 数值格式
-                    style = isSelected ? data.Style : data.HoverStyle;
+                    // 载具血条 length = 17
+                    pos.Y += -1;
                 }
             }
             // 获得血量数据
@@ -367,17 +390,77 @@ namespace Extension.Ext
                     // 使用Shp显示数字，SHP锚点在图案中心
                     // 重新调整锚点位置，向上抬起一个半格字的高度
                     pos.Y = pos.Y - data.ImageSize.Y / 2;
+
+                    // 按对齐方式再次调整锚点
+                    if (data.Align != HealthTextAlign.LEFT)
+                    {
+                        int x = data.ImageSize.X % 2 == 0 ? data.ImageSize.X : data.ImageSize.X + 1;
+                        int textWidth = text.ToCharArray().Count() * x;
+                        OffsetPosAlign(ref pos, textWidth, barWidth, data.Align, isBuilding, true);
+                    }
+                    else
+                    {
+                        if (isBuilding)
+                        {
+                            pos.X += data.ImageSize.X; // 右移一个字宽，美观
+                        }
+                    }
                 }
                 else
                 {
                     // 使用文字显示数字，文字的锚点在左上角
                     // 重新调整锚点位置，向上抬起一个半格字的高度
-                    pos.X = pos.X - PrintTextManager.FontSize.X / 2; // 左移半个字宽，美观
                     pos.Y = pos.Y - PrintTextManager.FontSize.Y + 5; // 字是20格高，上4中9下7
+
+                    // 按对齐方式再次调整锚点
+                    if (data.Align != HealthTextAlign.LEFT)
+                    {
+                        RectangleStruct textRect = Drawing.GetTextDimensions(text, new Point2D(0, 0), 0, 2, 0);
+                        int textWidth = textRect.Width;
+                        OffsetPosAlign(ref pos, textWidth, barWidth, data.Align, isBuilding, false);
+                    }
+                    else
+                    {
+                        if (isBuilding)
+                        {
+                            pos.X += PrintTextManager.FontSize.X; // 右移一个字宽，美观
+                        }
+                        else
+                        {
+                            pos.X -= PrintTextManager.FontSize.X / 2; // 左移半个字宽，美观
+                        }
+                    }
                 }
                 PrintTextManager.Print(text, data, pos, pBound, Surface.Current, isBuilding);
             }
 
+        }
+
+        private void OffsetPosAlign(ref Point2D pos, int textWidth, int barWidth, HealthTextAlign align, bool isBuilding, bool useSHP)
+        {
+            // Logger.Log($"{Game.CurrentFrame} textWidth = {textWidth}, barWidth = {barWidth}, align = {align}, isBuilding = {isBuilding}");
+            int offset = barWidth - textWidth;
+            switch (align)
+            {
+                case HealthTextAlign.CENTER:
+                    pos.X += offset / 2;
+                    if (isBuilding)
+                    {
+                        pos.Y -= offset / 4;
+                    }
+                    break;
+                case HealthTextAlign.RIGHT:
+                    pos.X += offset;
+                    if (!useSHP)
+                    {
+                        pos.X += PrintTextManager.FontSize.X / 2; // 右移半个字宽，补偿Margin
+                    }
+                    if (isBuilding)
+                    {
+                        pos.Y -= offset / 2;
+                    }
+                    break;
+            }
         }
 
 
