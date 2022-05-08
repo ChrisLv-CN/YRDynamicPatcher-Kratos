@@ -122,6 +122,12 @@ namespace Extension.Ext
                 PlayWarheadAnim = play;
             }
 
+            int delay = 1;
+            if (reader.ReadNormal(section, "Damage.Delay", ref delay))
+            {
+                InitDelay = delay;
+            }
+
             int initDelay = 1;
             if (reader.ReadNormal(section, "Damage.InitDelay", ref initDelay))
             {
