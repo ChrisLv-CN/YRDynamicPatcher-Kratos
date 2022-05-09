@@ -47,6 +47,7 @@ namespace Extension.Ext
         public bool SameTarget; // 与使者同个目标
         public bool SameLoseTarget; // 使者失去目标时替身也失去
         public bool SameAmmo; // 与使者弹药数相同
+        public bool UseMasterAmmo; // 消耗使者的弹药
         public bool ForceAttackMaster; // 强制选择使者为目标
         public bool MobileFire; // 移动攻击
         public bool Immune; // 无敌
@@ -77,6 +78,7 @@ namespace Extension.Ext
             this.SameTarget = true;
             this.SameLoseTarget = false;
             this.SameAmmo = false;
+            this.UseMasterAmmo = false;
             this.ForceAttackMaster = false;
             this.MobileFire = true;
             this.Powered = false;
@@ -196,6 +198,13 @@ namespace Extension.Ext
                 if (reader.ReadNormal(section, "Stand.SameAmmo", ref sameAmmo))
                 {
                     this.SameAmmo = sameAmmo;
+                    this.UseMasterAmmo = sameAmmo;
+                }
+
+                bool useAmmo = true;
+                if (reader.ReadNormal(section, "Stand.UseMasterAmmo", ref useAmmo))
+                {
+                    this.UseMasterAmmo = useAmmo;
                 }
 
                 bool forceAttackMaster = false;

@@ -182,6 +182,11 @@ namespace Extension.Ext
             TechnoClass_Update_AttachEffect();
 
             lastLocation = OwnerObject.Ref.Base.Base.GetCoords();
+
+            if (!MyMaster.IsNull && StandType.SameAmmo)
+            {
+                Logger.Log($"{Game.CurrentFrame} - {OwnerObject} [{OwnerObject.Ref.Type.Ref.Base.Base.ID}] update ammo {OwnerObject.Ref.Ammo}");
+            }
         }
 
         public unsafe void OnTemporalUpdate(Pointer<TemporalClass> pTemporal)
@@ -343,6 +348,11 @@ namespace Extension.Ext
             TechnoClass_OnFire_RockerPitch(pTarget, weaponIndex);
             // TechnoClass_OnFire_SpawnSupport(pTarget, weaponIndex);
             TechnoClass_OnFire_SuperWeapon(pTarget, weaponIndex);
+
+            if (!MyMaster.IsNull && StandType.SameAmmo)
+            {
+                Logger.Log($"{Game.CurrentFrame} - {OwnerObject} [{OwnerObject.Ref.Type.Ref.Base.Base.ID}] fire ammo {OwnerObject.Ref.Ammo}");
+            }
         }
 
         public unsafe void OnFireOnce()

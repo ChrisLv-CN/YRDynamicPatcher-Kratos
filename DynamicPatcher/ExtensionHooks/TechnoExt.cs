@@ -647,23 +647,6 @@ namespace ExtensionHooks
             return 0;
         }
 
-        [Hook(HookType.AresHook, Address = 0x6FF929, Size = 6)]
-        public static unsafe UInt32 TechnoClass_Fire_FireOnce(REGISTERS* R)
-        {
-            try
-            {
-                Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
-                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                ext?.OnFireOnce();
-            }
-            catch (Exception e)
-            {
-                Logger.PrintException(e);
-            }
-            return 0;
-        }
-
-
         [Hook(HookType.AresHook, Address = 0x6FDD61, Size = 5)]
         public static unsafe UInt32 TechnoClass_Fire_OverrideWeapon(REGISTERS* R)
         {
@@ -690,20 +673,41 @@ namespace ExtensionHooks
             return 0;
         }
 
-        // [Hook(HookType.AresHook, Address = 0x6FDD7D, Size = 5)]
-        // public static unsafe UInt32 TechnoClass_Fire_OverrideWeapon2(REGISTERS* R)
-        // {
-        //     try
-        //     {
-        //         Pointer<WeaponTypeClass> pWeapon = (IntPtr)R->EBX;
-        //         Logger.Log($"{Game.CurrentFrame} - OOXX {R->EBX} [{pWeapon.Ref.Base.ID}]");
-        //     }
-        //     catch (Exception e)
-        //     {
-        //         Logger.PrintException(e);
-        //     }
-        //     return 0;
-        // }
+        [Hook(HookType.AresHook, Address = 0x6FF66C, Size = 6)]
+        public static unsafe UInt32 TechnoClass_Fire_DecreaseAmmo(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+
+                if (!ext.MyMaster.IsNull && ext.StandType.UseMasterAmmo)
+                {
+                    ext.MyMaster.Ref.DecreaseAmmo();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x6FF929, Size = 6)]
+        public static unsafe UInt32 TechnoClass_Fire_FireOnce(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                ext?.OnFireOnce();
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
 
         [Hook(HookType.AresHook, Address = 0x702E9D, Size = 6)]
         public static unsafe UInt32 TechnoClass_RegisterDestruction(REGISTERS* R)

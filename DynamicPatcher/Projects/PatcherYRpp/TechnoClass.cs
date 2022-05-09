@@ -113,6 +113,12 @@ namespace PatcherYRpp
             return func(ref this);
         }
 
+        public unsafe void DecreaseAmmo()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, void>)this.GetVirtualFunctionPointer(228);
+            func(ref this);
+        }
+
         public unsafe bool IsCloseEnough(Pointer<AbstractClass> pTarget, int weaponIdx)
         {
             var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr, int, Bool>)this.GetVirtualFunctionPointer(234);
