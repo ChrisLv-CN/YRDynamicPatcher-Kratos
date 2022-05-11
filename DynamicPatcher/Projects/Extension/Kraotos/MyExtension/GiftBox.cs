@@ -393,6 +393,10 @@ namespace Extension.Ext
             {
                 this.GiftBoxData = temp;
             }
+            else
+            {
+                temp = null;
+            }
 
         }
     }

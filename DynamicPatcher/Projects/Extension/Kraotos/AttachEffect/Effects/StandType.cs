@@ -21,7 +21,12 @@ namespace Extension.Ext
             StandType type = new StandType();
             if (type.TryReadType(reader, section))
             {
+                this.Enable = true;
                 this.StandType = type;
+            }
+            else
+            {
+                type = null;
             }
         }
 

@@ -22,7 +22,12 @@ namespace Extension.Ext
             DestroySelfType type = new DestroySelfType();
             if (type.TryReadType(reader, section))
             {
+                this.Enable = true;
                 this.DestroySelfType = type;
+            }
+            else
+            {
+                type = null;
             }
         }
 

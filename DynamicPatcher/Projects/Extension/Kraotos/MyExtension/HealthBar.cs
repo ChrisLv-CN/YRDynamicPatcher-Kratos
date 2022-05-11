@@ -33,37 +33,57 @@ namespace Extension.Ext
             this.Aircraft = new HealthTextTypeData(AbstractType.Aircraft);
         }
 
-        public void ReadHealthText(INIReader reader, string section)
+        public bool TryReadHealthText(INIReader reader, string section)
         {
+            bool isRead = false;
+
             bool hidden = false;
             if (reader.ReadNormal(section, "HealthText.Hidden", ref hidden))
             {
+                isRead = true;
                 this.Hidden = hidden;
             }
 
-            Building.ReadHealthTextType(reader, section, "HealthText.");
-            Infantry.ReadHealthTextType(reader, section, "HealthText.");
-            Unit.ReadHealthTextType(reader, section, "HealthText.");
-            Aircraft.ReadHealthTextType(reader, section, "HealthText.");
+            if (!Hidden)
+            {
+                if (Building.TryReadHealthTextType(reader, section, "HealthText."))
+                {
+                    isRead = true;
+                }
+                if (Infantry.TryReadHealthTextType(reader, section, "HealthText."))
+                {
+                    isRead = true;
+                }
+                if (Unit.TryReadHealthTextType(reader, section, "HealthText."))
+                {
+                    isRead = true;
+                }
+                if (Aircraft.TryReadHealthTextType(reader, section, "HealthText."))
+                {
+                    isRead = true;
+                }
 
-            Building.ReadHealthTextType(reader, section, "HealthText.Building.");
-            Infantry.ReadHealthTextType(reader, section, "HealthText.Infantry.");
-            Unit.ReadHealthTextType(reader, section, "HealthText.Unit.");
-            Aircraft.ReadHealthTextType(reader, section, "HealthText.Aircraft.");
+                if (Building.TryReadHealthTextType(reader, section, "HealthText.Building."))
+                {
+                    isRead = true;
+                }
+                if (Infantry.TryReadHealthTextType(reader, section, "HealthText.Infantry."))
+                {
+                    isRead = true;
+                }
+                if (Unit.TryReadHealthTextType(reader, section, "HealthText.Unit."))
+                {
+                    isRead = true;
+                }
+                if (Aircraft.TryReadHealthTextType(reader, section, "HealthText.Aircraft."))
+                {
+                    isRead = true;
+                }
+            }
 
-
+            return isRead;
         }
 
-        public HealthTextTypeControlData Clone()
-        {
-            HealthTextTypeControlData data = new HealthTextTypeControlData();
-            data.Hidden = this.Hidden;
-            data.Building = this.Building.Clone();
-            data.Infantry = this.Infantry.Clone();
-            data.Unit = this.Unit.Clone();
-            data.Aircraft = this.Aircraft.Clone();
-            return data;
-        }
     }
 
 
@@ -109,24 +129,6 @@ namespace Extension.Ext
             }
         }
 
-        public void ReadHealthTextType(INIReader reader, string section, string title)
-        {
-            bool hidden = false;
-            if (reader.ReadNormal(section, title + "Hidden", ref hidden))
-            {
-                this.Hidden = hidden;
-            }
-
-            this.Green.ReadHealthText(reader, section, title);
-            this.Yellow.ReadHealthText(reader, section, title);
-            this.Red.ReadHealthText(reader, section, title);
-
-            this.Green.ReadHealthText(reader, section, title + "Green.");
-            this.Yellow.ReadHealthText(reader, section, title + "Yellow.");
-            this.Red.ReadHealthText(reader, section, title + "Red.");
-
-        }
-
         public HealthTextTypeData Clone()
         {
             HealthTextTypeData data = new HealthTextTypeData();
@@ -136,6 +138,51 @@ namespace Extension.Ext
             data.Red = this.Red.Clone();
             return data;
         }
+
+        public bool TryReadHealthTextType(INIReader reader, string section, string title)
+        {
+            bool isRead = false;
+
+            bool hidden = false;
+            if (reader.ReadNormal(section, title + "Hidden", ref hidden))
+            {
+                isRead = true;
+                this.Hidden = hidden;
+            }
+
+            if (!Hidden)
+            {
+
+                if (this.Green.TryReadHealthText(reader, section, title))
+                {
+                    isRead = true;
+                }
+                if (this.Yellow.TryReadHealthText(reader, section, title))
+                {
+                    isRead = true;
+                }
+                if (this.Red.TryReadHealthText(reader, section, title))
+                {
+                    isRead = true;
+                }
+
+                if (this.Green.TryReadHealthText(reader, section, title + "Green."))
+                {
+                    isRead = true;
+                }
+                if (this.Yellow.TryReadHealthText(reader, section, title + "Yellow."))
+                {
+                    isRead = true;
+                }
+                if (this.Red.TryReadHealthText(reader, section, title + "Red."))
+                {
+                    isRead = true;
+                }
+            }
+            
+            return isRead;
+        }
+
     }
 
     [Serializable]
@@ -176,6 +223,19 @@ namespace Extension.Ext
             }
         }
 
+        public HealthTextData Clone()
+        {
+            HealthTextData data = new HealthTextData(HealthState.Green);
+            CopyTo(data);
+            data.Hidden = this.Hidden;
+            data.ShowEnemy = this.ShowEnemy;
+            data.ShowHover = this.ShowHover;
+            data.Style = this.Style;
+            data.HoverStyle = this.HoverStyle;
+            data.Align = this.Align;
+            return data;
+        }
+
         private HealthTextStyle ReadStyle(string text, HealthTextStyle defStyle)
         {
             string t = text.Substring(0, 1).ToUpper();
@@ -191,66 +251,74 @@ namespace Extension.Ext
             return defStyle;
         }
 
-        public void ReadHealthText(INIReader reader, string section, string title)
+        public bool TryReadHealthText(INIReader reader, string section, string title)
         {
-            ReadPrintText(reader, section, title);
+            bool isRead = false;
+
 
             bool hidden = false;
             if (reader.ReadNormal(section, title + "Hidden", ref hidden))
             {
+                isRead = true;
                 this.Hidden = hidden;
             }
 
-            bool enemy = false;
-            if (reader.ReadNormal(section, title + "ShowEnemy", ref enemy))
+            if (!Hidden)
             {
-                this.ShowEnemy = enemy;
-            }
 
-            bool hover = false;
-            if (reader.ReadNormal(section, title + "ShowHover", ref hover))
-            {
-                this.ShowHover = hover;
-            }
+                isRead = TryReadPrintText(reader, section, title);
 
-            string s = null;
-            if (reader.ReadNormal(section, title + "Style", ref s))
-            {
-                HealthTextStyle style = ReadStyle(s, HealthTextStyle.FULL);
-                this.Style = style;
-            }
-
-            string h = null;
-            if (reader.ReadNormal(section, title + "HoverStyle", ref h))
-            {
-                HealthTextStyle style = ReadStyle(h, HealthTextStyle.SHORT);
-                this.HoverStyle = style;
-            }
-
-            string a = null;
-            if (reader.ReadNormal(section, title + "Align", ref a))
-            {
-                string t = a.Substring(0, 1).ToUpper();
-                switch (t)
+                bool enemy = false;
+                if (reader.ReadNormal(section, title + "ShowEnemy", ref enemy))
                 {
-                    case "L":
-                        this.Align = HealthTextAlign.LEFT;
-                        break;
-                    case "C":
-                        this.Align = HealthTextAlign.CENTER;
-                        break;
-                    case "R":
-                        this.Align = HealthTextAlign.RIGHT;
-                        break;
+                    isRead = true;
+                    this.ShowEnemy = enemy;
+                }
+
+                bool hover = false;
+                if (reader.ReadNormal(section, title + "ShowHover", ref hover))
+                {
+                    isRead = true;
+                    this.ShowHover = hover;
+                }
+
+                string s = null;
+                if (reader.ReadNormal(section, title + "Style", ref s))
+                {
+                    isRead = true;
+                    HealthTextStyle style = ReadStyle(s, HealthTextStyle.FULL);
+                    this.Style = style;
+                }
+
+                string h = null;
+                if (reader.ReadNormal(section, title + "HoverStyle", ref h))
+                {
+                    isRead = true;
+                    HealthTextStyle style = ReadStyle(h, HealthTextStyle.SHORT);
+                    this.HoverStyle = style;
+                }
+
+                string a = null;
+                if (reader.ReadNormal(section, title + "Align", ref a))
+                {
+                    isRead = true;
+                    string t = a.Substring(0, 1).ToUpper();
+                    switch (t)
+                    {
+                        case "L":
+                            this.Align = HealthTextAlign.LEFT;
+                            break;
+                        case "C":
+                            this.Align = HealthTextAlign.CENTER;
+                            break;
+                        case "R":
+                            this.Align = HealthTextAlign.RIGHT;
+                            break;
+                    }
                 }
             }
-        }
 
-        public HealthTextData Clone()
-        {
-            HealthTextData data = new HealthTextData(HealthState.Green);
-            ExHelper.ReflectClone(this, data);
-            return data;
+            return isRead;
         }
 
     }
@@ -272,27 +340,10 @@ namespace Extension.Ext
 
         public unsafe void TechnoClass_Init_HealthBarText()
         {
-            this.hiddenHealthText = Type.HealthTextControlData.Hidden;
+            this.hiddenHealthText = Type.HealthTextHidden;
             if (!hiddenHealthText)
             {
-                switch (OwnerObject.Ref.Base.Base.WhatAmI())
-                {
-                    case AbstractType.Building:
-                        healthTextTypeData = Type.HealthTextControlData.Building;
-                        break;
-                    case AbstractType.Infantry:
-                        healthTextTypeData = Type.HealthTextControlData.Infantry;
-                        break;
-                    case AbstractType.Unit:
-                        healthTextTypeData = Type.HealthTextControlData.Unit;
-                        break;
-                    case AbstractType.Aircraft:
-                        healthTextTypeData = Type.HealthTextControlData.Aircraft;
-                        break;
-                    default:
-                        this.hiddenHealthText = true;
-                        return;
-                }
+                this.healthTextTypeData = Type.HealthTextTypeData;
                 this.hiddenHealthText = healthTextTypeData.Hidden;
             }
         }
@@ -474,7 +525,9 @@ namespace Extension.Ext
 
     public partial class TechnoTypeExt
     {
-        public HealthTextTypeControlData HealthTextControlData = new HealthTextTypeControlData();
+        // public HealthTextTypeControlData HealthTextControlData = new HealthTextTypeControlData();
+        public bool HealthTextHidden;
+        public HealthTextTypeData HealthTextTypeData;
 
         /// <summary>
         /// [AudioVisual]
@@ -515,19 +568,70 @@ namespace Extension.Ext
         /// <param name="section"></param>
         private void ReadHelthText(INIReader reader, string section)
         {
-            HealthTextControlData.ReadHealthText(reader, RulesExt.SectionAudioVisual);
-            HealthTextControlData.ReadHealthText(reader, section);
+            HealthTextHidden = RulesExt.Instance.GeneralHealthTextTypeControlData.Hidden;
+            if (!HealthTextHidden)
+            {
+                switch (OwnerObject.Ref.Base.Base.Base.WhatAmI())
+                {
+                    case AbstractType.BuildingType:
+                        if (null == HealthTextTypeData || RulesExt.Instance.GeneralHealthTextTypeControlDataHasChanged)
+                        {
+                            HealthTextTypeData = RulesExt.Instance.GeneralHealthTextTypeControlData.Building.Clone();
+                        }
+                        HealthTextTypeData.TryReadHealthTextType(reader, section, "HealthText.");
+                        HealthTextTypeData.TryReadHealthTextType(reader, section, "HealthText.Building.");
+                        break;
+                    case AbstractType.InfantryType:
+                        if (null == HealthTextTypeData || RulesExt.Instance.GeneralHealthTextTypeControlDataHasChanged)
+                        {
+                            HealthTextTypeData = RulesExt.Instance.GeneralHealthTextTypeControlData.Infantry.Clone();
+                        }
+                        HealthTextTypeData.TryReadHealthTextType(reader, section, "HealthText.");
+                        HealthTextTypeData.TryReadHealthTextType(reader, section, "HealthText.Infantry.");
+                        break;
+                    case AbstractType.UnitType:
+                        if (null == HealthTextTypeData || RulesExt.Instance.GeneralHealthTextTypeControlDataHasChanged)
+                        {
+                            HealthTextTypeData = RulesExt.Instance.GeneralHealthTextTypeControlData.Unit.Clone();
+                        }
+                        HealthTextTypeData.TryReadHealthTextType(reader, section, "HealthText.");
+                        HealthTextTypeData.TryReadHealthTextType(reader, section, "HealthText.Unit.");
+                        break;
+                    case AbstractType.AircraftType:
+                        if (null == HealthTextTypeData || RulesExt.Instance.GeneralHealthTextTypeControlDataHasChanged)
+                        {
+                            HealthTextTypeData = RulesExt.Instance.GeneralHealthTextTypeControlData.Aircraft.Clone();
+                        }
+                        HealthTextTypeData.TryReadHealthTextType(reader, section, "HealthText.");
+                        HealthTextTypeData.TryReadHealthTextType(reader, section, "HealthText.Aircraft.");
+                        break;
+                }
+            }
+            // HealthTextControlData.ReadHealthText(reader, RulesExt.SectionAudioVisual);
+            // HealthTextControlData.ReadHealthText(reader, section);
         }
+
     }
 
-    // public partial class RulesExt
-    // {
-    //     public HealthTextTypeControlData GeneralHealthTextTypeControlData = new HealthTextTypeControlData();
+    public partial class RulesExt
+    {
+        public HealthTextTypeControlData GeneralHealthTextTypeControlData = new HealthTextTypeControlData();
+        public bool GeneralHealthTextTypeControlDataHasChanged = false;
 
-    //     private void ReadHealthText(INIReader reader)
-    //     {
-    //         GeneralHealthTextTypeControlData.ReadHealthText(reader, SectionAudioVisual);
-    //     }
-    // }
+        private void ReadHealthText(INIReader reader)
+        {
+            HealthTextTypeControlData temp = new HealthTextTypeControlData();
+            if (temp.TryReadHealthText(reader, SectionAudioVisual))
+            {
+                GeneralHealthTextTypeControlDataHasChanged = true;
+                GeneralHealthTextTypeControlData = temp;
+            }
+            else
+            {
+                GeneralHealthTextTypeControlDataHasChanged = false;
+                temp = null;
+            }
+        }
+    }
 
 }

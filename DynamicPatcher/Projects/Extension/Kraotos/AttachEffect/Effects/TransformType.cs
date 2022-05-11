@@ -22,7 +22,12 @@ namespace Extension.Ext
             TransformType type = new TransformType();
             if (type.TryReadType(reader, section))
             {
+                this.Enable = true;
                 this.TransformType = type;
+            }
+            else
+            {
+                type = null;
             }
         }
 

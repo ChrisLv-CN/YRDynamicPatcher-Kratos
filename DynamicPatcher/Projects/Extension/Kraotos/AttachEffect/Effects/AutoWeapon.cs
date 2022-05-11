@@ -72,11 +72,8 @@ namespace Extension.Ext
                 return;
             }
 
-            int weaponIndex = -1;
-            List<string> weaponTypes = Type.WeaponTypes;
-            int randomNum = Type.RandomTypesNum;
-            CoordStruct fireFLH = Type.FireFLH;
-            CoordStruct targetFLH = Type.TargetFLH;
+            AutoWeaponData data = Type.Data;
+
             double rofMult = 1;
 
             Pointer<TechnoClass> pReceiverOwner = IntPtr.Zero; // 附着的对象，如果是Bullet类型，则是Bullet的发射者
@@ -95,14 +92,10 @@ namespace Extension.Ext
                     pReceiverOwner = pObject.Convert<TechnoClass>();
                     pReceiverHouse = pReceiverOwner.Ref.Owner;
                     pReceiverTarget = pReceiverOwner.Ref.Target;
-                    weaponIndex = Type.WeaponIndex;
+                    // 获取武器设置
                     if (pReceiverOwner.Ref.Veterancy.IsElite())
                     {
-                        weaponIndex = Type.EliteWeaponIndex;
-                        weaponTypes = Type.EliteWeaponTypes;
-                        randomNum = Type.EliteRandomTypesNum;
-                        fireFLH = Type.EliteFireFLH;
-                        targetFLH = Type.EliteTargetFLH;
+                        data = Type.EliteData;
                     }
                     rofMult = pReceiverOwner.GetROFMult(); // ExHelper.GetROFMult(pReceiverOwner);
                     break;
@@ -128,6 +121,19 @@ namespace Extension.Ext
                 default:
                     return;
             }
+
+            if (null == data || !(data.WeaponIndex > -1 || null != data.WeaponTypes))
+            {
+                // 没有可以使用的武器
+                return;
+            }
+
+            // 获取武器设置
+            int weaponIndex = data.WeaponIndex;
+            List<string> weaponTypes = data.WeaponTypes;
+            int randomNum = data.RandomTypesNum;
+            CoordStruct fireFLH = data.FireFLH;
+            CoordStruct targetFLH = data.TargetFLH;
 
             // bool attackerInvisible = pAttacker.IsNull || pAttacker.Ref.Base.Health <= 0 || !pAttacker.Ref.Base.IsAlive || pAttacker.Ref.Base.InLimbo || pAttacker.Ref.IsImmobilized || !pAttacker.Ref.Transporter.IsNull;
             bool attackerInvisible = pAttacker.Pointer.IsDeadOrInvisible() || pAttacker.Ref.IsImmobilized || !pAttacker.Ref.Transporter.IsNull;
@@ -155,7 +161,7 @@ namespace Extension.Ext
                 return;
             }
             // 发射武器是单位本身的武器还是自定义武器
-            if (weaponIndex >= 0 && !isOnBullet)
+            if (weaponIndex >= 0)
             {
                 // 发射单位自身的武器
                 if (!pShooter.IsNull)

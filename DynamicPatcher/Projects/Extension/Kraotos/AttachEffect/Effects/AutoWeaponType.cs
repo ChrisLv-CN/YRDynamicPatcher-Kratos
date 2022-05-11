@@ -22,9 +22,106 @@ namespace Extension.Ext
             AutoWeaponType type = new AutoWeaponType();
             if (type.TryReadType(reader, section))
             {
+                this.Enable = true;
                 this.AutoWeaponType = type;
             }
+            else
+            {
+                type = null;
+            }
         }
+    }
+
+    [Serializable]
+    public class AutoWeaponData
+    {
+        public int WeaponIndex; // 使用单位自身的武器
+        public List<string> WeaponTypes; // 武器类型
+        public int RandomTypesNum; // 随机使用几个武器
+        public CoordStruct FireFLH; // 开火相对位置
+        public CoordStruct TargetFLH; // 目标相对位置
+        public CoordStruct MoveTo; // 以开火位置为坐标0点，计算TargetFLH
+
+        public AutoWeaponData()
+        {
+            this.WeaponIndex = -1;
+            this.WeaponTypes = null;
+            this.RandomTypesNum = 0;
+            this.FireFLH = default;
+            this.TargetFLH = default;
+            this.MoveTo = default;
+        }
+
+        public AutoWeaponData Clone()
+        {
+            AutoWeaponData data = new AutoWeaponData();
+            data.WeaponIndex = this.WeaponIndex;
+            data.WeaponTypes = this.WeaponTypes;
+            data.RandomTypesNum = this.RandomTypesNum;
+            data.FireFLH = this.FireFLH;
+            data.TargetFLH = this.TargetFLH;
+            data.MoveTo = this.MoveTo;
+            return data;
+        }
+
+        public bool TryReadType(INIReader reader, string section, string title)
+        {
+            bool isRead = false;
+
+
+            int weaponIdx = -1;
+            if (reader.ReadNormal(section, title + "WeaponIndex", ref weaponIdx))
+            {
+                if (weaponIdx > -1)
+                {
+                    isRead = true;
+                    this.WeaponIndex = weaponIdx;
+                }
+            }
+
+            List<string> weaponTypes = null;
+            if (reader.ReadStringList(section, title + "Types", ref weaponTypes))
+            {
+                isRead = true;
+                this.WeaponTypes = weaponTypes;
+            }
+
+            int randomTypesNum = 0;
+            if (reader.ReadNormal(section, title + "RandomTypesNum", ref randomTypesNum))
+            {
+                if (randomTypesNum > 0)
+                {
+                    isRead = true;
+                    this.RandomTypesNum = randomTypesNum;
+                }
+            }
+
+            CoordStruct fireFLH = default;
+            if (reader.ReadCoordStruct(section, title + "FireFLH", ref fireFLH))
+            {
+                isRead = true;
+                this.FireFLH = fireFLH;
+            }
+
+            CoordStruct targetFLH = default;
+            if (reader.ReadCoordStruct(section, title + "TargetFLH", ref targetFLH))
+            {
+                isRead = true;
+                this.TargetFLH = targetFLH;
+            }
+
+            CoordStruct moveTo = default;
+            if (reader.ReadCoordStruct(section, title + "MoveTo", ref moveTo))
+            {
+                isRead = true;
+                this.MoveTo = moveTo;
+                this.TargetFLH = this.FireFLH + moveTo;
+            }
+
+
+            return isRead;
+        }
+
     }
 
     /// <summary>
@@ -33,19 +130,24 @@ namespace Extension.Ext
     [Serializable]
     public class AutoWeaponType : EffectType<AutoWeapon>
     {
-        public int WeaponIndex; // 使用单位自身的武器
-        public int EliteWeaponIndex; // 精英时使用单位自身的武器
-        public List<string> WeaponTypes; // 武器类型
-        public List<string> EliteWeaponTypes; // 精英武器类型
-        public int RandomTypesNum; // 随机使用几个武器
-        public int EliteRandomTypesNum; // 精英时随机使用几个武器
+
+        public AutoWeaponData Data; // 普通
+        public AutoWeaponData EliteData; // 精英
+
+        // public int WeaponIndex; // 使用单位自身的武器
+        // public int EliteWeaponIndex; // 精英时使用单位自身的武器
+        // public List<string> WeaponTypes; // 武器类型
+        // public List<string> EliteWeaponTypes; // 精英武器类型
+        // public int RandomTypesNum; // 随机使用几个武器
+        // public int EliteRandomTypesNum; // 精英时随机使用几个武器
+        // public CoordStruct FireFLH; // 开火相对位置
+        // public CoordStruct EliteFireFLH; // 精英开火相对位置
+        // public CoordStruct TargetFLH; // 目标相对位置
+        // public CoordStruct EliteTargetFLH; // 精英目标相对位置
+        // public CoordStruct MoveTo; // 以开火位置为坐标0点，计算TargetFLH
+        // public CoordStruct EliteMoveTo; // 以开火位置为坐标0点，计算EliteTargetFLH
+
         public bool FireOnce; // 发射后销毁
-        public CoordStruct FireFLH; // 开火相对位置
-        public CoordStruct EliteFireFLH; // 精英开火相对位置
-        public CoordStruct TargetFLH; // 目标相对位置
-        public CoordStruct EliteTargetFLH; // 精英目标相对位置
-        public CoordStruct MoveTo; // 以开火位置为坐标0点，计算TargetFLH
-        public CoordStruct EliteMoveTo; // 以开火位置为坐标0点，计算EliteTargetFLH
         public bool FireToTarget; // 朝附加对象的目标开火，如果附加的对象没有目标，不开火
         public bool IsOnTurret; // 相对炮塔或者身体
         public bool IsOnWorld; // 相对世界
@@ -57,19 +159,9 @@ namespace Extension.Ext
 
         public AutoWeaponType()
         {
-            this.WeaponIndex = -1;
-            this.EliteWeaponIndex = -1;
-            this.WeaponTypes = null;
-            this.EliteWeaponTypes = null;
-            this.RandomTypesNum = 0;
-            this.EliteRandomTypesNum = 0;
+            this.Data = null;
+            this.EliteData = null;
             this.FireOnce = false;
-            this.FireFLH = default;
-            this.EliteFireFLH = default;
-            this.TargetFLH = default;
-            this.EliteTargetFLH = default;
-            this.MoveTo = default;
-            this.EliteMoveTo = default;
             this.FireToTarget = false;
             this.IsOnTurret = true;
             this.IsOnWorld = false;
@@ -85,117 +177,26 @@ namespace Extension.Ext
 
             ReadCommonType(reader, section, "AutoWeapon.");
 
-            int weaponIdx = -1;
-            if (reader.ReadNormal(section, "AutoWeapon.WeaponIndex", ref weaponIdx))
+            AutoWeaponData data = new AutoWeaponData();
+            if (data.TryReadType(reader, section, "AutoWeapon."))
             {
-                if (weaponIdx > -1)
-                {
-                    this.Enable = true;
-                    this.WeaponIndex = weaponIdx;
-                    this.EliteWeaponIndex = weaponIdx;
-                }
+                this.Data = data;
+                this.EliteData = data;
             }
 
-            int eliteWeaponIdx = -1;
-            if (reader.ReadNormal(section, "AutoWeapon.EliteWeaponIndex", ref eliteWeaponIdx))
+            AutoWeaponData eliteData = null != Data ? Data.Clone() : new AutoWeaponData();
+            if (eliteData.TryReadType(reader, section, "AutoWeapon.Elite"))
             {
-                if (eliteWeaponIdx > -1)
-                {
-                    this.Enable = true;
-                    this.EliteWeaponIndex = eliteWeaponIdx;
-                }
+                this.EliteData = eliteData;
             }
 
-            List<string> weaponTypes = null;
-            if (reader.ReadStringList(section, "AutoWeapon.Types", ref weaponTypes))
+            if (this.Enable = (null != Data || null != EliteData))
             {
-                // 排除掉none
-                if (weaponTypes.Count > 0 && !weaponTypes[0].ToLower().Equals("none"))
-                {
-                    this.Enable = true;
-                    this.WeaponTypes = weaponTypes;
-                    this.EliteWeaponTypes = weaponTypes;
-                }
-            }
-
-            List<string> eliteTypes = null;
-            if (reader.ReadStringList(section, "AutoWeapon.EliteTypes", ref eliteTypes))
-            {
-                // 排除掉none
-                if (weaponTypes.Count > 0 && !weaponTypes[0].ToLower().Equals("none"))
-                {
-                    this.Enable = true;
-                    this.EliteWeaponTypes = eliteTypes;
-                }
-            }
-
-            if (this.Enable)
-            {
-                int randomTypesNum = 0;
-                if (reader.ReadNormal(section, "AutoWeapon.RandomTypesNum", ref randomTypesNum))
-                {
-                    if (randomTypesNum > 0)
-                    {
-                        this.RandomTypesNum = randomTypesNum;
-                        this.EliteRandomTypesNum = randomTypesNum;
-                    }
-                }
-
-                int eliteRandomTypesNum = 0;
-                if (reader.ReadNormal(section, "AutoWeapon.EliteRandomTypesNum", ref eliteRandomTypesNum))
-                {
-                    if (eliteRandomTypesNum > 0)
-                    {
-                        this.EliteRandomTypesNum = eliteRandomTypesNum;
-                    }
-                }
 
                 bool fireOnce = false;
                 if (reader.ReadNormal(section, "AutoWeapon.FireOnce", ref fireOnce))
                 {
                     this.FireOnce = fireOnce;
-                }
-
-                CoordStruct fireFLH = default;
-                if (ExHelper.ReadCoordStruct(reader, section, "AutoWeapon.FireFLH", ref fireFLH))
-                {
-                    this.FireFLH = fireFLH;
-                    this.EliteFireFLH = fireFLH;
-                }
-
-                CoordStruct eliteFireFLH = default;
-                if (ExHelper.ReadCoordStruct(reader, section, "AutoWeapon.EliteFireFLH", ref eliteFireFLH))
-                {
-                    this.EliteFireFLH = eliteFireFLH;
-                }
-
-                CoordStruct targetFLH = default;
-                if (ExHelper.ReadCoordStruct(reader, section, "AutoWeapon.TargetFLH", ref targetFLH))
-                {
-                    this.TargetFLH = targetFLH;
-                    this.EliteTargetFLH = targetFLH;
-                }
-
-                CoordStruct eliteTargetFLH = default;
-                if (ExHelper.ReadCoordStruct(reader, section, "AutoWeapon.EliteTargetFLH", ref eliteTargetFLH))
-                {
-                    this.EliteTargetFLH = eliteTargetFLH;
-                }
-
-                CoordStruct moveTo = default;
-                if (ExHelper.ReadCoordStruct(reader, section, "AutoWeapon.MoveTo", ref moveTo))
-                {
-                    this.MoveTo = moveTo;
-                    this.EliteMoveTo = moveTo;
-                    this.TargetFLH = this.FireFLH + moveTo;
-                    this.EliteTargetFLH = this.EliteFireFLH + moveTo;
-                }
-
-                CoordStruct eliteMoveTo = default;
-                if (ExHelper.ReadCoordStruct(reader, section, "AutoWeapon.EliteMoveTo", ref eliteMoveTo))
-                {
-                    this.EliteMoveTo = eliteMoveTo;
-                    this.EliteTargetFLH = this.EliteFireFLH + eliteMoveTo;
                 }
 
                 bool fireToTarget = false;

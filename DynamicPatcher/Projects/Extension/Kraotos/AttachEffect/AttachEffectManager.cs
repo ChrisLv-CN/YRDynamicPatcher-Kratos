@@ -117,6 +117,11 @@ namespace Extension.Ext
 
         public void Attach(AttachEffectType aeType, Pointer<ObjectClass> pOwner, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
         {
+            if (!aeType.Enable)
+            {
+                Logger.LogWarning("Attempt to attach an invalid AE [{0}] for [{1}]", aeType.Name, pOwner.Ref.Type.Ref.Base.ID);
+                return;
+            }
             if (aeType.AffectTypes != null && aeType.AffectTypes.Count > 0)
             {
                 // 启用白名单

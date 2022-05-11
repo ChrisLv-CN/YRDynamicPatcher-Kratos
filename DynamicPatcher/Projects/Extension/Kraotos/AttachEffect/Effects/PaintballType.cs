@@ -22,7 +22,12 @@ namespace Extension.Ext
             PaintballType type = new PaintballType();
             if (type.TryReadType(reader, section))
             {
+                this.Enable = true;
                 this.PaintballType = type;
+            }
+            else
+            {
+                type = null;
             }
         }
 

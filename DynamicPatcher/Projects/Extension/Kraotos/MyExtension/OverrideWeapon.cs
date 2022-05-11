@@ -53,6 +53,10 @@ namespace Extension.Ext
             {
                 this.OverrideWeaponData = temp;
             }
+            else
+            {
+                temp = null;
+            }
 
         }
     }

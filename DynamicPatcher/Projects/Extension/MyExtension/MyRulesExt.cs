@@ -24,6 +24,8 @@ namespace Extension.Ext
 
             ReadAircraftPut(reader);
             ReadChaosAnim(reader);
+            ReadDamageText(reader);
+            ReadHealthText(reader);
         }
 
         public void Save(IStream stream)

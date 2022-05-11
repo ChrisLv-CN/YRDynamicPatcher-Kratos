@@ -170,7 +170,7 @@ namespace Extension.Utilities
             return false;
         }
 
-        public static bool ReadStringList(this INIReader reader, string section, string key, ref List<string> list)
+        public static bool ReadStringList(this INIReader reader, string section, string key, ref List<string> list, string filter = "none")
         {
             string text = default;
             if (reader.ReadNormal(section, key, ref text))
@@ -183,26 +183,28 @@ namespace Extension.Utilities
                 foreach (string t in texts)
                 {
                     string tmp = t.Trim();
-                    if (!String.IsNullOrEmpty(tmp))
+                    // 过滤 none
+                    if (!String.IsNullOrEmpty(tmp) && filter != tmp.ToLower())
                     {
                         list.Add(tmp);
                     }
                 }
-                return true;
+                return list.Count > 0;
             }
             return false;
         }
 
         public static bool ReadIntList(this INIReader reader, string section, string key, ref List<int> list)
         {
-            List<string> values = null;
-            if (ReadStringList(reader, section, key, ref values))
+            string text = default;
+            if (reader.ReadNormal(section, key, ref text))
             {
                 if (null == list)
                 {
                     list = new List<int>();
                 }
-                foreach (string v in values)
+                string[] texts = text.Split(',');
+                foreach (string v in texts)
                 {
                     list.Add(Convert.ToInt32(v));
                 }
@@ -213,14 +215,15 @@ namespace Extension.Utilities
 
         public static bool ReadChanceList(this INIReader reader, string section, string key, ref List<double> list)
         {
-            List<string> values = null;
-            if (ReadStringList(reader, section, key, ref values))
+            string text = default;
+            if (reader.ReadNormal(section, key, ref text))
             {
                 if (null == list)
                 {
                     list = new List<double>();
                 }
-                foreach (string v in values)
+                string[] texts = text.Split(',');
+                foreach (string v in texts)
                 {
                     list.Add(PercentStrToDouble(v));
                 }

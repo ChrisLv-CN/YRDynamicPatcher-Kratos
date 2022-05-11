@@ -22,7 +22,12 @@ namespace Extension.Ext
             DeselectType type = new DeselectType();
             if (type.TryReadType(reader, section))
             {
+                this.Enable = true;
                 this.DeselectType = type;
+            }
+            else
+            {
+                type = null;
             }
         }
 

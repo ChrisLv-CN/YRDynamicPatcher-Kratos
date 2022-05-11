@@ -22,7 +22,12 @@ namespace Extension.Ext
             DisableWeaponType type = new DisableWeaponType();
             if (type.TryReadType(reader, section))
             {
+                this.Enable = true;
                 this.DisableWeaponType = type;
+            }
+            else
+            {
+                type = null;
             }
         }
 

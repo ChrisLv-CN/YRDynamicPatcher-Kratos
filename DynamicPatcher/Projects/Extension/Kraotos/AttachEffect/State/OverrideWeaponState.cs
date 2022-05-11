@@ -37,61 +37,37 @@ namespace Extension.Ext
             weaponType = null;
             if (null != Data)
             {
-                List<string> types = Data.Types;
-                bool isRandomType = Data.RandomType;
-                List<int> weights = Data.Weights;
-                int overrideIndex = Data.Index;
-                double chance = Data.Chance;
+                OverrideWeaponData data = Data.Data;
                 if (isElite)
                 {
-                    types = Data.EliteTypes;
-                    isRandomType = Data.EliteRandomType;
-                    weights = Data.EliteWeights;
-                    overrideIndex = Data.EliteIndex;
-                    chance = Data.EliteChance;
+                    data = Data.EliteData;
                 }
-                weaponType = types[0];
-                if (isRandomType)
+                if (null != data)
                 {
-                    // 算权重
-                    int typeCount = types.Count;
-                    // 获取权重标靶
-                    Dictionary<Point2D, int> targetPad = weights.MakeTargetPad(typeCount, out int maxValue);
-                    // 中
-                    int i = targetPad.Hit(maxValue);
-                    weaponType = types[i];
-                }
-                if (!string.IsNullOrEmpty(weaponType) && (overrideIndex < 0 || overrideIndex == index))
-                {
-                    // 算概率
-                    return chance >= 1 || chance >= MathEx.Random.NextDouble();
+                    List<string> types = data.Types;
+                    bool isRandomType = data.RandomType;
+                    List<int> weights = data.Weights;
+                    int overrideIndex = data.Index;
+                    double chance = data.Chance;
+                    weaponType = types[0];
+                    if (isRandomType)
+                    {
+                        // 算权重
+                        int typeCount = types.Count;
+                        // 获取权重标靶
+                        Dictionary<Point2D, int> targetPad = weights.MakeTargetPad(typeCount, out int maxValue);
+                        // 中
+                        int i = targetPad.Hit(maxValue);
+                        weaponType = types[i];
+                    }
+                    if (!string.IsNullOrEmpty(weaponType) && (overrideIndex < 0 || overrideIndex == index))
+                    {
+                        // 算概率
+                        return chance >= 1 || chance >= MathEx.Random.NextDouble();
+                    }
                 }
             }
             return false;
-        }
-
-        private string FinedWeaponType(bool isElite)
-        {
-            List<string> types = Data.Types;
-            bool isRandomType = Data.RandomType;
-            List<int> weights = Data.Weights;
-            if (isElite)
-            {
-                types = Data.EliteTypes;
-                isRandomType = Data.EliteRandomType;
-                weights = Data.EliteWeights;
-            }
-            if (isRandomType)
-            {
-                // 算权重
-                int typeCount = types.Count;
-
-                int weightCount = null != weights ? weights.Count : 0;
-                Dictionary<Point2D, int> targetPad = weights.MakeTargetPad(typeCount, out int maxValue);
-                int index = MathEx.Random.Next(0, maxValue);
-                return types[index];
-            }
-            return types[0];
         }
 
     }

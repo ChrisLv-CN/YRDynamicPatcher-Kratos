@@ -22,7 +22,12 @@ namespace Extension.Ext
             AttachStatusType type = new AttachStatusType();
             if (type.TryReadType(reader, section))
             {
+                this.Enable = true;
                 this.AttachStatusType = type;
+            }
+            else
+            {
+                type = null;
             }
         }
 

@@ -22,7 +22,12 @@ namespace Extension.Ext
             AnimationType type = new AnimationType();
             if (type.TryReadType(reader, section))
             {
+                this.Enable = true;
                 this.AnimationType = type;
+            }
+            else
+            {
+                type = null;
             }
         }
     }

@@ -65,6 +65,10 @@ namespace Extension.Ext
             {
                 DestroySelfData = temp;
             }
+            else
+            {
+                temp = null;
+            }
         }
     }
 

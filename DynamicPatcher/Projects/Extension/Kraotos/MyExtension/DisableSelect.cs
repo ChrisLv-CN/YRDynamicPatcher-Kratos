@@ -61,6 +61,10 @@ namespace Extension.Ext
             {
                 this.DeselectData = temp;
             }
+            else
+            {
+                temp = null;
+            }
 
         }
     }

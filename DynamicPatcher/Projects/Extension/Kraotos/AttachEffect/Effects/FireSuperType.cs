@@ -22,51 +22,17 @@ namespace Extension.Ext
             FireSuperType type = new FireSuperType();
             if (type.TryReadType(reader, section))
             {
+                this.Enable = true;
                 this.FireSuperType = type;
             }
+            else
+            {
+                type = null;
+            }
         }
 
     }
 
-    [Serializable]
-    public class FireSuperType : EffectType<FireSuper>, IAEStateData
-    {
-        public FireSuperData Data;
-        public FireSuperData EliteData;
-
-        public FireSuperType()
-        {
-            Data = null;
-            EliteData = null;
-        }
-
-        public override bool TryReadType(INIReader reader, string section)
-        {
-
-            ReadCommonType(reader, section, "FireSuperWeapon.");
-
-            FireSuperData data = new FireSuperData();
-            if (data.TryReadType(reader, section))
-            {
-                this.Enable = true;
-                Data = data;
-                EliteData = data;
-            }
-
-            FireSuperData eliteData = null != Data ? Data.Clone() : new FireSuperData();
-            if (eliteData.TryReadType(reader, section, "Elite"))
-            {
-                this.Enable = true;
-                EliteData = eliteData;
-            }
-
-            return this.Enable;
-        }
-    }
-
-    /// <summary>
-    /// 武器发射超武
-    /// </summary>
     [Serializable]
     public class FireSuperData
     {
@@ -104,38 +70,48 @@ namespace Extension.Ext
         public FireSuperData Clone()
         {
             FireSuperData data = new FireSuperData();
-            ExHelper.ReflectClone(this, data);
+            data.Enable = this.Enable;
+            data.Supers = this.Supers;
+            data.Chances = this.Chances;
+            data.InitDelay = this.InitDelay;
+            data.RandomInitDelay = this.RandomInitDelay;
+            data.Delay = this.Delay;
+            data.RandomDelay = this.RandomDelay;
+            data.LaunchCount = this.LaunchCount;
+            data.RealLaunch = this.RealLaunch;
+            data.WeaponIndex = this.WeaponIndex;
+            data.ToTarget = this.ToTarget;
             return data;
         }
 
         public bool TryReadType(INIReader reader, string section)
         {
-            return TryReadType(reader, section, "");
+            return TryReadType(reader, section, "FireSuperWeapon.");
         }
 
-        public bool TryReadType(INIReader reader, string section, string eliteTitle)
+        public bool TryReadType(INIReader reader, string section, string title)
         {
             // FireSuper
             List<string> supers = null;
-            if (reader.ReadStringList(section, "FireSuperWeapon." + eliteTitle + "Types", ref supers))
+            if (reader.ReadStringList(section, title + "Types", ref supers))
             {
                 this.Enable = supers.Count > 0;
                 this.Supers = supers;
 
                 List<double> chances = null;
-                if (reader.ReadChanceList(section, "FireSuperWeapon." + eliteTitle + "Chances", ref chances))
+                if (reader.ReadChanceList(section, title + "Chances", ref chances))
                 {
                     this.Chances = chances;
                 }
 
                 int initDelay = 0;
-                if (reader.ReadNormal(section, "FireSuperWeapon." + eliteTitle + "InitDelay", ref initDelay))
+                if (reader.ReadNormal(section, title + "InitDelay", ref initDelay))
                 {
                     this.InitDelay = initDelay;
                 }
 
                 Point2D randomInitDelay = default;
-                if (reader.ReadPoint2D(section, "FireSuperWeapon." + eliteTitle + "RandomInitDelay", ref randomInitDelay))
+                if (reader.ReadPoint2D(section, title + "RandomInitDelay", ref randomInitDelay))
                 {
                     Point2D tempDelay = randomInitDelay;
                     if (tempDelay.X > tempDelay.Y)
@@ -147,13 +123,13 @@ namespace Extension.Ext
                 }
 
                 int delay = 0;
-                if (reader.ReadNormal(section, "FireSuperWeapon." + eliteTitle + "InitDelay", ref delay))
+                if (reader.ReadNormal(section, title + "InitDelay", ref delay))
                 {
                     this.InitDelay = delay;
                 }
 
                 Point2D randomDelay = default;
-                if (reader.ReadPoint2D(section, "FireSuperWeapon." + eliteTitle + "RandomDelay", ref randomDelay))
+                if (reader.ReadPoint2D(section, title + "RandomDelay", ref randomDelay))
                 {
                     Point2D tempDelay = randomDelay;
                     if (tempDelay.X > tempDelay.Y)
@@ -165,7 +141,7 @@ namespace Extension.Ext
                 }
 
                 int launchCount = 1;
-                if (reader.ReadNormal(section, "FireSuperWeapon." + eliteTitle + "LaunchCount", ref launchCount))
+                if (reader.ReadNormal(section, title + "LaunchCount", ref launchCount))
                 {
                     this.LaunchCount = launchCount;
                     if (launchCount == 0)
@@ -175,19 +151,19 @@ namespace Extension.Ext
                 }
 
                 bool realLaunch = false;
-                if (reader.ReadNormal(section, "FireSuperWeapon." + eliteTitle + "RealLaunch", ref realLaunch))
+                if (reader.ReadNormal(section, title + "RealLaunch", ref realLaunch))
                 {
                     this.RealLaunch = realLaunch;
                 }
 
                 int weaponIndex = -1;
-                if (reader.ReadNormal(section, "FireSuperWeapon." + eliteTitle + "Weapon", ref weaponIndex))
+                if (reader.ReadNormal(section, title + "Weapon", ref weaponIndex))
                 {
                     this.WeaponIndex = weaponIndex;
                 }
 
                 bool toTarget = false;
-                if (reader.ReadNormal(section, "FireSuperWeapon." + eliteTitle + "ToTarget", ref toTarget))
+                if (reader.ReadNormal(section, title + "ToTarget", ref toTarget))
                 {
                     this.ToTarget = toTarget;
                 }
@@ -196,7 +172,45 @@ namespace Extension.Ext
             return this.Enable;
         }
 
+    }
 
+    /// <summary>
+    /// 武器发射超武
+    /// </summary>
+    [Serializable]
+    public class FireSuperType : EffectType<FireSuper>, IAEStateData
+    {
+        public FireSuperData Data;
+        public FireSuperData EliteData;
+
+        public FireSuperType()
+        {
+            Data = null;
+            EliteData = null;
+        }
+
+        public override bool TryReadType(INIReader reader, string section)
+        {
+
+            ReadCommonType(reader, section, "FireSuperWeapon.");
+
+            FireSuperData data = new FireSuperData();
+            if (data.TryReadType(reader, section))
+            {
+                this.Enable = true;
+                Data = data;
+                EliteData = data;
+            }
+
+            FireSuperData eliteData = null != Data ? Data.Clone() : new FireSuperData();
+            if (eliteData.TryReadType(reader, section, "FireSuperWeapon.Elite"))
+            {
+                this.Enable = true;
+                EliteData = eliteData;
+            }
+
+            return this.Enable;
+        }
     }
 
 }

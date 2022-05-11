@@ -89,31 +89,50 @@ namespace Extension.Ext
             this.ImageSize = new Point2D(5, 8);
         }
 
-        protected void ReadPrintText(INIReader reader, string section, string title)
+        public PrintTextData CopyTo(PrintTextData data)
         {
+            data.Offset = this.Offset;
+            data.ShadowOffset = this.ShadowOffset;
+            data.Color = this.Color;
+            data.ShadowColor = this.ShadowColor;
+            data.UseSHP = this.UseSHP;
+            data.CustomSHP = this.CustomSHP;
+            data.SHPFileName = this.SHPFileName;
+            data.ZeroFrameIndex = this.ZeroFrameIndex;
+            data.ImageSize = this.ImageSize;
+            return data;
+        }
+
+        protected bool TryReadPrintText(INIReader reader, string section, string title)
+        {
+            bool isRead = false;
 
             Point2D offset = default;
-            if (ExHelper.ReadPoint2D(reader, section, title + "Offset", ref offset))
+            if (reader.ReadPoint2D(section, title + "Offset", ref offset))
             {
+                isRead = true;
                 this.Offset = offset;
             }
 
             // 文字设置
             Point2D shadowOffset = default;
-            if (ExHelper.ReadPoint2D(reader, section, title + "ShadowOffset", ref shadowOffset))
+            if (reader.ReadPoint2D(section, title + "ShadowOffset", ref shadowOffset))
             {
+                isRead = true;
                 this.ShadowOffset = shadowOffset;
             }
 
             ColorStruct color = default;
-            if (ExHelper.ReadColorStruct(reader, section, title + "Color", ref color))
+            if (reader.ReadColorStruct(section, title + "Color", ref color))
             {
+                isRead = true;
                 this.Color = color;
             }
 
             ColorStruct shadowColor = default;
-            if (ExHelper.ReadColorStruct(reader, section, title + "ShadowColor", ref shadowColor))
+            if (reader.ReadColorStruct(section, title + "ShadowColor", ref shadowColor))
             {
+                isRead = true;
                 this.ShadowColor = shadowColor;
             }
 
@@ -121,15 +140,17 @@ namespace Extension.Ext
             bool useSHP = false;
             if (reader.ReadNormal(section, title + "UseSHP", ref useSHP))
             {
+                isRead = true;
                 this.UseSHP = useSHP;
             }
-            
+
             string fileName = null;
             if (reader.ReadNormal(section, title + "SHP", ref fileName))
             {
                 string file = fileName;
                 if (!string.IsNullOrEmpty(fileName) && !(file = fileName.ToLower()).Equals("pips.shp"))
                 {
+                    isRead = true;
                     this.CustomSHP = true;
                     this.SHPFileName = file;
                 }
@@ -138,14 +159,18 @@ namespace Extension.Ext
             int idx = 0;
             if (reader.ReadNormal(section, title + "ZeroFrameIndex", ref idx))
             {
+                isRead = true;
                 this.ZeroFrameIndex = idx;
             }
 
             Point2D imgSize = default;
-            if (ExHelper.ReadPoint2D(reader, section, title + "ImageSize", ref imgSize))
+            if (reader.ReadPoint2D(section, title + "ImageSize", ref imgSize))
             {
+                isRead = true;
                 this.ImageSize = imgSize;
             }
+
+            return isRead;
         }
 
     }

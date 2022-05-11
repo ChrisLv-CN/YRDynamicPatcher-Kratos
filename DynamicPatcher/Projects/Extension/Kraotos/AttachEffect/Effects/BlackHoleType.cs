@@ -22,7 +22,12 @@ namespace Extension.Ext
             BlackHoleType type = new BlackHoleType();
             if (type.TryReadType(reader, section))
             {
+                this.Enable = true;
                 this.BlackHoleType = type;
+            }
+            else
+            {
+                type = null;
             }
         }
 
@@ -120,43 +125,13 @@ namespace Extension.Ext
                 List<string> affectTypes = null;
                 if (reader.ReadStringList(section, "BlackHole.AffectTypes", ref affectTypes))
                 {
-                    List<string> types = null;
-                    foreach (string typeName in affectTypes)
-                    {
-                        if (!string.IsNullOrEmpty(typeName) && !"none".Equals(typeName.Trim().ToLower()))
-                        {
-                            if (null == types)
-                            {
-                                types = new List<string>();
-                            }
-                            types.Add(typeName);
-                        }
-                    }
-                    if (null != types)
-                    {
-                        this.AffectTypes = types;
-                    }
+                    this.AffectTypes = affectTypes;
                 }
 
                 List<string> notAffectTypes = null;
                 if (reader.ReadStringList(section, "BlackHole.NotAffectTypes", ref notAffectTypes))
                 {
-                    List<string> types = null;
-                    foreach (string typeName in notAffectTypes)
-                    {
-                        if (!string.IsNullOrEmpty(typeName) && !"none".Equals(typeName.Trim().ToLower()))
-                        {
-                            if (null == types)
-                            {
-                                types = new List<string>();
-                            }
-                            types.Add(typeName);
-                        }
-                    }
-                    if (null != types)
-                    {
-                        this.NotAffectTypes = types;
-                    }
+                    this.NotAffectTypes = notAffectTypes;
                 }
 
                 bool affectTechno = false;

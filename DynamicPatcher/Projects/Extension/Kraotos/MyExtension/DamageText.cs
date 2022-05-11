@@ -16,6 +16,59 @@ namespace Extension.Ext
 {
 
     [Serializable]
+    public class DamageTextTypeControlData
+    {
+        public bool Hidden;
+
+        public Dictionary<int, DamageTextTypeData> Types;
+
+        public DamageTextTypeControlData(bool init)
+        {
+            this.Hidden = false;
+            this.Types = new Dictionary<int, DamageTextTypeData>();
+            if (init)
+            {
+                for (int i = 0; i <= 10; i++)
+                {
+                    // 0 是unknow类型，默认设置
+                    Types.Add(i, new DamageTextTypeData());
+                }
+            }
+        }
+
+        public bool TryReadDamageText(INIReader reader, string section)
+        {
+            bool isRead = false;
+
+            bool hidden = false;
+            if (reader.ReadNormal(section, "DamageText.Hidden", ref hidden))
+            {
+                isRead = true;
+                this.Hidden = hidden;
+            }
+
+            if (!Hidden)
+            {
+
+                foreach (KeyValuePair<int, DamageTextTypeData> type in Types)
+                {
+                    if (type.Value.TryReadDamageTextType(reader, section, "DamageText."))
+                    {
+                        isRead = true;
+                    }
+
+                    if (type.Value.TryReadDamageTextType(reader, section, "DamageText." + type.Key + "."))
+                    {
+                        isRead = true;
+                    }
+                }
+            }
+
+            return isRead;
+        }
+    }
+
+    [Serializable]
     public class DamageTextTypeData
     {
         public bool Hidden;
@@ -30,22 +83,6 @@ namespace Extension.Ext
             this.Repair = new DamageTextData(false);
         }
 
-        public void ReadDamageTextType(INIReader reader, string section, string title)
-        {
-
-            bool hidden = false;
-            if (reader.ReadNormal(section, title + "Hidden", ref hidden))
-            {
-                this.Hidden = hidden;
-            }
-
-            this.Damage.ReadDamageText(reader, section, title);
-            this.Repair.ReadDamageText(reader, section, title);
-
-            this.Damage.ReadDamageText(reader, section, title + "Damage.");
-            this.Repair.ReadDamageText(reader, section, title + "Repair.");
-        }
-
         public DamageTextTypeData Clone()
         {
             DamageTextTypeData data = new DamageTextTypeData();
@@ -54,6 +91,42 @@ namespace Extension.Ext
             data.Repair = this.Repair.Clone();
             return data;
         }
+
+        public bool TryReadDamageTextType(INIReader reader, string section, string title)
+        {
+            bool isRead = false;
+
+            bool hidden = false;
+            if (reader.ReadNormal(section, title + "Hidden", ref hidden))
+            {
+                isRead = true;
+                this.Hidden = hidden;
+            }
+
+            if (!Hidden)
+            {
+                if (Damage.TryReadDamageText(reader, section, title))
+                {
+                    isRead = true;
+                }
+                if (Repair.TryReadDamageText(reader, section, title))
+                {
+                    isRead = true;
+                }
+
+                if (Damage.TryReadDamageText(reader, section, title + "Damage."))
+                {
+                    isRead = true;
+                }
+                if (Repair.TryReadDamageText(reader, section, title + "Repair."))
+                {
+                    isRead = true;
+                }
+            }
+
+            return isRead;
+        }
+
     }
 
 
@@ -92,70 +165,91 @@ namespace Extension.Ext
             }
         }
 
-        public void ReadDamageText(INIReader reader, string section, string title)
+        public DamageTextData Clone()
         {
-            ReadPrintText(reader, section, title);
+            DamageTextData data = new DamageTextData(true);
+            CopyTo(data);
+            data.Hidden = this.Hidden;
+            data.Detail = this.Detail;
+            data.Rate = this.Rate;
+            data.XOffset = this.XOffset;
+            data.YOffset = this.YOffset;
+            data.RollSpeed = this.RollSpeed;
+            data.Duration = this.Duration;
+            return data;
+        }
+
+        public bool TryReadDamageText(INIReader reader, string section, string title)
+        {
+            bool isRead = false;
 
             bool hidden = false;
             if (reader.ReadNormal(section, title + "Hidden", ref hidden))
             {
+                isRead = true;
                 this.Hidden = hidden;
             }
 
-            bool detail = false;
-            if (reader.ReadNormal(section, title + "Detail", ref detail))
+            if (!Hidden)
             {
-                this.Detail = detail;
-            }
+                isRead = TryReadPrintText(reader, section, title);
 
-            int rate = 0;
-            if (reader.ReadNormal(section, title + "Rate", ref rate))
-            {
-                this.Rate = rate;
-            }
-
-            Point2D xOffset = default;
-            if (ExHelper.ReadPoint2D(reader, section, title + "XOffset", ref xOffset))
-            {
-                Point2D offset = xOffset;
-                if (xOffset.X > xOffset.Y)
+                bool detail = false;
+                if (reader.ReadNormal(section, title + "Detail", ref detail))
                 {
-                    offset.X = xOffset.Y;
-                    offset.Y = xOffset.X;
+                    isRead = true;
+                    this.Detail = detail;
                 }
-                this.XOffset = offset;
-            }
 
-            Point2D yOffset = default;
-            if (ExHelper.ReadPoint2D(reader, section, title + "YOffset", ref yOffset))
-            {
-                Point2D offset = yOffset;
-                if (yOffset.X > yOffset.Y)
+                int rate = 0;
+                if (reader.ReadNormal(section, title + "Rate", ref rate))
                 {
-                    offset.X = yOffset.Y;
-                    offset.Y = yOffset.X;
+                    isRead = true;
+                    this.Rate = rate;
                 }
-                this.YOffset = offset;
+
+                Point2D xOffset = default;
+                if (ExHelper.ReadPoint2D(reader, section, title + "XOffset", ref xOffset))
+                {
+                    isRead = true;
+                    Point2D offset = xOffset;
+                    if (xOffset.X > xOffset.Y)
+                    {
+                        offset.X = xOffset.Y;
+                        offset.Y = xOffset.X;
+                    }
+                    this.XOffset = offset;
+                }
+
+                Point2D yOffset = default;
+                if (ExHelper.ReadPoint2D(reader, section, title + "YOffset", ref yOffset))
+                {
+                    isRead = true;
+                    Point2D offset = yOffset;
+                    if (yOffset.X > yOffset.Y)
+                    {
+                        offset.X = yOffset.Y;
+                        offset.Y = yOffset.X;
+                    }
+                    this.YOffset = offset;
+                }
+
+                int roll = 1;
+                if (reader.ReadNormal(section, title + "RollSpeed", ref roll))
+                {
+                    isRead = true;
+                    this.RollSpeed = roll;
+                }
+
+                int duration = 0;
+                if (reader.ReadNormal(section, title + "Duration", ref duration))
+                {
+                    isRead = true;
+                    this.Duration = duration;
+                }
             }
 
-            int roll = 1;
-            if (reader.ReadNormal(section, title + "RollSpeed", ref roll))
-            {
-                this.RollSpeed = roll;
-            }
-
-            int duration = 0;
-            if (reader.ReadNormal(section, title + "Duration", ref duration))
-            {
-                this.Duration = duration;
-            }
-        }
-
-        public DamageTextData Clone()
-        {
-            DamageTextData data = new DamageTextData(true);
-            ExHelper.ReflectClone(this, data);
-            return data;
+            return isRead;
         }
     }
 
@@ -213,7 +307,7 @@ namespace Extension.Ext
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
             WarheadTypeExt whExt = WarheadTypeExt.ExtMap.Find(pWH);
-            if (pTechno.IsInvisible() || pTechno.IsCloaked() || null == whExt || whExt.DamageTextTypeData.Hidden)
+            if (pTechno.IsInvisible() || pTechno.IsCloaked() || null == whExt || whExt.DamageTextHidden || whExt.DamageTextTypeData.Hidden)
             {
                 return;
             }
@@ -303,7 +397,9 @@ namespace Extension.Ext
 
     public partial class WarheadTypeExt
     {
-        public DamageTextTypeData DamageTextTypeData = new DamageTextTypeData();
+        public bool DamageTextHidden;
+        public DamageTextTypeData DamageTextTypeData;
+
         private int DamageTextTypeNum;
 
         /// <summary>
@@ -345,12 +441,40 @@ namespace Extension.Ext
                     this.DamageTextTypeNum = infDeath;
                 }
             }
-            DamageTextTypeData.ReadDamageTextType(reader, RulesExt.SectionAudioVisual, "DamageText.");
-            DamageTextTypeData.ReadDamageTextType(reader, RulesExt.SectionAudioVisual, "DamageText." + DamageTextTypeNum + ".");
-            DamageTextTypeData.ReadDamageTextType(reader, section, "DamageText.");
-            DamageTextTypeData.ReadDamageTextType(reader, section, "DamageText." + DamageTextTypeNum + ".");
+
+            DamageTextHidden = RulesExt.Instance.GeneralDamageTextTypeControlData.Hidden;
+            if (!DamageTextHidden)
+            {
+                if (null == DamageTextTypeData || RulesExt.Instance.GeneralDamageTextTypeControlDataHasChange)
+                {
+                    DamageTextTypeData = RulesExt.Instance.GeneralDamageTextTypeControlData.Types[infDeath].Clone();
+                }
+                DamageTextTypeData?.TryReadDamageTextType(reader, section, "DamageText.");
+                DamageTextTypeData?.TryReadDamageTextType(reader, section, "DamageText." + DamageTextTypeNum + ".");
+            }
         }
     }
 
+    public partial class RulesExt
+    {
+        public DamageTextTypeControlData GeneralDamageTextTypeControlData = new DamageTextTypeControlData(true);
+        public bool GeneralDamageTextTypeControlDataHasChange = false;
+
+        private void ReadDamageText(INIReader reader)
+        {
+            DamageTextTypeControlData temp = new DamageTextTypeControlData(true);
+            if (temp.TryReadDamageText(reader, SectionAudioVisual))
+            {
+                GeneralDamageTextTypeControlDataHasChange = true;
+                GeneralDamageTextTypeControlData = temp;
+            }
+            else
+            {
+                GeneralDamageTextTypeControlDataHasChange = false;
+                temp = null;
+            }
+        }
+
+    }
 
 }

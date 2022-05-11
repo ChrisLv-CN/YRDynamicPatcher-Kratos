@@ -22,11 +22,85 @@ namespace Extension.Ext
             OverrideWeaponType type = new OverrideWeaponType();
             if (type.TryReadType(reader, section))
             {
+                this.Enable = true;
                 this.OverrideWeaponType = type;
+            }
+            else
+            {
+                type = null;
             }
         }
 
     }
+
+    [Serializable]
+    public class OverrideWeaponData
+    {
+
+        public List<string> Types; // 替换武器序号
+        public bool RandomType;
+        public List<int> Weights;
+        public int Index; // 替换武器序号
+        public double Chance; // 概率
+
+        public OverrideWeaponData()
+        {
+            this.Types = null;
+            this.RandomType = false;
+            this.Weights = null;
+            this.Index = -1;
+            this.Chance = 1;
+        }
+
+        public OverrideWeaponData Clone()
+        {
+            OverrideWeaponData data = new OverrideWeaponData();
+
+            data.Types = this.Types;
+            data.RandomType = this.RandomType;
+            data.Weights = this.Weights;
+            data.Index = this.Index;
+            data.Chance = this.Chance;
+            return data;
+        }
+
+        public bool TryReadType(INIReader reader, string section, string title)
+        {
+            bool isRead = false;
+
+            List<string> types = null;
+            if (reader.ReadStringList(section, title + "Types", ref types))
+            {
+                isRead = true;
+                this.Types = types;
+            }
+
+            this.RandomType = null != Types && Types.Count > 0;
+
+            List<int> weights = null;
+            if (reader.ReadIntList(section, title + "Weights", ref weights))
+            {
+                isRead = true;
+                this.Weights = weights;
+            }
+
+            int index = -1;
+            if (reader.ReadNormal(section, title + "Index", ref index))
+            {
+                isRead = true;
+                this.Index = index;
+            }
+
+            double chance = 1;
+            if (reader.ReadPercent(section, title + "Chance", ref chance))
+            {
+                isRead = true;
+                this.Chance = chance;
+            }
+            return isRead;
+        }
+    }
+
 
     /// <summary>
     /// 覆盖武器
@@ -34,34 +108,13 @@ namespace Extension.Ext
     [Serializable]
     public class OverrideWeaponType : EffectType<OverrideWeapon>, IAEStateData
     {
-        public List<string> Types; // 替换武器序号
-        public bool RandomType;
-        public List<int> Weights;
-        public List<string> EliteTypes; // 精英替换武器
-        public bool EliteRandomType;
-        public List<int> EliteWeights;
-        public int Index; // 替换武器序号
-        public int EliteIndex; // 精英替换武器序号
-        public double Chance; // 概率
-        public double EliteChance; // 精英概率
+        public OverrideWeaponData Data;
+        public OverrideWeaponData EliteData;
 
         public OverrideWeaponType()
         {
-            this.Enable = false;
-
-            this.Types = null;
-            this.RandomType = false;
-            this.Weights = null;
-
-            this.EliteTypes = null;
-            this.EliteRandomType = false;
-            this.EliteWeights = null;
-
-            this.Index = -1;
-            this.EliteIndex = -1;
-            
-            this.Chance = 1;
-            this.EliteChance = 1;
+            this.Data = null;
+            this.EliteData = null;
         }
 
         public override bool TryReadType(INIReader reader, string section)
@@ -69,118 +122,20 @@ namespace Extension.Ext
 
             ReadCommonType(reader, section, "OverrideWeapon.");
 
-            // string type = null;
-            // if (reader.ReadNormal(section, "OverrideWeapon.Type", ref type))
-            // {
-            //     if (!string.IsNullOrEmpty(type) && !"none".Equals(type.ToLower()))
-            //     {
-            //         this.Enable = true;
-            //         this.Type = type;
-            //         this.EliteType = type;
-            //     }
-            // }
-
-            List<string> types = null;
-            if (reader.ReadStringList(section, "OverrideWeapon.Types", ref types))
+            OverrideWeaponData data = new OverrideWeaponData();
+            if (data.TryReadType(reader, section, "OverrideWeapon."))
             {
-                // 过滤none
-                List<string> realTypes = new List<string>();
-                foreach(string t in types)
-                {
-                    if (!string.IsNullOrEmpty(t) && "none" != t.ToLower())
-                    {
-                        realTypes.Add(t);
-                    }
-                }
-                this.Types = realTypes;
-                this.EliteTypes = realTypes;
-                this.Enable = Types.Count > 0;
-                if (realTypes.Count > 1)
-                {
-                    this.RandomType = true;
-                    this.EliteRandomType = true;
-                    List<int> weights = null;
-                    if (reader.ReadIntList(section, "OverrideWeapon.Weights", ref weights))
-                    {
-                        this.Weights = weights;
-                        this.EliteWeights = weights;
-                    }
-                }
+                this.Data = data;
+                this.EliteData = data;
             }
 
-            int index = -1;
-            if (reader.ReadNormal(section, "OverrideWeapon.Index", ref index))
+            OverrideWeaponData eliteData = null != Data ? Data.Clone() : new OverrideWeaponData();
+            if (eliteData.TryReadType(reader, section, "OverrideWeapon.Elite"))
             {
-                this.Index = index;
-                this.EliteIndex = index;
+                this.EliteData = eliteData;
             }
 
-            double chance = 1;
-            if (reader.ReadPercent(section, "OverrideWeapon.Chance", ref chance))
-            {
-                this.Chance = chance;
-                this.EliteChance = chance;
-            }
-
-            // string eliteType = null;
-            // if (reader.ReadNormal(section, "OverrideWeapon.EliteType", ref eliteType))
-            // {
-            //     if (!string.IsNullOrEmpty(eliteType))
-            //     {
-            //         if (!"none".Equals(eliteType.ToLower()))
-            //         {
-            //             this.Enable = true;
-            //             this.EliteType = eliteType;
-            //         }
-            //         else
-            //         {
-            //             this.EliteType = null;
-            //         }
-            //     }
-            // }
-
-            
-            List<string> eliteTypes = null;
-            if (reader.ReadStringList(section, "OverrideWeapon.EliteTypes", ref eliteTypes))
-            {
-                // 过滤none
-                List<string> realTypes = new List<string>();
-                foreach(string t in eliteTypes)
-                {
-                    if (!string.IsNullOrEmpty(t) && "none" != t.ToLower())
-                    {
-                        realTypes.Add(t);
-                    }
-                }
-                this.EliteTypes = realTypes;
-                this.EliteRandomType = false;
-                this.EliteWeights = null;
-                this.Enable = EliteTypes.Count > 0;
-                if (realTypes.Count > 1)
-                {
-                    this.EliteRandomType = true;
-                    List<int> weights = null;
-                    if (reader.ReadIntList(section, "OverrideWeapon.EliteWeights", ref weights))
-                    {
-                        this.EliteWeights = weights;
-                    }
-                }
-            }
-
-
-            int eliteIndex = -1;
-            if (reader.ReadNormal(section, "OverrideWeapon.EliteIndex", ref eliteIndex))
-            {
-                this.EliteIndex = eliteIndex;
-            }
-
-            double eliteChance = 1;
-            if (reader.ReadPercent(section, "OverrideWeapon.EliteChance", ref eliteChance))
-            {
-                this.EliteChance = eliteChance;
-            }
-
-            return this.Enable;
+            return this.Enable = (null != Data || null != EliteData);
         }
 
     }

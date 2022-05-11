@@ -83,6 +83,10 @@ namespace Extension.Ext
             {
                 FireSuperData = temp;
             }
+            else
+            {
+                temp = null;
+            }
 
         }
     }
@@ -103,27 +107,29 @@ namespace Extension.Ext
             this.LaunchMode = PlaySuperWeaponMode.DONE;
         }
 
-        public void ReadPlaySuperWeapon(INIReader reader, string section)
+        public bool ReadPlaySuperWeapon(INIReader reader, string section)
         {
-            TryReadType(reader, section);
-
-            string mode = null;
-            if (reader.ReadNormal(section, "FireSuperWeapon.LaunchMode", ref mode))
+            if (TryReadType(reader, section))
             {
-                string t = mode.Substring(0, 1).ToUpper();
-                switch (t)
+                string mode = null;
+                if (reader.ReadNormal(section, "FireSuperWeapon.LaunchMode", ref mode))
                 {
-                    case "D":
-                        this.LaunchMode = PlaySuperWeaponMode.DONE;
-                        break;
-                    case "L":
-                        this.LaunchMode = PlaySuperWeaponMode.LOOP;
-                        break;
-                    case "C":
-                        this.LaunchMode = PlaySuperWeaponMode.CUSTOM;
-                        break;
+                    string t = mode.Substring(0, 1).ToUpper();
+                    switch (t)
+                    {
+                        case "D":
+                            this.LaunchMode = PlaySuperWeaponMode.DONE;
+                            break;
+                        case "L":
+                            this.LaunchMode = PlaySuperWeaponMode.LOOP;
+                            break;
+                        case "C":
+                            this.LaunchMode = PlaySuperWeaponMode.CUSTOM;
+                            break;
+                    }
                 }
             }
+            return this.Enable;
         }
     }
 
@@ -205,10 +211,13 @@ namespace Extension.Ext
         private void ReadFireSuperWeapon(INIReader reader, string section)
         {
             PlaySuperData temp = new PlaySuperData();
-            temp.ReadPlaySuperWeapon(reader, section);
-            if (temp.Enable)
+            if (temp.ReadPlaySuperWeapon(reader, section))
             {
                 this.PlaySuperData = temp;
+            }
+            else
+            {
+                temp = null;
             }
 
         }

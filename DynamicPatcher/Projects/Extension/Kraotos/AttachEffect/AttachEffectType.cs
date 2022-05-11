@@ -28,6 +28,8 @@ namespace Extension.Ext
     public partial class AttachEffectType : Enumerable<AttachEffectType>, INewType<AttachEffect>
     {
 
+        public bool Enable;
+
         public List<string> AffectTypes; // 可影响的单位
         public List<string> NotAffectTypes; // 不可影响的单位
         public int Duration; // 持续时间
@@ -61,6 +63,8 @@ namespace Extension.Ext
 
         public AttachEffectType(string name) : base(name)
         {
+            this.Enable = false;
+
             this.AffectTypes = null;
             this.NotAffectTypes = null;
             this.Duration = 1;
@@ -107,226 +111,6 @@ namespace Extension.Ext
             INIReader reader = new INIReader(pINI);
             string section = Name;
 
-            List<string> affectTypes = null;
-            if (reader.ReadStringList(section, "AffectTypes", ref affectTypes))
-            {
-                List<string> types = null;
-                foreach (string typeName in affectTypes)
-                {
-                    if (!string.IsNullOrEmpty(typeName) && !"none".Equals(typeName.Trim().ToLower()))
-                    {
-                        if (null == types)
-                        {
-                            types = new List<string>();
-                        }
-                        types.Add(typeName);
-                    }
-                }
-                if (null != types)
-                {
-                    this.AffectTypes = types;
-                }
-            }
-
-            List<string> notAffectTypes = null;
-            if (reader.ReadStringList(section, "NotAffectTypes", ref notAffectTypes))
-            {
-                List<string> types = null;
-                foreach (string typeName in notAffectTypes)
-                {
-                    if (!string.IsNullOrEmpty(typeName) && !"none".Equals(typeName.Trim().ToLower()))
-                    {
-                        if (null == types)
-                        {
-                            types = new List<string>();
-                        }
-                        types.Add(typeName);
-                    }
-                }
-                if (null != types)
-                {
-                    this.NotAffectTypes = types;
-                }
-            }
-
-            int duration = -1;
-            if (reader.ReadNormal(section, "Duration", ref duration))
-            {
-                this.Duration = duration;
-                if (duration > 0)
-                {
-                    this.HoldDuration = false;
-                }
-            }
-
-            bool holdDuration = false;
-            if (reader.ReadNormal(section, "HoldDuration", ref holdDuration))
-            {
-                this.HoldDuration = holdDuration;
-            }
-
-            bool resetDurationOnReapply = false;
-            if (reader.ReadNormal(section, "ResetDurationOnReapply", ref resetDurationOnReapply))
-            {
-                this.ResetDurationOnReapply = resetDurationOnReapply;
-            }
-
-            int delay = 0;
-            if (reader.ReadNormal(section, "Delay", ref delay))
-            {
-                this.Delay = delay;
-            }
-
-            List<int> randomDelay = null;
-            if (ExHelper.ReadIntList(reader, section, "RandomDelay", ref randomDelay))
-            {
-                if (null != randomDelay && randomDelay.Count > 1)
-                {
-                    this.RandomDelay = true;
-                    this.MinDelay = randomDelay[0];
-                    this.MaxDelay = randomDelay[1];
-                    if (this.MaxDelay < this.MinDelay)
-                    {
-                        int temp = this.MaxDelay;
-                        this.MaxDelay = this.MinDelay;
-                        this.MinDelay = temp;
-                    }
-                }
-            }
-
-            int initDelay = 0;
-            if (reader.ReadNormal(section, "InitialDelay", ref initDelay))
-            {
-                this.InitialDelay = initDelay;
-            }
-
-            List<int> initRandomDelay = null;
-            if (ExHelper.ReadIntList(reader, section, "InitialRandomDelay", ref initRandomDelay))
-            {
-                if (null != initRandomDelay && initRandomDelay.Count > 1)
-                {
-                    this.InitialRandomDelay = true;
-                    this.InitialMinDelay = initRandomDelay[0];
-                    this.InitialMaxDelay = initRandomDelay[1];
-                    if (this.InitialMaxDelay < this.InitialMinDelay)
-                    {
-                        int temp = this.InitialMaxDelay;
-                        this.InitialMaxDelay = this.InitialMinDelay;
-                        this.InitialMinDelay = temp;
-                    }
-                }
-            }
-
-            bool discardOnEntry = false;
-            if (reader.ReadNormal(section, "DiscardOnEntry", ref discardOnEntry))
-            {
-                this.DiscardOnEntry = discardOnEntry;
-            }
-
-            bool penetratesIronCurtain = false;
-            if (reader.ReadNormal(section, "PenetratesIronCurtain", ref penetratesIronCurtain))
-            {
-                this.PenetratesIronCurtain = penetratesIronCurtain;
-            }
-
-            bool fromTransporter = false;
-            if (reader.ReadNormal(section, "FromTransporter", ref fromTransporter))
-            {
-                this.FromTransporter = fromTransporter;
-            }
-
-            bool ownerTarget = false;
-            if (reader.ReadNormal(section, "OwnerTarget", ref ownerTarget))
-            {
-                this.OwnerTarget = ownerTarget;
-            }
-
-            string cumulative = "no";
-            if (reader.ReadNormal(section, "Cumulative", ref cumulative))
-            {
-                CumulativeMode cumulativeMode = CumulativeMode.NO;
-                string t = cumulative.Substring(0, 1).ToUpper();
-                switch (t)
-                {
-                    case "1":
-                    case "T": // true
-                    case "Y": // yes
-                        cumulativeMode = CumulativeMode.YES;
-                        break;
-                    case "0":
-                    case "F": // false
-                    case "N": // no
-                        cumulativeMode = CumulativeMode.NO;
-                        break;
-                    case "A": // attacker
-                        cumulativeMode = CumulativeMode.ATTACKER;
-                        break;
-                }
-                this.Cumulative = cumulativeMode;
-            }
-
-            int group = 0;
-            if (reader.ReadNormal(section, "Group", ref group))
-            {
-                this.Group = group;
-            }
-
-            bool overrideSameGroup = false;
-            if (reader.ReadNormal(section, "OverrideSameGroup", ref overrideSameGroup))
-            {
-                this.OverrideSameGroup = overrideSameGroup;
-            }
-
-            string next = null;
-            if (reader.ReadNormal(section, "Next", ref next))
-            {
-                this.Next = next;
-            }
-
-            // 赋予出厂单位时只赋予一次
-            bool attachOnceInTechnoType = false;
-            if (reader.ReadNormal(section, "AttachOnceInTechnoType", ref attachOnceInTechnoType))
-            {
-                this.AttachOnceInTechnoType = attachOnceInTechnoType;
-            }
-
-            // 赋予对象过滤
-            bool attachWithDamage = false;
-            if (reader.ReadNormal(section, "AttachWithDamage", ref attachWithDamage))
-            {
-                this.AttachWithDamage = attachWithDamage;
-            }
-
-            bool affectBullet = false;
-            if (reader.ReadNormal(section, "AffectBullet", ref affectBullet))
-            {
-                this.AffectBullet = affectBullet;
-            }
-
-            bool onlyAffectBullet = false;
-            if (reader.ReadNormal(section, "OnlyAffectBullet", ref onlyAffectBullet))
-            {
-                this.OnlyAffectBullet = onlyAffectBullet;
-            }
-
-            bool affectMissile = false;
-            if (reader.ReadNormal(section, "AffectMissile", ref affectMissile))
-            {
-                this.AffectMissile = affectMissile;
-            }
-
-            bool affectTorpedo = false;
-            if (reader.ReadNormal(section, "AffectTorpedo", ref affectTorpedo))
-            {
-                this.AffectTorpedo = affectTorpedo;
-            }
-
-            bool affectCannon = false;
-            if (reader.ReadNormal(section, "AffectCannon", ref affectCannon))
-            {
-                this.AffectCannon = affectCannon;
-            }
-
             ReadAnimationType(reader, section);
             ReadAttachStatusType(reader, section);
             ReadAutoWeaponType(reader, section);
@@ -340,6 +124,201 @@ namespace Extension.Ext
             ReadDisableWeaponType(reader, section);
             ReadDeselectType(reader, section);
             ReadOverrideWeaponType(reader, section);
+
+            // 至少有一个效果
+            if (Enable)
+            {
+
+                List<string> affectTypes = null;
+                if (reader.ReadStringList(section, "AffectTypes", ref affectTypes))
+                {
+                    this.AffectTypes = affectTypes;
+                }
+
+                List<string> notAffectTypes = null;
+                if (reader.ReadStringList(section, "NotAffectTypes", ref notAffectTypes))
+                {
+                    this.NotAffectTypes = notAffectTypes;
+                }
+
+                int duration = -1;
+                if (reader.ReadNormal(section, "Duration", ref duration))
+                {
+                    this.Duration = duration;
+                    if (duration > 0)
+                    {
+                        this.HoldDuration = false;
+                    }
+                }
+
+                bool holdDuration = false;
+                if (reader.ReadNormal(section, "HoldDuration", ref holdDuration))
+                {
+                    this.HoldDuration = holdDuration;
+                }
+
+                bool resetDurationOnReapply = false;
+                if (reader.ReadNormal(section, "ResetDurationOnReapply", ref resetDurationOnReapply))
+                {
+                    this.ResetDurationOnReapply = resetDurationOnReapply;
+                }
+
+                int delay = 0;
+                if (reader.ReadNormal(section, "Delay", ref delay))
+                {
+                    this.Delay = delay;
+                }
+
+                List<int> randomDelay = null;
+                if (ExHelper.ReadIntList(reader, section, "RandomDelay", ref randomDelay))
+                {
+                    if (null != randomDelay && randomDelay.Count > 1)
+                    {
+                        this.RandomDelay = true;
+                        this.MinDelay = randomDelay[0];
+                        this.MaxDelay = randomDelay[1];
+                        if (this.MaxDelay < this.MinDelay)
+                        {
+                            int temp = this.MaxDelay;
+                            this.MaxDelay = this.MinDelay;
+                            this.MinDelay = temp;
+                        }
+                    }
+                }
+
+                int initDelay = 0;
+                if (reader.ReadNormal(section, "InitialDelay", ref initDelay))
+                {
+                    this.InitialDelay = initDelay;
+                }
+
+                List<int> initRandomDelay = null;
+                if (ExHelper.ReadIntList(reader, section, "InitialRandomDelay", ref initRandomDelay))
+                {
+                    if (null != initRandomDelay && initRandomDelay.Count > 1)
+                    {
+                        this.InitialRandomDelay = true;
+                        this.InitialMinDelay = initRandomDelay[0];
+                        this.InitialMaxDelay = initRandomDelay[1];
+                        if (this.InitialMaxDelay < this.InitialMinDelay)
+                        {
+                            int temp = this.InitialMaxDelay;
+                            this.InitialMaxDelay = this.InitialMinDelay;
+                            this.InitialMinDelay = temp;
+                        }
+                    }
+                }
+
+                bool discardOnEntry = false;
+                if (reader.ReadNormal(section, "DiscardOnEntry", ref discardOnEntry))
+                {
+                    this.DiscardOnEntry = discardOnEntry;
+                }
+
+                bool penetratesIronCurtain = false;
+                if (reader.ReadNormal(section, "PenetratesIronCurtain", ref penetratesIronCurtain))
+                {
+                    this.PenetratesIronCurtain = penetratesIronCurtain;
+                }
+
+                bool fromTransporter = false;
+                if (reader.ReadNormal(section, "FromTransporter", ref fromTransporter))
+                {
+                    this.FromTransporter = fromTransporter;
+                }
+
+                bool ownerTarget = false;
+                if (reader.ReadNormal(section, "OwnerTarget", ref ownerTarget))
+                {
+                    this.OwnerTarget = ownerTarget;
+                }
+
+                string cumulative = "no";
+                if (reader.ReadNormal(section, "Cumulative", ref cumulative))
+                {
+                    CumulativeMode cumulativeMode = CumulativeMode.NO;
+                    string t = cumulative.Substring(0, 1).ToUpper();
+                    switch (t)
+                    {
+                        case "1":
+                        case "T": // true
+                        case "Y": // yes
+                            cumulativeMode = CumulativeMode.YES;
+                            break;
+                        case "0":
+                        case "F": // false
+                        case "N": // no
+                            cumulativeMode = CumulativeMode.NO;
+                            break;
+                        case "A": // attacker
+                            cumulativeMode = CumulativeMode.ATTACKER;
+                            break;
+                    }
+                    this.Cumulative = cumulativeMode;
+                }
+
+                int group = 0;
+                if (reader.ReadNormal(section, "Group", ref group))
+                {
+                    this.Group = group;
+                }
+
+                bool overrideSameGroup = false;
+                if (reader.ReadNormal(section, "OverrideSameGroup", ref overrideSameGroup))
+                {
+                    this.OverrideSameGroup = overrideSameGroup;
+                }
+
+                string next = null;
+                if (reader.ReadNormal(section, "Next", ref next))
+                {
+                    this.Next = next;
+                }
+
+                // 赋予出厂单位时只赋予一次
+                bool attachOnceInTechnoType = false;
+                if (reader.ReadNormal(section, "AttachOnceInTechnoType", ref attachOnceInTechnoType))
+                {
+                    this.AttachOnceInTechnoType = attachOnceInTechnoType;
+                }
+
+                // 赋予对象过滤
+                bool attachWithDamage = false;
+                if (reader.ReadNormal(section, "AttachWithDamage", ref attachWithDamage))
+                {
+                    this.AttachWithDamage = attachWithDamage;
+                }
+
+                bool affectBullet = false;
+                if (reader.ReadNormal(section, "AffectBullet", ref affectBullet))
+                {
+                    this.AffectBullet = affectBullet;
+                }
+
+                bool onlyAffectBullet = false;
+                if (reader.ReadNormal(section, "OnlyAffectBullet", ref onlyAffectBullet))
+                {
+                    this.OnlyAffectBullet = onlyAffectBullet;
+                }
+
+                bool affectMissile = false;
+                if (reader.ReadNormal(section, "AffectMissile", ref affectMissile))
+                {
+                    this.AffectMissile = affectMissile;
+                }
+
+                bool affectTorpedo = false;
+                if (reader.ReadNormal(section, "AffectTorpedo", ref affectTorpedo))
+                {
+                    this.AffectTorpedo = affectTorpedo;
+                }
+
+                bool affectCannon = false;
+                if (reader.ReadNormal(section, "AffectCannon", ref affectCannon))
+                {
+                    this.AffectCannon = affectCannon;
+                }
+            }
 
             base.LoadFromINI(pINI);
         }
