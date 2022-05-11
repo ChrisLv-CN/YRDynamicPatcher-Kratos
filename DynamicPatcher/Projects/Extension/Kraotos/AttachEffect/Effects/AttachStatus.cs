@@ -31,7 +31,7 @@ namespace Extension.Ext
     public class AttachStatus : Effect<AttachStatusType>
     {
         public bool Active;
-        public TechnoExt technoExt;
+        public ExtensionReference<TechnoExt> technoExt;
 
         public AttachStatus()
         {
@@ -48,16 +48,18 @@ namespace Extension.Ext
             this.Active = true;
             if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
             {
-                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                this.technoExt = ext;
-                ext?.RecalculateStatus();
+                technoExt = TechnoExt.ExtMap.Find(pTechno);
+                technoExt.Get().RecalculateStatus();
             }
         }
 
         public override void Disable(CoordStruct location)
         {
             this.Active = false;
-            technoExt?.RecalculateStatus();
+            if (technoExt.TryGet(out TechnoExt ext))
+            {
+                ext.RecalculateStatus();
+            }
         }
 
     }

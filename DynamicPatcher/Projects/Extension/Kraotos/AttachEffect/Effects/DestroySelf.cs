@@ -31,38 +31,35 @@ namespace Extension.Ext
     public class DestroySelf : Effect<DestroySelfType>
     {
 
-        public TechnoExt OwnerExt;
-        public BulletExt BulletExt;
-
         public override void OnEnable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
         {
-            switch (pObject.Ref.Base.WhatAmI())
-            {
-                case AbstractType.Unit:
-                case AbstractType.Aircraft:
-                case AbstractType.Building:
-                case AbstractType.Infantry:
-                    OwnerExt = TechnoExt.ExtMap.Find(pObject.Convert<TechnoClass>());
-                    if (null != OwnerExt)
-                    {
-                        OwnerExt.DestroySelfState.Enable(AEType.GetDuration(), token, Type);
-                    }
-                    break;
-                case AbstractType.Bullet:
-                    BulletExt = BulletExt.ExtMap.Find(pObject.Convert<BulletClass>());
-                    if (null != BulletExt)
-                    {
-                        BulletExt.DestroySelfState.Enable(AEType.GetDuration(), token, Type);
-                    }
-                    break;
+            // switch (pObject.Ref.Base.WhatAmI())
+            // {
+            //     case AbstractType.Unit:
+            //     case AbstractType.Aircraft:
+            //     case AbstractType.Building:
+            //     case AbstractType.Infantry:
+            //         OwnerExt = TechnoExt.ExtMap.Find(pObject.Convert<TechnoClass>());
+            //         if (null != OwnerExt)
+            //         {
+            //             OwnerExt.DestroySelfState.Enable(AEType.GetDuration(), token, Type);
+            //         }
+            //         break;
+            //     case AbstractType.Bullet:
+            //         BulletExt = BulletExt.ExtMap.Find(pObject.Convert<BulletClass>());
+            //         if (null != BulletExt)
+            //         {
+            //             BulletExt.DestroySelfState.Enable(AEType.GetDuration(), token, Type);
+            //         }
+            //         break;
 
-            }
+            // }
+            OwnerAEM.DestroySelfState.Enable(AEType.GetDuration(), token, Type);
         }
 
         public override void Disable(CoordStruct location)
         {
-            OwnerExt?.DestroySelfState.Disable(token);
-            BulletExt?.DestroySelfState.Disable(token);
+            OwnerAEM.DestroySelfState.Disable(token);
         }
 
     }

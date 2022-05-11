@@ -30,7 +30,7 @@ namespace Extension.Ext
     [Serializable]
     public class Transform : Effect<TransformType>
     {
-        private TechnoExt OwnerExt;
+        public ExtensionReference<TechnoExt> OwnerExt;
 
         public Transform()
         {
@@ -42,18 +42,19 @@ namespace Extension.Ext
             if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
             {
                 OwnerExt = TechnoExt.ExtMap.Find(pTechno);
-                if (null != OwnerExt)
-                {
-                    // Logger.Log("Transform AE enable. Trans to {0}", Type.ToType);
-                    OwnerExt.TryConvertTypeTo(Type.ToType);
-                }
+
+                // Logger.Log("Transform AE enable. Trans to {0}", Type.ToType);
+                OwnerExt.Get().TryConvertTypeTo(Type.ToType);
             }
         }
 
         public override void Disable(CoordStruct location)
         {
             // Logger.Log("Transform AE disable.");
-            OwnerExt?.CancelConverType(Type.ToType);
+            if (OwnerExt.TryGet(out TechnoExt ext))
+            {
+                ext.CancelConverType(Type.ToType);
+            }
         }
 
     }
