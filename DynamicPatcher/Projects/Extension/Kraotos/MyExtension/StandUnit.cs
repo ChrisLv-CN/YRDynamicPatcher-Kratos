@@ -29,7 +29,7 @@ namespace Extension.Ext
                 {
                     pDamage.Ref = 0;
                 }
-                else if (StandType.DamageToMaster > 0)
+                else if (StandType.DamageToMaster > 0 && !MyMaster.Pointer.IsDeadOrInvisible())
                 {
                     int damage = pDamage.Ref;
                     // 分摊伤害给使者
@@ -45,7 +45,7 @@ namespace Extension.Ext
                 foreach (AttachEffect ae in AttachEffectManager.AttachEffects)
                 {
                     Stand stand = ae.Stand;
-                    if (null != stand && ae.IsActive() && !stand.Type.IsTrain && !stand.Type.Immune && stand.Type.DamageFromMaster > 0)
+                    if (null != stand && stand.IsAlive() && !stand.Type.IsTrain && !stand.Type.Immune && stand.Type.DamageFromMaster > 0)
                     {
                         // 找到一个可以分摊伤害的替身
                         double to = damage * stand.Type.DamageFromMaster;
