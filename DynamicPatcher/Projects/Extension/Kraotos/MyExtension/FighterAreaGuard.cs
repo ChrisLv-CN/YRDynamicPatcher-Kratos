@@ -52,16 +52,16 @@ namespace Extension.Ext
         private int areaGuardTargetCheckRof = 20;
 
 
-        public unsafe void TechnoClass_Init_Fighter_Area_Guard()
+        public unsafe void AircraftClass_Init_Fighter_Area_Guard()
         {
-            if (null != Type.FighterAreaGuardData && OwnerObject.CastIf<AircraftClass>(AbstractType.Aircraft, out var pAir))
+            if (null != Type.FighterAreaGuardData)
             {
-                OnUpdateAction += TechnoClass_Update_Fighter_Area_Guard;
+                OnUpdateAction += AircraftClass_Update_Fighter_Area_Guard;
             }
         }
 
 
-        public unsafe void TechnoClass_Update_Fighter_Area_Guard()
+        public unsafe void AircraftClass_Update_Fighter_Area_Guard()
         {
             FighterAreaGuardData data = Type.FighterAreaGuardData;
 

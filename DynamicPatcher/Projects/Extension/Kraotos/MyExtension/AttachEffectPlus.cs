@@ -43,11 +43,6 @@ namespace Extension.Ext
             }
         }
 
-        public unsafe void TechnoClass_Render_AttachEffect()
-        {
-            AttachEffectManager.Render(OwnerObject.Convert<ObjectClass>(), IsDead);
-        }
-
         public unsafe void TechnoClass_Render2_AttachEffect()
         {
             AttachEffectManager.Render2(OwnerObject.Convert<ObjectClass>(), IsDead);

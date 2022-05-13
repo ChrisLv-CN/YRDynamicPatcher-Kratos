@@ -33,11 +33,11 @@ namespace Extension.Ext
 
         private Mission lastMission;
         private CoordStruct lastLocation;
-        
+
         private event System.Action OnUnInitAction;
 
-		private event System.Action OnRenderAction;
-		private event System.Action OnRender2Action;
+        private event System.Action OnRenderAction;
+        private event System.Action OnRender2Action;
 
         private event System.Action OnUpdateAction;
         private event System.Action OnTemporalUpdateAction;
@@ -58,10 +58,27 @@ namespace Extension.Ext
 
         public void OnInit()
         {
-            IsBuilding = OwnerObject.Ref.Base.Base.WhatAmI() == AbstractType.Building;
+            AbstractType absType = OwnerObject.Ref.Base.Base.WhatAmI();
+            switch (absType)
+            {
+                case AbstractType.BuildingType:
+                    IsBuilding = true;
+                    break;
+                case AbstractType.InfantryType:
+                    InfantryClass_Init_CrawlingFLH();
+                    break;
+                case AbstractType.UnitType:
+                    UnitClass_Init_JumpjetFacingToTarget();
+                    UnitClass_Init_UnitDeployFireOnce();
+                    break;
+                case AbstractType.AircraftType:
+                    AircraftClass_Init_AircraftDive();
+                    AircraftClass_Init_AircraftPut();
+                    AircraftClass_Init_Fighter_Area_Guard();
+                    AircraftClass_Init_SpawnMissileHoming();
+                    break;
+            }
 
-            TechnoClass_Init_AircraftDive();
-            TechnoClass_Init_AircraftPut();
             TechnoClass_Init_AttachEffect();
             TechnoClass_Init_AttackBeacon();
             TechnoClass_Init_AntiBullet();
@@ -72,16 +89,13 @@ namespace Extension.Ext
             TechnoClass_Init_DeployToTransform();
             TechnoClass_Init_Deselect();
             TechnoClass_Init_ExtraFireWeapon();
-            TechnoClass_Init_Fighter_Area_Guard();
             TechnoClass_Init_FixGattlingStage();
             TechnoClass_Init_HealthBarText();
-            TechnoClass_Init_JumpjetFacingToTarget();
             TechnoClass_Init_OverrideWeapon();
+            TechnoClass_Init_RockerPitch();
             TechnoClass_Init_SuperWeapon();
-            TechnoClass_Init_SpawnMissileHoming();
             TechnoClass_Init_SpawnSupport();
             TechnoClass_Init_Trail();
-            TechnoClass_Init_UnitDeployFireOnce();
 
             TechnoClass_Init_GiftBox();
             TechnoClass_Init_VirtualUnit();
@@ -89,17 +103,9 @@ namespace Extension.Ext
 
         public unsafe void OnRender()
         {
-            // if (!MyMaster.IsNull)
-            // {
-            //     Logger.Log($"{Game.CurrentFrame} - 渲染替身 {OwnerObject} [{Type.OwnerObject.Ref.Base.Base.ID}] 开始，位置 {OwnerObject.Ref.Base.Base.GetCoords()}");
-            // }
-
             OnRenderAction?.Invoke();
 
-            TechnoClass_Render_AttachEffect(); // 调整替身位置到和本体一样
-
             // TechnoClass_Render_ChaosAnim();
-            // TechnoClass_Render_Trail();
         }
 
         public unsafe void OnRender2()
@@ -340,7 +346,7 @@ namespace Extension.Ext
             // TechnoClass_OnFire_AircraftDive(pTarget, weaponIndex);
             // TechnoClass_OnFire_AttackBeacon_Recruit(pTarget, weaponIndex);
             // TechnoClass_OnFire_ExtraFireWeapon(pTarget, weaponIndex);
-            TechnoClass_OnFire_RockerPitch(pTarget, weaponIndex);
+            // TechnoClass_OnFire_RockerPitch(pTarget, weaponIndex);
             // TechnoClass_OnFire_SpawnSupport(pTarget, weaponIndex);
             TechnoClass_OnFire_SuperWeapon(pTarget, weaponIndex);
         }
@@ -423,8 +429,6 @@ namespace Extension.Ext
     {
         public SwizzleablePointer<SuperWeaponTypeClass> FireSuperWeapon = new SwizzleablePointer<SuperWeaponTypeClass>(IntPtr.Zero);
 
-        public CoordStruct TurretOffset = new CoordStruct();
-
         [INILoadAction]
         public void LoadINI(Pointer<CCINIClass> pINI)
         {
@@ -445,64 +449,39 @@ namespace Extension.Ext
                 artSection = image;
             }
 
+            // 读DP
             reader.ReadSuperWeapon(section, nameof(FireSuperWeapon), ref FireSuperWeapon.Pointer);
 
-            ReadAresFlags(reader, section);
+            // 读Ares
+            ReadAresRules(reader, section);
 
-            string turretOffsetStr = null;
-            if (artReader.ReadNormal(artSection, "TurretOffset", ref turretOffsetStr))
+            // 读Phobos
+            ReadPhobosArt(artReader, section);
+
+            // 读Kratos
+            AbstractType absType = OwnerObject.Ref.Base.Base.Base.WhatAmI();
+            switch (absType)
             {
-                // Logger.Log("类型{0}炮塔偏移{1}", artSection, turretOffsetStr);
-                try
-                {
-                    CoordStruct offset = new CoordStruct();
-                    if (!string.IsNullOrEmpty(turretOffsetStr))
-                    {
-                        turretOffsetStr = turretOffsetStr.Trim();
-                        if (turretOffsetStr.IndexOf(",") > -1)
-                        {
-                            string[] pos = turretOffsetStr.Split(',');
-                            if (null != pos && pos.Length > 0)
-                            {
-                                for (int i = 0; i < pos.Length; i++)
-                                {
-                                    int value = Convert.ToInt32(pos[i].Trim());
-                                    switch (i)
-                                    {
-                                        case 0:
-                                            offset.X = value;
-                                            break;
-                                        case 1:
-                                            offset.Y = value;
-                                            break;
-                                        case 2:
-                                            offset.Z = value;
-                                            break;
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            offset.X = Convert.ToInt32(turretOffsetStr);
-                        }
-                    }
-                    this.TurretOffset = offset;
-                }
-                catch (Exception e)
-                {
-                    Logger.LogError("Illegal value {0} of TurretOffset in Type {1}", turretOffsetStr, section);
-                    Logger.PrintException(e);
-                }
+                case AbstractType.BuildingType:
+                    break;
+                case AbstractType.InfantryType:
+                    ReadCrawlingFLH(reader, section, artReader, artSection);
+                    break;
+                case AbstractType.UnitType:
+                    ReadJumpjetFacingToTarget(reader, section);
+                    break;
+                case AbstractType.AircraftType:
+                    ReadAircraftDive(reader, section);
+                    ReadAircraftPut(reader, section);
+                    ReadFighterGuardData(reader, section);
+                    ReadSpawnMissileHoming(reader, section);
+                    break;
             }
 
-            ReadAircraftDive(reader, section);
-            ReadAircraftPut(reader, section);
             ReadAntiBullet(reader, section);
             ReadAttachEffect(reader, section);
             ReadAttackBeacon(reader, section);
             ReadAutoFireAreaWeapon(reader, section);
-            ReadCrawlingFLH(reader, section, artReader, artSection);
             ReadDecoyMissile(reader, section);
             ReadDeployToTransform(reader, section);
             ReadDeselect(reader, section);
@@ -511,16 +490,13 @@ namespace Extension.Ext
             ReadExtraFireWeapon(reader, section, artReader, artSection);
             ReadFireSuperWeapon(reader, section);
             ReadGiftBox(reader, section);
-            ReadHelthText(reader, section);
-            ReadJumpjetFacingToTarget(reader, section);
+            ReadHelthText(reader, section, absType);
             ReadOverrideWeapon(reader, section);
             ReadPassengers(reader, section);
             ReadSpawnFireOnce(reader, section);
-            ReadSpawnMissileHoming(reader, section);
             ReadSpawnSupport(reader, section, artReader, artSection);
             ReadTrail(reader, section, artReader, artSection);
             ReadVirtualUnit(reader, section);
-            ReadFighterGuardData(reader, section);
         }
 
         [LoadAction]

@@ -23,11 +23,6 @@ namespace Extension.Ext
             }
         }
 
-        public unsafe void TechnoClass_Update_SuperWeapon()
-        {
-            FireSuperWeaponManager.Update();
-        }
-
         public unsafe void TechnoClass_OnFire_SuperWeapon(Pointer<AbstractClass> pTarget, int weaponIndex)
         {
             Pointer<TechnoClass> pTechno = OwnerObject;

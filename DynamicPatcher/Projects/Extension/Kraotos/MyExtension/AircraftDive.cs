@@ -87,23 +87,21 @@ namespace Extension.Ext
     {
         public AircraftDive aircraftDive;
 
-        public unsafe void TechnoClass_Init_AircraftDive()
+        public unsafe void AircraftClass_Init_AircraftDive()
         {
-            Pointer<TechnoClass> pTechno = OwnerObject;
-
-            if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Aircraft && null != Type.AircraftDiveData && Type.AircraftDiveData.Enable && null == aircraftDive)
+            if (null != Type.AircraftDiveData && Type.AircraftDiveData.Enable)
             {
                 aircraftDive = new AircraftDive(Type.AircraftDiveData);
                 // Logger.Log("激活俯冲：{0}", extType.AircraftDiveData);
-                OnUpdateAction += TechnoClass_Update_AircraftDive;
+                OnUpdateAction += AircraftClass_Update_AircraftDive;
                 if (Type.AircraftDiveData.PullUpAfterFire)
                 {
-                    OnFireAction += TechnoClass_OnFire_AircraftDive;
+                    OnFireAction += AircraftClass_OnFire_AircraftDive;
                 }
             }
         }
 
-        public unsafe void TechnoClass_Update_AircraftDive()
+        public unsafe void AircraftClass_Update_AircraftDive()
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
             Pointer<AbstractClass> pTarget = pTechno.Ref.Target;
@@ -129,7 +127,7 @@ namespace Extension.Ext
             }
         }
 
-        public unsafe void TechnoClass_OnFire_AircraftDive(Pointer<AbstractClass> pTarget, int weaponIndex)
+        public unsafe void AircraftClass_OnFire_AircraftDive(Pointer<AbstractClass> pTarget, int weaponIndex)
         {
             aircraftDive.CanDive = false;
         }

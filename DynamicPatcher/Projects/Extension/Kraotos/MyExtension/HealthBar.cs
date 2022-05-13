@@ -566,12 +566,12 @@ namespace Extension.Ext
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="section"></param>
-        private void ReadHelthText(INIReader reader, string section)
+        private void ReadHelthText(INIReader reader, string section, AbstractType absType)
         {
             HealthTextHidden = RulesExt.Instance.GeneralHealthTextTypeControlData.Hidden;
             if (!HealthTextHidden)
             {
-                switch (OwnerObject.Ref.Base.Base.Base.WhatAmI())
+                switch (absType)
                 {
                     case AbstractType.BuildingType:
                         if (null == HealthTextTypeData || RulesExt.Instance.GeneralHealthTextTypeControlDataHasChanged)

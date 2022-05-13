@@ -15,6 +15,13 @@ namespace Extension.Ext
 
     public partial class TechnoExt
     {
+        public void TechnoClass_Init_RockerPitch()
+        {
+            if (OwnerObject.Ref.IsVoxel())
+            {
+                OnFireAction += TechnoClass_OnFire_RockerPitch;
+            }
+        }
 
         public void TechnoClass_OnFire_RockerPitch(Pointer<AbstractClass> pTarget, int weaponIndex)
         {

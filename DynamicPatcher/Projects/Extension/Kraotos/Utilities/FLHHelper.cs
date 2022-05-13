@@ -72,7 +72,7 @@ namespace Extension.Utilities
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 if (null != ext)
                 {
-                    turretOffset = ext.Type.TurretOffset;
+                    turretOffset = ext.Type.Phobos.TurretOffset;
                 }
                 else
                 {

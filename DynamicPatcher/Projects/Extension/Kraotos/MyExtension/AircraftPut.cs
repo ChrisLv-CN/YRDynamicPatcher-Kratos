@@ -59,21 +59,20 @@ namespace Extension.Ext
         private bool aircraftPutOffsetFlag = false;
         private bool aircraftPutOffset = false;
 
-        public unsafe void TechnoClass_Init_AircraftPut()
+        public unsafe void AircraftClass_Init_AircraftPut()
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
-            if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Aircraft
-                && !pTechno.Ref.Spawned
+            if (!pTechno.Ref.Spawned
                 && null != RulesExt.Instance.PadAircraftTypes && RulesExt.Instance.PadAircraftTypes.Count > 0
                 && RulesExt.Instance.PadAircraftTypes.Contains(pTechno.Ref.Type.Ref.Base.Base.ID)
                 && null != Type.AircraftPutData)
             {
-                OnPutAction += TechnoClass_Put_AircraftPut;
-                OnUpdateAction += TechnoClass_Update_AircraftPut;
+                OnPutAction += AircraftClass_Put_AircraftPut;
+                OnUpdateAction += AircraftClass_Update_AircraftPut;
             }
         }
 
-        public unsafe void TechnoClass_Put_AircraftPut(Pointer<CoordStruct> pCoord, short faceDirValue8)
+        public unsafe void AircraftClass_Put_AircraftPut(Pointer<CoordStruct> pCoord, short faceDirValue8)
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
             // Logger.Log("检查飞机{0}, 参数{1}, 需要机场的飞机数量{2}", OwnerObject.Ref.Type.Ref.Base.Base.ID, Type.AircraftPutData, RulesExt.Instance.PadAircraftTypes.Count);
@@ -129,7 +128,7 @@ namespace Extension.Ext
             // Logger.Log("Put {0}, AircraftPut={1}, Docks={2}", pTechno.Ref.Type.Ref.Base.Base.ID, Type.AircraftPutData, pTechno.Ref.Owner.Ref.AirportDocks);
         }
 
-        public unsafe void TechnoClass_Update_AircraftPut()
+        public unsafe void AircraftClass_Update_AircraftPut()
         {
             if (aircraftPutOffset)
             {

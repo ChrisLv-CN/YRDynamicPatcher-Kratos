@@ -72,24 +72,20 @@ namespace Extension.Ext
 
     public partial class TechnoExt
     {
-        public unsafe void TechnoClass_Init_CrawlingFLH()
+        public unsafe void InfantryClass_Init_CrawlingFLH()
         {
-            if (null != Type.CrawlingFLHData && OwnerObject.Ref.Base.Base.WhatAmI() == AbstractType.Infantry)
+            if (null != Type.CrawlingFLHData && OwnerObject.Convert<InfantryClass>().Ref.Crawling)
             {
-                Pointer<InfantryClass> pInf = OwnerObject.Convert<InfantryClass>();
-                if (pInf.Ref.Crawling)
-                {
-                    OnUpdateAction += TechnoClass_Update_CrawlingFLH;
-                }
+                OnUpdateAction += InfantryClass_Update_CrawlingFLH;
             }
         }
 
-        public unsafe void TechnoClass_Update_CrawlingFLH()
+        public unsafe void InfantryClass_Update_CrawlingFLH()
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
             Pointer<WeaponStruct> primary = pTechno.Ref.GetWeapon(0);
             Pointer<WeaponStruct> secondary = pTechno.Ref.GetWeapon(1);
-            
+
             CrawlingFLHData crawlingFLHData = Type.CrawlingFLHData;
             // Logger.Log("CrawlingFLHData = {0}", crawlingFLHData);
 

@@ -25,15 +25,12 @@ namespace Extension.Ext
             if (!string.IsNullOrEmpty(animType))
             {
                 // Logger.Log($"{Game.CurrentFrame} 试图接管 落水动画 {animType}");
-                if (!"none".Equals(animType.ToLower()))
+                Pointer<AnimTypeClass> pNewType = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(animType);
+                if (!pNewType.IsNull)
                 {
-                    Pointer<AnimTypeClass> pNewType = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(animType);
-                    if (!pNewType.IsNull)
-                    {
-                        // Logger.Log($"{Game.CurrentFrame} 试图创建新的落水动画 {animType}");
-                        Pointer<AnimClass> pNewAnim = YRMemory.Create<AnimClass>(pNewType, OwnerObject.Ref.Base.Base.GetCoords());
-                        pNewAnim.Ref.Owner = OwnerObject.Ref.Owner;
-                    }
+                    // Logger.Log($"{Game.CurrentFrame} 试图创建新的落水动画 {animType}");
+                    Pointer<AnimClass> pNewAnim = YRMemory.Create<AnimClass>(pNewType, OwnerObject.Ref.Base.Base.GetCoords());
+                    pNewAnim.Ref.Owner = OwnerObject.Ref.Owner;
                 }
                 return true; // skip create anim
             }
@@ -49,7 +46,7 @@ namespace Extension.Ext
         private void ReadExpireAnimOnWater(INIReader reader, string section)
         {
             string expireAnimOnWater = null;
-            if (reader.ReadNormal(section, "ExpireAnimOnWater", ref expireAnimOnWater))
+            if (reader.ReadNormal(section, "ExpireAnimOnWater", ref expireAnimOnWater) && "none" != expireAnimOnWater.ToLower())
             {
                 ExpireAnimOnWater = expireAnimOnWater;
             }

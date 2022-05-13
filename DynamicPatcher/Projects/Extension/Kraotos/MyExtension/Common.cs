@@ -17,16 +17,32 @@ namespace Extension.Ext
 
     }
 
+    [Serializable]
+    public class PhobosTechnoExt
+    {
+        public CoordStruct TurretOffset = default;
+    }
+
     public partial class TechnoTypeExt
     {
         public AresTechnoExt Ares = new AresTechnoExt();
+        public PhobosTechnoExt Phobos = new PhobosTechnoExt();
 
-        private void ReadAresFlags(INIReader reader, string section)
+        private void ReadAresRules(INIReader reader, string section)
         {
             bool cloakable_Allowed = false;
             if (reader.ReadNormal(section, "Cloakable.Allowed", ref cloakable_Allowed))
             {
                 Ares.Cloakable_Allowed = cloakable_Allowed;
+            }
+        }
+
+        private void ReadPhobosArt(INIReader reader, string section)
+        {
+            CoordStruct turretOffset = default;
+            if (reader.ReadCoordStruct(section, "TurretOffset", ref turretOffset))
+            {
+                Phobos.TurretOffset = turretOffset;
             }
         }
 

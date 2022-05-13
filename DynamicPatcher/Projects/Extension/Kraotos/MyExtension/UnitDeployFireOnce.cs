@@ -14,15 +14,15 @@ namespace Extension.Ext
 
     public partial class TechnoExt
     {
-        public unsafe void TechnoClass_Init_UnitDeployFireOnce()
+        public unsafe void UnitClass_Init_UnitDeployFireOnce()
         {
-            if (OwnerObject.CastIf(AbstractType.Unit, out Pointer<UnitClass> pUnit) && pUnit.Ref.Type.Ref.Base.DeployFire)
+            if (OwnerObject.Ref.Type.Ref.DeployFire)
             {
-                OnFireOnceAction += TechnoClass_Fire_UnitDeployFireOnce;
+                OnFireOnceAction += UnitClass_Fire_UnitDeployFireOnce;
             }
         }
 
-        public unsafe void TechnoClass_Fire_UnitDeployFireOnce()
+        public unsafe void UnitClass_Fire_UnitDeployFireOnce()
         {
             Pointer<MissionClass> pMission = OwnerObject.Convert<MissionClass>();
             if (pMission.Ref.CurrentMission == Mission.Unload)

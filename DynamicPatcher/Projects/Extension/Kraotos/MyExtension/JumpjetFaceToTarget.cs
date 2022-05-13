@@ -62,21 +62,19 @@ namespace Extension.Ext
         // private JJFacingToTarget jjFacingToTarget;
         private JJFacingToTarget JJFacing;
 
-        public unsafe void TechnoClass_Init_JumpjetFacingToTarget()
+        public unsafe void UnitClass_Init_JumpjetFacingToTarget()
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
             if (null != Type.JJFacingData && Type.JJFacingData.Enable
-                && pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Unit
-                && pTechno.Ref.Type.Ref.JumpJet
+                && pTechno.Convert<FootClass>().Ref.Locomotor.ToLocomotionClass().Ref.GetClassID() == LocomotionClass.Jumpjet
             )
             {
                 JJFacing = new JJFacingToTarget();
-
-                OnUpdateAction += TechnoClass_Update_JumpjetFacingToTarget;
+                OnUpdateAction += UnitClass_Update_JumpjetFacingToTarget;
             }
         }
 
-        public unsafe void TechnoClass_Update_JumpjetFacingToTarget()
+        public unsafe void UnitClass_Update_JumpjetFacingToTarget()
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
             if (pTechno.Convert<AbstractClass>().Ref.IsInAir())
