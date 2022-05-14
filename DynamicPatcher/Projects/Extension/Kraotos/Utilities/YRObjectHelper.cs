@@ -239,6 +239,24 @@ namespace Extension.Utilities
         }
 
 
+        public static int GetRealDamage(this Pointer<TechnoClass> pTechno, int damage, Pointer<WarheadTypeClass> pWH, bool ignoreArmor = true, int distance = 0)
+        {
+            int realDamage = damage;
+            if (!ignoreArmor)
+            {
+                // 计算实际伤害
+                if (realDamage > 0)
+                {
+                    realDamage = MapClass.GetTotalDamage(damage, pWH, pTechno.Ref.Base.Type.Ref.Armor, distance);
+                }
+                else
+                {
+                    realDamage = -MapClass.GetTotalDamage(-damage, pWH, pTechno.Ref.Base.Type.Ref.Armor, distance);
+                }
+            }
+            return realDamage;
+        }
+
 
     }
 

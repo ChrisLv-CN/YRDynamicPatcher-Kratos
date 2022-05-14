@@ -47,12 +47,16 @@ namespace Extension.Ext
         public bool Decloak;
         public bool IgnoreArmor;
 
+        public bool Peaceful;
+
         public DamageSelfType()
         {
             Damage = 0;
             ROF = 0;
             Warhead = null;
             IgnoreArmor = true;
+
+            Peaceful = false;
 
             AffectWho = AffectWho.MASTER;
         }
@@ -98,6 +102,12 @@ namespace Extension.Ext
                 if (reader.ReadNormal(section, "DamageSelf.IgnoreArmor", ref ignoreArmor))
                 {
                     this.IgnoreArmor = ignoreArmor;
+                }
+
+                bool peaceful = true;
+                if (reader.ReadNormal(section, "DamageSelf.Peaceful", ref peaceful))
+                {
+                    this.Peaceful = peaceful;
                 }
             }
 

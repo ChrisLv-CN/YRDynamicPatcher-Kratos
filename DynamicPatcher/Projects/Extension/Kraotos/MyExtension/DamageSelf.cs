@@ -38,7 +38,25 @@ namespace Extension.Ext
                 {
                     DamageSelfType data = DamageSelfState.Data;
                     int realDamage = data.Damage;
-                    if (data.Damage < 0 || pTechno.Ref.CloakStates == CloakStates.UnCloaked || data.Decloak)
+
+                    if (data.Peaceful)
+                    {
+                        // 静默击杀，需要计算实际伤害
+
+                        // 计算实际伤害
+                        realDamage = pTechno.GetRealDamage(realDamage, DamageSelfState.pWH, data.IgnoreArmor);
+
+                        if (realDamage >= pTechno.Ref.Base.Health)
+                        {
+                            // Logger.Log($"{Game.CurrentFrame} {pTechno}[{pTechno.Ref.Type.Ref.Base.Base.ID}] 收到自伤 {realDamage} 而死，设置了平静的移除");
+                            // 本次伤害足够打死目标，移除单位
+                            pTechno.Ref.Base.Remove();
+                            pTechno.Ref.Base.UnInit();
+                            return;
+                        }
+                    }
+
+                    if (realDamage < 0 || pTechno.Ref.CloakStates == CloakStates.UnCloaked || data.Decloak)
                     {
                         // 维修或者显形直接炸
                         pTechno.Ref.Base.ReceiveDamage(data.Damage, 0, DamageSelfState.pWH, IntPtr.Zero, data.IgnoreArmor, pTechno.Ref.Type.Ref.Crewed, pTechno.Ref.Owner);
@@ -46,11 +64,12 @@ namespace Extension.Ext
                     else
                     {
                         // 不显形不能使用ReceiveDamage，改成直接扣血
-                        if (!data.IgnoreArmor)
+                        if (!data.Peaceful)
                         {
-                            // 计算实际伤害
-                            realDamage = MapClass.GetTotalDamage(data.Damage, DamageSelfState.pWH, OwnerObject.Ref.Base.Type.Ref.Armor, 0);
+                            // 非静默击杀，实际伤害未计算过
+                            realDamage = pTechno.GetRealDamage(realDamage, DamageSelfState.pWH, data.IgnoreArmor);
                         }
+
                         // 扣血
                         if (realDamage >= pTechno.Ref.Base.Health)
                         {
@@ -63,6 +82,7 @@ namespace Extension.Ext
                             pTechno.Ref.Base.Health -= realDamage;
                         }
                     }
+
                     // 播放弹头动画
                     if (data.WarheadAnim)
                     {
@@ -78,9 +98,28 @@ namespace Extension.Ext
                             pWHAnim.Ref.Owner = pTechno.Ref.Owner;
                         }
                     }
+
                     DamageSelfState.Reset();
                 }
             }
+        }
+
+        private int GetRealDamage(int damage, bool ignoreArmor, Pointer<WarheadTypeClass> pWH)
+        {
+            int realDamage = damage;
+            if (!ignoreArmor)
+            {
+                // 计算实际伤害
+                if (realDamage > 0)
+                {
+                    realDamage = MapClass.GetTotalDamage(damage, pWH, OwnerObject.Ref.Base.Type.Ref.Armor, 0);
+                }
+                else
+                {
+                    realDamage = -MapClass.GetTotalDamage(-damage, pWH, OwnerObject.Ref.Base.Type.Ref.Armor, 0);
+                }
+            }
+            return realDamage;
         }
 
 
