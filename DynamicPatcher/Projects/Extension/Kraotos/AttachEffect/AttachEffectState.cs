@@ -20,6 +20,8 @@ namespace Extension.Ext
         public PaintballState PaintballState = new PaintballState();
 
         // 可分离替身与JOJO
+        // 自伤
+        public DamageSelfState DamageSelfState = new DamageSelfState();
         // 自毁
         public DestroySelfState DestroySelfState = new DestroySelfState();
         // 礼盒
@@ -45,7 +47,12 @@ namespace Extension.Ext
                     if (null != ext)
                     {
                         // Logger.Log($"{Game.CurrentFrame} - 同步开启AE {ae.Name} 的替身状态 {data.GetType().Name} token {token}");
-                        if (data is DestroySelfType)
+                        if (data is DamageSelfType)
+                        {
+                            // 自伤
+                            ext.AttachEffectManager.DamageSelfState.Enable(duration, token, data);
+                        }
+                        else if (data is DestroySelfType)
                         {
                             // 自毁
                             ext.AttachEffectManager.DestroySelfState.Enable(duration, token, data);

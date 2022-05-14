@@ -117,8 +117,8 @@ namespace Extension.Ext
 
         public unsafe void OnUpdate()
         {
-
             TechnoClass_Update_DestroySelf();
+            TechnoClass_Update_DamageSelf();
             // 检查死亡
             if (!IsDead)
             {
@@ -203,6 +203,7 @@ namespace Extension.Ext
 
             // TechnoClass_Put_AircraftPut(pCoord, faceDirValue8);
             TechnoClass_Put_AttachEffect(pCoord, faceDirValue8);
+            TechnoClass_Put_DamageSelf(pCoord, faceDirValue8);
             TechnoClass_Put_DestroySelf(pCoord, faceDirValue8);
             // TechnoClass_Put_SpawnMissileHoming(pCoord, faceDirValue8);
             // TechnoClass_Put_Trail(pCoord, faceDirValue8);
@@ -482,6 +483,7 @@ namespace Extension.Ext
             ReadAttachEffect(reader, section);
             ReadAttackBeacon(reader, section);
             ReadAutoFireAreaWeapon(reader, section);
+            ReadDamageSelf(reader, section);
             ReadDecoyMissile(reader, section);
             ReadDeployToTransform(reader, section);
             ReadDeselect(reader, section);

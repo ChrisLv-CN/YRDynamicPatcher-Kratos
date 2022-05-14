@@ -262,12 +262,12 @@ namespace Extension.Ext
     [Serializable]
     public class BulletLifeStatus
     {
-        public bool Interceptable;
+        public bool Interceptable; // 可被伤害
 
-        public int Health;
-        public bool IsDetonate;
-        public bool IsHarmless;
-        public bool SkipAE;
+        public int Health; // 血量
+        public bool IsDetonate; // 已损毁
+        public bool IsHarmless; // 和平处置
+        public bool SkipAE; // 爆炸不赋予AE
 
 
         public BulletLifeStatus(int health, bool interceptable = false)
@@ -310,9 +310,9 @@ namespace Extension.Ext
     [Serializable]
     public class BulletDamageStatus
     {
-        public int Damage;
-        public bool Eliminate;
-        public bool Harmless;
+        public int Damage; // 伤害
+        public bool Eliminate; // 一击必杀
+        public bool Harmless; // 和平处置
 
         public BulletDamageStatus(int damage)
         {
