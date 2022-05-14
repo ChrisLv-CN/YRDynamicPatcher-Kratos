@@ -423,6 +423,7 @@ namespace Extension.Ext
             pStand.Ref.Shipsink_3CA = pMaster.Ref.Shipsink_3CA;
             pStand.Ref.Base.InLimbo = pMaster.Ref.Base.InLimbo;
             pStand.Ref.Base.OnBridge = pMaster.Ref.Base.OnBridge;
+            pStand.Ref.Cloakable = pMaster.Ref.Cloakable;
             pStand.Ref.CloakStates = pMaster.Ref.CloakStates;
             pStand.Ref.BeingWarpedOut = pMaster.Ref.BeingWarpedOut; // 超时空冻结
             pStand.Ref.Deactivated = pMaster.Ref.Deactivated; // 遥控坦克
@@ -430,7 +431,7 @@ namespace Extension.Ext
             pStand.Ref.IronCurtainTimer = pMaster.Ref.IronCurtainTimer;
             pStand.Ref.IdleActionTimer = pMaster.Ref.IdleActionTimer;
             pStand.Ref.IronTintTimer = pMaster.Ref.IronTintTimer;
-            pStand.Ref.CloakDelayTimer = pMaster.Ref.CloakDelayTimer;
+            // pStand.Ref.CloakDelayTimer = pMaster.Ref.CloakDelayTimer; // 反复进入隐形
 
             pStand.Ref.Berzerk = pMaster.Ref.Berzerk;
             pStand.Ref.EMPLockRemaining = pMaster.Ref.EMPLockRemaining;
