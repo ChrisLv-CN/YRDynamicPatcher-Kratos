@@ -53,6 +53,7 @@ If you like this project and want to fund it, here's how you can do it.
 * PayPal - 12737@live.com
 * 支付宝 - [Alipay](https://github.com/ChrisLv-CN/YRDynamicPatcher-Kratos/blob/main/Images/alipay.jpg)
 * 微信 - [Wechat](https://github.com/ChrisLv-CN/YRDynamicPatcher-Kratos/blob/main/Images/wechat.jpg)
+* 爱发电 - [Afdian](https://afdian.net/@chrislv)
 
 
 
