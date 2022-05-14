@@ -61,17 +61,17 @@ namespace Extension.Ext
             AbstractType absType = OwnerObject.Ref.Base.Base.WhatAmI();
             switch (absType)
             {
-                case AbstractType.BuildingType:
+                case AbstractType.Building:
                     IsBuilding = true;
                     break;
-                case AbstractType.InfantryType:
+                case AbstractType.Infantry:
                     InfantryClass_Init_CrawlingFLH();
                     break;
-                case AbstractType.UnitType:
+                case AbstractType.Unit:
                     UnitClass_Init_JumpjetFacingToTarget();
                     UnitClass_Init_UnitDeployFireOnce();
                     break;
-                case AbstractType.AircraftType:
+                case AbstractType.Aircraft:
                     AircraftClass_Init_AircraftDive();
                     AircraftClass_Init_AircraftPut();
                     AircraftClass_Init_Fighter_Area_Guard();
@@ -267,14 +267,8 @@ namespace Extension.Ext
         public unsafe bool DamageMe(int damage, int distanceFromEpicenter, WarheadTypeExt warheadTypeExt, out int realDamage, bool effectsRequireDamage = false)
         {
             // 计算实际伤害
-            if (damage > 0)
-            {
-                realDamage = MapClass.GetTotalDamage(damage, warheadTypeExt.OwnerObject, OwnerObject.Ref.Base.Type.Ref.Armor, distanceFromEpicenter);
-            }
-            else
-            {
-                realDamage = -MapClass.GetTotalDamage(-damage, warheadTypeExt.OwnerObject, OwnerObject.Ref.Base.Type.Ref.Armor, distanceFromEpicenter);
-            }
+            realDamage = OwnerObject.GetRealDamage(damage, warheadTypeExt.OwnerObject, false, distanceFromEpicenter);
+
             if (null != warheadTypeExt)
             {
                 if (damage == 0)
