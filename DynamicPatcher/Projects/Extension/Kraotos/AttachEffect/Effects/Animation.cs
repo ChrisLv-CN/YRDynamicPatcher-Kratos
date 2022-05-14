@@ -33,6 +33,7 @@ namespace Extension.Ext
         private SwizzleablePointer<AnimClass> pAnim;
 
         private bool OnwerIsDead;
+        private bool OnwerIsCloakable;
 
         public Animation()
         {
@@ -60,21 +61,20 @@ namespace Extension.Ext
 
         private void CreateAnim(Pointer<ObjectClass> pObject)
         {
-            // Logger.Log("播放持续动画{0}", Type.IdleAnim);
             if (!pAnim.IsNull)
             {
-                // Logger.Log("创建动画{0}时动画已存在，清除再创建{0}", Type.IdleAnim);
+                // Logger.Log($"{Game.CurrentFrame} AE[{AEType.Name}]持续动画[{Type.IdleAnim}]已存在，清除再重新创建");
                 KillAnim();
             }
             // 创建动画
             if (!pObject.IsNull && pAnim.IsNull)
             {
-                // Logger.Log("创建持续动画{0}", Type.IdleAnim);
+                // Logger.Log($"{Game.CurrentFrame} AE[{AEType.Name}]创建持续动画[{Type.IdleAnim}]");
                 Pointer<AnimTypeClass> pAnimType = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(Type.IdleAnim);
                 if (!pAnimType.IsNull)
                 {
                     Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, pObject.Ref.Base.GetCoords());
-                    // Logger.Log(" - 成功创建动画{0}实例", Type.IdleAnim);
+                    // Logger.Log($"{Game.CurrentFrame} AE[{AEType.Name}]成功创建持续动画[{Type.IdleAnim}], 指针 {pAnim}");
                     pAnim.Ref.SetOwnerObject(pObject);
                     // Logger.Log(" - 将动画{0}赋予对象", Type.IdleAnim);
                     pAnim.Ref.Loops = 0xFF;
@@ -88,9 +88,9 @@ namespace Extension.Ext
 
         public override void Disable(CoordStruct location)
         {
-            // Logger.Log("效果结束，移除持续动画{0}", Type.IdleAnim);
+            // Logger.Log($"{Game.CurrentFrame} AE[{AEType.Name}]效果结束，移除持续动画[{Type.IdleAnim}]");
             KillAnim();
-            // Logger.Log("播放结束动画{0}", Type.DoneAnim);
+            // Logger.Log($"{Game.CurrentFrame} AE[{AEType.Name}]效果结束，播放结束动画[{Type.DoneAnim}]");
             // 结束动画
             if (!string.IsNullOrEmpty(Type.DoneAnim))
             {
@@ -127,6 +127,28 @@ namespace Extension.Ext
         public override void OnUpdate(Pointer<ObjectClass> pOwner, bool isDead)
         {
             this.OnwerIsDead = isDead;
+            if (!isDead && pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
+            {
+                // Logger.Log($"{Game.CurrentFrame} AE[{AEType.Name}]附着单位 {pOwner} [{pOwner.Ref.Type.Ref.Base.ID}] 隐形 = {pTechno.Ref.Cloakable}，隐形状态 {pTechno.Ref.CloakStates}");
+
+                if (pTechno.Ref.Cloakable)
+                {
+                    // Logger.Log($"{Game.CurrentFrame} AE[{AEType.Name}]附着单位 {pOwner} [{pOwner.Ref.Type.Ref.Base.ID}] 进入隐形状态，附着动画 {pAnim.Pointer} [{Type.IdleAnim}] 被移除。");
+                    // 附着单位进入隐形，附着的动画就会被游戏注销
+                    OnwerIsCloakable = true;
+                    pAnim.Pointer = IntPtr.Zero;
+                }
+                else if (OnwerIsCloakable)
+                {
+                    if (pTechno.Ref.CloakStates == CloakStates.UnCloaked)
+                    {
+                        // Logger.Log($"{Game.CurrentFrame} AE[{AEType.Name}]附着单位 {pOwner} [{pOwner.Ref.Type.Ref.Base.ID}] 进入显形状态，重新创建附着动画[{Type.IdleAnim}]。");
+                        OnwerIsCloakable = false;
+                        // 从隐形中显现，新建动画
+                        CreateAnim(pOwner);
+                    }
+                }
+            }
         }
 
         public override void OnRemove(Pointer<ObjectClass> pObject)
