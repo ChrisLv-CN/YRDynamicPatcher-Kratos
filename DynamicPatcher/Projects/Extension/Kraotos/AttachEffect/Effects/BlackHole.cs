@@ -54,7 +54,7 @@ namespace Extension.Ext
             return this.Active;
         }
 
-        public override void OnUpdate(Pointer<ObjectClass> pOwner, bool isDead)
+        public override void OnUpdate(Pointer<ObjectClass> pOwner, CoordStruct location, bool isDead)
         {
             if (!Active)
             {
@@ -67,7 +67,7 @@ namespace Extension.Ext
             }
 
             Pointer<HouseClass> pReceiverHouse = IntPtr.Zero; // 附着的对象的所属
-            CoordStruct sourcePos = pOwner.Ref.Base.GetCoords();
+            CoordStruct sourcePos = location;
             int range = Type.Range;
             int rate = Type.Rate;
 

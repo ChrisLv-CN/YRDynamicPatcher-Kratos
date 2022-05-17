@@ -49,6 +49,11 @@ namespace Extension.Ext
             this.Peaceful = false;
         }
 
+        public override string ToString()
+        {
+            return string.Format("{{\"Enable\": {0}, \"Delay\": {1}, \"Peaceful\": {2}}}", Enable, Delay, Peaceful);
+        }
+
         public override bool TryReadType(INIReader reader, string section)
         {
 

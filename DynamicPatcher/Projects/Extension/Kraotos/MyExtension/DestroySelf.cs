@@ -31,6 +31,7 @@ namespace Extension.Ext
 
             if (DestroySelfState.AmIDead())
             {
+                // Logger.Log($"{Game.CurrentFrame} - {pTechno}[{pTechno.Ref.Type.Ref.Base.Base.ID}] 自毁 {DestroySelfState.Data}");
                 if (DestroySelfState.Data.Peaceful)
                 {
                     pTechno.Ref.Base.Remove();
@@ -38,6 +39,7 @@ namespace Extension.Ext
                 }
                 else
                 {
+                    SkipDamageText = true;
                     pTechno.Ref.Base.TakeDamage(pTechno.Ref.Base.Health + 1, pTechno.Ref.Type.Ref.Crewed);
                     // pTechno.Ref.Base.Destroy();
                 }

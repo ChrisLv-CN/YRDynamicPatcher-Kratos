@@ -115,7 +115,7 @@ namespace Extension.Utilities
             int damage = (int)(pWeapon.Ref.Damage * fireMult);
             Pointer<WarheadTypeClass> pWH = pWeapon.Ref.Warhead;
             int speed = pWeapon.Ref.Speed;
-            bool bright = pWeapon.Ref.Bright || pWH.Ref.Bright;
+            bool bright = pWeapon.Ref.Bright; // 原游戏中弹头上的bright是无效的
 
             Pointer<BulletClass> pBullet = IntPtr.Zero;
             // 自己不能发射武器朝向自己

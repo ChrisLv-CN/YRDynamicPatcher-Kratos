@@ -380,8 +380,8 @@ namespace Extension.Ext
                         if (null != ae.Stand && ae.Stand.IsAlive())
                         {
                             StandHelper.UpdateStandLocation(this, pOwner, ae.Stand, ref markIndex); // 调整位置
-                            ae.Stand.OnRender2(pOwner); // 调整倾斜
                         }
+                        ae.OnRender2(pOwner, location);
                     }
                 }
             }
@@ -403,13 +403,13 @@ namespace Extension.Ext
                 AttachEffect ae = AttachEffects[i];
                 if (ae.IsActive())
                 {
-                    // Logger.Log($"{Game.CurrentFrame} - {pOwner} [{pOwner.Ref.Type.Ref.Base.ID}] {ae.Type.Name} 执行更新");
-                    ae.OnUpdate(pOwner, isDead);
-                    // 如果是替身，额外执行替身的定位操作
                     if (!renderFlag && null != ae.Stand && ae.Stand.IsAlive())
                     {
+                        // 替身不需要渲染时，在update中调整替身的位置
                         StandHelper.UpdateStandLocation(this, pOwner, ae.Stand, ref markIndex);
                     }
+                    // Logger.Log($"{Game.CurrentFrame} - {pOwner} [{pOwner.Ref.Type.Ref.Base.ID}] {ae.Type.Name} 执行更新");
+                    ae.OnUpdate(pOwner, location, isDead);
                 }
                 else
                 {

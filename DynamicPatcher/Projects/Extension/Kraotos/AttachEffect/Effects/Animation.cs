@@ -31,6 +31,7 @@ namespace Extension.Ext
     public class Animation : Effect<AnimationType>
     {
         private SwizzleablePointer<AnimClass> pAnim;
+        private BlitterFlags animFlags;
 
         private bool OnwerIsDead;
         private bool OnwerIsCloakable;
@@ -66,23 +67,26 @@ namespace Extension.Ext
                 // Logger.Log($"{Game.CurrentFrame} AE[{AEType.Name}]持续动画[{Type.IdleAnim}]已存在，清除再重新创建");
                 KillAnim();
             }
-            // 创建动画
-            if (!pObject.IsNull && pAnim.IsNull)
+            if (string.IsNullOrEmpty(Type.IdleAnim) || pObject.IsInvisible() || (Type.RemoveInCloak && OnwerIsCloakable))
             {
-                // Logger.Log($"{Game.CurrentFrame} AE[{AEType.Name}]创建持续动画[{Type.IdleAnim}]");
-                Pointer<AnimTypeClass> pAnimType = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(Type.IdleAnim);
-                if (!pAnimType.IsNull)
-                {
-                    Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, pObject.Ref.Base.GetCoords());
-                    // Logger.Log($"{Game.CurrentFrame} AE[{AEType.Name}]成功创建持续动画[{Type.IdleAnim}], 指针 {pAnim}");
-                    pAnim.Ref.SetOwnerObject(pObject);
-                    // Logger.Log(" - 将动画{0}赋予对象", Type.IdleAnim);
-                    pAnim.Ref.Loops = 0xFF;
-                    // Logger.Log(" - 设置动画{0}的剩余迭代次数为{1}", Type.IdleAnim, 0xFF);
-                    pAnim.SetAnimOwner(pObject);
-                    this.pAnim.Pointer = pAnim;
-                    // Logger.Log(" - 缓存动画{0}的实例对象指针", Type.IdleAnim);
-                }
+                return;
+            }
+            // 创建动画
+            // Logger.Log($"{Game.CurrentFrame} AE[{AEType.Name}]创建持续动画[{Type.IdleAnim}]");
+            Pointer<AnimTypeClass> pAnimType = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(Type.IdleAnim);
+            if (!pAnimType.IsNull)
+            {
+                Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, pObject.Ref.Base.GetCoords());
+                // Logger.Log($"{Game.CurrentFrame} AE[{AEType.Name}]成功创建持续动画[{Type.IdleAnim}], 指针 {pAnim}");
+                // pAnim.Ref.SetOwnerObject(pObject); // 当单位隐形时，附着在单位上的动画会被游戏注销
+                // Logger.Log(" - 将动画{0}赋予对象", Type.IdleAnim);
+                pAnim.Ref.Loops = 0xFF;
+                // Logger.Log(" - 设置动画{0}的剩余迭代次数为{1}", Type.IdleAnim, 0xFF);
+                pAnim.SetAnimOwner(pObject);
+                pAnim.Show(Type.Visibility);
+                this.pAnim.Pointer = pAnim;
+                this.animFlags = pAnim.Ref.AnimFlags;
+                // Logger.Log(" - 缓存动画{0}的实例对象指针", Type.IdleAnim);
             }
         }
 
@@ -107,11 +111,9 @@ namespace Extension.Ext
         {
             if (!pAnim.IsNull)
             {
-                if (!OnwerIsDead)
-                {
-                    pAnim.Ref.TimeToDie = true;
-                    pAnim.Ref.Base.UnInit(); // 包含了SetOwnerObject(0) 0x4255B0
-                }
+                // 不将动画附着于单位上，动画就不会自行注销，需要手动注销
+                pAnim.Ref.TimeToDie = true;
+                pAnim.Ref.Base.UnInit(); // 包含了SetOwnerObject(0) 0x4255B0
                 // Logger.Log("{0} - 已销毁动画{1}实例", Game.CurrentFrame, Type.IdleAnim);
                 pAnim.Pointer = IntPtr.Zero;
                 // Logger.Log("{0} - 成功移除持续动画{1}", Game.CurrentFrame, Type.IdleAnim);
@@ -124,31 +126,69 @@ namespace Extension.Ext
             CreateAnim(pObject);
         }
 
-        public override void OnUpdate(Pointer<ObjectClass> pOwner, bool isDead)
+        public override void OnRender2(Pointer<ObjectClass> pOwner, CoordStruct location)
+        {
+            // Logger.Log($"{Game.CurrentFrame} AE[{AEType.Name}]持续动画 {pAnim.Pointer}[{Type.IdleAnim}], 透明度 {pAnim.Ref.UnderTemporal}, 类型透明度 {pAnim.Ref.Type.Ref.Translucency}");
+            UpdateLocation(location);
+        }
+
+        public override void OnUpdate(Pointer<ObjectClass> pOwner, CoordStruct location, bool isDead)
         {
             this.OnwerIsDead = isDead;
             if (!isDead && pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
             {
                 // Logger.Log($"{Game.CurrentFrame} AE[{AEType.Name}]附着单位 {pOwner} [{pOwner.Ref.Type.Ref.Base.ID}] 隐形 = {pTechno.Ref.Cloakable}，隐形状态 {pTechno.Ref.CloakStates}");
-
-                if (pTechno.Ref.Cloakable)
+                switch (pTechno.Ref.CloakStates)
                 {
-                    // Logger.Log($"{Game.CurrentFrame} AE[{AEType.Name}]附着单位 {pOwner} [{pOwner.Ref.Type.Ref.Base.ID}] 进入隐形状态，附着动画 {pAnim.Pointer} [{Type.IdleAnim}] 被移除。");
-                    // 附着单位进入隐形，附着的动画就会被游戏注销
-                    OnwerIsCloakable = true;
-                    pAnim.Pointer = IntPtr.Zero;
-                }
-                else if (OnwerIsCloakable)
-                {
-                    if (pTechno.Ref.CloakStates == CloakStates.UnCloaked)
-                    {
-                        // Logger.Log($"{Game.CurrentFrame} AE[{AEType.Name}]附着单位 {pOwner} [{pOwner.Ref.Type.Ref.Base.ID}] 进入显形状态，重新创建附着动画[{Type.IdleAnim}]。");
-                        OnwerIsCloakable = false;
-                        // 从隐形中显现，新建动画
-                        CreateAnim(pOwner);
-                    }
+                    case CloakStates.UnCloaked:
+                        // 显形状态
+                        if (OnwerIsCloakable)
+                        {
+                            OnwerIsCloakable = false;
+                            if (Type.RemoveInCloak)
+                            {
+                                CreateAnim(pOwner);
+                            }
+                            else if (Type.TranslucentInCloak)
+                            {
+                                // 恢复不透明
+                                pAnim.Ref.AnimFlags = animFlags;
+                            }
+                        }
+                        break;
+                    default:
+                        // 进入隐形或处于正在隐\显形
+                        if (!OnwerIsCloakable)
+                        {
+                            OnwerIsCloakable = true;
+                            if (Type.RemoveInCloak)
+                            {
+                                KillAnim();
+                            }
+                            else if (Type.TranslucentInCloak)
+                            {
+                                // 半透明
+                                pAnim.Ref.AnimFlags |= BlitterFlags.TransLucent50;
+                            }
+                        }
+                        break;
                 }
             }
+            UpdateLocation(location);
+        }
+
+        private void UpdateLocation(CoordStruct location)
+        {
+            if (!pAnim.IsNull)
+            {
+                // 没有附着在单位上，需要手动同步动画的位置
+                pAnim.Ref.Base.SetLocation(location);
+            }
+        }
+
+        public override void OnTemporalUpdate(TechnoExt ext, Pointer<TemporalClass> pTemporal)
+        {
+            
         }
 
         public override void OnRemove(Pointer<ObjectClass> pObject)

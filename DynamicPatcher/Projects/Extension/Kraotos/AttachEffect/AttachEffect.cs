@@ -43,8 +43,12 @@ namespace Extension.Ext
         private event System.Action<CoordStruct> DisableAction;
         // 重置计时器
         private event System.Action ResetDurationAction;
+
+        // 渲染
+        private event System.Action<Pointer<ObjectClass>, CoordStruct> OnRenderAction;
+        private event System.Action<Pointer<ObjectClass>, CoordStruct> OnRender2Action;
         // 更新
-        private event System.Action<Pointer<ObjectClass>, bool> OnUpdateAction;
+        private event System.Action<Pointer<ObjectClass>, CoordStruct, bool> OnUpdateAction;
         // 被超时空冻结更新
         private event System.Action<TechnoExt, Pointer<TemporalClass>> OnTemporalUpdateAction;
         // 挂载AE的单位出现在地图上
@@ -130,6 +134,10 @@ namespace Extension.Ext
             this.DisableAction += behaviour.Disable;
             // 重置计时器
             this.ResetDurationAction += behaviour.ResetDuration;
+
+            // 渲染
+            this.OnRenderAction += behaviour.OnRender;
+            this.OnRender2Action += behaviour.OnRender2;
             // 更新
             this.OnUpdateAction += behaviour.OnUpdate;
             // 被超时空冻结更新
@@ -302,7 +310,25 @@ namespace Extension.Ext
             ResetDurationAction?.Invoke();
         }
 
-        public void OnUpdate(Pointer<ObjectClass> pObject, bool isDead)
+        public void OnRender(Pointer<ObjectClass> pOwner, CoordStruct location)
+        {
+            if (delayToEnable)
+            {
+                return;
+            }
+            OnRenderAction?.Invoke(pOwner, location);
+        }
+
+        public void OnRender2(Pointer<ObjectClass> pOwner, CoordStruct location)
+        {
+            if (delayToEnable)
+            {
+                return;
+            }
+            OnRender2Action?.Invoke(pOwner, location);
+        }
+
+        public void OnUpdate(Pointer<ObjectClass> pObject, CoordStruct location, bool isDead)
         {
             if (delayToEnable)
             {
@@ -312,7 +338,7 @@ namespace Extension.Ext
                 }
                 EnableEffects(pObject, pHouse, pAttacker);
             }
-            OnUpdateAction?.Invoke(pObject, isDead);
+            OnUpdateAction?.Invoke(pObject, location, isDead);
         }
 
         public void OnTemporalUpdate(TechnoExt ext, Pointer<TemporalClass> pTemporal)

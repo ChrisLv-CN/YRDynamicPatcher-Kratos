@@ -59,8 +59,9 @@ namespace Extension.Ext
                             {
                                 // Logger.Log($"{Game.CurrentFrame} - 动画 {pAnim} [{pAnimType.Ref.Base.Base.ID}] 用武器播放伤害 TypeDamage = {damage}, AnimDamage = {pAnim.Ref.Damage}, Weapon = {weaponType}");
                                 pWH = pWeapon.Ref.Warhead;
+                                bool isBright = bright || pWeapon.Ref.Bright; // 原游戏中弹头上的bright是无效的
                                 Pointer<BulletTypeClass> pBulletType = pWeapon.Ref.Projectile;
-                                Pointer<BulletClass> pBullet = pBulletType.Ref.CreateBullet(IntPtr.Zero, IntPtr.Zero, damage, pWH, pWeapon.Ref.Speed, bright);
+                                Pointer<BulletClass> pBullet = pBulletType.Ref.CreateBullet(IntPtr.Zero, IntPtr.Zero, damage, pWH, pWeapon.Ref.Speed, isBright);
                                 pBullet.Ref.WeaponType = pWeapon;
                                 BulletExt ext = BulletExt.ExtMap.Find(pBullet);
                                 ext.pSourceHouse = pAnim.Ref.Owner;

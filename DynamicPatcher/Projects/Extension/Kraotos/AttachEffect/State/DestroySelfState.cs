@@ -26,6 +26,13 @@ namespace Extension.Ext
         private int timeLeft;
         private TimerStruct CountdownTimer;
 
+        public void DestroyNow(bool peaceful)
+        {
+            DestroySelfType data = new DestroySelfType();
+            data.Peaceful = peaceful;
+            Enable(data);
+        }
+
         public override void OnEnable()
         {
             Reset();

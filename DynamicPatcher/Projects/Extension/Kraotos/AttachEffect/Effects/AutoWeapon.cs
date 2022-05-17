@@ -60,7 +60,7 @@ namespace Extension.Ext
             return this.Active;
         }
 
-        public override void OnUpdate(Pointer<ObjectClass> pObject, bool isDead)
+        public override void OnUpdate(Pointer<ObjectClass> pObject, CoordStruct location, bool isDead)
         {
             if (!Active)
             {

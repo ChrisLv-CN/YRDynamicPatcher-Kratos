@@ -274,6 +274,8 @@ namespace Extension.Ext
     public partial class TechnoExt
     {
 
+        public bool SkipDamageText = false;
+
         Dictionary<DamageTextData, DamageTextCache> DamageCache = new Dictionary<DamageTextData, DamageTextCache>();
         Dictionary<DamageTextData, DamageTextCache> RepairCache = new Dictionary<DamageTextData, DamageTextCache>();
 
@@ -307,9 +309,13 @@ namespace Extension.Ext
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
             WarheadTypeExt whExt = WarheadTypeExt.ExtMap.Find(pWH);
-            if (pTechno.IsInvisible() || pTechno.IsCloaked() || null == whExt || whExt.DamageTextHidden || whExt.DamageTextTypeData.Hidden)
+            if (SkipDamageText || pTechno.IsInvisible() || pTechno.IsCloaked() || null == whExt || whExt.DamageTextHidden || whExt.DamageTextTypeData.Hidden)
             {
                 return;
+            }
+            else
+            {
+                SkipDamageText = false;
             }
             string text = null;
             DamageTextData data = null;

@@ -25,6 +25,7 @@ namespace Extension.Ext
         {
             AnimClass_Update_Damage();
             AnimClass_Update_SuperWeapon();
+            AnimClass_Update_Visibility();
         }
 
         public unsafe void OnLoop()
@@ -99,9 +100,10 @@ namespace Extension.Ext
 
             ReadAresFlags(reader, section);
 
+            ReadAnimDamage(reader, section);
             ReadExpireAnimOnWater(reader, section);
             ReadFireSuperWeapon(reader, section);
-            ReadAnimDamage(reader, section);
+            ReadVisibility(reader, section);
         }
 
         [LoadAction]

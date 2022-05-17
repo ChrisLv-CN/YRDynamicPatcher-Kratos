@@ -131,12 +131,13 @@ namespace Extension.Ext
 
         public unsafe void TechnoClass_Destroy_AttachEffect()
         {
-            // Logger.Log("Techno {0} Destroy.", OwnerObject.IsNull ? "null" : OwnerObject.Ref.Type.Ref.Base.Base.ID);
+            // Logger.Log($"{Game.CurrentFrame} 单位 {OwnerObject}[{OwnerObject.Ref.Type.Ref.Base.Base.ID}] 爆炸");
             AttachEffectManager.DestroyAll(OwnerObject.Convert<ObjectClass>());
         }
 
         public unsafe void TechnoClass_UnInit_AttachEffect()
         {
+            // Logger.Log($"{Game.CurrentFrame} 单位 {OwnerObject} 注销, Type = {OwnerObject.Ref.Type}");
             AttachEffectManager.UnInitAll(lastLocation);
         }
 
@@ -289,12 +290,14 @@ namespace Extension.Ext
 
         public unsafe void BulletClass_Detonate_AttachEffect(CoordStruct location)
         {
+            // Logger.Log($"{Game.CurrentFrame} 抛射体 {OwnerObject}[{OwnerObject.Ref.Type.Ref.Base.Base.ID}] 爆炸");
             // 抛射体爆炸，销毁所有AE
             AttachEffectManager.DestroyAll(OwnerObject.Convert<ObjectClass>());
         }
 
         public unsafe void BulletClass_UnInit_AttachEffect()
         {
+            // Logger.Log($"{Game.CurrentFrame} 抛射体 {OwnerObject}[{OwnerObject.Ref.Type.Ref.Base.Base.ID}] 注销");
             AttachEffectManager.UnInitAll(OwnerObject.Ref.Base.Location);
             if (!FakeTarget.IsNull)
             {

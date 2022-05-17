@@ -141,9 +141,7 @@ namespace Extension.Ext
                         // 强扭朝向
                         ForceSetFacing(locationMark.Direction);
                     }
-
-
-                    // Logger.Log("{0} - 创建替身[{1}]{2}", Game.CurrentFrame, Type.Type, pStand.Pointer);
+                    // Logger.Log($"{Game.CurrentFrame} - 创建替身 {pStand.Pointer}[{Type.Type}], JOJO {pObject}[{pObject.Ref.Type.Ref.Base.ID}]");
                 }
             }
 
@@ -187,7 +185,7 @@ namespace Extension.Ext
         // 销毁
         public override void Disable(CoordStruct location)
         {
-            // Logger.Log($"{Game.CurrentFrame} {AEType.Name} 替身 {Type.Type} 销毁");
+            // Logger.Log($"{Game.CurrentFrame} - {AEType.Name} 替身 {Type.Type} 销毁");
             if (pStand.IsNull)
             {
                 return;
@@ -198,26 +196,36 @@ namespace Extension.Ext
         private void ExplodesOrDisappear(bool remove)
         {
             // Logger.Log($"{Game.CurrentFrame} {AEType.Name} 替身 {Type.Type} 注销");
-            if (Type.Explodes || notBeHuman)
+            bool explodes = Type.Explodes || notBeHuman;
+            TechnoExt ext = TechnoExt.ExtMap.Find(pStand);
+            if (null != ext)
             {
-                // Logger.Log($"{Game.CurrentFrame} {AEType.Name} 替身 {Type.Type} 自爆");
-                pStand.Ref.Base.TakeDamage(pStand.Ref.Base.Health + 1, pStand.Ref.Type.Ref.Crewed);
-                if (remove)
-                {
-                    pStand.Ref.Base.Remove();
-                }
+                // Logger.Log($"{Game.CurrentFrame} {AEType.Name} 替身 {pStand.Pointer}[{Type.Type}] Explodes = {explodes} 下DestroySelf订单");
+                ext.DestroySelfState.DestroyNow(!explodes);
             }
             else
             {
-                // Logger.Log($"{Game.CurrentFrame} {AEType.Name} 替身 {Type.Type} 移除");
-                pStand.Ref.Base.Remove();
-                // pStand.Ref.Base.UnInit(); // 替身攻击建筑时死亡会导致崩溃，莫名其妙的bug
-                pStand.Ref.Base.TakeDamage(pStand.Ref.Base.Health + 1, false);
+                if (explodes)
+                {
+                    // Logger.Log($"{Game.CurrentFrame} {AEType.Name} 替身 {pStand.Pointer}[{Type.Type}] 自爆, 没有发现EXT");
+                    pStand.Ref.Base.TakeDamage(pStand.Ref.Base.Health + 1, pStand.Ref.Type.Ref.Crewed);
+                    if (remove)
+                    {
+                        pStand.Ref.Base.Remove();
+                    }
+                }
+                else
+                {
+                    // Logger.Log($"{Game.CurrentFrame} {AEType.Name} 替身 {Type.Type} 移除, 没有发现EXT");
+                    pStand.Ref.Base.Remove();
+                    // pStand.Ref.Base.UnInit(); // 替身攻击建筑时死亡会导致崩溃，莫名其妙的bug
+                    pStand.Ref.Base.TakeDamage(pStand.Ref.Base.Health + 1, false);
+                }
             }
             pStand.Pointer = IntPtr.Zero;
         }
 
-        public void OnRender2(Pointer<ObjectClass> pObject)
+        public override void OnRender2(Pointer<ObjectClass> pObject, CoordStruct location)
         {
             if (!isBuilding && pObject.CastToFoot(out Pointer<FootClass> pMaster))
             {
@@ -347,7 +355,7 @@ namespace Extension.Ext
             }
         }
 
-        public override void OnUpdate(Pointer<ObjectClass> pObject, bool isDead)
+        public override void OnUpdate(Pointer<ObjectClass> pObject, CoordStruct location, bool isDead)
         {
             // 只同步状态，位置和朝向由StandManager控制
             if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
@@ -665,8 +673,17 @@ namespace Extension.Ext
         {
             // 我不做人了JOJO
             notBeHuman = Type.ExplodesWithMaster;
-            // Logger.Log("替身{0}死亡，{1}", pStand.Ref.Type.Ref.Base.Base.ID, Type.Explodes ? "爆炸" : "什么都不做");
-            pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(Mission.Sleep, true);
+            // Logger.Log($"{Game.CurrentFrame} - 替身 {pStand.Pointer}[{pStand.Ref.Type.Ref.Base.Base.ID}]的宿主 {pObject}[{pObject.Ref.Type.Ref.Base.ID}]死亡");
+            if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
+            {
+                // 沉没，坠机，不销毁替身
+                pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(Mission.Sleep, true);
+            }
+            else if (pObject.CastToBullet(out Pointer<BulletClass> pBullet))
+            {
+                // 抛射体上的宿主直接炸
+                Disable(pObject.Ref.Base.GetCoords());
+            }
         }
 
         public override void OnStopCommand()

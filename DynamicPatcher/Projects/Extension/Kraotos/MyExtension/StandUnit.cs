@@ -22,40 +22,44 @@ namespace Extension.Ext
         public unsafe void TechnoClass_ReceiveDamage_Stand(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
                     Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
         {
-            if (null != StandType)
+            // 无视防御的真实伤害不做任何分摊
+            if (!ignoreDefenses)
             {
-                // I'm stand
-                if (StandType.Immune)
+                if (null != StandType)
                 {
-                    pDamage.Ref = 0;
-                }
-                else if (StandType.DamageToMaster > 0 && !MyMaster.Pointer.IsDeadOrInvisible())
-                {
-                    int damage = pDamage.Ref;
-                    // 分摊伤害给使者
-                    double to = damage * StandType.DamageToMaster;
-                    pDamage.Ref = (int)(damage - to);
-                    MyMaster.Ref.Base.ReceiveDamage((int)to, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
-                }
-            }
-            else
-            {
-                int damage = pDamage.Ref;
-                // I'm JoJO
-                foreach (AttachEffect ae in AttachEffectManager.AttachEffects)
-                {
-                    Stand stand = ae.Stand;
-                    if (null != stand && stand.IsAlive() && !stand.Type.IsTrain && !stand.Type.Immune && stand.Type.DamageFromMaster > 0)
+                    // I'm stand
+                    if (StandType.Immune)
                     {
-                        // 找到一个可以分摊伤害的替身
-                        double to = damage * stand.Type.DamageFromMaster;
-                        damage -= (int)to;
-                        stand.pStand.Ref.Base.ReceiveDamage((int)to, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
+                        // 消除伤害会让替身无法被销毁，如果是无视防御的伤害不应被消去
+                        pDamage.Ref = 0;
+                    }
+                    else if (StandType.DamageToMaster > 0 && !MyMaster.Pointer.IsDeadOrInvisible())
+                    {
+                        int damage = pDamage.Ref;
+                        // 分摊伤害给使者
+                        double to = damage * StandType.DamageToMaster;
+                        pDamage.Ref = (int)(damage - to);
+                        MyMaster.Ref.Base.ReceiveDamage((int)to, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
                     }
                 }
-                pDamage.Ref = damage;
+                else
+                {
+                    int damage = pDamage.Ref;
+                    // I'm JoJO
+                    foreach (AttachEffect ae in AttachEffectManager.AttachEffects)
+                    {
+                        Stand stand = ae.Stand;
+                        if (null != stand && stand.IsAlive() && !stand.Type.IsTrain && !stand.Type.Immune && stand.Type.DamageFromMaster > 0)
+                        {
+                            // 找到一个可以分摊伤害的替身
+                            double to = damage * stand.Type.DamageFromMaster;
+                            damage -= (int)to;
+                            stand.pStand.Ref.Base.ReceiveDamage((int)to, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
+                        }
+                    }
+                    pDamage.Ref = damage;
+                }
             }
-
         }
 
         public unsafe bool TechnoClass_RegisterDestruction_StandUnit(Pointer<TechnoClass> pKiller, int cost)

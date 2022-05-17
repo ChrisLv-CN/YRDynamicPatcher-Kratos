@@ -64,24 +64,103 @@ namespace ExtensionHooks
         //     return 0;
         // }
 
+
         [Hook(HookType.AresHook, Address = 0x54E42B, Size = 6)]
         public static unsafe UInt32 KamikazeTrackerClass_Add_Missile_Has_Target(REGISTERS* R)
         {
-            // Pointer<AircraftClass> pRocket = R->Stack<IntPtr>(0x1C);
+            Pointer<AircraftClass> pRocket = R->Stack<IntPtr>(0x1C);
             Pointer<AbstractClass> pTarget = (IntPtr)R->ECX;
             // TechnoExt ext = TechnoExt.ExtMap.Find(pRocket.Convert<TechnoClass>());
             // ext.pHomingTarget.Pointer = pTarget;
-            // Logger.Log($"{Game.CurrentFrame} 导弹 {pRocket} {pRocket.Ref.Type.Ref.Base.Base.Base.ID} 获得目标 {pTarget} 类型 {pTarget.Ref.WhatAmI()}");
-            R->EAX = (uint)pTarget;
-            return 0x54E475;
+            pRocket.Ref.Base.Base.SetTarget(pTarget);
+            // Logger.Log($"{Game.CurrentFrame} 导弹 {pRocket}[{pRocket.Ref.Type.Ref.Base.Base.Base.ID}] 传进来的目标 {pTarget} 类型 {pTarget.Ref.WhatAmI()}");
+            // R->EAX = (uint)pTarget;
+            // return 0x54E475;
+            return 0;
         }
 
-        // [Hook(HookType.AresHook, Address = 0x54E5A2, Size = 7)]
-        // public static unsafe UInt32 KamikazeTrackerClass_Detach(REGISTERS* R)
+        [Hook(HookType.AresHook, Address = 0x54E478, Size = 5)]
+        public static unsafe UInt32 KamikazeTrackerClass_Add(REGISTERS* R)
+        {
+            Pointer<KamikazeControl> pKamikazeControl = (IntPtr)R->EBX;
+            Pointer<AircraftClass> pRocket = pKamikazeControl.Ref.Aircraft;
+            Pointer<AbstractClass> pTarget = pRocket.Ref.Base.Base.Target;
+            if (!pTarget.IsNull)
+            {
+                pKamikazeControl.Ref.Cell = pRocket.Ref.Base.Base.Target;
+            }
+            // Logger.Log($"{Game.CurrentFrame} - pKamikazeControl 绑定的导弹 {pKamikazeControl.Ref.Aircraft} 目标 {pKamikazeControl.Ref.Cell}, 类型 {pKamikazeControl.Ref.Cell.Ref.WhatAmI()}");
+            return 0;
+        }
+
+        // [Hook(HookType.AresHook, Address = 0x54E42B, Size = 6)]
+        // public static unsafe UInt32 KamikazeTrackerClass_Add_Missile_Has_Target(REGISTERS* R)
         // {
-        //     Logger.Log($"{Game.CurrentFrame} - KamikazeTrackerClass_Detach");
-        //     return 0;
+        //     Pointer<AircraftClass> pRocket = R->Stack<IntPtr>(0x1C);
+        //     Pointer<AbstractClass> pTarget = (IntPtr)R->ECX;
+        //     // TechnoExt ext = TechnoExt.ExtMap.Find(pRocket.Convert<TechnoClass>());
+        //     // ext.pHomingTarget.Pointer = pTarget;
+        //     Logger.Log($"{Game.CurrentFrame} 导弹 {pRocket}[{pRocket.Ref.Type.Ref.Base.Base.Base.ID}] 传进来的目标 {pTarget} 类型 {pTarget.Ref.WhatAmI()}");
+        //     R->EAX = (uint)pTarget;
+        //     return 0x54E475;
         // }
+
+        // [Hook(HookType.AresHook, Address = 0x54E5CC, Size = 5)]
+        public static unsafe UInt32 KamikazeTrackerClass_Detach(REGISTERS* R)
+        {
+            Logger.Log($"{Game.CurrentFrame} - KamikazeTrackerClass_Detach {R->ECX}");
+            return 0;
+        }
+
+        // [Hook(HookType.AresHook, Address = 0x54E60A, Size = 6)]
+        public static unsafe UInt32 KamikazeTrackerClass_Cannot_Detach(REGISTERS* R)
+        {
+            // 由Techno死亡时触发，ECX是死亡的目标，在Kamikaze清单中找到了以这个单位为目标的Control
+            Pointer<TechnoClass> pTarget = (IntPtr)R->ECX;
+            int index = (int)R->ESI;
+            if (pTarget.IsDeadOrInvisible())
+            {
+                Logger.Log($"{Game.CurrentFrame} - KamikazeTrackerClass_Cannot_Detach 导弹的目标 {R->ECX} 已死, Index = {R->ESI}");
+                // return 0x54E5C8;
+            }
+            else
+            {
+                Logger.Log($"{Game.CurrentFrame} - KamikazeTrackerClass_Cannot_Detach 导弹的目标 {R->ECX} 还没死");
+                // return 0x54E684;
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x54E661, Size = 6)]
+        public static unsafe UInt32 KamikazeTrackerClass_Cannot_Detach2(REGISTERS* R)
+        {
+            // 导弹的目标死亡，给导弹写入最后坐标所在的格子的位置
+            Pointer<KamikazeControl> pKamikaze = (IntPtr)R->EAX;
+            // Logger.Log($"{Game.CurrentFrame} - KamikazeTrackerClass_Cannot_Detach2 还没死 pKamikazeControl 绑定的导弹 {pKamikaze.Ref.Aircraft} 目标 {pKamikaze.Ref.Cell}, 类型 {pKamikaze.Ref.Cell.Ref.WhatAmI()}");
+            Pointer<AircraftClass> pRocket = pKamikaze.Ref.Aircraft;
+            if (pRocket.Convert<TechnoClass>().IsDeadOrInvisible())
+            {
+                // 导弹作为目标时，死亡的是导弹，也是目标
+                // Logger.Log($"{Game.CurrentFrame} - KamikazeTrackerClass_Cannot_Detach2 导弹 {pKamikaze.Ref.Aircraft} 已经死了");
+            }
+            Pointer<AbstractClass> pTarget = pKamikaze.Ref.Cell;
+            if (pTarget.CastToTechno(out var pTehcno) && pTehcno.IsDeadOrInvisible())
+            {
+                // Logger.Log($"{Game.CurrentFrame} - KamikazeTrackerClass_Cannot_Detach2 导弹 {pKamikaze.Ref.Aircraft} 的目标是个死人");
+                // 换掉目标
+                TechnoExt ext = TechnoExt.ExtMap.Find(pRocket.Convert<TechnoClass>());
+                CoordStruct lastLocation = ext.HomingTargetLocation;
+                if (MapClass.Instance.TryGetCellAt(lastLocation, out Pointer<CellClass> pCell))
+                {
+                    pKamikaze.Ref.Cell = pCell.Convert<AbstractClass>();
+                    // Logger.Log($"{Game.CurrentFrame} - KamikazeTrackerClass_Cannot_Detach2 换掉导弹 {pKamikaze.Ref.Aircraft} 的目标, ESI = {R->ESI}");
+                    BulletEffectHelper.RedCell(pCell.Ref.Base.GetCoords(), 128, 1, 450);
+                }
+                // pRocket.Ref.Base.Base.SetTarget(pKamikaze.Ref.Cell);
+                // return 0x54E5C8;
+            }
+            return 0;
+        }
 
         [Hook(HookType.AresHook, Address = 0x6622C0, Size = 6)]
         public static unsafe UInt32 RocketLocomotionClass_Process(REGISTERS* R)

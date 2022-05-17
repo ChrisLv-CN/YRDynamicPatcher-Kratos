@@ -29,8 +29,11 @@ namespace Extension.Ext
         void Disable(CoordStruct location);
         // 重置计时器
         void ResetDuration();
+        // 渲染
+        void OnRender(Pointer<ObjectClass> pOwner, CoordStruct location);
+        void OnRender2(Pointer<ObjectClass> pOwner, CoordStruct location);
         // 更新
-        void OnUpdate(Pointer<ObjectClass> pOwner, bool isDead);
+        void OnUpdate(Pointer<ObjectClass> pOwner, CoordStruct location, bool isDead);
         // 被超时空冻结更新
         void OnTemporalUpdate(TechnoExt ext, Pointer<TemporalClass> pTemporal);
         // 挂载AE的单位出现在地图上
@@ -58,8 +61,11 @@ namespace Extension.Ext
         public virtual void Disable(CoordStruct location) { }
         // 重置计时器
         public virtual void ResetDuration() { }
+        // 渲染
+        public virtual void OnRender(Pointer<ObjectClass> pOwner, CoordStruct location) { }
+        public virtual void OnRender2(Pointer<ObjectClass> pOwner, CoordStruct location) { }
         // 更新
-        public virtual void OnUpdate(Pointer<ObjectClass> pOwner, bool isDead) { }
+        public virtual void OnUpdate(Pointer<ObjectClass> pOwner, CoordStruct location, bool isDead) { }
         // 被超时空冻结更新
         public virtual void OnTemporalUpdate(TechnoExt ext, Pointer<TemporalClass> pTemporal) { }
         // 挂载AE的单位出现在地图上

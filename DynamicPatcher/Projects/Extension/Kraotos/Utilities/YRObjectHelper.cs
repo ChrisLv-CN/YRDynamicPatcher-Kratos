@@ -14,6 +14,17 @@ using Extension.Ext;
 namespace Extension.Utilities
 {
 
+    [Flags]
+    public enum Relation
+    {
+        NONE = 0x0, OWNER = 0x1, ALLIES = 0x2, ENEMIES = 0x4,
+
+        Team = OWNER | ALLIES,
+        NotAllies = OWNER | ENEMIES,
+        NotOwner = ALLIES | ENEMIES,
+        All = OWNER | ALLIES | ENEMIES
+    }
+
 
     public static partial class ExHelper
     {
@@ -23,6 +34,24 @@ namespace Extension.Utilities
             return pHouse.IsNull || pHouse.Ref.Defeated || pHouse.Ref.Type.IsNull
                 || HouseClass.CIVILIAN == pHouse.Ref.Type.Ref.Base.ID
                 || HouseClass.SPECIAL == pHouse.Ref.Type.Ref.Base.ID; // 被狙掉驾驶员的阵营是Special
+        }
+
+        public static Relation GetRelationWithPlayer(this Pointer<HouseClass> pHouse)
+        {
+            return pHouse.GetRelation(HouseClass.Player);
+        }
+
+        public static Relation GetRelation(this Pointer<HouseClass> pHosue, Pointer<HouseClass> pTargetHouse)
+        {
+            if (pHosue == pTargetHouse)
+            {
+                return Relation.OWNER;
+            }
+            if (pHosue.Ref.IsAlliedWith(pTargetHouse))
+            {
+                return Relation.ALLIES;
+            }
+            return Relation.ENEMIES;
         }
 
         public static bool CastToBullet(this Pointer<ObjectClass> pObject, out Pointer<BulletClass> pBullet)
@@ -184,6 +213,24 @@ namespace Extension.Utilities
             {
                 pAnim.Ref.Owner = pHouse;
             }
+        }
+
+        public static void Show(this Pointer<AnimClass> pAnim, Relation visibility)
+        {
+            AnimExt ext = AnimExt.ExtMap.Find(pAnim);
+            if (null != ext)
+            {
+                ext.UpdateVisibility(visibility);
+            }
+            else
+            {
+                pAnim.Ref.Invisible = false;
+            }
+        }
+
+        public static void Hidden(this Pointer<AnimClass> pAnim)
+        {
+            pAnim.Ref.Invisible = true;
         }
 
         public static bool TryGetOwnerHouse(this Pointer<BulletClass> pBullet, out Pointer<HouseClass> pHouse)
