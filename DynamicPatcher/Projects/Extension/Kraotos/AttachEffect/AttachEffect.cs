@@ -103,6 +103,7 @@ namespace Extension.Ext
             InitAttachStatus();
             InitAutoWeapon();
             InitBlackHole();
+            InitDamageSelf(); // AffectWho
             InitDestroySelf();
             InitFireSuper(); // AffectWho
             InitGiftBox(); // AffectWho
