@@ -335,7 +335,7 @@ namespace Extension.Ext
 
     public partial class TechnoExt
     {
-        private bool hiddenHealthText = false;
+        private bool hiddenHealthText = true;
         private HealthTextTypeData healthTextTypeData;
 
         public unsafe void TechnoClass_Init_HealthBarText()
@@ -344,7 +344,7 @@ namespace Extension.Ext
             if (!hiddenHealthText)
             {
                 this.healthTextTypeData = Type.HealthTextTypeData;
-                this.hiddenHealthText = healthTextTypeData.Hidden;
+                this.hiddenHealthText = null == healthTextTypeData || healthTextTypeData.Hidden;
             }
         }
 
