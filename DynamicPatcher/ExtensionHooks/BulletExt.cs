@@ -259,15 +259,7 @@ namespace ExtensionHooks
                 // Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, location);
                 Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, location, 0, 1, BlitterFlags.Flat | BlitterFlags.bf_400 | BlitterFlags.Centered, -15, false);
                 ExHelper.SetAnimOwner(pAnim, pBullet);
-                if (pBullet.Ref.WH == RulesClass.Instance.Ref.NukeWarhead)
-                {
-                    // 制造核弹伤害
-                    return 0x469CAF;
-                }
-                else
-                {
-                    return 0x469D06;
-                }
+                return 0x469D06;
             }
             catch (Exception e)
             {
