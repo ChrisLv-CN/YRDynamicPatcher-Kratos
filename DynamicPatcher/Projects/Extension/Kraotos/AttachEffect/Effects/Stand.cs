@@ -666,7 +666,10 @@ namespace Extension.Ext
 
         public override void OnRemove(Pointer<ObjectClass> pOwner)
         {
-            pStand.Ref.Base.Remove();
+            if (!pOwner.IsDead())
+            {
+                pStand.Ref.Base.Remove();
+            }
         }
 
         public override void OnDestroy(Pointer<ObjectClass> pObject)
