@@ -31,6 +31,8 @@ namespace Extension.Ext
 
         public bool IsBuilding;
 
+        public int WeaponIndex;
+
         private Mission lastMission;
         private CoordStruct lastLocation;
 
@@ -335,6 +337,7 @@ namespace Extension.Ext
 
         public unsafe void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex)
         {
+            this.WeaponIndex = weaponIndex;
 
             OnFireAction?.Invoke(pTarget, weaponIndex);
 

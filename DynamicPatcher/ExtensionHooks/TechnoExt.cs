@@ -654,9 +654,9 @@ namespace ExtensionHooks
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
                 var pTarget = R->Stack<Pointer<AbstractClass>>(0x4);
-                var weaponIndex = R->Stack<int>(0x8);
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                if (null != ext.OverrideWeaponState && ext.OverrideWeaponState.TryGetOverrideWeapon(weaponIndex, pTechno.Ref.Veterancy.IsElite(), out Pointer<WeaponTypeClass> pWeapon))
+                // weaponIndex cannot be obtained here, use the value cached in ext
+                if (null != ext.OverrideWeaponState && ext.OverrideWeaponState.TryGetOverrideWeapon(ext.WeaponIndex, pTechno.Ref.Veterancy.IsElite(), out Pointer<WeaponTypeClass> pWeapon))
                 {
                     if (!pWeapon.IsNull)
                     {
