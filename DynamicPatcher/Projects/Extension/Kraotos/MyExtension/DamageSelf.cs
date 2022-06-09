@@ -48,6 +48,7 @@ namespace Extension.Ext
 
                         if (realDamage >= pTechno.Ref.Base.Health)
                         {
+                            IsDead = true;
                             // Logger.Log($"{Game.CurrentFrame} {pTechno}[{pTechno.Ref.Type.Ref.Base.Base.ID}] 收到自伤 {realDamage} 而死，设置了平静的移除");
                             // 本次伤害足够打死目标，移除单位
                             pTechno.Ref.Base.Remove();
@@ -73,6 +74,7 @@ namespace Extension.Ext
                         // 扣血
                         if (realDamage >= pTechno.Ref.Base.Health)
                         {
+                            IsDead = true;
                             // 本次伤害足够打死目标
                             pTechno.Ref.Base.ReceiveDamage(realDamage, 0, DamageSelfState.pWH, IntPtr.Zero, true, pTechno.Ref.Type.Ref.Crewed, pTechno.Ref.Owner);
                         }
