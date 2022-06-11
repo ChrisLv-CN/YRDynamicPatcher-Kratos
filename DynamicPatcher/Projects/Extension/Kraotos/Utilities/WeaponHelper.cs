@@ -114,7 +114,7 @@ namespace Extension.Utilities
             }
             int damage = (int)(pWeapon.Ref.Damage * fireMult);
             Pointer<WarheadTypeClass> pWH = pWeapon.Ref.Warhead;
-            int speed = pWeapon.Ref.Speed;
+            int speed = pWeapon.Ref.GetSpeed(sourcePos, targetPos);
             bool bright = pWeapon.Ref.Bright; // 原游戏中弹头上的bright是无效的
 
             Pointer<BulletClass> pBullet = IntPtr.Zero;

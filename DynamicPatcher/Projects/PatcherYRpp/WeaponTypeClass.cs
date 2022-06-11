@@ -14,6 +14,17 @@ namespace PatcherYRpp
 
         public static YRPP.GLOBAL_DVC_ARRAY<WeaponTypeClass> ABSTRACTTYPE_ARRAY = new YRPP.GLOBAL_DVC_ARRAY<WeaponTypeClass>(ArrayPointer);
 
+        public unsafe int GetSpeed(int range)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref WeaponTypeClass, int, int>)0x773070;
+            return func(ref this, range);
+        }
+
+        public unsafe int GetSpeed(CoordStruct sourcePos, CoordStruct targetPos)
+        {
+            return GetSpeed((int)sourcePos.DistanceFrom(targetPos));
+        }
+
         [FieldOffset(0)] public AbstractTypeClass Base;
         [FieldOffset(152)] public int AmbientDamage;
         [FieldOffset(156)] public int Burst;
