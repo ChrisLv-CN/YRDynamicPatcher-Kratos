@@ -45,6 +45,7 @@ namespace Extension.Ext
             ReadAffectsFlags(reader, section);
             ReadAresFlags(reader, section);
             ReadAttachEffect(reader, section);
+            ReadClearTarget(reader, section);
             ReadDamageText(reader, section);
             ReadTauntWarhead(reader, section);
         }

@@ -235,6 +235,7 @@ namespace Extension.Ext
             if (AffectMe(pAttacker, pWH, pAttackingHouse, out WarheadTypeExt whExt) && DamageMe(pDamage.Data, distanceFromEpicenter, whExt, out int realDamage))
             {
                 TechnoClass_ReceiveDamage_AttachEffect(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse, whExt, realDamage);
+                TechnoClass_ReceiveDamage_ClearTarget(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse, whExt, realDamage);
                 // TechnoClass_ReceiveDamage_TauntWarhead(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse, whExt, realDamage);
             }
 
