@@ -33,14 +33,7 @@ namespace Extension.Ext
 
         public unsafe void TechnoClass_Remove_AttachEffect()
         {
-            if (OwnerObject.Convert<AbstractClass>().Ref.WhatAmI() == AbstractType.Building)
-            {
-                AttachEffectManager.UnInitAll(OwnerObject.Ref.Base.Base.GetCoords());
-            }
-            else
-            {
-                AttachEffectManager.Remove(OwnerObject.Convert<ObjectClass>());
-            }
+            AttachEffectManager.Remove(OwnerObject.Convert<ObjectClass>());
         }
 
         public unsafe void TechnoClass_Render2_AttachEffect()
