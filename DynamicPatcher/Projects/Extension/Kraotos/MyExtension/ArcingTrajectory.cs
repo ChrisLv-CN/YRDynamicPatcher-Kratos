@@ -63,11 +63,11 @@ namespace Extension.Ext
                     targetPos += offset;
                     pBullet.Ref.TargetCoords = targetPos;
                     // Logger.Log("计算结果, 随机半径{0}[{1},{2}], 随机角度{3}, 偏移{4}", r, min, max, theta, offset);
-                    if (MapClass.Instance.TryGetCellAt(targetPos, out Pointer<CellClass> pCell))
-                    {
-                        CoordStruct cellPos = pCell.Ref.Base.GetCoords();
-                        targetPos.Z = cellPos.Z; // 修正高度差
-                    }
+                    // if (MapClass.Instance.TryGetCellAt(targetPos, out Pointer<CellClass> pCell))
+                    // {
+                    //     CoordStruct cellPos = pCell.Ref.GetCoordsWithBridge();
+                    //     targetPos.Z = cellPos.Z; // 修正高度差
+                    // }
                 }
 
                 // 重算抛物线弹道
