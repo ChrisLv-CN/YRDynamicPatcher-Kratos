@@ -72,6 +72,7 @@ namespace Extension.Ext
                 case AbstractType.Unit:
                     UnitClass_Init_JumpjetFacingToTarget();
                     UnitClass_Init_UnitDeployFireOnce();
+                    UnitClass_Init_Convert_Unload();
                     break;
                 case AbstractType.Aircraft:
                     AircraftClass_Init_AircraftDive();
