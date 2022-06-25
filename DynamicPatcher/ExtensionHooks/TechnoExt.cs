@@ -420,44 +420,6 @@ namespace ExtensionHooks
 
         #region Unit explosion anims
 
-        [Hook(HookType.AresHook, Address = 0x737F13, Size = 6)]
-        public static unsafe UInt32 UnitClass_Destroy_Debris_Remap(REGISTERS* R)
-        {
-            try
-            {
-                Pointer<UnitClass> pUnit = (IntPtr)R->ESI;
-                Pointer<AnimClass> pAnim = (IntPtr)R->EAX;
-                // Logger.Log($"{Game.CurrentFrame} - 载具 {pUnit} [{pUnit.Ref.Type.Ref.Base.Base.Base.ID}] owner = {pUnit.Ref.Base.Base.Owner} 死亡碎片 ECX = {R->ECX} EAX = {R->EAX}");
-                if (!pAnim.IsNull)
-                {
-                    pAnim.Ref.Owner = pUnit.Ref.Base.Base.Owner;
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.PrintException(e);
-            }
-            return 0;
-        }
-        [Hook(HookType.AresHook, Address = 0x737F66, Size = 5)] // 需要接管
-        public static unsafe UInt32 UnitClass_Destroy_Debris_Remap2(REGISTERS* R)
-        {
-            try
-            {
-                Pointer<UnitClass> pUnit = (IntPtr)R->ESI;
-                Pointer<AnimClass> pAnim = (IntPtr)R->EAX;
-                // Logger.Log($"{Game.CurrentFrame} - 载具 {pUnit} [{pUnit.Ref.Type.Ref.Base.Base.Base.ID}] owner = {pUnit.Ref.Base.Base.Owner} 死亡碎片2 ECX = {R->ECX} EAX = {R->EAX}");
-                if (!pAnim.IsNull)
-                {
-                    pAnim.Ref.Owner = pUnit.Ref.Base.Base.Owner;
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.PrintException(e);
-            }
-            return 0;
-        }
         [Hook(HookType.AresHook, Address = 0x738749, Size = 6)]
         public static unsafe UInt32 UnitClass_Destroy_Explosion_Remap(REGISTERS* R)
         {
