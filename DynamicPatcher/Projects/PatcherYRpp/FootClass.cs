@@ -32,8 +32,8 @@ namespace PatcherYRpp
 
         public unsafe bool ChronoWarpTo(CoordStruct where)
         {
-            var func = (delegate* unmanaged[Thiscall]<ref FootClass, IntPtr, bool>)this.GetVirtualFunctionPointer(322);
-            return func(ref this, Pointer<CoordStruct>.AsPointer(ref where));
+            var func = (delegate* unmanaged[Thiscall]<ref FootClass, CoordStruct, bool>)this.GetVirtualFunctionPointer(322);
+            return func(ref this, where);
         }
 
         public unsafe void Draw_A_SHP(Pointer<SHPStruct> SHP, int idxFacing, Pointer<Point2D> coords, Pointer<RectangleStruct> rectangle,
