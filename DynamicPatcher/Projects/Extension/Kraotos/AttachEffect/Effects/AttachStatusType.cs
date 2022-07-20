@@ -70,6 +70,18 @@ namespace Extension.Ext
             return a;
         }
 
+        public AttachStatusType Clone()
+        {
+            AttachStatusType status = new AttachStatusType();
+            status.FirepowerMultiplier = this.FirepowerMultiplier;
+            status.ArmorMultiplier = this.ArmorMultiplier;
+            status.SpeedMultiplier = this.SpeedMultiplier;
+            status.ROFMultiplier = this.ROFMultiplier;
+            status.Cloakable = this.Cloakable;
+            status.ForceDecloak = this.ForceDecloak;
+            return status;
+        }
+
         public override bool TryReadType(INIReader reader, string section)
         {
 

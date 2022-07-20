@@ -26,9 +26,6 @@ namespace Extension.Ext
         public bool IsSelected;
         public DirStruct BodyDir;
         public int Group;
-        public double FirepowerMultiplier = 1;
-        public double ArmorMultiplier = 1;
-        public double SpeedMultiplier = 1;
 
         private bool isElite;
         private int delay;

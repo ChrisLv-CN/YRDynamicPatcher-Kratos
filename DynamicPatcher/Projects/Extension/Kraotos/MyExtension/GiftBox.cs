@@ -43,8 +43,7 @@ namespace Extension.Ext
             GiftBoxState.IsSelected = pTechno.Ref.Base.IsSelected;
 
             GiftBoxState.Group = pTechno.Ref.Group;
-            GiftBoxState.FirepowerMultiplier = pTechno.Ref.FirepowerMultiplier;
-            GiftBoxState.ArmorMultiplier = pTechno.Ref.ArmorMultiplier;
+
             // 记录朝向
             if (pTechno.CastIf(AbstractType.Aircraft, out Pointer<AircraftClass> pPlane))
             {
@@ -64,8 +63,6 @@ namespace Extension.Ext
                 {
                     GiftBoxState.BodyDir = pTechno.Ref.Facing.current();
                 }
-                // 记录速度加成
-                GiftBoxState.SpeedMultiplier = pFoot.Ref.SpeedMultiplier;
             }
             else
             {
@@ -246,8 +243,6 @@ namespace Extension.Ext
                                         pGift.Ref.TurretFacing.set(GiftBoxState.BodyDir);
                                     }
                                 }
-                                // 同步速度
-                                pFoot.Ref.SpeedMultiplier = GiftBoxState.SpeedMultiplier;
                             }
                             else
                             {
@@ -259,10 +254,8 @@ namespace Extension.Ext
                             }
                             // 同步小队
                             pGift.Ref.Group = GiftBoxState.Group;
-                            pGift.Ref.ArmorMultiplier = GiftBoxState.ArmorMultiplier;
-                            pGift.Ref.FirepowerMultiplier = GiftBoxState.FirepowerMultiplier;
 
-                            // 同步AE属性
+                            // 同步箱子属性
                             giftExt.CrateStatus += this.CrateStatus;
                         }
 
