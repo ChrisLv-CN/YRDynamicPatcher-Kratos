@@ -39,7 +39,6 @@ namespace Extension.Ext
         public unsafe void OnUpdate()
         {
             BulletClass_Update_DestroySelf(); // 自毁使用AntiBullet逻辑制造伤害
-            BulletClass_Update_DamageSelf(); // 自伤
             BulletClass_Update_AntiBullet();
             // 检查死亡
             if (OwnerObject.IsDeadOrInvisible() ||

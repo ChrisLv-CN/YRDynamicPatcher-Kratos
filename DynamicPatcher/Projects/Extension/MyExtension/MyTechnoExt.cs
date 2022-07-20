@@ -187,8 +187,6 @@ namespace Extension.Ext
             // 死亡还会执行的，坠落，沉没等
             TechnoClass_Update_DamageText();
             TechnoClass_Update_AttachEffect();
-            // 伤害自己会造成死亡，放在最后再做
-            TechnoClass_Update_DamageSelf();
 
             lastLocation = OwnerObject.Ref.Base.Base.GetCoords();
         }

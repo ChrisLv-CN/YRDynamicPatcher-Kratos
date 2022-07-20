@@ -305,6 +305,22 @@ namespace Extension.Utilities
         }
 
 
+        public static Pointer<AnimClass> PlayWarheadAnim(this Pointer<WarheadTypeClass> pWH, CoordStruct location, int damage = 1, LandType landType = LandType.Clear)
+        {
+            Pointer<AnimClass> pAnim = IntPtr.Zero;
+            if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
+            {
+                landType = pCell.Ref.LandType;
+            }
+            Pointer<AnimTypeClass> pAnimType = MapClass.SelectDamageAnimation(damage, pWH, landType, location);
+            if (!pAnimType.IsNull)
+            {
+                pAnim = YRMemory.Create<AnimClass>(pAnimType, location);
+            }
+            return pAnim;
+        }
+
+
     }
 
 }
