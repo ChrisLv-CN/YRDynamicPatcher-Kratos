@@ -215,6 +215,25 @@ namespace Extension.Utilities
             }
         }
 
+        public static void SetCreater(this Pointer<AnimClass> pAnim, Pointer<BulletClass> pBullet)
+        {
+            pAnim.SetCreater(pBullet, out AnimExt animExt);
+        }
+
+        public static void SetCreater(this Pointer<AnimClass> pAnim, Pointer<BulletClass> pBullet, out AnimExt ext)
+        {
+            Pointer<TechnoClass> pInvoker = IntPtr.Zero;
+            ext = null;
+            if (!(pInvoker = pBullet.Ref.Owner).IsNull && !pInvoker.IsDead())
+            {
+                ext = AnimExt.ExtMap.Find(pAnim);
+                if (null != ext && ext.Type.KillByCreater)
+                {
+                    ext.Creater.Pointer = pInvoker;
+                }
+            }
+        }
+
         public static void Show(this Pointer<AnimClass> pAnim, Relation visibility)
         {
             AnimExt ext = AnimExt.ExtMap.Find(pAnim);

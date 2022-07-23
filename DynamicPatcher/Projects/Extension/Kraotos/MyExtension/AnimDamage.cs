@@ -21,12 +21,34 @@ namespace Extension.Ext
         private TimerStruct weaponDelay;
         private bool initDelayFlag = false;
 
+        public SwizzleablePointer<TechnoClass> Creater = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
+        public bool CreaterIsDeadth = false;
+
         public void AnimClass_Update_Damage()
         {
             if (!initDelayFlag)
             {
                 initDelayFlag = true;
                 weaponDelay.Start(Type.InitDelay);
+            }
+            if (!CreaterIsDeadth)
+            {
+                if (Creater.IsNull)
+                {
+                    if (!OwnerObject.Ref.OwnerObject.IsNull && OwnerObject.Ref.OwnerObject.CastToTechno(out Pointer<TechnoClass> pTechno) && !pTechno.IsDead())
+                    {
+                        Creater.Pointer = pTechno;
+                    }
+                    else
+                    {
+                        CreaterIsDeadth = true;
+                    }
+                }
+                else if (Creater.Pointer.IsDead())
+                {
+                    Creater.Pointer = IntPtr.Zero;
+                    CreaterIsDeadth = true;
+                }
             }
         }
 
@@ -61,7 +83,7 @@ namespace Extension.Ext
                                 pWH = pWeapon.Ref.Warhead;
                                 bool isBright = bright || pWeapon.Ref.Bright; // 原游戏中弹头上的bright是无效的
                                 Pointer<BulletTypeClass> pBulletType = pWeapon.Ref.Projectile;
-                                Pointer<BulletClass> pBullet = pBulletType.Ref.CreateBullet(IntPtr.Zero, IntPtr.Zero, damage, pWH, pWeapon.Ref.Speed, isBright);
+                                Pointer<BulletClass> pBullet = pBulletType.Ref.CreateBullet(IntPtr.Zero, Creater, damage, pWH, pWeapon.Ref.Speed, isBright);
                                 pBullet.Ref.WeaponType = pWeapon;
                                 BulletExt ext = BulletExt.ExtMap.Find(pBullet);
                                 ext.pSourceHouse = pAnim.Ref.Owner;
@@ -77,7 +99,7 @@ namespace Extension.Ext
                         if (weaponDelay.Expired())
                         {
                             // Logger.Log($"{Game.CurrentFrame} - 动画 {pAnim} [{pAnimType.Ref.Base.Base.ID}] 用弹头播放伤害 TypeDamage = {damage}, AnimDamage = {pAnim.Ref.Damage}, Warhead = {pAnimType.Ref.Warhead}");
-                            MapClass.DamageArea(location, damage, IntPtr.Zero, pWH, true, pAnim.Ref.Owner);
+                            MapClass.DamageArea(location, damage, Creater, pWH, true, pAnim.Ref.Owner);
                             weaponDelay.Start(typeExt.Ares.WeaponDelay);
                             if (bright)
                             {
@@ -114,6 +136,7 @@ namespace Extension.Ext
     {
         public bool PlayWarheadAnim;
         public int InitDelay;
+        public bool KillByCreater;
 
         private void ReadAnimDamage(INIReader reader, string section)
         {
@@ -133,6 +156,12 @@ namespace Extension.Ext
             if (reader.ReadNormal(section, "Damage.InitDelay", ref initDelay))
             {
                 InitDelay = initDelay;
+            }
+
+            bool killByCreater = false;
+            if (reader.ReadNormal(section, "Damage.KillByCreater", ref killByCreater))
+            {
+                KillByCreater = killByCreater;
             }
         }
 

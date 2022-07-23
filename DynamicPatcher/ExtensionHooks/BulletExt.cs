@@ -259,6 +259,8 @@ namespace ExtensionHooks
                 // Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, location);
                 Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, location, 0, 1, BlitterFlags.Flat | BlitterFlags.bf_400 | BlitterFlags.Centered, -15, false);
                 ExHelper.SetAnimOwner(pAnim, pBullet);
+                pAnim.SetAnimOwner(pBullet);
+                pAnim.SetCreater(pBullet);
                 return 0x469D06;
             }
             catch (Exception e)
@@ -278,6 +280,7 @@ namespace ExtensionHooks
                 if (!pAnim.IsNull)
                 {
                     pAnim.SetAnimOwner(pBullet);
+                    pAnim.SetCreater(pBullet);
                 }
             }
             catch (Exception e)

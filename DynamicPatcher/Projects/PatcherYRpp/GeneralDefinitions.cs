@@ -397,6 +397,7 @@ namespace PatcherYRpp
         Green = 2
     }
 
+    [Flags]
     public enum SpotlightFlags
     {
         None = 0x0,
