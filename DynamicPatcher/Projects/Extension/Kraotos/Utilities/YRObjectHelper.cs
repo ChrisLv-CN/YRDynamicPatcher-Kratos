@@ -215,6 +215,40 @@ namespace Extension.Utilities
             }
         }
 
+        public static void SetCreater(this Pointer<AnimClass> pAnim, Pointer<ObjectClass> pObject)
+        {
+            switch (pObject.Ref.Base.WhatAmI())
+            {
+                case AbstractType.Building:
+                case AbstractType.Infantry:
+                case AbstractType.Unit:
+                case AbstractType.Aircraft:
+                    pAnim.SetCreater(pObject.Convert<TechnoClass>());
+                    break;
+                case AbstractType.Bullet:
+                    pAnim.SetCreater(pObject.Convert<BulletClass>());
+                    break;
+            }
+        }
+
+        public static void SetCreater(this Pointer<AnimClass> pAnim, Pointer<TechnoClass> pTechno)
+        {
+            pAnim.SetCreater(pTechno, out AnimExt animExt);
+        }
+
+        public static void SetCreater(this Pointer<AnimClass> pAnim, Pointer<TechnoClass> pTechno, out AnimExt ext)
+        {
+            ext = null;
+            if (!pTechno.IsNull && !pTechno.IsDead())
+            {
+                ext = AnimExt.ExtMap.Find(pAnim);
+                if (null != ext && ext.Type.KillByCreater)
+                {
+                    ext.Creater.Pointer = pTechno;
+                }
+            }
+        }
+
         public static void SetCreater(this Pointer<AnimClass> pAnim, Pointer<BulletClass> pBullet)
         {
             pAnim.SetCreater(pBullet, out AnimExt animExt);
@@ -222,14 +256,14 @@ namespace Extension.Utilities
 
         public static void SetCreater(this Pointer<AnimClass> pAnim, Pointer<BulletClass> pBullet, out AnimExt ext)
         {
-            Pointer<TechnoClass> pInvoker = IntPtr.Zero;
+            Pointer<TechnoClass> pCreater = IntPtr.Zero;
             ext = null;
-            if (!(pInvoker = pBullet.Ref.Owner).IsNull && !pInvoker.IsDead())
+            if (!(pCreater = pBullet.Ref.Owner).IsNull && !pCreater.IsDead())
             {
                 ext = AnimExt.ExtMap.Find(pAnim);
                 if (null != ext && ext.Type.KillByCreater)
                 {
-                    ext.Creater.Pointer = pInvoker;
+                    ext.Creater.Pointer = pCreater;
                 }
             }
         }
