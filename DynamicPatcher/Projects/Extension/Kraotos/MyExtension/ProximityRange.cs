@@ -16,6 +16,7 @@ namespace Extension.Ext
     public class ProximityData
     {
         public bool Force;
+        public bool Blade;
         public int Arm;
         public int ZOffset;
         public bool AffectsOwner;
@@ -32,6 +33,7 @@ namespace Extension.Ext
         public ProximityData()
         {
             this.Force = false;
+            this.Blade = false;
             this.Arm = 128;
             this.ZOffset = Game.LevelHeight;
             this.AffectsOwner = false;
@@ -281,7 +283,7 @@ namespace Extension.Ext
                         CoordStruct targetPos = pTarget.Ref.Base.Base.GetCoords();
                         // BulletEffectHelper.BlueLineZ(targetPos, 1024, 1, 75);
 
-                        bool hit = false;
+                        bool hit = false; // 无视高度和距离，格子内的对象都算碰撞目标
 
                         if (pTarget.Ref.Base.Base.WhatAmI() == AbstractType.Building)
                         {
@@ -289,8 +291,16 @@ namespace Extension.Ext
                             Pointer<BuildingClass> pBuilding = pTarget.Convert<BuildingClass>();
                             int height = pBuilding.Ref.Type.Ref.Height;
                             // Logger.Log("Building Height {0}", height);
-                            // 建筑只获取抛射体经过的当前格，所以判断高度在范围内即可算命中
-                            hit = sourcePos.Z <= (targetPos.Z + height * Game.LevelHeight + Proximity.Data.ZOffset);
+                            if (Proximity.Data.Blade)
+                            {
+                                // 无视高度，格子内的建筑视为命中
+                                hit = true;
+                            }
+                            else
+                            {
+                                // 建筑只获取抛射体经过的当前格，所以判断高度在范围内即可算命中
+                                hit = sourcePos.Z <= (targetPos.Z + height * Game.LevelHeight + Proximity.Data.ZOffset);
+                            }
                             // 检查建筑是否被炸过
                             if (hit && Proximity.Data.PenetrationBuildingOnce)
                             {
@@ -305,6 +315,11 @@ namespace Extension.Ext
                             sourceTestPos.Z = sourcePos.Z;
                             // 目标点在脚下，加上高度修正偏移值
                             CoordStruct targetTestPos = targetPos + new CoordStruct(0, 0, Proximity.Data.ZOffset);
+                            if (Proximity.Data.Blade)
+                            {
+                                // 无视高度，只检查横向距离
+                                targetTestPos.Z = sourceTestPos.Z;
+                            }
                             // BulletEffectHelper.RedCrosshair(sourceTestPos, 128, 1, 75);
                             // BulletEffectHelper.RedCrosshair(targetTestPos, 128, 1, 75);
                             // BulletEffectHelper.BlueLine(sourceTestPos, targetTestPos, 3, 75);
@@ -452,6 +467,7 @@ namespace Extension.Ext
 
         /// <summary>
         /// Proximity.Force=no
+        /// Proximity.Blade=no
         /// Proximity.Arm=128
         /// Proximity.ZOffset=104
         /// Proximity.AffectsOwner=no
@@ -473,6 +489,12 @@ namespace Extension.Ext
             if (reader.ReadNormal(section, "Proximity.Force", ref force))
             {
                 ProximityData.Force = force;
+            }
+
+            bool blade = false;
+            if (reader.ReadNormal(section, "Proximity.Blade", ref blade))
+            {
+                ProximityData.Blade = blade;
             }
 
             int arm = 0;
