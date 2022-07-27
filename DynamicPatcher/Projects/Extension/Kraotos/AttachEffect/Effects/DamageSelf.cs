@@ -116,8 +116,11 @@ namespace Extension.Ext
                             {
                                 // Logger.Log($"{Game.CurrentFrame} {pTechno}[{pTechno.Ref.Type.Ref.Base.Base.ID}] 收到自伤 {realDamage} 而死，设置了平静的移除");
                                 // 本次伤害足够打死目标，移除单位
-                                pTechno.Ref.Base.Remove();
-                                pTechno.Ref.Base.UnInit();
+                                // pTechno.Ref.Base.Remove();
+                                // pTechno.Ref.Base.UnInit();
+                                // 设置DestroySelf来移除单位
+                                OwnerAEM.DestroySelfState.DestroyNow(true);
+                                Disable(default);
                                 return;
                             }
                         }
