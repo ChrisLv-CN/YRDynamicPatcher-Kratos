@@ -168,7 +168,7 @@ namespace Extension.Ext
                 double healthPercent = pTechno.Ref.Base.GetHealthPercentage();
                 healthPercent = healthPercent <= 0 ? 1 : healthPercent; // 盒子死了，继承的血量就是满的
                 bool changeHealth = data.IsTransform || data.InheritHealth; // Transform强制继承
-                if (data.HealthPercent > 0)
+                if (!changeHealth && data.HealthPercent > 0)
                 {
                     // 强设比例
                     healthPercent = data.HealthPercent;
