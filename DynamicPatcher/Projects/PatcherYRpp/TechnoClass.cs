@@ -167,18 +167,6 @@ namespace PatcherYRpp
             return func(ref this, pTarget, idxWeapon);
         }
 
-        public unsafe Pointer<WeaponStruct> GetDeployWeapon()
-        {
-            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr>)0x6FB080;
-            return func(ref this);
-        }
-
-        public unsafe Pointer<WeaponStruct> GetTurretWeapon()
-        {
-            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr>)0x6FB080;
-            return func(ref this);
-        }
-
         public unsafe Pointer<WeaponStruct> GetWeapon(int i)
         {
             var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, int, IntPtr>)this.GetVirtualFunctionPointer(254);
@@ -189,6 +177,12 @@ namespace PatcherYRpp
         {
             var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, Bool>)this.GetVirtualFunctionPointer(255);
             return func(ref this);
+        }
+
+        public unsafe void Reload()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, void>)this.GetVirtualFunctionPointer(265);
+            func(ref this);
         }
 
         public unsafe void SetDestination(Pointer<AbstractClass> pDest, bool unknow = true)
@@ -212,6 +206,12 @@ namespace PatcherYRpp
         {
             var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr, IntPtr, IntPtr, Bool>)0x6F7220;
             return func(ref this, Pointer<CoordStruct>.AsPointer(ref location), pTarget, pWeapon);
+        }
+
+        public unsafe void ReloadNow()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, void>)0x6FB080;
+            func(ref this);
         }
 
         public unsafe void SetFocus(Pointer<AbstractClass> pTarget)

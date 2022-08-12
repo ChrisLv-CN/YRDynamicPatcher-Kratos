@@ -646,6 +646,7 @@ namespace ExtensionHooks
                 if (!ext.MyMaster.IsNull && ext.StandType.UseMasterAmmo)
                 {
                     ext.MyMaster.Ref.DecreaseAmmo();
+                    ext.MyMaster.Ref.ReloadNow();
                 }
             }
             catch (Exception e)
