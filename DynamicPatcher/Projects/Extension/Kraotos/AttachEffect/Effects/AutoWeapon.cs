@@ -41,7 +41,7 @@ namespace Extension.Ext
             this.Active = false;
         }
 
-        public override void OnEnable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public override void OnEnable(Pointer<ObjectClass> pObject)
         {
             this.Active = true;
         }
@@ -132,7 +132,7 @@ namespace Extension.Ext
             CoordStruct targetFLH = data.TargetFLH;
 
             // bool attackerInvisible = pAttacker.IsNull || pAttacker.Ref.Base.Health <= 0 || !pAttacker.Ref.Base.IsAlive || pAttacker.Ref.Base.InLimbo || pAttacker.Ref.IsImmobilized || !pAttacker.Ref.Transporter.IsNull;
-            bool attackerInvisible = pAttacker.Pointer.IsDeadOrInvisible() || pAttacker.Ref.IsImmobilized || !pAttacker.Ref.Transporter.IsNull;
+            bool attackerInvisible = AE.pSource.Pointer.IsDeadOrInvisible() || AE.pSource.Ref.IsImmobilized || !AE.pSource.Ref.Transporter.IsNull;
             bool bulletOwnerInvisible = isOnBullet && (pReceiverOwner.IsDeadOrInvisible() || pReceiverOwner.Ref.IsImmobilized || !pReceiverOwner.Ref.Transporter.IsNull);
             // 攻击者标记下，攻击者死亡或不存在，如果在抛射体上，而抛射体的发射者死亡或不存在，AE结束，没有启用标记，却设置了反向，同样结束AE
             if (Type.IsAttackerMark ? (attackerInvisible || bulletOwnerInvisible) : !Type.ReceiverAttack)
@@ -304,8 +304,8 @@ namespace Extension.Ext
                 // IsAttackerMark=yes时ReceiverAttack和ReceiverOwnBullet默认值为no
                 // 若无显式修改，此时应为攻击者朝AE附属对象进行攻击
                 // 由攻击者开火，朝向AE附属对象进行攻击
-                pShooter = pAttacker;
-                pWeaponOwner = pAttacker;
+                pShooter = AE.pSource;
+                pWeaponOwner = AE.pSource;
                 pTarget = pReceiver.Convert<AbstractClass>();
                 // Logger.Log("由攻击者{0}朝向持有者{1}开火", pShooter.Ref.Type.Ref.Base.Base.ID, pTarget.Ref.Type.Ref.Base.ID);
             }
@@ -317,7 +317,7 @@ namespace Extension.Ext
             }
             else
             {
-                pWeaponOwner = pAttacker;
+                pWeaponOwner = AE.pSource;
                 // Logger.Log("武器所属变更为攻击者{0}", pShooter.Ref.Type.Ref.Base.Base.ID);
             }
 
@@ -330,7 +330,7 @@ namespace Extension.Ext
                 // 修改目标为攻击者
                 if (Type.ReceiverAttack)
                 {
-                    pTarget = pAttacker.Pointer.Convert<AbstractClass>();
+                    pTarget = AE.pSource.Pointer.Convert<AbstractClass>();
                 }
             }
             else if (Type.FireToTarget)

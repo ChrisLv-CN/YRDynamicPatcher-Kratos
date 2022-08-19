@@ -39,7 +39,7 @@ namespace Extension.Ext
             DelayTimer.Start(0);
         }
 
-        public override void OnEnable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public override void OnEnable(Pointer<ObjectClass> pObject)
         {
             this.Active = true;
         }

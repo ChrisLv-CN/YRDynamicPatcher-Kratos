@@ -42,7 +42,7 @@ namespace Extension.Ext
             this.OnwerIsDead = false;
         }
 
-        public override void OnEnable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public override void OnEnable(Pointer<ObjectClass> pOwner)
         {
             // 激活动画
             // Logger.Log("效果激活，播放激活动画{0}", Type.ActiveAnim);
@@ -51,13 +51,13 @@ namespace Extension.Ext
                 Pointer<AnimTypeClass> pAnimType = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(Type.ActiveAnim);
                 if (!pAnimType.IsNull)
                 {
-                    Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, pObject.Ref.Base.GetCoords());
-                    pAnim.Ref.SetOwnerObject(pObject);
-                    pAnim.SetAnimOwner(pObject);
+                    Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, pOwner.Ref.Base.GetCoords());
+                    pAnim.Ref.SetOwnerObject(pOwner);
+                    pAnim.SetAnimOwner(pOwner);
                 }
             }
             // 持续动画
-            CreateAnim(pObject);
+            CreateAnim(pOwner);
         }
 
         private void CreateAnim(Pointer<ObjectClass> pObject)

@@ -32,9 +32,9 @@ namespace Extension.Ext
     {
         private PaintballType data;
 
-        public override IAEState GetState(Pointer<ObjectClass> pOwner, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public override IAEState GetState()
         {
-            ColorStruct color = Type.IsHouseColor ? pHouse.Ref.LaserColor : Type.Color;
+            ColorStruct color = Type.IsHouseColor ? AE.pSourceHouse.Pointer.Ref.LaserColor : Type.Color;
             data = new PaintballType();
             data.Color = color;
             data.BrightMultiplier = Type.BrightMultiplier;

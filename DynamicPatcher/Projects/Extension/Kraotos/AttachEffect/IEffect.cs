@@ -21,11 +21,9 @@ namespace Extension.Ext
     public abstract class Effect<EType> : AttachEffectBehaviour, IEffect where EType : IEffectType, new()
     {
         public EType Type;
+        public AttachEffect AE;
         public AttachEffectType AEType;
         public AttachEffectManager OwnerAEM;
-
-        
-        protected SwizzleablePointer<TechnoClass> pAttacker; // AE来源
 
 
         protected string token;
@@ -44,8 +42,9 @@ namespace Extension.Ext
             this.AEType = aeType;
         }
 
-        public override void Enable(Pointer<ObjectClass> pOwner, Pointer<HouseClass> pHouse, SwizzleablePointer<TechnoClass> pAttacker)
+        public override void Enable(Pointer<ObjectClass> pOwner, AttachEffect AE)
         {
+            this.AE = AE;
             if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
             {
                 OwnerAEM = TechnoExt.ExtMap.Find(pTechno).AttachEffectManager;
@@ -53,12 +52,11 @@ namespace Extension.Ext
             else if (pOwner.CastToBullet(out Pointer<BulletClass> pBullet))
             {
                 OwnerAEM = BulletExt.ExtMap.Find(pBullet).AttachEffectManager;
-            }            
-            this.pAttacker = pAttacker;
-            OnEnable(pOwner, pHouse, pAttacker);
+            }
+            OnEnable(pOwner);
         }
 
-        public abstract void OnEnable(Pointer<ObjectClass> pOwner, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker);
+        public abstract void OnEnable(Pointer<ObjectClass> pOwner);
 
     }
 

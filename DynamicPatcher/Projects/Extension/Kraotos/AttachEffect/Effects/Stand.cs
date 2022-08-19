@@ -53,12 +53,12 @@ namespace Extension.Ext
         }
 
         // 激活
-        public override void OnEnable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public override void OnEnable(Pointer<ObjectClass> pObject)
         {
-            CreateAndPutStand(pObject, pHouse);
+            CreateAndPutStand(pObject);
         }
 
-        private void CreateAndPutStand(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse)
+        private void CreateAndPutStand(Pointer<ObjectClass> pObject)
         {
             CoordStruct location = pObject.Ref.Base.GetCoords();
 
@@ -66,7 +66,7 @@ namespace Extension.Ext
             if (!pType.IsNull)
             {
                 // 创建替身
-                pStand.Pointer = pType.Ref.Base.CreateObject(pHouse).Convert<TechnoClass>();
+                pStand.Pointer = pType.Ref.Base.CreateObject(AE.pSourceHouse).Convert<TechnoClass>();
                 if (!pStand.IsNull)
                 {
                     // 同步部分扩展设置
@@ -89,7 +89,7 @@ namespace Extension.Ext
                                 Pointer<TechnoClass> pTechno = pObject.Convert<TechnoClass>();
                                 ext.MyMaster.Pointer = pTechno;
                                 // 同步AE状态机
-                                if (!pTechno.Ref.Owner.IsNull && pHouse == pTechno.Ref.Owner)
+                                if (!pTechno.Ref.Owner.IsNull && AE.pSourceHouse == pTechno.Ref.Owner)
                                 {
                                     TechnoExt masterExt = TechnoExt.ExtMap.Find(pObject.Convert<TechnoClass>());
                                     // 染色
@@ -106,7 +106,7 @@ namespace Extension.Ext
                     pStand.Ref.Base.Mark(MarkType.UP); // 拔起，不在地图上
                     // pStand.Ref.Base.IsOnMap = false;
                     // pStand.Ref.Base.NeedsRedraw = true;
-                    bool canGuard = pHouse.Ref.ControlledByHuman();
+                    bool canGuard = AE.pSourceHouse.Ref.ControlledByHuman();
                     if (pStand.Ref.Base.Base.WhatAmI() == AbstractType.Building)
                     {
                         isBuilding = true;

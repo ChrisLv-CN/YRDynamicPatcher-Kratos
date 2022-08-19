@@ -37,7 +37,7 @@ namespace Extension.Ext
 
         }
 
-        public override void OnEnable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public override void OnEnable(Pointer<ObjectClass> pObject)
         {
             if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
             {

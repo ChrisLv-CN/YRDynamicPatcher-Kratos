@@ -24,7 +24,7 @@ namespace Extension.Ext
         // 返回AE是否还存活
         bool IsAlive();
         // AE激活，开始生效
-        void Enable(Pointer<ObjectClass> pOwner, Pointer<HouseClass> pHouse, SwizzleablePointer<TechnoClass> pAttacker);
+        void Enable(Pointer<ObjectClass> pOwner, AttachEffect AE);
         // AE关闭，销毁相关资源
         void Disable(CoordStruct location);
         // 重置计时器
@@ -56,7 +56,7 @@ namespace Extension.Ext
         // 返回AE是否还存活
         public virtual bool IsAlive() { return true; }
         // AE激活，开始生效
-        public virtual void Enable(Pointer<ObjectClass> pOwner, Pointer<HouseClass> pHouse, SwizzleablePointer<TechnoClass> pAttacker) { }
+        public virtual void Enable(Pointer<ObjectClass> pOwner, AttachEffect ae) { }
         // AE关闭，销毁相关资源
         public virtual void Disable(CoordStruct location) { }
         // 重置计时器

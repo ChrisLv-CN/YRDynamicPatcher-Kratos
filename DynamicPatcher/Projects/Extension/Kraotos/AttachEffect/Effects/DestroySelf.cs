@@ -31,7 +31,7 @@ namespace Extension.Ext
     public class DestroySelf : Effect<DestroySelfType>
     {
 
-        public override void OnEnable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public override void OnEnable(Pointer<ObjectClass> pObject)
         {
             // switch (pObject.Ref.Base.WhatAmI())
             // {

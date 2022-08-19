@@ -30,7 +30,7 @@ namespace Extension.Ext
     [Serializable]
     public class GiftBox : StateEffect<GiftBox, GiftBoxType>
     {
-        public override IAEState GetState(Pointer<ObjectClass> pOwner, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public override IAEState GetState()
         {
             return OwnerAEM.GiftBoxState;
         }

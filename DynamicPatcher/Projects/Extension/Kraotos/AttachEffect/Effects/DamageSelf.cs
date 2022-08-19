@@ -33,7 +33,6 @@ namespace Extension.Ext
         private bool Active;
 
         private SwizzleablePointer<WarheadTypeClass> pWH = new SwizzleablePointer<WarheadTypeClass>(IntPtr.Zero);
-        private SwizzleablePointer<HouseClass> pSourceHouse = new SwizzleablePointer<HouseClass>(IntPtr.Zero);
         private BulletDamageStatus bulletDamageStatus = new BulletDamageStatus(1);
         private TimerStruct ROFTimer;
 
@@ -43,12 +42,12 @@ namespace Extension.Ext
             ROFTimer.Start(0);
         }
 
-        public override void OnEnable(Pointer<ObjectClass> pOwner, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public override void OnEnable(Pointer<ObjectClass> pOwner)
         {
             // 排除附着平民抛射体
             if (pOwner.CastToBullet(out Pointer<BulletClass> pBullet))
             {
-                if (Type.DeactiveWhenCivilian && pHouse.IsCivilian())
+                if (Type.DeactiveWhenCivilian && AE.pSourceHouse.Pointer.IsCivilian())
                 {
                     this.Active = false;
                     return;
@@ -56,7 +55,6 @@ namespace Extension.Ext
             }
 
             this.Active = true;
-            pSourceHouse.Pointer = pHouse;
             // 伤害弹头
             pWH.Pointer = RulesClass.Instance.Ref.C4Warhead;
             if (!string.IsNullOrEmpty(Type.Warhead))
@@ -127,15 +125,15 @@ namespace Extension.Ext
 
                         // 伤害的来源
                         Pointer<ObjectClass> pDamageMaker = IntPtr.Zero;
-                        if (!pAttacker.IsNull && pAttacker != pTechno)
+                        if (!AE.pSource.IsNull && AE.pSource != pTechno)
                         {
-                            pDamageMaker = pAttacker.Pointer.Convert<ObjectClass>();
+                            pDamageMaker = AE.pSource.Pointer.Convert<ObjectClass>();
                         }
 
                         if (realDamage < 0 || pTechno.Ref.CloakStates == CloakStates.UnCloaked || Type.Decloak)
                         {
                             // 维修或者显形直接炸
-                            pTechno.Ref.Base.ReceiveDamage(Type.Damage, 0, pWH, pDamageMaker, Type.IgnoreArmor, pTechno.Ref.Type.Ref.Crewed, pSourceHouse);
+                            pTechno.Ref.Base.ReceiveDamage(Type.Damage, 0, pWH, pDamageMaker, Type.IgnoreArmor, pTechno.Ref.Type.Ref.Crewed, AE.pSourceHouse);
                         }
                         else
                         {
@@ -150,7 +148,7 @@ namespace Extension.Ext
                             if (realDamage >= pTechno.Ref.Base.Health)
                             {
                                 // 本次伤害足够打死目标
-                                pTechno.Ref.Base.ReceiveDamage(realDamage, 0, pWH, pDamageMaker, true, pTechno.Ref.Type.Ref.Crewed, pSourceHouse);
+                                pTechno.Ref.Base.ReceiveDamage(realDamage, 0, pWH, pDamageMaker, true, pTechno.Ref.Type.Ref.Crewed, AE.pSourceHouse);
                             }
                             else
                             {
@@ -165,7 +163,7 @@ namespace Extension.Ext
                             Pointer<AnimClass> pAnim = pWH.Pointer.PlayWarheadAnim(location, realDamage);
                             if (!pAnim.IsNull)
                             {
-                                pAnim.Ref.Owner = pSourceHouse;
+                                pAnim.Ref.Owner = AE.pSourceHouse;
                             }
                         }
 
@@ -190,7 +188,7 @@ namespace Extension.Ext
                         Pointer<AnimClass> pAnim = pWH.Pointer.PlayWarheadAnim(location, bulletDamageStatus.Damage);
                         if (!pAnim.IsNull)
                         {
-                            pAnim.Ref.Owner = pSourceHouse;
+                            pAnim.Ref.Owner = AE.pSourceHouse;
                         }
                     }
 

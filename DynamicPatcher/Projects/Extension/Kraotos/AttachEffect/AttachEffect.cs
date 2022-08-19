@@ -26,8 +26,9 @@ namespace Extension.Ext
         public string Name;
         public AttachEffectType Type;
 
-        public SwizzleablePointer<HouseClass> pHouse;
-        public SwizzleablePointer<TechnoClass> pAttacker;
+        public SwizzleablePointer<HouseClass> pSourceHouse;
+        public SwizzleablePointer<TechnoClass> pSource;
+
         public bool Active;
         private int duration; // 寿命
         private bool immortal; // 永生
@@ -38,7 +39,7 @@ namespace Extension.Ext
         private List<IAttachEffectBehaviour> effects = new List<IAttachEffectBehaviour>();
 
         // AE激活，开始生效
-        private event System.Action<Pointer<ObjectClass>, Pointer<HouseClass>, SwizzleablePointer<TechnoClass>> EnableAction;
+        private event System.Action<Pointer<ObjectClass>, AttachEffect> EnableAction;
         // AE关闭，销毁相关资源
         private event System.Action<CoordStruct> DisableAction;
         // 重置计时器
@@ -69,8 +70,8 @@ namespace Extension.Ext
         {
             this.Name = type.Name;
             this.Type = type;
-            this.pHouse = new SwizzleablePointer<HouseClass>(IntPtr.Zero);
-            this.pAttacker = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
+            this.pSourceHouse = new SwizzleablePointer<HouseClass>(IntPtr.Zero);
+            this.pSource = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
             int initDelay = type.InitialDelay;
             this.delayToEnable = false;
             if (type.InitialRandomDelay)
@@ -157,27 +158,30 @@ namespace Extension.Ext
             this.OnStopCommandAction += behaviour.OnStopCommand;
         }
 
-        /// <summary>
-        /// 激活
-        /// </summary>
-        public void Enable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, SwizzleablePointer<TechnoClass> pAttacker)
+        public void Enable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pSourceHouse, SwizzleablePointer<TechnoClass> pSource)
         {
             this.Active = true;
-            this.pHouse.Pointer = pHouse;
-            this.pAttacker.Pointer = pAttacker;
+            this.pSourceHouse.Pointer = pSourceHouse;
+            this.pSource.Pointer = pSource;
             if (!delayToEnable || initialDelayTimer.Expired())
             {
 
-                EnableEffects(pObject, pHouse);
+                EnableEffects(pObject);
             }
         }
 
-        private void EnableEffects(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouser)
+
+        private void EnableEffects(Pointer<ObjectClass> pObject)
         {
             delayToEnable = false;
             SetupLifeTimer();
-            EnableAction?.Invoke(pObject, pHouse, pAttacker);
+            EnableAction?.Invoke(pObject, this);
         }
+
+        /// <summary>
+        /// 激活
+        /// </summary>
+        public void Enable(Pointer<ObjectClass> pObject, AttachEffect ae) { }
 
         /// <summary>
         /// 关闭
@@ -217,6 +221,7 @@ namespace Extension.Ext
 
         public bool IsAlive()
         {
+            CheckSourceAlive();
             foreach (IAttachEffectBehaviour effect in effects)
             {
                 if (!effect.IsAlive())
@@ -235,6 +240,14 @@ namespace Extension.Ext
             //     && (null == Stand || Stand.IsAlive())
             //     && (null == Transform || Transform.IsAlive())
             //     && (null == Weapon || Weapon.IsAlive());
+        }
+
+        private void CheckSourceAlive()
+        {
+            if (!pSource.IsNull && pSource.Pointer.IsDead())
+            {
+                pSource.Pointer = IntPtr.Zero;
+            }
         }
 
         private bool IsDeath()
@@ -337,7 +350,7 @@ namespace Extension.Ext
                 {
                     return;
                 }
-                EnableEffects(pObject, pHouse);
+                EnableEffects(pObject);
             }
             OnUpdateAction?.Invoke(pObject, location, isDead);
         }

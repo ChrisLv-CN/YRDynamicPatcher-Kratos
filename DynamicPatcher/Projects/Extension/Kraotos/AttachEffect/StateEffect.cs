@@ -18,7 +18,7 @@ namespace Extension.Ext
     {
         protected IAEState AEState;
 
-        public override void OnEnable(Pointer<ObjectClass> pOwner, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public override void OnEnable(Pointer<ObjectClass> pOwner)
         {
             if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
             {
@@ -28,11 +28,11 @@ namespace Extension.Ext
             {
                 OwnerAEM = BulletExt.ExtMap.Find(pBullet).AttachEffectManager;
             }
-            AEState = GetState(pOwner, pHouse, pAttacker);
+            AEState = GetState();
             ResetDuration();
         }
 
-        public abstract IAEState GetState(Pointer<ObjectClass> pOwner, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker);
+        public abstract IAEState GetState();
 
         public override void Disable(CoordStruct location)
         {

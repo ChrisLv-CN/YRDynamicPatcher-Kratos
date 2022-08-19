@@ -170,7 +170,7 @@ namespace Extension.Ext
                             find = true;
                             if (isAttackMark)
                             {
-                                if (temp.pAttacker.Pointer == pAttacker)
+                                if (temp.pSource.Pointer == pAttacker)
                                 {
                                     // 是攻击者标记，且相同的攻击者，重置持续时间
                                     if (temp.Type.ResetDurationOnReapply)
@@ -430,7 +430,7 @@ namespace Extension.Ext
                     if (!string.IsNullOrEmpty(nextAE))
                     {
                         // Logger.Log("赋予NextAE {0}", nextAE);
-                        Attach(nextAE, pOwner, ae.pHouse, ae.pAttacker, false);
+                        Attach(nextAE, pOwner, ae.pSourceHouse, ae.pSource, false);
                     }
                 }
             }
