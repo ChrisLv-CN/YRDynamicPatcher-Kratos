@@ -125,10 +125,17 @@ namespace Extension.Ext
                             }
                         }
 
+                        // 伤害的来源
+                        Pointer<ObjectClass> pDamageMaker = IntPtr.Zero;
+                        if (!pAttacker.IsNull && pAttacker != pTechno)
+                        {
+                            pDamageMaker = pAttacker.Pointer.Convert<ObjectClass>();
+                        }
+
                         if (realDamage < 0 || pTechno.Ref.CloakStates == CloakStates.UnCloaked || Type.Decloak)
                         {
                             // 维修或者显形直接炸
-                            pTechno.Ref.Base.ReceiveDamage(Type.Damage, 0, pWH, IntPtr.Zero, Type.IgnoreArmor, pTechno.Ref.Type.Ref.Crewed, pSourceHouse);
+                            pTechno.Ref.Base.ReceiveDamage(Type.Damage, 0, pWH, pDamageMaker, Type.IgnoreArmor, pTechno.Ref.Type.Ref.Crewed, pSourceHouse);
                         }
                         else
                         {
@@ -143,7 +150,7 @@ namespace Extension.Ext
                             if (realDamage >= pTechno.Ref.Base.Health)
                             {
                                 // 本次伤害足够打死目标
-                                pTechno.Ref.Base.ReceiveDamage(realDamage, 0, pWH, IntPtr.Zero, true, pTechno.Ref.Type.Ref.Crewed, pSourceHouse);
+                                pTechno.Ref.Base.ReceiveDamage(realDamage, 0, pWH, pDamageMaker, true, pTechno.Ref.Type.Ref.Crewed, pSourceHouse);
                             }
                             else
                             {

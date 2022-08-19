@@ -38,7 +38,7 @@ namespace Extension.Ext
         private List<IAttachEffectBehaviour> effects = new List<IAttachEffectBehaviour>();
 
         // AE激活，开始生效
-        private event System.Action<Pointer<ObjectClass>, Pointer<HouseClass>, Pointer<TechnoClass>> EnableAction;
+        private event System.Action<Pointer<ObjectClass>, Pointer<HouseClass>, SwizzleablePointer<TechnoClass>> EnableAction;
         // AE关闭，销毁相关资源
         private event System.Action<CoordStruct> DisableAction;
         // 重置计时器
@@ -160,7 +160,7 @@ namespace Extension.Ext
         /// <summary>
         /// 激活
         /// </summary>
-        public void Enable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public void Enable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, SwizzleablePointer<TechnoClass> pAttacker)
         {
             this.Active = true;
             this.pHouse.Pointer = pHouse;
@@ -168,11 +168,11 @@ namespace Extension.Ext
             if (!delayToEnable || initialDelayTimer.Expired())
             {
 
-                EnableEffects(pObject, pHouse, pAttacker);
+                EnableEffects(pObject, pHouse);
             }
         }
 
-        private void EnableEffects(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        private void EnableEffects(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouser)
         {
             delayToEnable = false;
             SetupLifeTimer();
@@ -337,7 +337,7 @@ namespace Extension.Ext
                 {
                     return;
                 }
-                EnableEffects(pObject, pHouse, pAttacker);
+                EnableEffects(pObject, pHouse);
             }
             OnUpdateAction?.Invoke(pObject, location, isDead);
         }

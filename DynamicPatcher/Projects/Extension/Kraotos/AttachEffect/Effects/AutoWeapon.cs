@@ -31,22 +31,18 @@ namespace Extension.Ext
     [Serializable]
     public class AutoWeapon : Effect<AutoWeaponType>
     {
-        public SwizzleablePointer<TechnoClass> pAttacker; // AE来源
-
         private Dictionary<string, TimerStruct> weaponsROF;
 
         private bool Active;
 
         public AutoWeapon()
         {
-            this.pAttacker = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
             this.weaponsROF = new Dictionary<string, TimerStruct>();
             this.Active = false;
         }
 
         public override void OnEnable(Pointer<ObjectClass> pObject, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
         {
-            this.pAttacker.Pointer = pAttacker;
             this.Active = true;
         }
 

@@ -24,6 +24,10 @@ namespace Extension.Ext
         public AttachEffectType AEType;
         public AttachEffectManager OwnerAEM;
 
+        
+        protected SwizzleablePointer<TechnoClass> pAttacker; // AE来源
+
+
         protected string token;
 
         public Effect()
@@ -40,7 +44,7 @@ namespace Extension.Ext
             this.AEType = aeType;
         }
 
-        public override void Enable(Pointer<ObjectClass> pOwner, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public override void Enable(Pointer<ObjectClass> pOwner, Pointer<HouseClass> pHouse, SwizzleablePointer<TechnoClass> pAttacker)
         {
             if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
             {
@@ -49,7 +53,8 @@ namespace Extension.Ext
             else if (pOwner.CastToBullet(out Pointer<BulletClass> pBullet))
             {
                 OwnerAEM = BulletExt.ExtMap.Find(pBullet).AttachEffectManager;
-            }
+            }            
+            this.pAttacker = pAttacker;
             OnEnable(pOwner, pHouse, pAttacker);
         }
 
