@@ -387,6 +387,7 @@ namespace Extension.Ext
         public void OnReceiveDamage(Pointer<ObjectClass> pObject, Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
             Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
         {
+            CheckSourceAlive();
             if (delayToEnable)
             {
                 return;
