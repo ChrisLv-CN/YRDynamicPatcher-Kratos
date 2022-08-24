@@ -344,6 +344,7 @@ namespace Extension.Ext
 
         public void OnUpdate(Pointer<ObjectClass> pObject, CoordStruct location, bool isDead)
         {
+            CheckSourceAlive();
             if (delayToEnable)
             {
                 if (initialDelayTimer.InProgress())
@@ -357,6 +358,7 @@ namespace Extension.Ext
 
         public void OnTemporalUpdate(TechnoExt ext, Pointer<TemporalClass> pTemporal)
         {
+            CheckSourceAlive();
             if (delayToEnable)
             {
                 return;
