@@ -368,6 +368,7 @@ namespace Extension.Ext
 
         public void OnPut(Pointer<ObjectClass> pObject, Pointer<CoordStruct> pCoord, short faceDirValue8)
         {
+            CheckSourceAlive();
             if (delayToEnable)
             {
                 return;
@@ -377,6 +378,7 @@ namespace Extension.Ext
 
         public void OnRemove(Pointer<ObjectClass> pObject)
         {
+            CheckSourceAlive();
             if (delayToEnable)
             {
                 return;
@@ -397,6 +399,7 @@ namespace Extension.Ext
 
         public void OnDestroy(Pointer<ObjectClass> pObject)
         {
+            CheckSourceAlive();
             if (delayToEnable)
             {
                 return;
