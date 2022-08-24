@@ -80,7 +80,8 @@ namespace ExtensionHooks
         }
 
         // Takes over all damage from animations, including Ares
-        [Hook(HookType.AresHook, Address = 0x424538, Size = 6)] // 动画伤害
+        // [Hook(HookType.AresHook, Address = 0x424538, Size = 6)] // 动画伤害
+        [Hook(HookType.AresHook, Address = 0x424513, Size = 6)] // Phobos 动画伤害
         public static unsafe UInt32 AnimClass_Update_Explosion(REGISTERS* R)
         {
             try
