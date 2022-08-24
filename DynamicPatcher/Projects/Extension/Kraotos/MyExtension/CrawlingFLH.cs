@@ -74,7 +74,7 @@ namespace Extension.Ext
     {
         public unsafe void InfantryClass_Init_CrawlingFLH()
         {
-            if (null != Type.CrawlingFLHData && OwnerObject.Convert<InfantryClass>().Ref.Crawling)
+            if (null != Type.CrawlingFLHData)
             {
                 OnUpdateAction += InfantryClass_Update_CrawlingFLH;
             }
