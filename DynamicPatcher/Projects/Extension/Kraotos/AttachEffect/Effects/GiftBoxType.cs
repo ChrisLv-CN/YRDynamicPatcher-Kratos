@@ -318,11 +318,18 @@ namespace Extension.Ext
                         case "A":
                             this.ForceMission = Mission.Area_Guard;
                             break;
+                        case "M":
+                            this.ForceMission = Mission.Move;
+                            break;
                         case "H":
                             this.ForceMission = Mission.Hunt;
                             break;
                         case "S":
                             this.ForceMission = Mission.Sleep;
+                            break;
+                        case "D": // Deploy
+                        case "U":
+                            this.ForceMission = Mission.Unload;
                             break;
                         default:
                             this.ForceMission = Mission.None;

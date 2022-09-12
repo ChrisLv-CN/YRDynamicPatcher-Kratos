@@ -176,7 +176,7 @@ namespace Extension.Ext
                 }
                 Pointer<AbstractClass> pTarget = pTechno.Ref.Target;
                 Mission mission = pTechno.Convert<MissionClass>().Ref.CurrentMission;
-                bool scatter = !data.Remove;
+                bool scatter = !data.Remove || data.ForceMission == Mission.Move;
                 // 开始投送单位，每生成一个单位就选择一次位置
                 foreach (string id in gifts)
                 {
@@ -228,20 +228,18 @@ namespace Extension.Ext
                             }
                             else if (pGift.CastToFoot(out Pointer<FootClass> pFoot))
                             {
+                                pGift.Ref.Facing.set(GiftBoxState.BodyDir);
+                                if (pGift.Ref.HasTurret())
+                                {
+                                    pGift.Ref.TurretFacing.set(GiftBoxState.BodyDir);
+                                }
+
                                 ILocomotion loco = pFoot.Ref.Locomotor;
                                 if (loco.ToLocomotionClass().Ref.GetClassID() == LocomotionClass.Jumpjet)
                                 {
                                     // JJ朝向是单独的Facing
                                     Pointer<JumpjetLocomotionClass> pLoco = loco.ToLocomotionClass<JumpjetLocomotionClass>();
                                     pLoco.Ref.LocomotionFacing.set(GiftBoxState.BodyDir);
-                                }
-                                else
-                                {
-                                    pGift.Ref.Facing.set(GiftBoxState.BodyDir);
-                                    if (pGift.Ref.HasTurret())
-                                    {
-                                        pGift.Ref.TurretFacing.set(GiftBoxState.BodyDir);
-                                    }
                                 }
                             }
                             else
@@ -298,8 +296,7 @@ namespace Extension.Ext
                                 pGift.Ref.Ammo = ammo;
                             }
                         }
-
-                        if (data.ForceMission != Mission.None)
+                        if (data.ForceMission != Mission.None && data.ForceMission != Mission.Move)
                         {
                             // 强制任务
                             pGift.Convert<MissionClass>().Ref.QueueMission(data.ForceMission, false);

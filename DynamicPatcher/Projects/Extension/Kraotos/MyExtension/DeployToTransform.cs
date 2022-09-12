@@ -55,6 +55,7 @@ namespace Extension.Ext
         /// DeployToTransform.Chances=1.0,1.0 ;抽中的概率，当决定要刷出这个类型时，可以刷出来的概率，每个类型单独计算概率，不写为100%
         /// DeployToTransform.RandomType=no ;随机从列表中选取类型，并释放等于Nums列表中数值总和的礼物数量
         /// DeployToTransform.RandomWeights=50,50 ;随机从列表中选区类型，对应列表中每个类型的权重值，数字越大概率越高，不写为1
+        /// DeployToTransform.ForceMission=None ;变形后强制任务
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="section"></param>
@@ -69,11 +70,11 @@ namespace Extension.Ext
                 data.Delay = 0;
                 data.RandomDelay = default;
                 DeployToTransformData = new GiftBoxType();
-                DeployToTransformData.TryReadType(reader, section, "DeployToTransform.");
-                DeployToTransformData.ForTransform();
                 DeployToTransformData.Enable = true;
                 DeployToTransformData.Data = data;
                 DeployToTransformData.EliteData = data;
+                DeployToTransformData.TryReadType(reader, section, "DeployToTransform.");
+                DeployToTransformData.ForTransform();
             }
 
         }
