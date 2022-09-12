@@ -115,6 +115,7 @@ namespace Extension.Ext
             ReadAttachStatusType(reader, section);
             ReadAutoWeaponType(reader, section);
             ReadBlackHoleType(reader, section);
+            ReadDamageReactionType(reader, section);
             ReadDamageSelfType(reader, section);
             ReadDestroySelfType(reader, section);
             ReadFireSuperType(reader, section);

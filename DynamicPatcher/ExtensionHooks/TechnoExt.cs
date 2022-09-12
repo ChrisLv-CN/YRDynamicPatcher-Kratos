@@ -343,6 +343,23 @@ namespace ExtensionHooks
             ext?.AttachedComponent.Foreach(c => (c as ITechnoScriptable)?.OnReceiveDamage(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse));
             return 0;
         }
+
+        // if (pDamage >= 0 && pDamage < 1) pDamage = 1; // ╮(-△-)╭
+        [Hook(HookType.AresHook, Address = 0x7019DD, Size = 6)]
+        public static unsafe UInt32 TechnoClass_ReceiveDamage_AtLeast1(REGISTERS* R)
+        {
+            // var pDamage = (Pointer<int>)R->EBX;
+            // Logger.Log($"{Game.CurrentFrame} - 免疫伤害， {pDamage.Ref}");
+            // Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
+            // TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+            // if (ext.DamageReactionState.IsActive())
+            // {
+                return 0x7019E3;
+            // }
+            // return 0;
+        }
+
+
         // after TakeDamage
         [Hook(HookType.AresHook, Address = 0x701DFF, Size = 7)]
         public static unsafe UInt32 TechnoClass_ReceiveDamage2(REGISTERS* R)

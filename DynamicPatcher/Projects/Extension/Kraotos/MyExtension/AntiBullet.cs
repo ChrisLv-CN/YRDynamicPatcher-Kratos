@@ -154,7 +154,7 @@ namespace Extension.Ext
                     {
                             // Scan Target
                         int scanRange = antiBullet.Data.Range;
-                        if (pTechno.Ref.Veterancy.IsElite())
+                        if (isElite)
                             scanRange = antiBullet.Data.EliteRange;
 
                         if (pTechno.Ref.Base.DistanceFrom(pBullet.Convert<ObjectClass>()) <= scanRange)

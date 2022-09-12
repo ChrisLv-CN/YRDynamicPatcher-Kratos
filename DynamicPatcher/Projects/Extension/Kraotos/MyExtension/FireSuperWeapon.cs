@@ -29,7 +29,7 @@ namespace Extension.Ext
             if (FireSuperState.IsActive() && null != FireSuperState.Data)
             {
                 FireSuperData data = FireSuperState.Data.Data;
-                if (pTechno.Ref.Veterancy.IsElite())
+                if (isElite)
                 {
                     data = FireSuperState.Data.EliteData;
                 }

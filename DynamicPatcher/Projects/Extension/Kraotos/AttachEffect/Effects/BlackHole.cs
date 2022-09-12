@@ -62,7 +62,7 @@ namespace Extension.Ext
             }
             if (isDead)
             {
-                Disable(default);
+                Disable(AE.Location);
                 return;
             }
 
@@ -201,12 +201,12 @@ namespace Extension.Ext
 
         public override void OnRemove(Pointer<ObjectClass> pObject)
         {
-            Disable(default);
+            Disable(AE.Location);
         }
 
         public override void OnDestroy(Pointer<ObjectClass> pObject)
         {
-            Disable(default);
+            Disable(AE.Location);
         }
 
     }

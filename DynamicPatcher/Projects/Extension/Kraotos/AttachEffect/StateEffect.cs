@@ -36,7 +36,7 @@ namespace Extension.Ext
 
         public override void Disable(CoordStruct location)
         {
-            AEState?.Disable(token);
+            AEState?.Disable(Token);
         }
 
         public override void ResetDuration()
@@ -47,14 +47,14 @@ namespace Extension.Ext
                 switch (Type.AffectWho)
                 {
                     case AffectWho.MASTER:
-                        AEState.Enable(AEType.GetDuration(), token, data);
+                        AEState.Enable(AEType.GetDuration(), Token, data);
                         break;
                     case AffectWho.STAND:
-                        OwnerAEM?.EnableAEStatsToStand(AEType.GetDuration(), token, data);
+                        OwnerAEM?.EnableAEStatsToStand(AEType.GetDuration(), Token, data);
                         break;
                     default:
-                        AEState.Enable(AEType.GetDuration(), token, data);
-                        OwnerAEM?.EnableAEStatsToStand(AEType.GetDuration(), token, data);
+                        AEState.Enable(AEType.GetDuration(), Token, data);
+                        OwnerAEM?.EnableAEStatsToStand(AEType.GetDuration(), Token, data);
                         break;
                 }
             }

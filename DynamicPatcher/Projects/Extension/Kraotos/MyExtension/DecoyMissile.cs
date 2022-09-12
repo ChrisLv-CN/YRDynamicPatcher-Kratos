@@ -242,7 +242,7 @@ namespace Extension.Ext
                 Pointer<TechnoClass> pTechno = OwnerObject;
                 CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
                 Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
-                Pointer<WeaponTypeClass> pWeapon = decoyMissile.FindWeapon(pTechno.Ref.Veterancy.IsElite());
+                Pointer<WeaponTypeClass> pWeapon = decoyMissile.FindWeapon(isElite);
                 int distance = pWeapon.Ref.Range;
                 // change decoy speed and target.
                 for (int i = 0; i < decoyMissile.Decoys.Count; i++)

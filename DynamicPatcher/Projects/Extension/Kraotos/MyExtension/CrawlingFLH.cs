@@ -91,7 +91,7 @@ namespace Extension.Ext
 
             if (pTechno.Convert<InfantryClass>().Ref.Crawling)
             {
-                if (pTechno.Ref.Veterancy.IsElite())
+                if (isElite)
                 {
                     if (null != primary && !primary.IsNull)
                     {
@@ -116,7 +116,7 @@ namespace Extension.Ext
             }
             else
             {
-                if (pTechno.Ref.Veterancy.IsElite())
+                if (isElite)
                 {
                     if (null != primary && !primary.IsNull)
                     {

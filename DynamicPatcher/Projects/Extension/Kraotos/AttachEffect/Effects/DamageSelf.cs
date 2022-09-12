@@ -89,7 +89,7 @@ namespace Extension.Ext
             }
             if (isDead)
             {
-                Disable(default);
+                Disable(AE.Location);
                 return;
             }
             if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
@@ -118,7 +118,7 @@ namespace Extension.Ext
                                 // pTechno.Ref.Base.UnInit();
                                 // 设置DestroySelf来移除单位
                                 OwnerAEM.DestroySelfState.DestroyNow(true);
-                                Disable(default);
+                                Disable(AE.Location);
                                 return;
                             }
                         }
@@ -196,7 +196,7 @@ namespace Extension.Ext
             }
             else
             {
-                Disable(default);
+                Disable(AE.Location);
             }
 
         }

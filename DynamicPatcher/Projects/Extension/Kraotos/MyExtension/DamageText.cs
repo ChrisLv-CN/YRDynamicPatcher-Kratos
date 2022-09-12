@@ -309,7 +309,7 @@ namespace Extension.Ext
         {
             Pointer<TechnoClass> pTechno = OwnerObject;
             WarheadTypeExt whExt = WarheadTypeExt.ExtMap.Find(pWH);
-            if (SkipDamageText || pTechno.IsInvisible() || pTechno.IsCloaked() || null == whExt || whExt.DamageTextHidden || whExt.DamageTextTypeData.Hidden)
+            if (SkipDrawDamageText(whExt))
             {
                 return;
             }
@@ -379,6 +379,12 @@ namespace Extension.Ext
                     }
                 }
             }
+        }
+
+        private bool SkipDrawDamageText(WarheadTypeExt whExt)
+        {
+            Pointer<TechnoClass> pTechno = OwnerObject;
+            return SkipDamageText || pTechno.IsInvisible() || pTechno.IsCloaked() || null == whExt || whExt.DamageTextHidden || whExt.DamageTextTypeData.Hidden;
         }
 
         private void OrderDamageText(string text, CoordStruct location, DamageTextData data)

@@ -35,6 +35,7 @@ namespace Extension.Ext
 
         private Mission lastMission;
         private CoordStruct lastLocation;
+        private bool isElite;
 
         private event System.Action OnUnInitAction;
 
@@ -160,6 +161,9 @@ namespace Extension.Ext
                 }
                 lastMission = mission;
 
+                // 是否精英
+                isElite = OwnerObject.Ref.Veterancy.IsElite();
+
                 OnUpdateAction?.Invoke();
 
                 // TechnoClass_Update_AircraftDive();
@@ -170,6 +174,7 @@ namespace Extension.Ext
                 TechnoClass_Update_ConvertType();
                 // TechnoClass_Update_CrawlingFLH();
                 // TechnoClass_Update_DecoyMissile();
+                TechnoClass_Update_DamageReaction();
                 TechnoClass_Update_Deselect();
                 // TechnoClass_Update_DeployToTransform();
                 // TechnoClass_Update_FixGattlingStage();
@@ -204,6 +209,7 @@ namespace Extension.Ext
 
             // TechnoClass_Put_AircraftPut(pCoord, faceDirValue8);
             TechnoClass_Put_AttachEffect(pCoord, faceDirValue8);
+            TechnoClass_Put_DamageReaction(pCoord, faceDirValue8);
             TechnoClass_Put_DamageSelf(pCoord, faceDirValue8);
             TechnoClass_Put_DestroySelf(pCoord, faceDirValue8);
             // TechnoClass_Put_SpawnMissileHoming(pCoord, faceDirValue8);
@@ -237,6 +243,7 @@ namespace Extension.Ext
                 // TechnoClass_ReceiveDamage_TauntWarhead(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse, whExt, realDamage);
             }
 
+            TechnoClass_ReceiveDamage_DamageReaction(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
             TechnoClass_ReceiveDamage_Stand(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
         }
 
@@ -480,6 +487,7 @@ namespace Extension.Ext
             ReadAttachEffect(reader, section);
             ReadAttackBeacon(reader, section);
             ReadAutoFireAreaWeapon(reader, section);
+            ReadDamageReaction(reader, section);
             ReadDamageSelf(reader, section);
             ReadDecoyMissile(reader, section);
             ReadDeployToTransform(reader, section);

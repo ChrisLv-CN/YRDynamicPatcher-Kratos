@@ -35,7 +35,7 @@ namespace Extension.Ext
 
             Pointer<TechnoClass> pTechno = OwnerObject;
 
-            GiftBoxState.Update(pTechno.Ref.Veterancy.IsElite());
+            GiftBoxState.Update(isElite);
 
             // CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
             // Surface.Primary.Ref.DrawText(lastMission.ToString(), TacticalClass.Instance.Ref.CoordsToClient(location), new ColorStruct(255, 255, 255));

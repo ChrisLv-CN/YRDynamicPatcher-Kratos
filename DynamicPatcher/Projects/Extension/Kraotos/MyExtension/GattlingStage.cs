@@ -35,7 +35,7 @@ namespace Extension.Ext
             {
                 int minStage = 0;
                 int maxStage = 0;
-                if (!pTechno.Ref.Veterancy.IsElite())
+                if (!isElite)
                 {
                     minStage = i == 0 ? 0 : pType.Ref.WeaponStage[i - 1];
                     maxStage = pType.Ref.WeaponStage[i];

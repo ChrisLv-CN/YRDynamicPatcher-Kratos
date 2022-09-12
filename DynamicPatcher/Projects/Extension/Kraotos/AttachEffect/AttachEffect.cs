@@ -29,6 +29,8 @@ namespace Extension.Ext
         public SwizzleablePointer<HouseClass> pSourceHouse;
         public SwizzleablePointer<TechnoClass> pSource;
 
+        public CoordStruct Location;
+
         public bool Active;
         private int duration; // 寿命
         private bool immortal; // 永生
@@ -104,6 +106,7 @@ namespace Extension.Ext
             InitAttachStatus();
             InitAutoWeapon();
             InitBlackHole();
+            InitDamageReaction();
             InitDamageSelf(); // AffectWho
             InitDestroySelf();
             InitFireSuper(); // AffectWho
@@ -344,6 +347,7 @@ namespace Extension.Ext
 
         public void OnUpdate(Pointer<ObjectClass> pObject, CoordStruct location, bool isDead)
         {
+            this.Location = location;
             CheckSourceAlive();
             if (delayToEnable)
             {

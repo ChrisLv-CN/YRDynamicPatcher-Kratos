@@ -54,12 +54,12 @@ namespace Extension.Ext
             //         break;
 
             // }
-            OwnerAEM.DestroySelfState.Enable(AEType.GetDuration(), token, Type);
+            OwnerAEM.DestroySelfState.Enable(AEType.GetDuration(), Token, Type);
         }
 
         public override void Disable(CoordStruct location)
         {
-            OwnerAEM.DestroySelfState.Disable(token);
+            OwnerAEM.DestroySelfState.Disable(Token);
         }
 
     }

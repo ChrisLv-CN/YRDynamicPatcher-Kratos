@@ -26,14 +26,14 @@ namespace Extension.Ext
         public AttachEffectManager OwnerAEM;
 
 
-        protected string token;
+        public string Token;
 
         public Effect()
         {
             this.Type = default;
             this.AEType = null;
             this.OwnerAEM = null;
-            token = Guid.NewGuid().ToString();
+            this.Token = Guid.NewGuid().ToString();
         }
 
         public void InitEffect(IEffectType eType, AttachEffectType aeType)

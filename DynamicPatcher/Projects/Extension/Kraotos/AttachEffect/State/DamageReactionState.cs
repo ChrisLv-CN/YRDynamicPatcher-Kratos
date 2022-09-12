@@ -1,0 +1,103 @@
+using System.Reflection;
+using System.Collections;
+using DynamicPatcher;
+using Extension.Utilities;
+using PatcherYRpp;
+using PatcherYRpp.Utilities;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Permissions;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Extension.Ext
+{
+
+    [Serializable]
+    public class DamageReactionState : AEState<DamageReactionType>
+    {
+
+        private bool isElite;
+        private DamageReactionData data;
+
+        private int count;
+        private int delay;
+        private TimerStruct delayTimer;
+
+        public override void OnEnable()
+        {
+            this.data = GetDamageReactionData(isElite);
+        }
+
+        public void Update(bool isElite)
+        {
+            if (IsActive())
+            {
+                this.data = GetDamageReactionData(isElite);
+                if (this.isElite != isElite)
+                {
+                    // 重置计数器
+                    if (null != data && data.ResetTimes)
+                    {
+                        count = 0;
+                    }
+                }
+                if (IsDone())
+                {
+                    AE.Disable(AE.Location);
+                }
+            }
+            this.isElite = isElite;
+        }
+
+        private DamageReactionData GetDamageReactionData(bool isElite)
+        {
+            if (isElite && null != Data.EliteData)
+            {
+                return Data.EliteData;
+            }
+            return Data.Data;
+        }
+
+        public bool Reaction(out DamageReactionData reactionData)
+        {
+            reactionData = data;
+            // 检查有效性和冷却
+            if (IsActive() && Timeup() && null != data && !IsDone())
+            {
+                return data.Chance.Bingo();
+            }
+            return false;
+        }
+
+        public void ActionOnce()
+        {
+            count++;
+            this.delay = null != data ? data.Delay : -1;
+            if (delay > 0)
+            {
+                delayTimer.Start(delay);
+            }
+        }
+
+        private bool Timeup()
+        {
+            return delay <= 0 || delayTimer.Expired();
+        }
+
+        private bool IsDone()
+        {
+            if (data != null)
+            {
+                return data.TriggeredTimes > 0 && count >= data.TriggeredTimes;
+            }
+            return false;
+        }
+
+    }
+}

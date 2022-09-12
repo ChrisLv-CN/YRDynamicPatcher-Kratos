@@ -64,7 +64,7 @@ namespace Extension.Ext
             }
             if (isDead)
             {
-                Disable(default);
+                Disable(AE.Location);
                 return;
             }
 
@@ -137,7 +137,7 @@ namespace Extension.Ext
             // 攻击者标记下，攻击者死亡或不存在，如果在抛射体上，而抛射体的发射者死亡或不存在，AE结束，没有启用标记，却设置了反向，同样结束AE
             if (Type.IsAttackerMark ? (attackerInvisible || bulletOwnerInvisible) : !Type.ReceiverAttack)
             {
-                Disable(default);
+                Disable(AE.Location);
                 return;
             }
 
@@ -242,7 +242,7 @@ namespace Extension.Ext
             if (weaponLaunch && Type.FireOnce)
             {
                 // 武器已成功发射，销毁AE
-                Disable(default);
+                Disable(AE.Location);
             }
         }
 
@@ -435,12 +435,12 @@ namespace Extension.Ext
 
         public override void OnRemove(Pointer<ObjectClass> pObject)
         {
-            Disable(default);
+            Disable(AE.Location);
         }
 
         public override void OnDestroy(Pointer<ObjectClass> pObject)
         {
-            Disable(default);
+            Disable(AE.Location);
         }
 
     }

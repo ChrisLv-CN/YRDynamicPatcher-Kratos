@@ -32,6 +32,8 @@ namespace Extension.Ext
         public AEState<FireSuperType> FireSuperState = new AEState<FireSuperType>();
         // 不可选择
         public AEState<DeselectType> DeselectState = new AEState<DeselectType>();
+        // 伤害响应
+        public DamageReactionState DamageReactionState = new DamageReactionState();
 
         public void EnableAEStatsToStand(int duration, string token, IAEStateData data)
         {
