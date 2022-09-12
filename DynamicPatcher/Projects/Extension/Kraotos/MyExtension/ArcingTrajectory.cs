@@ -90,7 +90,7 @@ namespace Extension.Ext
         public unsafe void BulletClass_Update_ArcingTrajectory()
         {
             Pointer<BulletClass> pBullet = OwnerObject;
-            if (pBullet.Ref.Type.Ref.Arcing && Type.ArcingAdvanced)
+            if (pBullet.Ref.Type.Ref.Arcing && Type.ArcingAdvanced && !pBullet.Ref.WH.HasPreImpactAnim())
             {
                 // 接近目标位置时引爆
                 CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();

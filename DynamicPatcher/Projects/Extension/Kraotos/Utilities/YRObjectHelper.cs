@@ -373,6 +373,12 @@ namespace Extension.Utilities
             return pAnim;
         }
 
+        public static bool HasPreImpactAnim(this Pointer<WarheadTypeClass> pWH)
+        {
+            WarheadTypeExt ext = WarheadTypeExt.ExtMap.Find(pWH);
+            return null != ext && ext.Ares.HasPreImpactAnim();
+        }
+
 
     }
 

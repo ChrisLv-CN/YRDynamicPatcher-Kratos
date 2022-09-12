@@ -114,6 +114,7 @@ namespace Extension.Ext
         public bool EffectsRequireDamage; // 至少伤害1，默认no
         public bool EffectsRequireVerses; // 只影响弹头比例大于0%的目标，默认yes
         public bool AllowZeroDamage; // 伤害0也能影响，默认no
+        public string PreImpactAnim; // 延迟抛射体爆炸，默认null
 
         public AresWarheadExt()
         {
@@ -122,6 +123,12 @@ namespace Extension.Ext
             EffectsRequireDamage = false;
             EffectsRequireVerses = true;
             AllowZeroDamage = false;
+            PreImpactAnim = null;
+        }
+
+        public bool HasPreImpactAnim()
+        {
+            return !string.IsNullOrEmpty(PreImpactAnim);
         }
     }
 
@@ -187,6 +194,15 @@ namespace Extension.Ext
             if (reader.ReadNormal(section, "AllowZeroDamage", ref allowZeroDamage))
             {
                 Ares.AllowZeroDamage = allowZeroDamage;
+            }
+
+            string preImpactAnim = null;
+            if (reader.ReadNormal(section, "PreImpactAnim", ref preImpactAnim))
+            {
+                if (!"none".Equals(preImpactAnim.Trim().ToLower()))
+                {
+                    Ares.PreImpactAnim = preImpactAnim;
+                }
             }
 
         }
