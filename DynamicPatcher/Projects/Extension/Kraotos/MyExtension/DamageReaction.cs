@@ -52,7 +52,7 @@ namespace Extension.Ext
                             // 调整伤害系数
                             pDamage.Ref = (int)(damage * reactionData.ReducePercent);
                             action = true;
-                            // Logger.Log($"{Game.CurrentFrame} {OwnerObject} {OwnerObject.Ref.Type.Ref.Base.Base.ID} 响应 调整伤害系数");
+                            // Logger.Log($"{Game.CurrentFrame} {OwnerObject} {OwnerObject.Ref.Type.Ref.Base.Base.ID} 响应 伤害{damage} 调整伤害系数 {reactionData.ReducePercent}");
                             break;
                         case DamageReactionMode.FORTITUDE:
                             if (damage >= reactionData.MaxDamage)
@@ -77,20 +77,6 @@ namespace Extension.Ext
                             break;
                         default:
                             pDamage.Ref = 0; // 成功闪避，消除伤害
-                            // 显示MISS字样
-                            if (reactionData.DrawMiss)
-                            {
-                                WarheadTypeExt whExt = WarheadTypeExt.ExtMap.Find(pWH);
-                                if (!SkipDrawDamageText(whExt))
-                                {
-                                    DamageTextData data = whExt.DamageTextTypeData.Damage;
-                                    if (!data.Hidden)
-                                    {
-                                        CoordStruct location = OwnerObject.Ref.Base.Base.GetCoords();
-                                        OrderDamageText("MISS", location, data);
-                                    }
-                                }
-                            }
                             action = true;
                             // Logger.Log($"{Game.CurrentFrame} {OwnerObject} {OwnerObject.Ref.Type.Ref.Base.Base.ID} 响应 闪避");
                             break;
@@ -114,6 +100,62 @@ namespace Extension.Ext
                                 Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, location);
                                 pAnim.Ref.SetOwnerObject(OwnerObject.Convert<ObjectClass>());
                                 pAnim.SetAnimOwner(OwnerObject);
+                            }
+                        }
+                        // 显示DamageText
+                        if (reactionData.ActionText)
+                        {
+                            WarheadTypeExt whExt = WarheadTypeExt.ExtMap.Find(pWH);
+                            if (!SkipDrawDamageText(whExt))
+                            {
+                                DamageTextData data = null;
+                                switch (reactionData.TextStyle)
+                                {
+                                    case DamageTextStyle.DAMAGE:
+                                        data = whExt.DamageTextTypeData.Damage;
+                                        break;
+                                    case DamageTextStyle.REPAIR:
+                                        data = whExt.DamageTextTypeData.Repair;
+                                        break;
+                                    default:
+                                        if (pDamage.Ref >= 0)
+                                        {
+                                            data = whExt.DamageTextTypeData.Damage;
+                                        }
+                                        else
+                                        {
+                                            data = whExt.DamageTextTypeData.Repair;
+                                        }
+                                        break;
+                                }
+                                if (!data.Hidden)
+                                {
+                                    CoordStruct location = OwnerObject.Ref.Base.Base.GetCoords();
+                                    DamageTextData temp = data.Clone();
+                                    if (!string.IsNullOrEmpty(reactionData.CustomSHP))
+                                    {
+                                        // 自定义SHP
+                                        temp.UseSHP = true;
+                                        temp.CustomSHP = true;
+                                        temp.SHPFileName = reactionData.CustomSHP;
+                                        temp.ZeroFrameIndex = reactionData.CustomSHPIndex;
+                                        OrderDamageText("WWSB", location, temp);
+                                        // Logger.Log($"{Game.CurrentFrame} 使用自定义SHP {reactionData.CustomSHP} {reactionData.CustomSHPIndex}");
+                                    }
+                                    else if (!string.IsNullOrEmpty(reactionData.CustomText))
+                                    {
+                                        // 自定义文字
+                                        temp.UseSHP = false;
+                                        OrderDamageText(reactionData.CustomText, location, temp);
+                                        // Logger.Log($"{Game.CurrentFrame} 使用自定义文字 {reactionData.CustomText}");
+                                    }
+                                    else
+                                    {
+                                        // 使用默认设置
+                                        OrderDamageText(reactionData.DefaultText.ToString(), location, temp);
+                                        // Logger.Log($"{Game.CurrentFrame} 使用默认设置 {reactionData.DefaultText}");
+                                    }
+                                }
                             }
                         }
                     }

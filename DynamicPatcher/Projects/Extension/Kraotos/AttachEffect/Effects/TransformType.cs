@@ -53,7 +53,7 @@ namespace Extension.Ext
             string type = null;
             if (reader.ReadNormal(section, "Transform.Type", ref type))
             {
-                if (!string.IsNullOrEmpty(type) && !"none".Equals(type.Trim().ToLower()))
+                if (!string.IsNullOrEmpty(type) && "none" != type.Trim().ToLower())
                 {
                     this.Enable = true;
                     this.ToType = type;

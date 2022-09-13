@@ -25,7 +25,7 @@ namespace Extension.Ext
             string particleSystem = null;
             if (reader.ReadNormal(section, "ParticleSystem", ref particleSystem))
             {
-                if (!"none".Equals(particleSystem.Trim().ToLower()))
+                if ("none" != particleSystem.Trim().ToLower())
                 {
                     this.ParticleSystem = particleSystem;
                 }

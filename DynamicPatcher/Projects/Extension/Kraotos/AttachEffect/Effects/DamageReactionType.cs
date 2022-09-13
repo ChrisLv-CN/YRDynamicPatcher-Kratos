@@ -45,10 +45,15 @@ namespace Extension.Ext
         public string Anim;
         public CoordStruct AnimFLH;
 
-
-        public bool DrawMiss; // 显示Miss字样
         public double ReducePercent; // 伤害调整比例
         public int MaxDamage; // 伤害上限
+
+        public bool ActionText; // 显示响应DamageText
+        public DamageTextStyle TextStyle;
+        public LongText DefaultText; // 默认显示的内容
+        public string CustomText;
+        public string CustomSHP;
+        public int CustomSHPIndex;
 
         public DamageReactionData()
         {
@@ -60,9 +65,15 @@ namespace Extension.Ext
             this.Anim = null;
             this.AnimFLH = default;
 
-            this.DrawMiss = false;
             this.ReducePercent = 1;
             this.MaxDamage = 10;
+
+            this.ActionText = true;
+            this.TextStyle = DamageTextStyle.AUTO;
+            this.DefaultText = LongText.MISS;
+            this.CustomText = null;
+            this.CustomSHP = null;
+            this.CustomSHPIndex = 0;
         }
 
         public DamageReactionData Clone()
@@ -77,9 +88,15 @@ namespace Extension.Ext
             data.Anim = this.Anim;
             data.AnimFLH = this.AnimFLH;
 
-            data.DrawMiss = this.DrawMiss;
             data.ReducePercent = this.ReducePercent;
             data.MaxDamage = this.MaxDamage;
+
+            data.ActionText = this.ActionText;
+            data.TextStyle = this.TextStyle;
+            data.DefaultText = this.DefaultText;
+            data.CustomText = this.CustomText;
+            data.CustomSHP = this.CustomSHP;
+            data.CustomSHPIndex = this.CustomSHPIndex;
             return data;
         }
 
@@ -102,15 +119,19 @@ namespace Extension.Ext
                         {
                             case "R":
                                 this.Mode = DamageReactionMode.REDUCE;
+                                this.DefaultText = LongText.HIT; // 击中
                                 break;
                             case "F":
                                 this.Mode = DamageReactionMode.FORTITUDE;
+                                this.DefaultText = LongText.GLANCING; // 偏斜
                                 break;
                             case "P":
                                 this.Mode = DamageReactionMode.PREVENT;
+                                this.DefaultText = LongText.BLOCK; // 格挡
                                 break;
                             default:
                                 this.Mode = DamageReactionMode.EVASION;
+                                this.DefaultText = LongText.MISS; // 未命中
                                 break;
                         }
                     }
@@ -136,7 +157,7 @@ namespace Extension.Ext
                     string anim = null;
                     if (reader.ReadNormal(section, title + "Anim", ref anim))
                     {
-                        if (!"none".Equals(anim.Trim().ToLower()))
+                        if ("none" != anim.Trim().ToLower())
                         {
                             this.Anim = anim;
                         }
@@ -148,22 +169,76 @@ namespace Extension.Ext
                         this.AnimFLH = animFLH;
                     }
 
-                    bool drawMiss = false;
-                    if (reader.ReadNormal(section, title + "EvasionDrawMiss", ref drawMiss))
-                    {
-                        this.DrawMiss = drawMiss;
-                    }
-
                     double reducePercent = 0;
-                    if (reader.ReadPercent(section, title + "ReducePercent", ref reducePercent))
+                    if (reader.ReadPercent(section, title + "ReducePercent", ref reducePercent, true))
                     {
                         this.ReducePercent = reducePercent;
+                        double mult = Math.Abs(ReducePercent);
+                        if (mult > 1.0)
+                        {
+                            this.DefaultText = LongText.CRIT; // 暴击
+                        }
+                        else if (mult < 1.0)
+                        {
+                            this.DefaultText = LongText.GLANCING; // 偏斜
+                        }
                     }
 
                     int maxDamage = 10;
                     if (reader.ReadNormal(section, title + "FortitudeMax", ref maxDamage))
                     {
                         this.MaxDamage = maxDamage;
+                    }
+
+                    bool actionText = false;
+                    if (reader.ReadNormal(section, title + "ActionText", ref actionText))
+                    {
+                        this.ActionText = actionText;
+                    }
+
+                    string style = null;
+                    if (reader.ReadNormal(section, title + "ActionTextStyle", ref style))
+                    {
+                        string t = style.Substring(0, 1).ToUpper();
+                        switch (t)
+                        {
+                            case "D":
+                                this.TextStyle = DamageTextStyle.DAMAGE;
+                                break;
+                            case "R":
+                                this.TextStyle = DamageTextStyle.REPAIR;
+                                break;
+                            default:
+                                this.TextStyle = DamageTextStyle.AUTO;
+                                break;
+                        }
+                    }
+
+                    string customText = null;
+                    if (reader.ReadNormal(section, title + "ActionTextCustom", ref customText))
+                    {
+                        if (!string.IsNullOrEmpty(customText) && "none" != customText.Trim().ToLower())
+                        {
+                            this.CustomText = customText;
+                        }
+                    }
+
+                    string customSHP = null;
+                    if (reader.ReadNormal(section, title + "ActionTextSHP", ref customSHP))
+                    {
+                        if (!string.IsNullOrEmpty(customSHP) && "none" != customSHP.Trim().ToLower())
+                        {
+                            this.CustomSHP = customSHP;
+                        }
+                    }
+
+                    int customSHPIndex = 0;
+                    if (reader.ReadNormal(section, title + "ActionTextSHPIndex", ref customSHPIndex))
+                    {
+                        if (customSHPIndex >= 0)
+                        {
+                            this.CustomSHPIndex = customSHPIndex;
+                        }
                     }
                 }
             }

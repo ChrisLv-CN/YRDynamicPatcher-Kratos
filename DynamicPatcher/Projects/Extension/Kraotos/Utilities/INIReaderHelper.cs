@@ -21,7 +21,7 @@ namespace Extension.Utilities
         private static Regex percentFloat = new Regex(@"^\d?\.\d+$");
         private static Regex percentNumber = new Regex(@"^\d+$");
 
-        public static bool ReadPercent(this INIReader reader, string section, string key, ref double percent)
+        public static bool ReadPercent(this INIReader reader, string section, string key, ref double percent, bool allowNegative = false)
         {
             string chanceStr = null;
 
@@ -31,7 +31,7 @@ namespace Extension.Utilities
                 {
                     chanceStr = chanceStr.Trim();
                     // 写负数等于0
-                    if (chanceStr.IndexOf("-") > -1)
+                    if (!allowNegative && chanceStr.IndexOf("-") > -1)
                     {
                         percent = 0;
                         Logger.LogWarning("read ini [{0}]{1} is wrong. value {2} type error.", section, key, chanceStr);

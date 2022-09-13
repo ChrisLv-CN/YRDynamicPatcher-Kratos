@@ -199,7 +199,7 @@ namespace Extension.Ext
             string preImpactAnim = null;
             if (reader.ReadNormal(section, "PreImpactAnim", ref preImpactAnim))
             {
-                if (!"none".Equals(preImpactAnim.Trim().ToLower()))
+                if ("none" != preImpactAnim.Trim().ToLower())
                 {
                     Ares.PreImpactAnim = preImpactAnim;
                 }

@@ -68,6 +68,16 @@ namespace Extension.Ext
 
         public static void Print(string text, PrintTextData data, Point2D pos, Pointer<RectangleStruct> pBound, Pointer<Surface> pSurface, bool isBuilding)
         {
+
+            bool noNumbers = data.NoNumbers || data.CustomSHP;
+            LongText longText = LongText.NONE;
+            if (Enum.IsDefined(typeof(LongText), text.ToUpper()))
+            {
+                // Logger.Log($"{Game.CurrentFrame} LongText.IsDefined({text})");
+                longText = (LongText)Enum.Parse(typeof(LongText), text, true);
+                noNumbers = true;
+            }
+
             // 渲染
             if (data.UseSHP)
             {
@@ -77,80 +87,132 @@ namespace Extension.Ext
                 // 获取字体横向位移值，即图像宽度，同时计算阶梯高度偏移
                 int x = imageSize.X % 2 == 0 ? imageSize.X : imageSize.X + 1;
                 int y = isBuilding ? x / 2 : 0;
-                // 拆成单个字符
-                char[] t = text.ToCharArray();
-                foreach (char c in t)
+
+                if (noNumbers)
                 {
-                    int frameIndex = zeroFrameIndex;
-                    int frameOffset = 0;
-                    // 找到数字或者字符对应的图像帧
-                    switch (c)
+                    // 使用长字符不使用数字
+                    string file = null;
+                    int idx = 0;
+                    if (data.CustomSHP)
                     {
-                        case '0':
-                            frameOffset = 0;
-                            break;
-                        case '1':
-                            frameOffset = 1;
-                            break;
-                        case '2':
-                            frameOffset = 2;
-                            break;
-                        case '3':
-                            frameOffset = 3;
-                            break;
-                        case '4':
-                            frameOffset = 4;
-                            break;
-                        case '5':
-                            frameOffset = 5;
-                            break;
-                        case '6':
-                            frameOffset = 6;
-                            break;
-                        case '7':
-                            frameOffset = 7;
-                            break;
-                        case '8':
-                            frameOffset = 8;
-                            break;
-                        case '9':
-                            frameOffset = 9;
-                            break;
-                        case '+':
-                            frameOffset = 10;
-                            break;
-                        case '-':
-                            frameOffset = 11;
-                            break;
-                        case '*':
-                            frameOffset = 12;
-                            break;
-                        case '/':
-                        case '|':
-                            frameOffset = 13;
-                            break;
-                        case '%':
-                            frameOffset = 14;
-                            break;
+                        file = data.SHPFileName;
+                        idx = data.ZeroFrameIndex;
+                        // Logger.Log($"{Game.CurrentFrame} 使用自定义SHP {file} {idx}");
                     }
-                    // Logger.Log("{0} - frameIdx = {1}, frameOffset = {2}", Game.CurrentFrame, frameIndex, frameOffset);
-                    // 找到对应的帧序号
-                    frameIndex += frameOffset;
-                    Pointer<SHPStruct> pSHP = FileSystem.PIPS_SHP;
-                    if (data.CustomSHP && FileSystem.TyrLoadSHPFile(data.SHPFileName, out Pointer<SHPStruct> pCustomSHP))
+                    else
                     {
-                        pSHP = pCustomSHP;
+                        switch (longText)
+                        {
+                            case LongText.HIT:
+                                file = data.HitSHP;
+                                idx = data.HitIndex;
+                                break;
+                            case LongText.MISS:
+                                file = data.MissSHP;
+                                idx = data.MissIndex;
+                                break;
+                            case LongText.CRIT:
+                                file = data.CritSHP;
+                                idx = data.CritIndex;
+                                break;
+                            case LongText.GLANCING:
+                                file = data.GlancingSHP;
+                                idx = data.GlancingIndex;
+                                break;
+                            case LongText.BLOCK:
+                                file = data.BlockSHP;
+                                idx = data.BlockIndex;
+                                break;
+                            default:
+                                return;
+                        }
+                    }
+                    if (FileSystem.TyrLoadSHPFile(file, out Pointer<SHPStruct> pCustomSHP))
+                    {
                         // Logger.Log("{0} - 使用自定义SHP {1}, {2}", Game.CurrentFrame, data.SHPFileName, pSHP);
+                        // 显示对应的帧
+                        pSurface.Ref.DrawSHP(FileSystem.PALETTE_PAL, pCustomSHP, idx, pos, pBound);
                     }
-                    // 显示对应的帧
-                    pSurface.Ref.DrawSHP(FileSystem.PALETTE_PAL, pSHP, frameIndex, pos, pBound);
-                    // 调整下一个字符锚点
-                    pos.X += x;
-                    pos.Y -= y;
+                }
+                else
+                {
+                    // 拆成单个字符
+                    char[] t = text.ToCharArray();
+                    foreach (char c in t)
+                    {
+                        int frameIndex = zeroFrameIndex;
+                        int frameOffset = 0;
+                        // 找到数字或者字符对应的图像帧
+                        switch (c)
+                        {
+                            case '0':
+                                frameOffset = 0;
+                                break;
+                            case '1':
+                                frameOffset = 1;
+                                break;
+                            case '2':
+                                frameOffset = 2;
+                                break;
+                            case '3':
+                                frameOffset = 3;
+                                break;
+                            case '4':
+                                frameOffset = 4;
+                                break;
+                            case '5':
+                                frameOffset = 5;
+                                break;
+                            case '6':
+                                frameOffset = 6;
+                                break;
+                            case '7':
+                                frameOffset = 7;
+                                break;
+                            case '8':
+                                frameOffset = 8;
+                                break;
+                            case '9':
+                                frameOffset = 9;
+                                break;
+                            case '+':
+                                frameOffset = 10;
+                                break;
+                            case '-':
+                                frameOffset = 11;
+                                break;
+                            case '*':
+                                frameOffset = 12;
+                                break;
+                            case '/':
+                            case '|':
+                                frameOffset = 13;
+                                break;
+                            case '%':
+                                frameOffset = 14;
+                                break;
+                        }
+                        // Logger.Log("{0} - frameIdx = {1}, frameOffset = {2}", Game.CurrentFrame, frameIndex, frameOffset);
+                        // 找到对应的帧序号
+                        frameIndex += frameOffset;
+                        if (FileSystem.TyrLoadSHPFile(data.SHPFileName, out Pointer<SHPStruct> pCustomSHP))
+                        {
+                            // Logger.Log("{0} - 使用自定义SHP {1}, {2}", Game.CurrentFrame, data.SHPFileName, pCustomSHP);
+                            // 显示对应的帧
+                            pSurface.Ref.DrawSHP(FileSystem.PALETTE_PAL, pCustomSHP, frameIndex, pos, pBound);
+                        }
+                        // 调整下一个字符锚点
+                        pos.X += x;
+                        pos.Y -= y;
+                    }
                 }
             }
             else
             {
+                if (noNumbers && longText == LongText.NONE)
+                {
+                    return;
+                }
                 // 使用文字显示数字
                 ColorStruct textColor = data.Color; // 文字时渲染颜色
                 int x = FontSize.X;

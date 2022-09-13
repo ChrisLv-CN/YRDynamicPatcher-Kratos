@@ -29,7 +29,7 @@ namespace Extension.Ext
             string whileAnim = null;
             if (reader.ReadNormal(section, "Anim.While", ref whileAnim))
             {
-                if (!"none".Equals(whileAnim.Trim().ToLower()))
+                if ("none" != whileAnim.Trim().ToLower())
                 {
                     this.WhileDrivingAnim = whileAnim;
                 }
@@ -38,7 +38,7 @@ namespace Extension.Ext
             string startAnim = null;
             if (reader.ReadNormal(section, "Anim.Start", ref startAnim))
             {
-                if (!"none".Equals(startAnim.Trim().ToLower()))
+                if ("none" != startAnim.Trim().ToLower())
                 {
                     this.StartDrivingAnim = startAnim;
                 }
@@ -47,7 +47,7 @@ namespace Extension.Ext
             string stopAnim = null;
             if (reader.ReadNormal(section, "Anim.Stop", ref stopAnim))
             {
-                if (!"none".Equals(stopAnim.Trim().ToLower()))
+                if ("none" != stopAnim.Trim().ToLower())
                 {
                     this.StopDrivingAnim = stopAnim;
                 }

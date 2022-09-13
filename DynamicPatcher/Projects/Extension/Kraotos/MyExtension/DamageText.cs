@@ -16,6 +16,12 @@ namespace Extension.Ext
 {
 
     [Serializable]
+    public enum DamageTextStyle
+    {
+        AUTO = 0, DAMAGE = 1, REPAIR = 2
+    }
+
+    [Serializable]
     public class DamageTextTypeControlData
     {
         public bool Hidden;
@@ -151,17 +157,21 @@ namespace Extension.Ext
             this.RollSpeed = 1;
             this.Duration = 75;
 
-            this.SHPFileName = "pips.shp";
-            this.ImageSize = new Point2D(4, 6);
+            this.SHPFileName = "pipsnum.shp";
+            this.ImageSize = new Point2D(5, 8);
             if (isDamage)
             {
                 this.Color = new ColorStruct(252, 0, 0);
-                this.ZeroFrameIndex = 54;
+                this.ZeroFrameIndex = 30;
+
+                this.HitIndex = 1;
             }
             else
             {
                 this.Color = new ColorStruct(0, 252, 0);
-                this.ZeroFrameIndex = 24;
+                this.ZeroFrameIndex = 0;
+
+                this.HitIndex = 0;
             }
         }
 
@@ -374,7 +384,7 @@ namespace Extension.Ext
                         }
                         else
                         {
-                            RepairCache.Add(data, new DamageTextCache(damageValue));
+                            RepairCache.Add(data, new DamageTextCache(repairValue));
                         }
                     }
                 }
@@ -434,11 +444,24 @@ namespace Extension.Ext
         /// DamageText.X.Y.ShadowColor=82,85,82 ;阴影的颜色
         /// ; 使用shp而不是font显示血量数字
         /// DamageText.X.Y.UseSHP=no ;使用SHP显示伤害数字
-        /// DamageText.X.Y.SHP=pips.shp ;使用shp而不是文字，默认使用pips.shp，每个颜色15帧，每字一帧，顺序“0123456789+-*/%”，图像中心即锚点
-        /// DamageText.X.Y.ImageSize=4,6 ;血量的图案宽度和高度
-        /// DamageText.X.Damage.ZeroFrameIndex=54 ;伤害数字的"0"帧所在序号
-        /// DamageText.X.Repair.ZeroFrameIndex=24 ;修复数字的"0"帧所在序号
-        /// 
+        /// DamageText.X.Y.SHP=pipsnum.shp ;使用shp而不是文字，默认使用pips.shp，每个颜色15帧，每字一帧，顺序“0123456789+-*/%”，图像中心即锚点
+        /// DamageText.X.Y.ImageSize=5,8 ;血量的图案宽度和高度
+        /// DamageText.X.Damage.ZeroFrameIndex=30 ;伤害数字的"0"帧所在序号
+        /// DamageText.X.Repair.ZeroFrameIndex=0 ;修复数字的"0"帧所在序号
+        /// ; 拓展状态shp，HIT\MISS\CRIT\GLANCING\BLOCK
+        /// DamageText.X.Y.NoNumbers=no ;不使用数字，使用HIT代替
+        /// DamageText.X.Y.HIT.SHP=pipstext.shp ;HIT的SHP文件
+        /// DamageText.X.Damage.HIT.Index=1 ;图案所在的帧
+        /// DamageText.X.Repair.HIT.Index=0 ;图案所在的帧
+        /// DamageText.X.Y.MISS.SHP=pipstext.shp ;MISS的SHP文件
+        /// DamageText.X.Y.MISS.Index=2 ;图案所在的帧
+        /// DamageText.X.Y.CRIT.SHP=pipstext.shp ;CRIT的SHP文件
+        /// DamageText.X.Y.CRIT.Index=3 ;图案所在的帧
+        /// DamageText.X.Y.GLANCING.SHP=pipstext.shp ;GLANCING的SHP文件
+        /// DamageText.X.Y.GLANCING.Index=4 ;图案所在的帧
+        /// DamageText.X.Y.BLOCK.SHP=pipstext.shp ;BLOCK的SHP文件
+        /// DamageText.X.Y.BLOCK.Index=5 ;图案所在的帧
+        ///
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="section"></param>
