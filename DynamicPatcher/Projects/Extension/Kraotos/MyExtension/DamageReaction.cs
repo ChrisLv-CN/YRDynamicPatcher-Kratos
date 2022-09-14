@@ -83,11 +83,11 @@ namespace Extension.Ext
                     }
                     if (action)
                     {
-                        // Logger.Log($"{Game.CurrentFrame} 成功激活一次响应，模式{reactionData.Mode}，调整后伤害值{pDamage.Ref}");
+                        // Logger.Log($"{Game.CurrentFrame} 成功激活一次响应，模式{reactionData.Mode}，调整后伤害值{pDamage.Ref}, CanPlayAnim = {DamageReactionState.CanPlayAnim()}");
                         // 成功激活一次响应
                         DamageReactionState.ActionOnce();
                         // 播放响应动画
-                        if (string.IsNullOrEmpty(reactionData.Anim) && DamageReactionState.CanPlayAnim())
+                        if (!string.IsNullOrEmpty(reactionData.Anim) && DamageReactionState.CanPlayAnim())
                         {
                             Pointer<AnimTypeClass> pAnimType = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(reactionData.Anim);
                             if (!pAnimType.IsNull)

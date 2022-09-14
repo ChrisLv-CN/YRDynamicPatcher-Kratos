@@ -172,6 +172,12 @@ namespace Extension.Ext
                         this.AnimFLH = animFLH;
                     }
 
+                    int animDelay = 0;
+                    if (reader.ReadNormal(section, title + "AnimDelay", ref animDelay))
+                    {
+                        this.AnimDelay = animDelay;
+                    }
+
                     double reducePercent = 0;
                     if (reader.ReadPercent(section, title + "ReducePercent", ref reducePercent, true))
                     {
@@ -185,12 +191,6 @@ namespace Extension.Ext
                         {
                             this.DefaultText = LongText.GLANCING; // 偏斜
                         }
-                    }
-
-                    int animDelay = 0;
-                    if (reader.ReadNormal(section, title + "AnimDelay", ref animDelay))
-                    {
-                        this.AnimDelay = animDelay;
                     }
 
                     int maxDamage = 10;
