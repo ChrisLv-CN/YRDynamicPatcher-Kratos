@@ -44,6 +44,7 @@ namespace Extension.Ext
 
         public string Anim;
         public CoordStruct AnimFLH;
+        public int AnimDelay;
 
         public double ReducePercent; // 伤害调整比例
         public int MaxDamage; // 伤害上限
@@ -64,6 +65,7 @@ namespace Extension.Ext
             this.ResetTimes = false;
             this.Anim = null;
             this.AnimFLH = default;
+            this.AnimDelay = 0;
 
             this.ReducePercent = 1;
             this.MaxDamage = 10;
@@ -87,6 +89,7 @@ namespace Extension.Ext
             // data.ResetTimes = this.ResetTimes;
             data.Anim = this.Anim;
             data.AnimFLH = this.AnimFLH;
+            data.AnimDelay = this.AnimDelay;
 
             data.ReducePercent = this.ReducePercent;
             data.MaxDamage = this.MaxDamage;
@@ -182,6 +185,12 @@ namespace Extension.Ext
                         {
                             this.DefaultText = LongText.GLANCING; // 偏斜
                         }
+                    }
+
+                    int animDelay = 0;
+                    if (reader.ReadNormal(section, title + "AnimDelay", ref animDelay))
+                    {
+                        this.AnimDelay = animDelay;
                     }
 
                     int maxDamage = 10;

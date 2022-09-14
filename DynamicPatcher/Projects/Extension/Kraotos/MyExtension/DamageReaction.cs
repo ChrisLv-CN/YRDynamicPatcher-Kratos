@@ -87,7 +87,7 @@ namespace Extension.Ext
                         // 成功激活一次响应
                         DamageReactionState.ActionOnce();
                         // 播放响应动画
-                        if (string.IsNullOrEmpty(reactionData.Anim))
+                        if (string.IsNullOrEmpty(reactionData.Anim) && DamageReactionState.CanPlayAnim())
                         {
                             Pointer<AnimTypeClass> pAnimType = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(reactionData.Anim);
                             if (!pAnimType.IsNull)
@@ -100,6 +100,7 @@ namespace Extension.Ext
                                 Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, location);
                                 pAnim.Ref.SetOwnerObject(OwnerObject.Convert<ObjectClass>());
                                 pAnim.SetAnimOwner(OwnerObject);
+                                DamageReactionState.AnimPlay();
                             }
                         }
                         // 显示DamageText
@@ -178,17 +179,10 @@ namespace Extension.Ext
         /// DamageReaction.ResetTriggeredTimes=no ;当单位从精英变成新兵时重置计数器
         /// DamageReaction.Anim=NONE ;触发伤害响应的动画
         /// DamageReaction.AnimFLH=0,0,0 ;触发伤害响应的动画位置
+        /// DamageReaction.AnimDelay=0 ;播放一次动画后到下一次允许播放的延迟
         /// DamageReaction.ReducePercent=0% ;伤害调整比例
         /// DamageReaction.FortitudeMax=10 ;刚毅盾最高伤害
-        /// DamageReaction.EliteMode=EVASION ;精英时伤害响应模式，EVASION\REDUCE\FORTITUDE\PREVENT，
-        /// DamageReaction.EliteChance=0% ;精英时触发伤害响应的概率
-        /// DamageReaction.EliteDelay=0 ;精英时成功触发一次之后到下一次允许触发的延迟
-        /// DamageReaction.EliteTriggeredTimes=-1 ;精英时可触发的次数，次数用完强制结束AE
-        /// DamageReaction.EliteResetTriggeredTimes=no ;当单位从新兵变成精英时重置计数器，该属性不会继承新兵设置
-        /// DamageReaction.EliteAnim=NONE ;精英时触发伤害响应的动画
-        /// DamageReaction.EliteAnimFLH=0,0,0 ;精英时触发伤害响应的动画位置
-        /// DamageReaction.EliteReducePercent=0% ;精英时伤害调整比例
-        /// DamageReaction.EliteFortitudeMax=10 ;精英时刚毅盾最高伤害
+        /// 
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="section"></param>

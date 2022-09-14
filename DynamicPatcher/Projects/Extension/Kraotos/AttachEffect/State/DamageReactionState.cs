@@ -29,6 +29,9 @@ namespace Extension.Ext
         private int delay;
         private TimerStruct delayTimer;
 
+        private int animDelay;
+        private TimerStruct animDelayTimer;
+
         public override void OnEnable()
         {
             this.data = GetDamageReactionData(isElite);
@@ -97,6 +100,21 @@ namespace Extension.Ext
                 return data.TriggeredTimes > 0 && count >= data.TriggeredTimes;
             }
             return false;
+        }
+
+        public bool CanPlayAnim()
+        {
+
+            return animDelay <= 0 || animDelayTimer.Expired();
+        }
+
+        public void AnimPlay()
+        {
+            this.animDelay = null != data ? data.AnimDelay : -1;
+            if (animDelay > 0)
+            {
+                animDelayTimer.Start(animDelay);
+            }
         }
 
     }
