@@ -155,7 +155,10 @@ namespace Extension.Ext
         public bool InheritTarget;
         public bool InheritExperience;
         public bool InheritAmmo;
+        public bool InheritAE;
         public Mission ForceMission;
+
+        public List<string> AttachEffects;
 
         public GiftBoxType()
         {
@@ -176,7 +179,10 @@ namespace Extension.Ext
             this.InheritTarget = true;
             this.InheritExperience = true;
             this.InheritAmmo = false;
+            this.InheritAE = false;
             this.ForceMission = Mission.None;
+
+            this.AttachEffects = null;
 
             this.AffectWho = AffectWho.MASTER;
         }
@@ -306,6 +312,12 @@ namespace Extension.Ext
                     this.InheritAmmo = inheritAmmo;
                 }
 
+                bool inheritAE = true;
+                if (reader.ReadNormal(section, title + "InheritAE", ref inheritAE))
+                {
+                    this.InheritAE = inheritAE;
+                }
+
                 string forceMission = null;
                 if (reader.ReadNormal(section, title + "ForceMission", ref forceMission))
                 {
@@ -335,6 +347,12 @@ namespace Extension.Ext
                             this.ForceMission = Mission.None;
                             break;
                     }
+                }
+
+                List<string> attachEffects = null;
+                if (reader.ReadStringList(section, title + "AttachEffects", ref attachEffects))
+                {
+                    this.AttachEffects = attachEffects;
                 }
 
             }

@@ -177,6 +177,7 @@ namespace Extension.Ext
                 Pointer<AbstractClass> pTarget = pTechno.Ref.Target;
                 Mission mission = pTechno.Convert<MissionClass>().Ref.CurrentMission;
                 bool scatter = !data.Remove || data.ForceMission == Mission.Move;
+                bool inheritAE = data.Remove && data.InheritAE;
                 // 开始投送单位，每生成一个单位就选择一次位置
                 foreach (string id in gifts)
                 {
@@ -296,6 +297,27 @@ namespace Extension.Ext
                                 pGift.Ref.Ammo = ammo;
                             }
                         }
+
+                        // 继承AE管理器
+                        if (inheritAE)
+                        {
+                            inheritAE = false;
+                            // 交换双方的AE管理器和状态机
+                            AttachEffectManager giftAEM = giftExt.AttachEffectManager;
+                            giftExt.AttachEffectManager = this.AttachEffectManager;
+                            this.AttachEffectManager = giftAEM;
+
+                            GiftBoxState giftState = giftExt.AttachEffectManager.GiftBoxState;
+                            giftExt.AttachEffectManager.GiftBoxState = this.AttachEffectManager.GiftBoxState;
+                            this.AttachEffectManager.GiftBoxState = giftState;
+                        }
+
+                        // 附加AE
+                        if (null != data.AttachEffects)
+                        {
+                            giftExt.AttachEffectManager.Attach(data.AttachEffects, pGift.Convert<ObjectClass>(), pHouse);
+                        }
+
                         if (data.ForceMission != Mission.None && data.ForceMission != Mission.Move)
                         {
                             // 强制任务

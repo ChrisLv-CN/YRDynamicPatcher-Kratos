@@ -39,7 +39,8 @@ namespace Extension.Ext
         public DamageReactionMode Mode;
         public double Chance;
         public int Delay;
-        public int TriggeredTimes;
+        public bool ActiveOnce; // 触发效果之后结束
+        public int TriggeredTimes; // 触发次数够就结束
         public bool ResetTimes;
 
         public string Anim;
@@ -61,6 +62,7 @@ namespace Extension.Ext
             this.Mode = DamageReactionMode.EVASION;
             this.Chance = 0;
             this.Delay = 0;
+            this.ActiveOnce = false;
             this.TriggeredTimes = -1;
             this.ResetTimes = false;
             this.Anim = null;
@@ -85,6 +87,7 @@ namespace Extension.Ext
             data.Mode = this.Mode;
             data.Chance = this.Chance;
             data.Delay = this.Delay;
+            data.ActiveOnce = this.ActiveOnce;
             data.TriggeredTimes = this.TriggeredTimes;
             // data.ResetTimes = this.ResetTimes;
             data.Anim = this.Anim;
@@ -143,6 +146,12 @@ namespace Extension.Ext
                     if (reader.ReadNormal(section, title + "Delay", ref delay))
                     {
                         this.Delay = delay;
+                    }
+
+                    bool activeOnce = false;
+                    if (reader.ReadNormal(section, title + "ActiveOnce", ref activeOnce))
+                    {
+                        this.ActiveOnce = activeOnce;
                     }
 
                     int triggeredTimes = 0;

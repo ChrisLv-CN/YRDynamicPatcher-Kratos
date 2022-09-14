@@ -73,6 +73,13 @@ namespace Extension.Ext
             }
         }
 
+        public void Attach(List<string> aeTypes, Pointer<ObjectClass> pOwner, Pointer<HouseClass> pHouse)
+        {
+            AttachEffectData aeData = new AttachEffectData();
+            aeData.AttachEffectTypes = aeTypes;
+            Attach(aeData, pOwner, pHouse, false);
+        }
+
         public void Attach(AttachEffectData aeData, Pointer<ObjectClass> pOwner, Pointer<HouseClass> pHouse, bool attachOnceFlag)
         {
             // 写在type上附加的AE，攻击者是自己

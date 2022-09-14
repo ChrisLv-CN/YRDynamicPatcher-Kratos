@@ -21,6 +21,7 @@ namespace Extension.Ext
     [Serializable]
     public class DamageReactionState : AEState<DamageReactionType>
     {
+        public bool forceDone;
 
         private bool isElite;
         private DamageReactionData data;
@@ -50,7 +51,7 @@ namespace Extension.Ext
                         count = 0;
                     }
                 }
-                if (IsDone())
+                if (IsDone() || forceDone)
                 {
                     AE.Disable(AE.Location);
                 }
@@ -81,8 +82,16 @@ namespace Extension.Ext
         public void ActionOnce()
         {
             count++;
-            this.delay = null != data ? data.Delay : -1;
-            if (delay > 0)
+            if (null != data)
+            {
+                this.delay = data.Delay;
+                forceDone = data.ActiveOnce;
+            }
+            else
+            {
+                this.delay = -1;
+            }
+            if (this.delay > 0)
             {
                 delayTimer.Start(delay);
             }

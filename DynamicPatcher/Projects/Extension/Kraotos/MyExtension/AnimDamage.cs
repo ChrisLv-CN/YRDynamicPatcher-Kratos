@@ -35,7 +35,7 @@ namespace Extension.Ext
             {
                 if (Creater.IsNull)
                 {
-                    if (!OwnerObject.Ref.OwnerObject.IsNull && OwnerObject.Ref.OwnerObject.CastToTechno(out Pointer<TechnoClass> pTechno) && !pTechno.IsDead())
+                    if (Type.KillByCreater && !OwnerObject.Ref.OwnerObject.IsNull && OwnerObject.Ref.OwnerObject.CastToTechno(out Pointer<TechnoClass> pTechno) && !pTechno.IsDead())
                     {
                         Creater.Pointer = pTechno;
                     }
@@ -140,6 +140,7 @@ namespace Extension.Ext
 
         private void ReadAnimDamage(INIReader reader, string section)
         {
+
             bool play = false;
             if (reader.ReadNormal(section, "Warhead.PlayAnim", ref play))
             {

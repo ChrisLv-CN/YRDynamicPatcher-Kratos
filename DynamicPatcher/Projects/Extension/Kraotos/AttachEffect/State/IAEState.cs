@@ -78,6 +78,11 @@ namespace Extension.Ext
 
         public virtual void OnEnable() { }
 
+        public void Disable()
+        {
+            Disable(this.Token);
+        }
+
         public void Disable(string token)
         {
             if (this.Token == token)
