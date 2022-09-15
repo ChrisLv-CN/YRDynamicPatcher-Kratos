@@ -37,7 +37,8 @@ Run `RunAres.bat` to start the game.
 
 开发者 (Developers)
 ------------
-* 双杀步枪 (ChrisLv_CN) - 项目作者，开发者
+* [艾木魁](https://space.bilibili.com/194846) (M.Kenosis) - 主策划
+* [双杀步枪](https://space.bilibili.com/276838) (ChrisLv_CN) - 开发者
 
 鸣谢 (Credits)
 ------------
@@ -45,6 +46,7 @@ Run `RunAres.bat` to start the game.
 * Ares ALL developers
 * [Phobos](https://github.com/Phobos-developers/Phobos) ALL developers
 * [hejiajun107](https://github.com/hejiajun107) - 提供战机区域警戒功能
+* [RA2DIY](https://bbs.ra2diy.com/) 红警2Mod开发私人会所
 
 要饭 (Funding)
 ------------
