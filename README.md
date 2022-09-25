@@ -1,5 +1,16 @@
 [![license](https://www.gnu.org/graphics/gplv3-or-later.png)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
+注意（Notice）
+============
+新版本的Kratos的源代码库迁移至[DPKratos-Lite](https://github.com/ChrisLv-CN/DPKratos-Lite-Source)。  
+The source code base of the new version of Kratos is migrated to [DPKratos-Lite](https://github.com/ChrisLv-CN/DPKratos-Lite-Source).
+
+新版本将深度结合DP2.1的框架结构，对代码进行完全重构，因此此库停止更新，仅做Build7的维护工作。  
+The new version will deeply combine the framework structure of DP2.1 and completely refactor the code, so this repository will stop updating and only do the maintenance of Build7.
+
+对于非开发者的Modder，使用新版本可以前往[此处](https://github.com/ChrisLv-CN/DPKratos-Lite/releases)下载Release。  
+For non-developer Modders, using the new version, you can go to [Here](https://github.com/ChrisLv-CN/DPKratos-Lite/releases) to download Releases.
+
 关于Kratos (About Kratos)
 ============
 
