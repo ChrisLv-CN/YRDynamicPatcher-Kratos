@@ -58,6 +58,7 @@ namespace Extension.Ext
         public bool Immune; // 无敌
         public double DamageFromMaster; // 分摊JOJO的伤害
         public double DamageToMaster; // 分摊伤害给JOJO
+        public bool AllowShareRepair; // 是否允许负伤害分摊
         public bool Explodes; // 死亡会爆炸
         public bool ExplodesWithMaster; // 使者死亡时强制替身爆炸
         public bool RemoveAtSinking; // 沉船时移除
@@ -90,6 +91,7 @@ namespace Extension.Ext
             this.Immune = true;
             this.DamageFromMaster = 0.0;
             this.DamageToMaster = 0.0;
+            this.AllowShareRepair = false;
             this.Explodes = false;
             this.ExplodesWithMaster = false;
             this.RemoveAtSinking = false;
@@ -262,6 +264,12 @@ namespace Extension.Ext
                         damageToMaster = 0.0;
                     }
                     this.DamageToMaster = damageToMaster;
+                }
+
+                bool allowShareRepair = false;
+                if (reader.ReadNormal(section, "Stand.AllowShareRepair", ref allowShareRepair))
+                {
+                    this.AllowShareRepair = allowShareRepair;
                 }
 
                 bool explodes = false;

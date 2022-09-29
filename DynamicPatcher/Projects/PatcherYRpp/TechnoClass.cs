@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Text.RegularExpressions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -165,6 +166,12 @@ namespace PatcherYRpp
         {
             var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr, int, IntPtr>)0x6FDD50;
             return func(ref this, pTarget, idxWeapon);
+        }
+
+        public unsafe void Captured(Pointer<HouseClass> pHouse, int dwUnk = 1)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr, int, void>)this.GetVirtualFunctionPointer(245);
+            func(ref this, pHouse, dwUnk);
         }
 
         public unsafe Pointer<WeaponStruct> GetWeapon(int i)

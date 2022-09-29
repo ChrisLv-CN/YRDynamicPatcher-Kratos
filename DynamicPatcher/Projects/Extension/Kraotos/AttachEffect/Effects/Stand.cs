@@ -422,7 +422,7 @@ namespace Extension.Ext
             if (Type.SameHouse)
             {
                 // synch Owner
-                pStand.Ref.Owner = pMaster.Ref.Owner;
+                pStand.Ref.Captured(pMaster.Ref.Owner);
             }
 
 

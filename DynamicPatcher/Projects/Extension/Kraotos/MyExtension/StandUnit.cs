@@ -27,19 +27,22 @@ namespace Extension.Ext
             {
                 if (null != StandType)
                 {
-                    // I'm stand
-                    if (StandType.Immune)
+                    if (pDamage.Ref >= 0 || StandType.AllowShareRepair)
                     {
-                        // 消除伤害会让替身无法被销毁，如果是无视防御的伤害不应被消去
-                        pDamage.Ref = 0;
-                    }
-                    else if (StandType.DamageToMaster > 0 && !MyMaster.Pointer.IsDeadOrInvisible())
-                    {
-                        int damage = pDamage.Ref;
-                        // 分摊伤害给使者
-                        double to = damage * StandType.DamageToMaster;
-                        pDamage.Ref = (int)(damage - to);
-                        MyMaster.Ref.Base.ReceiveDamage((int)to, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
+                        // I'm stand
+                        if (StandType.Immune)
+                        {
+                            // 消除伤害会让替身无法被销毁，如果是无视防御的伤害不应被消去
+                            pDamage.Ref = 0;
+                        }
+                        else if (StandType.DamageToMaster > 0 && !MyMaster.Pointer.IsDeadOrInvisible())
+                        {
+                            int damage = pDamage.Ref;
+                            // 分摊伤害给使者
+                            double to = damage * StandType.DamageToMaster;
+                            pDamage.Ref = (int)(damage - to);
+                            MyMaster.Ref.Base.ReceiveDamage((int)to, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
+                        }
                     }
                 }
                 else
@@ -49,7 +52,7 @@ namespace Extension.Ext
                     foreach (AttachEffect ae in AttachEffectManager.AttachEffects)
                     {
                         Stand stand = ae.Stand;
-                        if (null != stand && stand.IsAlive() && !stand.Type.IsTrain && !stand.Type.Immune && stand.Type.DamageFromMaster > 0)
+                        if (null != stand && stand.IsAlive() && !stand.Type.IsTrain && !stand.Type.Immune && (damage >= 0 || stand.Type.AllowShareRepair) && stand.Type.DamageFromMaster > 0)
                         {
                             // 找到一个可以分摊伤害的替身
                             double to = damage * stand.Type.DamageFromMaster;

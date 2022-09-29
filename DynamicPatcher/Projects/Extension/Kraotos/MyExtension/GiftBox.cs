@@ -255,7 +255,7 @@ namespace Extension.Ext
                             pGift.Ref.Group = GiftBoxState.Group;
 
                             // 同步箱子属性
-                            giftExt.CrateStatus += this.CrateStatus;
+                            giftExt.CrateStatus = this.CrateStatus.Clone();
                         }
 
                         // 同步选中
