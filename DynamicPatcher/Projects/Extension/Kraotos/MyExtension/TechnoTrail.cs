@@ -88,14 +88,9 @@ namespace Extension.Ext
             }
         }
 
-        public unsafe void BulletClass_Render_Trail()
-        {
-            trailManager?.DrawTrail(OwnerObject);
-        }
-
         public unsafe void BulletClass_Update_Trail()
         {
-            trailManager?.Update(OwnerObject.Convert<BulletClass>());
+            trailManager?.DrawTrail(OwnerObject);
         }
 
     }

@@ -131,6 +131,27 @@ namespace ExtensionHooks
             return (uint)0;
         }
 
+        [Hook(HookType.AresHook, Address = 0x467FEE, Size = 6)]
+        [Hook(HookType.AresHook, Address = 0x466781, Size = 6)]
+        public static unsafe UInt32 BulletClass_LateUpdate_Components(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BulletClass> pBullet = (IntPtr)R->EBP;
+
+                BulletExt ext = BulletExt.ExtMap.Find(pBullet);
+
+                ext?.OnUpdate2();
+
+                return 0;
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
+
         // 重新赋值被修改过的导弹类的速度
         // [Hook(HookType.AresHook, Address = 0x466D26, Size = 7)]
         // public static unsafe UInt32 BulletClass_Update_ChangeVelocity1(REGISTERS* R)

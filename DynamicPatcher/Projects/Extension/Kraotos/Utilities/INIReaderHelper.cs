@@ -40,10 +40,6 @@ namespace Extension.Utilities
                     else
                     {
                         percent = PercentStrToDouble(chanceStr);
-                        if (percent > 1)
-                        {
-                            percent = 1;
-                        }
                         return true;
                     }
                 }
@@ -212,6 +208,23 @@ namespace Extension.Utilities
             }
             return false;
         }
+
+        public static bool ReadChance(this INIReader reader, string section, string key, ref double chance, bool allowNegative = false)
+        {
+            if (reader.ReadPercent(section, key, ref chance, allowNegative))
+            {
+                if (chance > 1)
+                {
+                    chance = 1;
+                } else if (chance < 0)
+                {
+                    chance = 0;
+                }
+                return true;
+            }
+            return false;
+        }
+
 
         public static bool ReadChanceList(this INIReader reader, string section, string key, ref List<double> list)
         {

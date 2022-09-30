@@ -92,7 +92,7 @@ namespace Extension.Ext
             }
 
             double chance = 1;
-            if (reader.ReadPercent(section, title + "Chance", ref chance))
+            if (reader.ReadChance(section, title + "Chance", ref chance))
             {
                 isRead = true;
                 this.Chance = chance;

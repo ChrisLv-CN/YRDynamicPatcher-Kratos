@@ -50,16 +50,26 @@ namespace Extension.Ext
             BulletClass_Update_ArcingTrajectory();
             BulletClass_Update_ProximityRange();
             BulletClass_Update_StraightTrajectory();
-            BulletClass_Update_Trail();
             // 重设属性
             BulletClass_Update_RecalculateStatus();
             // AE要在属性重设的后面，即便AE失效后也是在下一帧再改变属性
             BulletClass_Update_AttachEffect();
         }
 
+        public unsafe void OnUpdate2()
+        {
+            // 检查死亡
+            if (OwnerObject.IsDeadOrInvisible() ||
+                (null != BulletLifeStatus && BulletLifeStatus.IsDetonate))
+            {
+                // Logger.Log("{0} {1} update事件检测到死亡.", OwnerObject, OwnerObject.Ref.Type.Ref.Base.Base.ID);
+                return;
+            }
+            BulletClass_Update_Trail();
+        }
+
         public unsafe void OnRender()
         {
-            BulletClass_Render_Trail();
         }
 
         public unsafe void OnDetonate(CoordStruct location)

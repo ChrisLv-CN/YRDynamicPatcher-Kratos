@@ -111,7 +111,7 @@ namespace Extension.Ext
             bool isRead = false;
 
             double chance = 0;
-            if (reader.ReadPercent(section, title + "Chance", ref chance))
+            if (reader.ReadChance(section, title + "Chance", ref chance))
             {
                 if (isRead = chance > 0)
                 {
