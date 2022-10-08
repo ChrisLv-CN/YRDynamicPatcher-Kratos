@@ -277,6 +277,34 @@ namespace ExtensionHooks
         }
         #endregion
 
+        // Stand support radar
+        [Hook(HookType.AresHook, Address = 0x508EC6, Size = 5)]
+        public static unsafe UInt32 HouseClass_RadarUpdate_Stand(REGISTERS* R)
+        {
+            // isOnMap = 0x508ECD, noOnMap = 0x508F08
+            Pointer<TechnoClass> pTechno = (IntPtr)R->EAX;
+            TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+            if (pTechno.Ref.Base.IsOnMap || null == ext || !ext.MyMaster.IsNull)
+            {
+                return 0x508ECD;
+            }
+            return 0x508F08;
+        }
+
+        // Stand support spysat
+        [Hook(HookType.AresHook, Address = 0x508F9B, Size = 5)]
+        public static unsafe UInt32 HouseClass_SpySatUpdate_Stand(REGISTERS* R)
+        {
+            // isOnMap = 0x508FA2, noOnMap = 0x508FF6
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
+            TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+            if (pTechno.Ref.Base.IsOnMap || null == ext || !ext.MyMaster.IsNull)
+            {
+                return 0x508FA2;
+            }
+            return 0x508FF6;
+        }
+
         #region UnitClass Deplayed
         // [Hook(HookType.AresHook, Address = 0x739B6A, Size = 6)] // Has Anim
         // [Hook(HookType.AresHook, Address = 0x739C6A, Size = 6)] // No Anim
@@ -354,7 +382,7 @@ namespace ExtensionHooks
             // TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
             // if (ext.DamageReactionState.IsActive())
             // {
-                return 0x7019E3;
+            return 0x7019E3;
             // }
             // return 0;
         }

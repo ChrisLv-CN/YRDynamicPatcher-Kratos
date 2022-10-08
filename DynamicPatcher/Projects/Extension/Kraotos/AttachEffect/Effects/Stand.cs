@@ -481,6 +481,11 @@ namespace Extension.Ext
             {
                 if (pMaster.Ref.Owner == pStand.Ref.Owner)
                 {
+                    // synch focus
+                    if (isBuilding)
+                    {
+                        pStand.Ref.Focus = pMaster.Ref.Focus;
+                    }
                     Pointer<BuildingClass> pBuilding = pMaster.Convert<BuildingClass>();
                     if (!masterPowerOff)
                     {
