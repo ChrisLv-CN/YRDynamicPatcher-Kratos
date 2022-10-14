@@ -147,30 +147,34 @@ namespace Extension.Ext
 
             if (!antiBullet.IsBusy())
             {
-
                 ExHelper.FindBulletTargetHouse(pTechno, (pBullet) =>
                 {
-                    if (antiBullet.Data.ScanAll || pBullet.Ref.Target == pTechno.Convert<AbstractClass>())
+                    BulletExt bulletExt = BulletExt.ExtMap.Find(pBullet);
+                    if (null != bulletExt && null != bulletExt.BulletLifeStatus && bulletExt.BulletLifeStatus.Interceptable)
                     {
-                            // Scan Target
-                        int scanRange = antiBullet.Data.Range;
-                        if (isElite)
-                            scanRange = antiBullet.Data.EliteRange;
-
-                        if (pTechno.Ref.Base.DistanceFrom(pBullet.Convert<ObjectClass>()) <= scanRange)
+                        if (antiBullet.Data.ScanAll || pBullet.Ref.Target == pTechno.Convert<AbstractClass>())
                         {
-                            antiBullet.CoolDown();
-                            if (antiBullet.Data.ForPassengers)
+                            // Scan Target
+                            int scanRange = antiBullet.Data.Range;
+                            if (isElite)
                             {
-                                pTechno.Ref.SetTargetForPassengers(pBullet.Convert<AbstractClass>());
+                                scanRange = antiBullet.Data.EliteRange;
                             }
-
-                            if (antiBullet.Data.Self && (pTechno.Ref.Target.IsNull || pTechno.Ref.Target.Ref.IsDead()))
+                            if (pTechno.Ref.Base.DistanceFrom(pBullet.Convert<ObjectClass>()) <= scanRange)
                             {
-                                pTechno.Ref.SetTarget(pBullet.Convert<AbstractClass>());
-                            }
+                                antiBullet.CoolDown();
+                                if (antiBullet.Data.ForPassengers)
+                                {
+                                    pTechno.Ref.SetTargetForPassengers(pBullet.Convert<AbstractClass>());
+                                }
 
-                            return true;
+                                if (antiBullet.Data.Self && (pTechno.Ref.Target.IsNull || pTechno.Ref.Target.Ref.IsDead()))
+                                {
+                                    pTechno.Ref.SetTarget(pBullet.Convert<AbstractClass>());
+                                }
+
+                                return true;
+                            }
                         }
                     }
                     return false;

@@ -43,6 +43,7 @@ namespace Extension.Ext
         // public Direction Direction; // 相对朝向
         public int Direction; // 相对朝向，16分圆，[0-15]
         public bool LockDirection; // 强制朝向，不论替身在做什么
+        public bool FreeDirection; // 解除强制朝向，不论替身在做什么都不控制其朝向
         public bool IsOnTurret; // 相对炮塔或者身体
         public bool IsOnWorld; // 相对世界
         public Layer DrawLayer; // 渲染的层
@@ -76,6 +77,7 @@ namespace Extension.Ext
             this.Offset = default;
             this.Direction = 0;
             this.LockDirection = false;
+            this.FreeDirection = false;
             this.IsOnTurret = false;
             this.IsOnWorld = false;
             this.DrawLayer = Layer.None;
@@ -137,6 +139,12 @@ namespace Extension.Ext
                 if (reader.ReadNormal(section, "Stand.LockDirection", ref lockDirection))
                 {
                     this.LockDirection = lockDirection;
+                }
+
+                bool freeDirection = true;
+                if (reader.ReadNormal(section, "Stand.FreeDirection", ref freeDirection))
+                {
+                    this.FreeDirection = freeDirection;
                 }
 
                 bool isOnTurret = true;
